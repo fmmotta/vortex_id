@@ -46,20 +46,11 @@ int check_neighbours(int i,int j,int *label,int Width,int Height,
     neighbours+=1;
   }
 
-  if((i==1)&&(j==2))
-    printf("neighbours=%d\n",neighbours);
-
-  if((i==1)&&(j==2)&& bound_check(i,j-1,Width,Height))
-    printf("checks for bounds in (i,j)=(%d,%d)\n",i,j-1);
-
   if(bound_check(i,j-1,Width,Height) && (label[(i)*Width+(j-1)]>=0)){
     nbList[neighbours*2+0] = i;
     nbList[neighbours*2+1] = j-1;
     neighbours+=1;
   }
-
-  if((i==1)&&(j==2))
-    printf("neighbours=%d\n",neighbours);
 
   // 8-way conectivity
 
@@ -115,10 +106,9 @@ int floodFill(float *sField,int Width,int Height,int *label){
   for(i=0;i<Height*Width;i+=1)
     label[i]=-1;
 
+  //Main flood fill loop - 1st pass
   for(i=0;i<Height;i+=1){
     for(j=0;j<Width;j+=1){
-
-      //Main flood fill loop - 1st iteration
 
       if(sField[i*Width+j]>0){
         neighbours = check_neighbours(i,j,label,Width,Height,nbList);
@@ -150,7 +140,6 @@ int floodFill(float *sField,int Width,int Height,int *label){
           }
         }
         else{ // no neighbours - simply set new label
-          dbg_printp("flood no neighbours",i,j);
           label[i*Width+j]=counter;
           eqPop[counter] += 1; /* Set new label equivalent to itself */
           eqClass[counter][0]=counter;
@@ -162,13 +151,7 @@ int floodFill(float *sField,int Width,int Height,int *label){
     }
   }
 
-  printf("\nlabel during:\n");
-  for(i=0;i<Height;i+=1){
-    for(j=0;j<Width;j+=1)
-      printf("%d ",label[i*Width+j]+1);
-    printf("\n");
-  }
-
+  //Main flood fill loop - 2nd pass
   for(i=0;i<Height;i+=1)
     for(j=0;j<Width;j+=1)
       if(label[i*Width+j]>=0){
@@ -266,25 +249,36 @@ int main(int argc,char **argv){
   const int Width = 10, Height = 10, Pop=10;
   int i,j,err,ngbr,found;
   int nbList[8],label[Width*Height],eqList[Pop];
-  float sField[Width*Height] = {0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,
-                                0.,1.,1.,0.,0.,0.,0.,1.,0.,1.,
-                                1.,1.,0.,1.,0.,0.,1.,1.,1.,1.,
-                                0.,1.,1.,0.,0.,0.,0.,0.,1.,0.,
-                                0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,
-                                1.,1.,1.,1.,0.,0.,0.,0.,0.,0.,
-                                1.,1.,1.,0.,0.,0.,0.,0.,1.,1.,
-                                1.,1.,0.,0.,0.,0.,0.,0.,1.,1.,
-                                0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,
-                                0.,0.,0.,0.,0.,0.,0.,0.,0.,0. };
+  float sField0[Width*Height] = {0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,
+                                 0.,1.,1.,0.,0.,0.,0.,1.,0.,1.,
+                                 1.,1.,0.,1.,0.,0.,1.,1.,1.,1.,
+                                 0.,1.,1.,0.,0.,0.,0.,0.,1.,0.,
+                                 0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,
+                                 1.,1.,1.,1.,0.,0.,0.,0.,0.,0.,
+                                 1.,1.,1.,0.,0.,0.,0.,0.,1.,1.,
+                                 1.,1.,0.,0.,0.,0.,0.,0.,1.,1.,
+                                 0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,
+                                 0.,0.,0.,0.,0.,0.,0.,0.,0.,0. };
+
+  float sField1[Width*Height] = {1.,0.,1.,0.,1.,0.,0.,0.,0.,0.,
+                                 1.,0.,1.,1.,0.,0.,0.,1.,0.,1.,
+                                 1.,0.,0.,1.,0.,0.,1.,1.,1.,1.,
+                                 0.,1.,1.,0.,0.,0.,0.,0.,1.,0.,
+                                 0.,0.,0.,0.,0.,1.,0.,0.,0.,0.,
+                                 1.,0.,0.,1.,0.,1.,0.,0.,0.,0.,
+                                 1.,0.,1.,0.,0.,1.,0.,0.,1.,1.,
+                                 1.,1.,0.,1.,0.,0.,0.,0.,1.,1.,
+                                 0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,
+                                 0.,0.,1.,0.,0.,0.,1.,0.,0.,0. };
 
   
 
-  err = floodFill(sField,Width,Height,label);
+  err = floodFill(sField1,Width,Height,label);
 
   printf("\n\nsField:\n");
   for(i=0;i<Height;i+=1){
     for(j=0;j<Width;j+=1)
-      printf("%.0lf ",sField[i*Width+j]);
+      printf("%.0lf ",sField1[i*Width+j]);
     printf("\n");
   }
   printf("\n");
