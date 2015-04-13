@@ -92,7 +92,7 @@ int findEq(int element,int *eqList,int pop){
 #define NumCls 1024
 
 int floodFill(float *sField,int Width,int Height,int *label){
-  int i,j,k,counter=0;
+  int i,j,k,kpop,klabel,counter=0;
   int found,err,neighbours,nbList[8],minLabel,label2k;
   int eqClass[NumCls][NumCls]; // to be revisited
   int eqPop[NumCls];
@@ -116,7 +116,8 @@ int floodFill(float *sField,int Width,int Height,int *label){
           minLabel=label[nbList[0]*Width+nbList[1]];
           for(k=1;k<neighbours;k+=1)
             minLabel = min(label[nbList[2*k+0]*Width+nbList[2*k+1]],minLabel);
-          label[i*Width+j]=minLabel;
+          
+          label[i*Width+j]=minLabel;          
           for(k=0;k<neighbours;k+=1){           
             // check if k-th label is equivalent to minLabel
             label2k = label[nbList[2*k+0]*Width+nbList[2*k+1]];
@@ -130,7 +131,6 @@ int floodFill(float *sField,int Width,int Height,int *label){
             }
 
             // check if minLabel is equivalent to k-th
-            
             found=findEq(minLabel,eqClass[label2k],eqPop[label2k]);
             // if minLabel is not yet equivalent to k-th neighbour
             if(found<0){
@@ -150,6 +150,82 @@ int floodFill(float *sField,int Width,int Height,int *label){
       }
     }
   }
+
+  // necessary intermediary step to assure 
+  // that we have equivalence classes 
+  // which satisfy transitivity
+  
+  /*
+  for(i=0;i<counter;i+=1)
+    for(j=1;j<eqPop[i];j+=1){
+      for(k=0;k<eqPop[eqClass[i][j]];k+=1){
+        kpop = eqPop[ eqClass[eqClass[i][j]][k] ] ;
+        klabel = eqClass[eqClass[i][j]][k] ; 
+        found = findEq(i,eqClass[ klabel ], kpop);
+        
+        if(found<0){
+          // set k-th neighbour equivalent to minLabel  
+          eqPop[i] +=1 ;
+          eqPop[ klabel ] += 1;
+
+          eqClass[i][ eqPop[i]-1 ] = klabel;
+          eqClass[klabel][kpop-1]  = i ; 
+        }
+
+        found = findEq(klabel,eqClass[i],eqPop[i])
+        if(found<0){
+          
+        }
+      }
+    }
+  */  
+  
+  // found = findEq(label2k,eqClass[minLabel],eqPop[minLabel]);
+  for(i=0;i<counter;i+=1){
+    for(j=0;j<counter;j+=1){
+      for(k=0;k<counter;k+=1){
+        found = min(findEq(j,eqClass[i],eqPop[i]), findEq(k,eqClass[j],eqPop[j]));
+        if(found>0){
+          found = findEq(k,eqClass[i],eqPop[i]);
+          if(found < 0){
+            eqPop[i]+=1;
+            eqPop[k]+=1;
+            eqClass[i][eqPop[i]-1]=k;
+            eqClass[k][eqPop[k]-1]=i;
+          }
+        }
+      }
+    }
+  }
+
+  // debug begin
+
+  printf("\nlabel during:\n");
+  for(i=0;i<Height;i+=1){
+    for(j=0;j<Width;j+=1)
+      printf("%d ",label[i*Width+j]+1);
+    printf("\n");
+  }
+
+  printf("\neqClass[%d]: ",0);
+  for(i=0;i<eqPop[0];i+=1)
+    printf("%d ",eqClass[0][i]);
+  printf("\n");
+
+  printf("\neqClass[%d]: ",1);
+  for(i=0;i<eqPop[1];i+=1)
+    printf("%d ",eqClass[1][i]);
+  printf("\n");
+
+  printf("\neqClass[%d]: ",2);
+  for(i=0;i<eqPop[2];i+=1)
+    printf("%d ",eqClass[2][i]);
+  printf("\n");
+
+  printf("\neqClass[%d]: ",3);
+  for(i=0;i<eqPop[3];i+=1)
+    printf("%d ",eqClass[3][i]);
+  printf("\n");
 
   //Main flood fill loop - 2nd pass
   for(i=0;i<Height;i+=1)
@@ -271,14 +347,45 @@ int main(int argc,char **argv){
                                  0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,
                                  0.,0.,1.,0.,0.,0.,1.,0.,0.,0. };
 
+  float sField2[Width*Height] = {1.,0.,1.,0.,0.,0.,0.,0.,1.,0.,
+                                 0.,0.,0.,0.,1.,0.,1.,0.,0.,0.,
+                                 1.,0.,1.,0.,0.,0.,0.,0.,1.,0.,
+                                 0.,0.,0.,0.,1.,0.,1.,0.,0.,0.,
+                                 1.,0.,1.,0.,0.,0.,0.,0.,1.,0.,
+                                 0.,0.,0.,0.,1.,0.,1.,0.,0.,0.,
+                                 1.,0.,1.,0.,0.,0.,0.,0.,1.,0.,
+                                 0.,0.,0.,0.,1.,0.,1.,0.,0.,0.,
+                                 1.,0.,1.,0.,0.,0.,0.,0.,1.,0.,
+                                 0.,0.,0.,0.,1.,0.,1.,0.,0.,0. };
   
+  float sField3[Width*Height] = {1.,0.,1.,0.,1.,0.,1.,0.,0.,0.,
+                                 1.,0.,1.,1.,0.,1.,0.,0.,0.,1.,
+                                 1.,0.,0.,1.,0.,0.,0.,0.,1.,1.,
+                                 0.,1.,1.,0.,0.,0.,0.,0.,1.,0.,
+                                 0.,0.,0.,0.,0.,1.,0.,0.,0.,0.,
+                                 1.,0.,0.,1.,0.,1.,0.,0.,0.,0.,
+                                 1.,0.,1.,0.,0.,1.,0.,0.,1.,1.,
+                                 1.,1.,0.,1.,0.,0.,0.,0.,1.,1.,
+                                 0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,
+                                 0.,0.,1.,0.,0.,0.,1.,0.,0.,0. };
 
-  err = floodFill(sField1,Width,Height,label);
+  float sField4[Width*Height] = {1.,0.,1.,0.,1.,0.,1.,0.,0.,1.,
+                                 1.,0.,1.,0.,1.,0.,1.,0.,1.,1.,
+                                 1.,0.,1.,0.,1.,0.,1.,0.,0.,0.,
+                                 0.,1.,0.,1.,0.,1.,0.,0.,1.,1.,
+                                 0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,
+                                 1.,1.,1.,1.,1.,0.,0.,1.,1.,1.,
+                                 0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,
+                                 0.,0.,1.,0.,1.,0.,1.,0.,1.,1.,
+                                 0.,1.,0.,1.,0.,1.,0.,0.,0.,1.,
+                                 0.,1.,0.,1.,0.,1.,0.,0.,0.,1. };
+
+  err = floodFill(sField4,Width,Height,label);
 
   printf("\n\nsField:\n");
   for(i=0;i<Height;i+=1){
     for(j=0;j<Width;j+=1)
-      printf("%.0lf ",sField1[i*Width+j]);
+      printf("%.0lf ",sField4[i*Width+j]);
     printf("\n");
   }
   printf("\n");
