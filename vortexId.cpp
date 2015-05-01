@@ -14,7 +14,6 @@
 #include <vector>
 // #include "mt64.h"
 
-
   float sField0[] = {0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,
                            0.,1.,1.,0.,0.,0.,0.,1.,0.,1.,
                            1.,1.,0.,1.,0.,0.,1.,1.,1.,1.,
@@ -239,6 +238,11 @@ int floodFill(float *sField,int Width,int Height,int *label){
    * Though not necessary, I'm iterating 
    * because i believe that is conceptually 
    * necessary. Test necessity during tests.
+   *
+   * Consumes a lot of time, this sole loop
+   * this can be problematic --
+   * forget it, probably artefact of a bad
+   * initial state
    */ 
   do{
     err=0;
@@ -260,7 +264,7 @@ int floodFill(float *sField,int Width,int Height,int *label){
         }
       }
     }
-  }while(err==0);
+  }while(err!=0);
   
   // this is bound to be changed
   //if(checkEqClass(eqClass,eqPop,counter) != 0) printf("problems"); 
@@ -371,8 +375,9 @@ int addSingleOseen(int nVortex,float *parVortex, float *x0, float *dx,
     for(j=0;j<Width;j+=1){
       gradU[0][0] = gradU[0][1] = gradU[1][0] = gradU[1][1] = 0.;
       
-      x = x0[0] + i*dx[0];
-      y = x0[1] + j*dx[1];
+      // C vector convention
+      x = x0[0] + j*dx[0];
+      y = x0[1] + i*dx[1];
       for(k=0;k<nVortex;k+=1){
         G = parVortex[4*k+0]; R = parVortex[4*k+1];
         a = parVortex[4*k+2]; b = parVortex[4*k+3];
@@ -437,8 +442,9 @@ int initLambOseen2D(int nVortex,float *parVortex,
     for(j=0;j<Width;j+=1){
       gradU[0][0] = gradU[0][1] = gradU[1][0] = gradU[1][1] = 0.;
       
-      x = x0[0] + i*dx[0];
-      y = x0[1] + j*dx[1];
+      // C vector convention
+      x = x0[0] + j*dx[0];
+      y = x0[1] + i*dx[1];
       for(k=0;k<nVortex;k+=1){
         G = parVortex[4*k+0]; R = parVortex[4*k+1];
         a = parVortex[4*k+2]; b = parVortex[4*k+3];
@@ -508,8 +514,9 @@ int initOseenShear2D(int nVortex,float *parVortex,
     for(j=0;j<Width;j+=1){
       gradU[0][0] = gradU[0][1] = gradU[1][0] = gradU[1][1] = 0.;
       
-      x = x0[0] + i*dx[0];
-      y = x0[1] + j*dx[1];
+      // C vector convention
+      x = x0[0] + j*dx[0];
+      y = x0[1] + i*dx[1];
       for(k=0;k<nVortex;k+=1){
         G = parVortex[4*k+0]; R = parVortex[4*k+1];
         a = parVortex[4*k+2]; b = parVortex[4*k+3];
@@ -563,12 +570,12 @@ int initOseenShear2D(int nVortex,float *parVortex,
 }
 
 int main(int argc,char **argv){
-  const int Width = 100, Height = 100, Pop=10,nVortex=1;
+  const int Width = 100, Height = 100, Pop=10,nVortex=3;
   int i,j,err,ngbr,found;
   int nbList[8],label[Width*Height],eqList[Pop];
   float parVortex[4*nVortex],x0[2],dx[2],xf[2],*sField=NULL;
   float x,y,v0y0 = 0.05;
-                 
+  
   /*               
   err = floodFill(sField5,Width,Height,label);
 
@@ -590,34 +597,49 @@ int main(int argc,char **argv){
 
   //x0[0]=-4.75; xf[0]= 5.25; dx[0] = (xf[0]-x0[0])/Height;
   //x0[1]=-4.75; xf[1]= 5.25; dx[1] = (xf[1]-x0[1])/Width;
-  
-  
-  //x0[0]=-5.; xf[0]= 5.; dx[0] = (xf[0]-x0[0])/Height;
-  //x0[1]=-5.; xf[1]= 5.; dx[1] = (xf[1]-x0[1])/Width;
-
   //x0[0]=-5.; xf[0]=5.; dx[0] = (xf[0]-x0[0])/Height;
   //x0[1]= 0.; xf[1]=0.; dx[1] = 0.;
-  /*
+  
+  x0[0]=-5.; xf[0]= 5.; dx[0] = (xf[0]-x0[0])/Height;
+  x0[1]=-5.; xf[1]= 5.; dx[1] = (xf[1]-x0[1])/Width;
+
   parVortex[0]=1.; parVortex[1]=1.; parVortex[2]=-2.; parVortex[3]=0.;
   parVortex[4+0]=1.; parVortex[4+1]=1.; parVortex[4+2]=2.; parVortex[4+3]=0.;
   parVortex[8+0]=1.; parVortex[8+1]=1.; parVortex[8+2]=0.; parVortex[8+3]=4.;
-  */
-
-  parVortex[0]=1.; parVortex[1]=1.; parVortex[2]=0.; parVortex[3]=0.;
+ 
+  //parVortex[0]=1.; parVortex[1]=1.; parVortex[2]=0.; parVortex[3]=0.;
+  
+  printf("initOseenShear2D\n");
   err = initOseenShear2D(nVortex,parVortex,x0,dx,Height,Width,v0y0,&sField);
+  
+  printf("floodFill\n");
+  err = floodFill(sField,Width,Height,label);
 
   {
     FILE *dadosout;
-    dadosout=fopen("initLambOseen2D.txt","w");
+    dadosout=fopen("data/initLambOseen2D.txt","w");
     for(i=0;i<Height;i+=1)
       for(j=0;j<Width;j+=1){
-        x = x0[0] + i*dx[0];
-        y = x0[1] + j*dx[1];
+        x = x0[0] + j*dx[0];
+        y = x0[1] + i*dx[1];
         
         fprintf(dadosout,"%f %f %f\n",x,y,sField[i*Width+j]);
       }
 
     fclose(dadosout);dadosout=NULL;
+
+    dadosout=fopen("data/labelLambOseen2D.txt","w");
+    for(i=0;i<Height;i+=1){
+      for(j=0;j<Width;j+=1){
+        x = x0[0] + j*dx[0];
+        y = x0[1] + i*dx[1];
+        
+        fprintf(dadosout,"%f %f %2d \n",x,y,label[i*Width+j]+1);
+      }
+      fprintf(dadosout,"\n");
+    }
+
+    fclose(dadosout);
   }
   
   if(sField!=NULL)
