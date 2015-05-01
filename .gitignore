@@ -14,3 +14,4 @@ gfc/
 #ignore files
 main
 vortexId
+test_*
