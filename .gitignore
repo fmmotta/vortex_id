@@ -1,0 +1,16 @@
+# ignore folders
+obj/
+data/
+gfc/
+
+#ignore file types
+*.tex
+*.pdf
+*.log
+*.aux
+*.eps
+*~
+
+#ignore files
+main
+vortexId

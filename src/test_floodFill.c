@@ -1,3 +1,9 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+#include "floodFill.h"
+
   float sField0[] = {0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,
                            0.,1.,1.,0.,0.,0.,0.,1.,0.,1.,
                            1.,1.,0.,1.,0.,0.,1.,1.,1.,1.,

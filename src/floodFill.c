@@ -1,10 +1,15 @@
-#include <iostream>
-#include <fstream>
-#include <cstdlib>
-#include <cmath>
-#include <string>
-#include <vector>
-#include "floodFIll.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+#include "floodFill.h"
+
+int fmind(int a,int b){
+  if(a>=b)
+    return b;
+  else
+    return a;
+}
 
 int check_neighbours(int i,int j,int *label,int Width,int Height,
                     int *nbList){
@@ -81,7 +86,7 @@ int checkEqClass(int eqClass[][NumCls],int eqPop[],int counter){
   for(i=0;i<counter;i+=1){
     for(j=0;j<counter;j+=1){
       for(k=0;k<counter;k+=1){
-        found = min(findEq(j,eqClass[i],eqPop[i]), findEq(k,eqClass[j],eqPop[j]));
+        found = fmind(findEq(j,eqClass[i],eqPop[i]), findEq(k,eqClass[j],eqPop[j]));
         if(found<0)
           return 1;
       }
@@ -115,7 +120,7 @@ int floodFill(float *sField,int Width,int Height,int *label){
         if(neighbours>0){ // need to deal with neighbours
           minLabel=label[nbList[0]*Width+nbList[1]];
           for(k=1;k<neighbours;k+=1)
-            minLabel = min(label[nbList[2*k+0]*Width+nbList[2*k+1]],minLabel);
+            minLabel = fmind(label[nbList[2*k+0]*Width+nbList[2*k+1]],minLabel);
           
           label[i*Width+j]=minLabel;          
           for(k=0;k<neighbours;k+=1){           
@@ -168,7 +173,7 @@ int floodFill(float *sField,int Width,int Height,int *label){
     for(i=0;i<counter;i+=1){
       for(j=0;j<counter;j+=1){
         for(k=0;k<counter;k+=1){
-          found = min(findEq(j,eqClass[i],eqPop[i]), findEq(k,eqClass[j],
+          found = fmind(findEq(j,eqClass[i],eqPop[i]), findEq(k,eqClass[j],
                                                             eqPop[j]));
           if(found>0){
             found = findEq(k,eqClass[i],eqPop[i]);
@@ -195,7 +200,7 @@ int floodFill(float *sField,int Width,int Height,int *label){
         found = label[i*Width+j];
         minLabel=eqClass[found][0];
         for(k=1;k<eqPop[found];k+=1)
-          minLabel=min(minLabel,eqClass[found][k]);
+          minLabel=fmind(minLabel,eqClass[found][k]);
         label[i*Width+j]=minLabel;
       }
 

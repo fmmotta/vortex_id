@@ -1,10 +1,14 @@
 
 #define _USE_MATH_DEFINES
+
+#define NumCls 1024
+
 #define dbg_prints(label,i) printf(label" debug %d\n",(i));
 #define dbg_printp(label,i,j) printf(label " debug (%d,%d)\n",(i),(j));
 
 #define bound_check(a,b,w,h) ((a)>=0)&&((a)<(h))&&((b)>=0)&&((b)<(w))
 
+int fmind(int a,int b);
 
 int check_neighbours(int i,int j,int *label,int Width,int Height,
                     int *nbList);

@@ -1,9 +1,8 @@
-#include <iostream>
-#include <fstream>
-#include <cstdlib>
-#include <cmath>
-#include <string>
-#include <vector>
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+#include "lambdaInit.h"
 
 int initZero(int Height,int Width, float **gFieldOut){
   int i,j,k;

@@ -1,9 +1,9 @@
-#include <iostream>
-#include <fstream>
-#include <cstdlib>
-#include <cmath>
-#include <string>
-#include <vector>
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+#include "floodFill.h"
+#include "lambdaInit.h"
 
 int main(int argc,char **argv){
   const int Width = 100, Height = 100, Pop=10,nVortex=3;
