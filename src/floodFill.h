@@ -13,9 +13,10 @@ int fmind(int a,int b);
 int check_neighbours(int i,int j,int *label,int Width,int Height,
                     int *nbList);
 
-
 int findEq(int element,int *eqList,int pop);
 
 int checkEqClass(int eqClass[][NumCls],int eqPop[],int counter);
 
 int floodFill(float *sField,int Width,int Height,int *label);
+
+int renameLabels(int Height,int Width,int *label);

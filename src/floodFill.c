@@ -190,9 +190,6 @@ int floodFill(float *sField,int Width,int Height,int *label){
     }
   }while(err!=0);
   
-  // this is bound to be changed
-  //if(checkEqClass(eqClass,eqPop,counter) != 0) printf("problems"); 
-
   //Main flood fill loop - 2nd pass
   for(i=0;i<Height;i+=1)
     for(j=0;j<Width;j+=1)
@@ -205,4 +202,27 @@ int floodFill(float *sField,int Width,int Height,int *label){
       }
 
   return 0;
+}
+
+int renameLabels(int Height,int Width,int *label){
+  int i,j,counter=0;
+  int labelTag[NumCls];
+
+  for(i=0;i<NumCls;i+=1)
+    labelTag[i]=-1;
+
+  for(i=0;i<Height;i+=1)
+    for(j=0;j<Width;j+=1)
+      if(label[i*Width+j]>=0)
+        if(labelTag[label[i*Width+j]]<0){
+          labelTag[label[i*Width+j]]=counter;
+          counter+=1;
+        }
+
+  for(i=0;i<Height;i+=1)
+    for(j=0;j<Width;j+=1)
+      if(label[i*Width+j]>=0)
+        label[i*Width+j] = labelTag[label[i*Width+j]];
+
+  return counter;
 }

@@ -79,6 +79,7 @@ int main(int argc,char **argv){
   float x,y,v0y0 = 0.05;
   
   err = floodFill(sField0,Width,Height,label);
+  err = renameLabels(Width,Height,label);
 
   printf("\nsField:\n");
   for(i=0;i<Height;i+=1){
@@ -96,6 +97,7 @@ int main(int argc,char **argv){
   }
   
   err = floodFill(sField1,Width,Height,label);
+  err = renameLabels(Width,Height,label);
 
   printf("\nsField:\n");
   for(i=0;i<Height;i+=1){
@@ -113,6 +115,7 @@ int main(int argc,char **argv){
   }
   
   err = floodFill(sField2,Width,Height,label);
+  err = renameLabels(Width,Height,label);
 
   printf("\nsField:\n");
   for(i=0;i<Height;i+=1){
@@ -130,6 +133,7 @@ int main(int argc,char **argv){
   }
   
   err = floodFill(sField3,Width,Height,label);
+  err = renameLabels(Width,Height,label);
 
   printf("\nsField:\n");
   for(i=0;i<Height;i+=1){
@@ -147,6 +151,7 @@ int main(int argc,char **argv){
   }
   
   err = floodFill(sField4,Width,Height,label);
+  err = renameLabels(Width,Height,label);
 
   printf("\nsField:\n");
   for(i=0;i<Height;i+=1){
@@ -164,6 +169,7 @@ int main(int argc,char **argv){
   }
 
   err = floodFill(sField5,Width,Height,label);
+  err = renameLabels(Width,Height,label);
 
   printf("\nsField:\n");
   for(i=0;i<Height;i+=1){
