@@ -2,6 +2,7 @@
 obj/
 data/
 gfc/
+bin/
 
 #ignore file types
 *.tex
@@ -14,4 +15,3 @@ gfc/
 #ignore files
 main
 vortexId
-test_*

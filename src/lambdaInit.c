@@ -120,7 +120,8 @@ int addSingleOseen(int nVortex,float *parVortex, float *x0, float *dx,
   return 0;
 }
 
-int addConstXYShear(int Height,int Width, float v0y0,float **gFieldOut){
+int addConstXYShear(float *x0, float *dx,int Height,
+                    int Width, float v0y0,float **gFieldOut){
   int i,j,k;
   float gradU[2][2],*gField;
   float a,b,G,R,x,y,fa,fb,r2,r,lamb,cutoff=0.001;
