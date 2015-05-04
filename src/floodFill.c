@@ -99,8 +99,18 @@ int checkEqClass(int eqClass[][NumCls],int eqPop[],int counter){
 int floodFill(float *sField,int Width,int Height,int *label){
   int i,j,k,kpop,klabel,counter=0;
   int found,err,neighbours,nbList[8],minLabel,label2k;
-  int eqClass[NumCls][NumCls]; // to be revisited
+  //int eqClass[NumCls][NumCls]; // valgrind may be complaining about this
+  int **eqClass; // vai tomar no cú, isso deu certo ¬¬
   int eqPop[NumCls];
+
+  eqClass=(int**)malloc(NumCls*sizeof(int*)); // essa merda vai ter de sair daqui
+  if(eqClass==NULL)
+    return 1;
+  for(i=0;i<NumCls;i+=1){
+    eqClass[i]=(int*)malloc(NumCls*sizeof(int));
+    if(eqClass[i]==NULL)
+      return(i+2);
+  }
 
   for(i=0;i<NumCls;i+=1){
     eqPop[i]= 0;
@@ -114,7 +124,6 @@ int floodFill(float *sField,int Width,int Height,int *label){
   //Main flood fill loop - 1st pass
   for(i=0;i<Height;i+=1){
     for(j=0;j<Width;j+=1){
-
       if(sField[i*Width+j]>0){
         neighbours = check_neighbours(i,j,label,Width,Height,nbList);
         if(neighbours>0){ // need to deal with neighbours
@@ -149,6 +158,8 @@ int floodFill(float *sField,int Width,int Height,int *label){
           eqPop[counter] += 1; /* Set new label equivalent to itself */
           eqClass[counter][0]=counter;
           counter+=1;
+          if(counter>(1024-1))
+            printf("moments of dispair -- floodFIll\n");
         }
       }
     }
@@ -200,6 +211,10 @@ int floodFill(float *sField,int Width,int Height,int *label){
           minLabel=fmind(minLabel,eqClass[found][k]);
         label[i*Width+j]=minLabel;
       }
+
+  for(i=0;i<NumCls;i+=1)
+    free(eqClass[i]);
+  free(eqClass);
 
   return 0;
 }

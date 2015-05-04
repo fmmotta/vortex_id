@@ -38,22 +38,15 @@ int vortexExtraction(int Height,int Width, int nCnect,
         x = x0[0] + i*dx[0];
         y = x0[1] + j*dx[1];
 
-        //printf("%f %f %f\n",x,y,(gradU[1][0]-gradU[0][1])/2.);
-
         A[k] += dx[0]*dx[1];
         //w[k] += fabs(gradU[0][1]-gradU[1][0])*dx[0]*dy[0];// maybe remove fabs
         w[k] += ((gradU[1][0]-gradU[0][1])/2.)*dx[0]*dx[1];
-        //a0[k] += a*dx[0]*dx[1];
-        //b0[k] += b*dx[0]*dx[1];
         a0[k] += x*((gradU[1][0]-gradU[0][1])/2.)*dx[0]*dx[1];
         b0[k] += y*((gradU[1][0]-gradU[0][1])/2.)*dx[0]*dx[1];
-
-        printf("%d: %f %f %f %f\n",k,A[k],w[k],a0[k],b0[k]);
       }
     }
 
   for(k=0;k<nCnect;k+=1){
-    printf("%f %f %f %f\n",A[k],w[k],a0[k],b0[k]);
     rc= sqrt(A[k]/M_PI)/1.12091; // Constant comming from lamb-oseen vortex;
     a=a0[k]/w[k]; 
     b=b0[k]/w[k]; 
