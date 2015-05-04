@@ -6,7 +6,7 @@
 #include "../lambdaInit.h"
 
 int main(int argc,char **argv){
-  const int Width = 100, Height = 100, Pop=10,nVortex=3;
+  const int Width = 100, Height = 100, Pop=10,nVortex=2;
   int i,j,err,ngbr,found,nCnect;
   int nbList[8],label[Width*Height],eqList[Pop];
   float parVortex[4*nVortex],x0[2],dx[2],xf[2],*sField=NULL,*gField;
@@ -17,7 +17,7 @@ int main(int argc,char **argv){
 
   parVortex[0]=1.; parVortex[1]=1.; parVortex[2]=-2.; parVortex[3]=0.;
   parVortex[4+0]=1.; parVortex[4+1]=1.; parVortex[4+2]=2.; parVortex[4+3]=0.;
-  parVortex[8+0]=1.; parVortex[8+1]=1.; parVortex[8+2]=0.; parVortex[8+3]=4.;
+  //parVortex[8+0]=1.; parVortex[8+1]=1.; parVortex[8+2]=0.; parVortex[8+3]=4.;
  
   gField = (float *)malloc(4*Height*Width*sizeof(float));
   if(gField==NULL){
@@ -49,7 +49,7 @@ int main(int argc,char **argv){
 
   {
     FILE *dadosout;
-    dadosout=fopen("data/initLambOseen2D-0.txt","w");
+    dadosout=fopen("data/initVortexExtract-3.txt","w");
     for(i=0;i<Height;i+=1)
       for(j=0;j<Width;j+=1){
         x = x0[0] + i*dx[0];
@@ -60,7 +60,7 @@ int main(int argc,char **argv){
 
     fclose(dadosout);dadosout=NULL;
 
-    dadosout=fopen("data/labelLambOseen2D-0.txt","w");
+    dadosout=fopen("data/labelVortexExtract-3.txt","w");
     for(i=0;i<Height;i+=1){
       for(j=0;j<Width;j+=1){
         x = x0[0] + i*dx[0];
