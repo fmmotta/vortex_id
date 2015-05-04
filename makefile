@@ -16,11 +16,17 @@ test_lambOseenShear2: floodFill.o test_lambOseenShear2.o lambdaInit.o
 test_lambOseenShear3: floodFill.o test_lambOseenShear3.o lambdaInit.o
 	gcc -o bin/test_lambOseenShear3 obj/test_lambOseenShear3.o obj/floodFill.o obj/lambdaInit.o -lm
 
+test_addSingleOseen: test_addSingleOseen.o lambdaInit.o floodFill.o
+	gcc -o bin/test_addSingleOseen obj/test_addSingleOseen.o obj/floodFill.o obj/lambdaInit.o -lm
+
 test_genLOseenUniformList: test_genLOseenUniformList.o mt64.o vortexGen.o
 	gcc -o test_genLOseenUniformList obj/test_genLOseenUniformList.o obj/mt64.o obj/vortexGen.o -lm
 
 test_genLOseenBinaryList: test_genLOseenBinaryList.o mt64.o vortexGen.o
 	gcc -o bin/test_genLOseenBinaryList obj/test_genLOseenBinaryList.o obj/mt64.o obj/vortexGen.o -lm
+
+test_vortexExtraction: test_vortexExtraction.o floodFill.o lambdaInit.o vortexExtraction.o
+	gcc -o bin/test_vortexExtraction obj/test_vortexExtraction.o obj/floodFill.o obj/lambdaInit.o obj/vortexExtraction.o -lm
 
 main.o: src/main.c 
 	gcc -c src/main.c -o obj/main.o
@@ -33,6 +39,9 @@ floodFill.o: src/floodFill.c src/floodFill.h
 
 vortexGen.o: src/vortexGen.c
 	gcc -c src/vortexGen.c -o obj/vortexGen.o
+
+vortexExtraction.o: src/vortexExtraction.c
+	gcc -c src/vortexExtraction.c -o obj/vortexExtraction.o
 
 mt64.o: src/mt19937-64.c src/mt64.h
 	gcc -c src/mt19937-64.c -o obj/mt64.o
@@ -52,8 +61,14 @@ test_lambOseenShear2.o: src/tests/test_lambOseenShear2.c src/floodFill.h src/lam
 test_lambOseenShear3.o: src/tests/test_lambOseenShear3.c src/floodFill.h src/lambdaInit.h
 	gcc -c src/tests/test_lambOseenShear3.c -o obj/test_lambOseenShear3.o
 
+test_addSingleOseen.o: src/tests/test_addSingleOseen.c src/floodFill.h src/lambdaInit.h
+	gcc -c src/tests/test_addSingleOseen.c -o obj/test_addSingleOseen.o
+
 test_genLOseenUniformList.o: src/tests/test_genLOseenUniformList.c 
 	gcc -c src/tests/test_genLOseenUniformList.c -o obj/test_genLOseenUniformList.o
 
 test_genLOseenBinaryList.o: src/tests/test_genLOseenBinaryList.c 
 	gcc -c src/tests/test_genLOseenBinaryList.c -o obj/test_genLOseenBinaryList.o
+
+test_vortexExtraction.o: src/tests/test_vortexExtraction.c
+	gcc -c src/tests/test_vortexExtraction.c -o obj/test_vortexExtraction.o

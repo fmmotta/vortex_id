@@ -207,7 +207,13 @@ int floodFill(float *sField,int Width,int Height,int *label){
 int renameLabels(int Height,int Width,int *label){
   int i,j,counter=0;
   int labelTag[NumCls];
+  
+  if((Height<=0)||(Width<=0))
+    return -1;
 
+  if(label==NULL)
+    return -2;
+  
   for(i=0;i<NumCls;i+=1)
     labelTag[i]=-1;
 

@@ -43,6 +43,11 @@ int gradUtoLamb(int Height,int Width, float *gField,float **sFieldOut){
     
   for(i=0;i<Height;i+=1)
     for(j=0;j<Width;j+=1){
+      gradU[0][0] = gField[4*(i*Width+j)+0];
+      gradU[0][1] = gField[4*(i*Width+j)+1];
+      gradU[1][0] = gField[4*(i*Width+j)+2];
+      gradU[1][1] = gField[4*(i*Width+j)+3];
+
       // \Delta = (tr gU)^2-4.*det gU; \Delta<0 ==> Imaginary eigenvalue
       // (lamb)^2 = - 4.*\Delta;
       lamb =  (gradU[0][0]*gradU[1][1]-gradU[0][1]*gradU[1][0]);
@@ -148,6 +153,11 @@ int addConstXYShear(float *x0, float *dx,int Height,
 
   return 0;
 }
+
+/*
+ * Add gradU calculation to the init functions because
+ * it is necessary to further calculations for vortex extraction
+ */
 
 int initLambOseen2D(int nVortex,float *parVortex,
                     float *x0, float *dx, int Height,int Width,
