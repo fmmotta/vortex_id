@@ -48,8 +48,8 @@ int main(int argc,char **argv){
     dadosout=fopen("data/initLambOseen2D-0.txt","w");
     for(i=0;i<Height;i+=1)
       for(j=0;j<Width;j+=1){
-        x = x0[0] + j*dx[0];
-        y = x0[1] + i*dx[1];
+        x = x0[0] + i*dx[0];
+        y = x0[1] + j*dx[1];
         
         fprintf(dadosout,"%f %f %f\n",x,y,sField[i*Width+j]);
       }
@@ -59,8 +59,8 @@ int main(int argc,char **argv){
     dadosout=fopen("data/labelLambOseen2D-0.txt","w");
     for(i=0;i<Height;i+=1){
       for(j=0;j<Width;j+=1){
-        x = x0[0] + j*dx[0];
-        y = x0[1] + i*dx[1];
+        x = x0[0] + i*dx[0];
+        y = x0[1] + j*dx[1];
         
         fprintf(dadosout,"%f %f %2d \n",x,y,label[i*Width+j]+1);
       }

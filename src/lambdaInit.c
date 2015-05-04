@@ -78,9 +78,8 @@ int addSingleOseen(int nVortex,float *parVortex, float *x0, float *dx,
     for(j=0;j<Width;j+=1){
       gradU[0][0] = gradU[0][1] = gradU[1][0] = gradU[1][1] = 0.;
       
-      // C vector convention
-      x = x0[0] + j*dx[0];
-      y = x0[1] + i*dx[1];
+      x = x0[0] + i*dx[0];
+      y = x0[1] + j*dx[1];
       for(k=0;k<nVortex;k+=1){
         G = parVortex[4*k+0]; R = parVortex[4*k+1];
         a = parVortex[4*k+2]; b = parVortex[4*k+3];
@@ -139,9 +138,8 @@ int addConstXYShear(float *x0, float *dx,int Height,
     for(j=0;j<Width;j+=1){
       gradU[0][0] = gradU[0][1] = gradU[1][0] = gradU[1][1] = 0.;
       
-      // C vector convention
-      x = x0[0] + j*dx[0];
-      y = x0[1] + i*dx[1];
+      x = x0[0] + i*dx[0];
+      y = x0[1] + j*dx[1];
 
       gradU[0][1] += v0y0; // got to improove this later
       
@@ -179,9 +177,8 @@ int initLambOseen2D(int nVortex,float *parVortex,
     for(j=0;j<Width;j+=1){
       gradU[0][0] = gradU[0][1] = gradU[1][0] = gradU[1][1] = 0.;
       
-      // C vector convention
-      x = x0[0] + j*dx[0];
-      y = x0[1] + i*dx[1];
+      x = x0[0] + i*dx[0];
+      y = x0[1] + j*dx[1];
       for(k=0;k<nVortex;k+=1){
         G = parVortex[4*k+0]; R = parVortex[4*k+1];
         a = parVortex[4*k+2]; b = parVortex[4*k+3];
@@ -251,9 +248,8 @@ int initOseenShear2D(int nVortex,float *parVortex,
     for(j=0;j<Width;j+=1){
       gradU[0][0] = gradU[0][1] = gradU[1][0] = gradU[1][1] = 0.;
       
-      // C vector convention
-      x = x0[0] + j*dx[0];
-      y = x0[1] + i*dx[1];
+      x = x0[0] + i*dx[0];
+      y = x0[1] + j*dx[1];
       for(k=0;k<nVortex;k+=1){
         G = parVortex[4*k+0]; R = parVortex[4*k+1];
         a = parVortex[4*k+2]; b = parVortex[4*k+3];
