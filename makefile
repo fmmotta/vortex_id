@@ -25,8 +25,11 @@ test_genLOseenUniformList: test_genLOseenUniformList.o mt64.o vortexGen.o
 test_genLOseenBinaryList: test_genLOseenBinaryList.o mt64.o vortexGen.o
 	gcc -o bin/test_genLOseenBinaryList obj/test_genLOseenBinaryList.o obj/mt64.o obj/vortexGen.o -lm
 
-test_vortexExtraction: test_vortexExtraction.o floodFill.o lambdaInit.o vortexExtraction.o
-	gcc -o bin/test_vortexExtraction obj/test_vortexExtraction.o obj/floodFill.o obj/lambdaInit.o obj/vortexExtraction.o -lm
+test_vortexExtraction0: test_vortexExtraction0.o floodFill.o lambdaInit.o vortexExtraction.o
+	gcc -o bin/test_vortexExtraction0 obj/test_vortexExtraction0.o obj/floodFill.o obj/lambdaInit.o obj/vortexExtraction.o -lm
+
+test_vortexExtraction3: test_vortexExtraction3.o floodFill.o lambdaInit.o vortexExtraction.o
+	gcc -o bin/test_vortexExtraction3 obj/test_vortexExtraction3.o obj/floodFill.o obj/lambdaInit.o obj/vortexExtraction.o -lm
 
 main.o: src/main.c 
 	gcc -c src/main.c -o obj/main.o
@@ -70,5 +73,8 @@ test_genLOseenUniformList.o: src/tests/test_genLOseenUniformList.c
 test_genLOseenBinaryList.o: src/tests/test_genLOseenBinaryList.c 
 	gcc -c src/tests/test_genLOseenBinaryList.c -o obj/test_genLOseenBinaryList.o
 
-test_vortexExtraction.o: src/tests/test_vortexExtraction.c
-	gcc -c src/tests/test_vortexExtraction.c -o obj/test_vortexExtraction.o
+test_vortexExtraction0.o: src/tests/test_vortexExtraction0.c
+	gcc -c src/tests/test_vortexExtraction0.c -o obj/test_vortexExtraction0.o
+
+test_vortexExtraction3.o: src/tests/test_vortexExtraction3.c
+	gcc -c src/tests/test_vortexExtraction3.c -o obj/test_vortexExtraction3.o
