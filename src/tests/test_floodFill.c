@@ -74,11 +74,20 @@
 int main(int argc,char **argv){
   const int Width = 10, Height = 10, Pop=10,nVortex=3;
   int i,j,err,ngbr,found;
-  int nbList[8],label[Width*Height],eqList[Pop];
+  int nbList[8],label[Width*Height],eqList[Pop],**eqClass;
   float parVortex[4*nVortex],x0[2],dx[2],xf[2],*sField=NULL;
   float x,y,v0y0 = 0.05;
+
+  eqClass=(int**)malloc(NumCls*sizeof(int*));
+  if(eqClass==NULL)
+    return 1;
+  for(i=0;i<NumCls;i+=1){
+    eqClass[i]=(int*)malloc(NumCls*sizeof(int));
+    if(eqClass[i]==NULL)
+      return(i+2);
+  }
   
-  err = floodFill(sField0,Width,Height,label);
+  err = floodFill(sField,Width,Height,eqClass,label);
   err = renameLabels(Width,Height,label);
 
   printf("\nsField:\n");
@@ -96,7 +105,7 @@ int main(int argc,char **argv){
     printf("\n");
   }
   
-  err = floodFill(sField1,Width,Height,label);
+  err = floodFill(sField,Width,Height,eqClass,label);
   err = renameLabels(Width,Height,label);
 
   printf("\nsField:\n");
@@ -114,7 +123,7 @@ int main(int argc,char **argv){
     printf("\n");
   }
   
-  err = floodFill(sField2,Width,Height,label);
+  err = floodFill(sField,Width,Height,eqClass,label);
   err = renameLabels(Width,Height,label);
 
   printf("\nsField:\n");
@@ -132,7 +141,7 @@ int main(int argc,char **argv){
     printf("\n");
   }
   
-  err = floodFill(sField3,Width,Height,label);
+  err = floodFill(sField,Width,Height,eqClass,label);
   err = renameLabels(Width,Height,label);
 
   printf("\nsField:\n");
@@ -150,7 +159,7 @@ int main(int argc,char **argv){
     printf("\n");
   }
   
-  err = floodFill(sField4,Width,Height,label);
+  err = floodFill(sField,Width,Height,eqClass,label);
   err = renameLabels(Width,Height,label);
 
   printf("\nsField:\n");
@@ -168,7 +177,7 @@ int main(int argc,char **argv){
     printf("\n");
   }
 
-  err = floodFill(sField5,Width,Height,label);
+  err = floodFill(sField,Width,Height,eqClass,label);
   err = renameLabels(Width,Height,label);
 
   printf("\nsField:\n");
@@ -185,6 +194,10 @@ int main(int argc,char **argv){
       printf("%2d ",label[i*Width+j]+1);
     printf("\n");
   }
+
+  for(i=0;i<NumCls;i+=1)
+    free(eqClass[i]);
+  free(eqClass);
 
   return 0;
 }

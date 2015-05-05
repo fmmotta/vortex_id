@@ -6,6 +6,7 @@ bin/
 
 #ignore file types
 *.tex
+*.txt
 *.pdf
 *.log
 *.aux

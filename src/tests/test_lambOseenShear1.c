@@ -8,9 +8,18 @@
 int main(int argc,char **argv){
   const int Width = 100, Height = 100, Pop=10,nVortex=1;
   int i,j,err,ngbr,found;
-  int nbList[8],label[Width*Height],eqList[Pop];
+  int nbList[8],label[Width*Height],eqList[Pop],**eqClass;
   float parVortex[4*nVortex],x0[2],dx[2],xf[2],*sField=NULL;
   float x,y,v0y0 = 0.05;
+
+  eqClass=(int**)malloc(NumCls*sizeof(int*));
+  if(eqClass==NULL)
+    return 1;
+  for(i=0;i<NumCls;i+=1){
+    eqClass[i]=(int*)malloc(NumCls*sizeof(int));
+    if(eqClass[i]==NULL)
+      return(i+2);
+  }
   
   x0[0]=-5.; xf[0]= 5.; dx[0] = (xf[0]-x0[0])/Height;
   x0[1]=-5.; xf[1]= 5.; dx[1] = (xf[1]-x0[1])/Width;
@@ -21,7 +30,7 @@ int main(int argc,char **argv){
   if(err!=0)
     printf("Problems in initOseenShear2D\n");
   
-  err = floodFill(sField,Width,Height,label);
+  err = floodFill(sField,Width,Height,eqClass,label);
   if(err!=0)
     printf("Problems in floodFill\n");
 
@@ -60,5 +69,10 @@ int main(int argc,char **argv){
   
   if(sField!=NULL)
     free(sField);
+
+  for(i=0;i<NumCls;i+=1)
+    free(eqClass[i]);
+  free(eqClass);
+
   return 0;
 }

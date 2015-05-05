@@ -10,15 +10,17 @@ int vortexExtraction(int Height,int Width, int nCnect,
   int i,j,k;
   float G,a,b,x,y,rc,gradU[2][2]; // vorticity
   float w[nCnect],A[nCnect],a0[nCnect],b0[nCnect];
-  float vCatalog[4*nCnect];
-
-  printf("nCnect=%d\n",nCnect);
+  float *vCatalog;
 
   if((Height<=0)||(Width<=0))
   	return -1;
 
   if(*vCatalogOut!=NULL)
     return -2;
+
+  vCatalog=(float*)malloc(4*nCnect*sizeof(float));
+  if(vCatalog==NULL)
+    return -3;
 
   for(k=0;k<nCnect;k+=1){
     w[k]=0.;A[k]=0.;a0[k]=0.;b0[k]=0.;

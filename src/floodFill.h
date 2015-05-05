@@ -17,6 +17,6 @@ int findEq(int element,int *eqList,int pop);
 
 int checkEqClass(int eqClass[][NumCls],int eqPop[],int counter);
 
-int floodFill(float *sField,int Width,int Height,int *label);
+int floodFill(float *sField,int Width,int Height,int **eqClass,int *label);
 
 int renameLabels(int Height,int Width,int *label);

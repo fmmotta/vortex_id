@@ -20,7 +20,7 @@ test_addSingleOseen: test_addSingleOseen.o lambdaInit.o floodFill.o
 	gcc -o bin/test_addSingleOseen obj/test_addSingleOseen.o obj/floodFill.o obj/lambdaInit.o -lm
 
 test_genLOseenUniformList: test_genLOseenUniformList.o mt64.o vortexGen.o
-	gcc -o test_genLOseenUniformList obj/test_genLOseenUniformList.o obj/mt64.o obj/vortexGen.o -lm
+	gcc -o bin/test_genLOseenUniformList obj/test_genLOseenUniformList.o obj/mt64.o obj/vortexGen.o -lm
 
 test_genLOseenBinaryList: test_genLOseenBinaryList.o mt64.o vortexGen.o
 	gcc -o bin/test_genLOseenBinaryList obj/test_genLOseenBinaryList.o obj/mt64.o obj/vortexGen.o -lm
