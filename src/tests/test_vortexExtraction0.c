@@ -56,7 +56,7 @@ int main(int argc,char **argv){
 
   {
     FILE *dadosout;
-    dadosout=fopen("data/initLambOseen2D-0.txt","w");
+    dadosout=fopen("data/initVortexExtract-0.txt","w");
     for(i=0;i<Height;i+=1)
       for(j=0;j<Width;j+=1){
         x = x0[0] + i*dx[0];
@@ -67,7 +67,7 @@ int main(int argc,char **argv){
 
     fclose(dadosout);dadosout=NULL;
 
-    dadosout=fopen("data/labelLambOseen2D-0.txt","w");
+    dadosout=fopen("data/labelVortexExtract-0.txt","w");
     for(i=0;i<Height;i+=1){
       for(j=0;j<Width;j+=1){
         x = x0[0] + i*dx[0];

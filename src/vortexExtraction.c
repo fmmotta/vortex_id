@@ -52,10 +52,7 @@ int vortexExtraction(int Height,int Width, int nCnect,
     rc= sqrt(A[k]/M_PI)/1.12091; // Constant comming from lamb-oseen vortex;
     a=a0[k]/w[k]; 
     b=b0[k]/w[k]; 
-    //a = a0[k]/A[k];
-    //b = b0[k]/A[k];
-    //G = (2.967284274)*w[k]; // Constant comming from lamb-oseen vortex;
-    G = 2.7958961719283355*w[k];
+    G = 2.7958961719283355*w[k];// Constant comming from lamb-oseen vortex;
 
     vCatalog[4*k+0] = G;
     vCatalog[4*k+1] = rc;
