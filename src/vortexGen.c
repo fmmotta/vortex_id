@@ -26,7 +26,7 @@ int genLOseenUniformList(float Gmin,float Gmax, float rmin,float rmax,
   }
   
   if(*parVortexOut==NULL)
-    parVortex=(float*)malloc(4*numVortex);
+    parVortex=(float*)malloc(4*numVortex*sizeof(float));
   else
     parVortex=*parVortexOut;
 
@@ -75,7 +75,7 @@ int genLOseenBinaryList(float Gmin,float Gmax, float rmin,float rmax,
   }
 
   if(*parVortexOut==NULL)
-    parVortex=(float*)malloc(4*numVortex);
+    parVortex=(float*)malloc(4*numVortex*sizeof(float));
   else
     parVortex=*parVortexOut;
   

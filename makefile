@@ -1,5 +1,5 @@
-main: main.o lambdaInit.o floodFill.o src/lambdaInit.h src/floodFill.h
-	gcc -o bin/main obj/main.o obj/lambdaInit.o obj/floodFill.o -lm
+main: main.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o src/lambdaInit.h src/floodFill.h src/vortexGen.h src/vortexExtraction.h src/mt64.h
+	gcc -o bin/main obj/main.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/vortexExtraction.o obj/mt64.o -lm
 
 test_floodFill: floodFill.o test_floodFill.o
 	gcc -o bin/test_floodFill obj/test_floodFill.o obj/floodFill.o -lm

@@ -34,7 +34,7 @@ int main(int argc,char **argv){
   for(i=0;i<4*Height*Width;i+=1)
     gField[i]=0.;
   
-  label = (int*)malloc(Height*Width*sizeof(float));
+  label = (int*)malloc(Height*Width*sizeof(int));
   if(label==NULL){
     printf("memory not allocked\n");
     return 2;

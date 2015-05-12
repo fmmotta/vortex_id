@@ -10,7 +10,7 @@ int main(int argc,char **argv){
   const int numVortex=5;
   int i,err,seed=98755;
   float Gmin=1,Gmax=2,rmin=1,rmax=2;
-  float xmin[]={-4.,-4.},xmax[]={4.,4.};
+  float xmin[2]={-4.,-4.},xmax[2]={4.,4.};
   float *parVortex=NULL;
 
   if(argc>1)
@@ -25,5 +25,7 @@ int main(int argc,char **argv){
                                         parVortex[4*i+2],
                                         parVortex[4*i+3]);
 
+  free(parVortex); parVortex=NULL;
+  
   return 0;
 }
