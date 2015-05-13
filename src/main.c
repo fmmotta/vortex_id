@@ -91,6 +91,10 @@ int main(int argc,char **argv){
 
     err=vortexExtraction(Height,Width,nCnect,x0,dx,sField,
                          gField,label,&vCatalog);
+    if(err!=0){
+      printf("error on vortexExtraction - %d\n",err);
+      return err; 
+    }
 
     fprintf(dadosout,"Input: G rc a b\n");
     for(i=0;i<nVortex;i+=1)
@@ -106,7 +110,7 @@ int main(int argc,char **argv){
                                        vCatalog[4*i+2],
                                        vCatalog[4*i+3]);
     fprintf(dadosout,"\n");
-    free(vCatalog); vCatalog=NULL;
+    /*free(vCatalog); vCatalog=NULL;*/
   }
 
   if(sField!=NULL)

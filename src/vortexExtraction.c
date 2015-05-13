@@ -15,12 +15,23 @@ int vortexExtraction(int Height,int Width, int nCnect,
   if((Height<=0)||(Width<=0))
   	return -1;
 
-  if(*vCatalogOut!=NULL)
-    return -2;
-
-  vCatalog=(float*)malloc(4*nCnect*sizeof(float));
-  if(vCatalog==NULL)
-    return -3;
+  if(vCatalogOut==NULL){
+    vCatalog=(float*)malloc(4*nCnect*sizeof(float));
+    if(vCatalog==NULL)
+      return -3;
+  }
+  else{
+    /*
+     * potentially problematic behaviour, but works with
+     * glibc, but have to check if it works for other libs.
+     * I'm exploring the fact that if the size of the allocated array
+     * is the same as the one I'm resizing it to, 
+     * realloc changes nothing
+     */
+    vCatalog=(float*)realloc(*vCatalogOut,4*nCnect*sizeof(float));
+    if(vCatalog==NULL)
+      return -2;
+  }
 
   for(k=0;k<nCnect;k+=1){
     w[k]=0.;A[k]=0.;a0[k]=0.;b0[k]=0.;
