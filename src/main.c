@@ -30,7 +30,7 @@ int main(int argc,char **argv){
   else
     seed = (int) time(NULL);
  
-  fprintf(dadosout,"seed: %d\n",seed);
+  fprintf(dadosout,"seed: %d\n\n",seed);
 
   eqClass=(int**)malloc(NumCls*sizeof(int*));
   if(eqClass==NULL)
@@ -52,6 +52,8 @@ int main(int argc,char **argv){
     printf("memory not allocked\n");
     return 2;
   }
+  
+  //vCatalog = (float*)malloc(10*sizeof(float));
 
   for(n=0;n<nRuns;n+=1){
     err=genLOseenBinaryList(Gmin,Gmax,rmin,rmax,xmin,xmax,seed,
@@ -86,27 +88,25 @@ int main(int argc,char **argv){
       nCnect=err;
     else
       printf("problems with renameLabels - %d\n",err);
-  
 
     err=vortexExtraction(Height,Width,nCnect,x0,dx,sField,
                          gField,label,&vCatalog);
 
-    {
-      fprintf(dadosout,"Input: G rc a b\n");
-      for(i=0;i<nVortex;i+=1)
-        fprintf(dadosout,"%lf %lf %lf %lf\n",parVortex[4*i+0],
-                                             parVortex[4*i+1],
-                                             parVortex[4*i+2],
-                                             parVortex[4*i+3]);
+    fprintf(dadosout,"Input: G rc a b\n");
+    for(i=0;i<nVortex;i+=1)
+      fprintf(dadosout,"%lf %lf %lf %lf\n",parVortex[4*i+0],
+                                           parVortex[4*i+1],
+                                           parVortex[4*i+2],
+                                           parVortex[4*i+3]);
 
-      fprintf(dadosout,"Output: G rc a b\n");
-      for(i=0;i<nCnect;i+=1)
-        fprintf(dadosout,"%f %f %f %f\n",i,vCatalog[4*i+0]
-                                          ,vCatalog[4*i+1]
-                                          ,vCatalog[4*i+2]
-                                          ,vCatalog[4*i+3]);
-      fprintf(dadosout,"\n");
-    }
+    fprintf(dadosout,"Output: G rc a b\n");
+    for(i=0;i<nCnect;i+=1)
+      fprintf(dadosout,"%f %f %f %f\n",vCatalog[4*i+0],
+                                       vCatalog[4*i+1],
+                                       vCatalog[4*i+2],
+                                       vCatalog[4*i+3]);
+    fprintf(dadosout,"\n");
+    free(vCatalog); vCatalog=NULL;
   }
 
   if(sField!=NULL)
