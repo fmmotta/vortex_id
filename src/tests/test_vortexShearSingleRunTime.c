@@ -17,13 +17,15 @@ int main(int argc,char **argv){
   float Gmin=1,Gmax=2,rmin=1,rmax=1;
   float xmin[2]={-9.,-9.},xmax[2]={9.,9.};
   float *parVortex=NULL,x0[2],dx[2],xf[2],*sField=NULL,*gField;
-  float x,y,*vCatalog=NULL;
+  float x,y,v0y0 = 0.05,*vCatalog=NULL;
 
   x0[0]=-10.; xf[0]= 10.; dx[0] = (xf[0]-x0[0])/Height;
   x0[1]=-10.; xf[1]= 10.; dx[1] = (xf[1]-x0[1])/Width;
 
   if(argc>1)
     seed = atoi(argv[1]);
+  else
+    seed = time(NULL);
 
   err=genLOseenBinaryList(Gmin,Gmax,rmin,rmax,xmin,xmax,seed,
                            nVortex,&parVortex);
@@ -56,6 +58,10 @@ int main(int argc,char **argv){
   err = addSingleOseen(nVortex,parVortex,x0,dx,Height,Width,&gField);
   if(err!=0)
     printf("Problems in addSingleOseen\n");
+
+  err=addConstXYShear(x0,dx,Height,Width,v0y0,&gField);
+  if(err!=0)
+    printf("Problems in addConstXYShear\n");
 
   err = gradUtoLamb(Height,Width,gField,&sField);
   if(err!=0)

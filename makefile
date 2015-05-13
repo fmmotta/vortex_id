@@ -40,6 +40,15 @@ test_vortexExtraction3: test_vortexExtraction3.o floodFill.o lambdaInit.o vortex
 test_vortexExtraction4: test_vortexExtraction4.o floodFill.o lambdaInit.o vortexExtraction.o
 	gcc -o bin/test_vortexExtraction4 obj/test_vortexExtraction4.o obj/floodFill.o obj/lambdaInit.o obj/vortexExtraction.o -lm
 
+test_vortexSingleRun: test_vortexSingleRun.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o src/lambdaInit.h src/floodFill.h src/vortexGen.h src/vortexExtraction.h src/mt64.h
+	gcc -o bin/test_vortexSingleRun obj/test_vortexSingleRun.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/vortexExtraction.o obj/mt64.o -lm
+
+test_vortexSingleRunTime: test_vortexSingleRunTime.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o src/lambdaInit.h src/floodFill.h src/vortexGen.h src/vortexExtraction.h src/mt64.h
+	gcc -o bin/test_vortexSingleRunTime obj/test_vortexSingleRunTime.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/vortexExtraction.o obj/mt64.o -lm 
+
+test_vortexShearSingleRunTime: test_vortexShearSingleRunTime.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o src/lambdaInit.h src/floodFill.h src/vortexGen.h src/vortexExtraction.h src/mt64.h
+	gcc -o bin/test_vortexShearSingleRunTime obj/test_vortexShearSingleRunTime.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/vortexExtraction.o obj/mt64.o -lm 
+
 main.o: src/main.c 
 	gcc -c src/main.c -o obj/main.o
 
@@ -96,3 +105,12 @@ test_vortexExtraction3.o: src/tests/test_vortexExtraction3.c
 
 test_vortexExtraction4.o: src/tests/test_vortexExtraction4.c
 	gcc -c src/tests/test_vortexExtraction4.c -o obj/test_vortexExtraction4.o
+
+test_vortexSingleRun.o: src/tests/test_vortexSingleRun.c
+	gcc -c src/tests/test_vortexSingleRun.c -o obj/test_vortexSingleRun.o
+
+test_vortexSingleRunTime.o: src/tests/test_vortexSingleRunTime.c
+	gcc -c src/tests/test_vortexSingleRunTime.c -o obj/test_vortexSingleRunTime.o
+
+test_vortexShearSingleRunTime.o: src/tests/test_vortexShearSingleRunTime.c
+	gcc -c src/tests/test_vortexShearSingleRunTime.c -o obj/test_vortexShearSingleRunTime.o

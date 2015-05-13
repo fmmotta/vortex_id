@@ -24,6 +24,8 @@ int main(int argc,char **argv){
 
   if(argc>1)
     seed = atoi(argv[1]);
+  else
+    seed = time(NULL);
 
   err=genLOseenBinaryList(Gmin,Gmax,rmin,rmax,xmin,xmax,seed,
                            nVortex,&parVortex);
