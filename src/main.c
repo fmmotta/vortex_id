@@ -10,18 +10,16 @@
 #include "vortexExtraction.h"
 
 int main(int argc,char **argv){
-  const int Width = 100, Height = 100, Pop=10,nVortex=5,nRuns=5000;
+  const int Width = 100, Height = 100,Pop=10,nVortex=5,nRuns=5000;
   int seed=98755;
-  int i,j,err,ngbr,found,nCnect,*label,n;
+  int i,j,err,ngbr,found,nCnect,*label,n,bin;
   int nbList[8],eqList[Pop],**eqClass;
   float Gmin=1,Gmax=2,rmin=1,rmax=1;
   float xmin[2]={-9.,-9.},xmax[2]={9.,9.};
   float *parVortex=NULL,x0[2],dx[2],xf[2],*sField=NULL,*gField;
   float x,y,v0y0 = 0.00,*vCatalog=NULL;
-  FILE *dadosout;
+  FILE *dadosgen,*dadosref,*dadosout;
   
-  dadosout=fopen("data/multiRunResults.txt","w");
-
   x0[0]=-10.; xf[0]= 10.; dx[0] = (xf[0]-x0[0])/Height;
   x0[1]=-10.; xf[1]= 10.; dx[1] = (xf[1]-x0[1])/Width;
 
@@ -30,7 +28,18 @@ int main(int argc,char **argv){
   else
     seed = (int) time(NULL);
  
-  fprintf(dadosout,"seed: %d\n\n",seed);
+  dadosgen=fopen("data/multiRunGen.txt","w");
+  fprintf(dadosgen,"seed: %d\n",seed);
+  fprintf(dadosgen,"\ndomain: xi xf dx\n");
+  fprintf(dadosgen,"%f %f %f\n",x0[0],xf[0],dx[0]);
+  fprintf(dadosgen,"%f %f %f\n",x0[1],xf[1],dx[1]);
+  fprintf(dadosgen,"\nvortex params: Binary\n");
+  fprintf(dadosgen,"G : %f %f\n",Gmin,Gmax);
+  fprintf(dadosgen,"rc: %f %f\n",rmin,rmax);
+  fprintf(dadosgen,"a : %f %f\n",xmin[0],xmax[0]);
+  fprintf(dadosgen,"b : %f %f\n",xmin[1],xmax[1]);
+  fprintf(dadosgen,"\nshear v0/y0=%f\n",v0y0);
+  fclose(dadosgen);
 
   eqClass=(int**)malloc(NumCls*sizeof(int*));
   if(eqClass==NULL)
@@ -52,8 +61,9 @@ int main(int argc,char **argv){
     printf("memory not allocked\n");
     return 2;
   }
-  
-  //vCatalog = (float*)malloc(10*sizeof(float));
+
+  dadosref=fopen("data/multiRunRef.txt","w");
+  dadosout=fopen("data/multiRunRes.txt","w");
 
   for(n=0;n<nRuns;n+=1){
     err=genLOseenBinaryList(Gmin,Gmax,rmin,rmax,xmin,xmax,seed,
@@ -95,23 +105,23 @@ int main(int argc,char **argv){
       printf("error on vortexExtraction - %d\n",err);
       return err; 
     }
-
-    fprintf(dadosout,"Input: G rc a b\n");
+    
     for(i=0;i<nVortex;i+=1)
-      fprintf(dadosout,"%lf %lf %lf %lf\n",parVortex[4*i+0],
+      fprintf(dadosref,"%lf %lf %lf %lf\n",parVortex[4*i+0],
                                            parVortex[4*i+1],
                                            parVortex[4*i+2],
                                            parVortex[4*i+3]);
+    fprintf(dadosref,"\n");
 
-    fprintf(dadosout,"Output: G rc a b\n");
     for(i=0;i<nCnect;i+=1)
       fprintf(dadosout,"%f %f %f %f\n",vCatalog[4*i+0],
                                        vCatalog[4*i+1],
                                        vCatalog[4*i+2],
                                        vCatalog[4*i+3]);
     fprintf(dadosout,"\n");
-    /*free(vCatalog); vCatalog=NULL;*/
   }
+  fclose(dadosout);
+  fclose(dadosref);
 
   if(sField!=NULL)
     free(sField);
@@ -127,7 +137,5 @@ int main(int argc,char **argv){
   free(eqClass);
 
   free(parVortex); 
-  fclose(dadosout);
-
   return 0;
 }

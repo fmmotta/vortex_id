@@ -26,7 +26,9 @@ int vortexExtraction(int Height,int Width, int nCnect,
      * glibc, but have to check if it works for other libs.
      * I'm exploring the fact that if the size of the allocated array
      * is the same as the one I'm resizing it to, 
-     * realloc changes nothing
+     * realloc changes nothing. 
+     * see: http://stackoverflow.com/questions/18617620/
+     *      behavior-of-realloc-when-the-new-size-is-the-same-as-the-old-one
      */
     vCatalog=(float*)realloc(*vCatalogOut,4*nCnect*sizeof(float));
     if(vCatalog==NULL)
@@ -52,7 +54,6 @@ int vortexExtraction(int Height,int Width, int nCnect,
         y = x0[1] + j*dx[1];
 
         A[k] += dx[0]*dx[1];
-        //w[k] += fabs(gradU[0][1]-gradU[1][0])*dx[0]*dy[0];// maybe remove fabs
         w[k] += ((gradU[1][0]-gradU[0][1])/2.)*dx[0]*dx[1];
         a0[k] += x*((gradU[1][0]-gradU[0][1])/2.)*dx[0]*dx[1];
         b0[k] += y*((gradU[1][0]-gradU[0][1])/2.)*dx[0]*dx[1];
@@ -63,7 +64,7 @@ int vortexExtraction(int Height,int Width, int nCnect,
     rc= sqrt(A[k]/M_PI)/1.12091; // Constant comming from lamb-oseen vortex;
     a=a0[k]/w[k]; 
     b=b0[k]/w[k]; 
-    G = 2.7958961719283355*w[k];// Constant comming from lamb-oseen vortex;
+    G = 2.7958961719283355*w[k]; // Constant comming from lamb-oseen vortex;
 
     vCatalog[4*k+0] = G;
     vCatalog[4*k+1] = rc;
