@@ -49,6 +49,9 @@ test_vortexSingleRunTime: test_vortexSingleRunTime.o lambdaInit.o floodFill.o vo
 test_vortexShearSingleRunTime: test_vortexShearSingleRunTime.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o src/lambdaInit.h src/floodFill.h src/vortexGen.h src/vortexExtraction.h src/mt64.h
 	gcc -o bin/test_vortexShearSingleRunTime obj/test_vortexShearSingleRunTime.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/vortexExtraction.o obj/mt64.o -lm 
 
+test_vortexMultiRun: test_vortexMultiRun.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o src/lambdaInit.h src/floodFill.h src/vortexGen.h src/vortexExtraction.h src/mt64.h
+	gcc -o bin/test_vortexMultiRun obj/test_vortexMultiRun.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/vortexExtraction.o obj/mt64.o -lm 
+
 main.o: src/main.c 
 	gcc -c src/main.c -o obj/main.o
 
@@ -114,3 +117,6 @@ test_vortexSingleRunTime.o: src/tests/test_vortexSingleRunTime.c
 
 test_vortexShearSingleRunTime.o: src/tests/test_vortexShearSingleRunTime.c
 	gcc -c src/tests/test_vortexShearSingleRunTime.c -o obj/test_vortexShearSingleRunTime.o
+
+test_vortexMultiRun.o: src/tests/test_vortexMultiRun.c
+	gcc -c src/tests/test_vortexMultiRun.c -o obj/test_vortexMultiRun.o

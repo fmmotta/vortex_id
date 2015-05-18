@@ -3,14 +3,14 @@
 #include <math.h>
 #include <string.h>
 #include <time.h>
-#include "mt64.h"
-#include "floodFill.h"
-#include "lambdaInit.h"
-#include "vortexGen.h"
-#include "vortexExtraction.h"
+#include "../mt64.h"
+#include "../floodFill.h"
+#include "../lambdaInit.h"
+#include "../vortexGen.h"
+#include "../vortexExtraction.h"
 
 int main(int argc,char **argv){
-  const int Width = 100, Height = 100,Pop=10,nVortex=5,nRuns=20000;
+  const int Width = 100, Height = 100,Pop=10,nVortex=5,nRuns=5000;
   int seed=98755;
   int i,j,err,ngbr,found,nCnect,*label,n,bin;
   int nbList[8],eqList[Pop],**eqClass;
@@ -106,6 +106,7 @@ int main(int argc,char **argv){
       return err; 
     }
     
+    fprintf(dadosref,"Run %d - %d\n",n,nVortex);
     for(i=0;i<nVortex;i+=1)
       fprintf(dadosref,"%lf %lf %lf %lf\n",parVortex[4*i+0],
                                            parVortex[4*i+1],
@@ -113,6 +114,7 @@ int main(int argc,char **argv){
                                            parVortex[4*i+3]);
     fprintf(dadosref,"\n");
 
+    fprintf(dadosout,"Run %d - %d\n",n,nCnect);
     for(i=0;i<nCnect;i+=1)
       fprintf(dadosout,"%f %f %f %f\n",vCatalog[4*i+0],
                                        vCatalog[4*i+1],
