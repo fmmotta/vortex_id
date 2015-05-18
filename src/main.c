@@ -3,6 +3,7 @@
 #include <math.h>
 #include <string.h>
 #include <time.h>
+#include <gsl/gsl_histogram.h>
 #include "mt64.h"
 #include "floodFill.h"
 #include "lambdaInit.h"
@@ -10,15 +11,17 @@
 #include "vortexExtraction.h"
 
 int main(int argc,char **argv){
-  const int Width = 100, Height = 100,Pop=10,nVortex=5,nRuns=20000;
+  const int Width = 100, Height = 100,Pop=10,nVortex=5,nRuns=10000;
   int seed=98755;
   int i,j,err,ngbr,found,nCnect,*label,n,bin;
   int nbList[8],eqList[Pop],**eqClass;
-  float Gmin=1,Gmax=2,rmin=1,rmax=1;
+  float Gmin=1.,Gmax=20.,rmin=0.5,rmax=1.;
   float xmin[2]={-9.,-9.},xmax[2]={9.,9.};
   float *parVortex=NULL,x0[2],dx[2],xf[2],*sField=NULL,*gField;
   float x,y,v0y0 = 0.00,*vCatalog=NULL;
-  FILE *dadosgen,*dadosref,*dadosout;
+  FILE *dadosgen,*dadosout;
+  int hNG=55,hNRc=55,hNa=40,hNb=40,hNN=10;
+  gsl_histogram *hG,*hRc,*ha,*hb,*hN;
   
   x0[0]=-10.; xf[0]= 10.; dx[0] = (xf[0]-x0[0])/Height;
   x0[1]=-10.; xf[1]= 10.; dx[1] = (xf[1]-x0[1])/Width;
@@ -41,6 +44,19 @@ int main(int argc,char **argv){
   fprintf(dadosgen,"\nshear v0/y0=%f\n",v0y0);
   fclose(dadosgen);
 
+  /* histogram preparation - begin */
+  hG = gsl_histogram_alloc(hNG); 
+  gsl_histogram_set_ranges_uniform(hG,0.,2.5*Gmax);
+  hRc = gsl_histogram_alloc(hNRc); 
+  gsl_histogram_set_ranges_uniform(hRc,0.,2.5*rmax);
+  ha = gsl_histogram_alloc(hNa); 
+  gsl_histogram_set_ranges_uniform(ha,xmin[0],xmax[0]);
+  hb = gsl_histogram_alloc(hNb); 
+  gsl_histogram_set_ranges_uniform(hb,xmin[1],xmax[1]);
+  hN = gsl_histogram_alloc(hNN);
+  gsl_histogram_set_ranges_uniform(hN,0,2*nVortex);
+  /* histogram preparation - end*/
+
   eqClass=(int**)malloc(NumCls*sizeof(int*));
   if(eqClass==NULL)
     return 1;
@@ -61,9 +77,6 @@ int main(int argc,char **argv){
     printf("memory not allocked\n");
     return 2;
   }
-
-  dadosref=fopen("data/multiRunRef.txt","w");
-  dadosout=fopen("data/multiRunRes.txt","w");
 
   for(n=0;n<nRuns;n+=1){
     err=genLOseenBinaryList(Gmin,Gmax,rmin,rmax,xmin,xmax,seed,
@@ -105,23 +118,32 @@ int main(int argc,char **argv){
       printf("error on vortexExtraction - %d\n",err);
       return err; 
     }
-    
-    for(i=0;i<nVortex;i+=1)
-      fprintf(dadosref,"%lf %lf %lf %lf\n",parVortex[4*i+0],
-                                           parVortex[4*i+1],
-                                           parVortex[4*i+2],
-                                           parVortex[4*i+3]);
-    fprintf(dadosref,"\n");
 
-    for(i=0;i<nCnect;i+=1)
-      fprintf(dadosout,"%f %f %f %f\n",vCatalog[4*i+0],
-                                       vCatalog[4*i+1],
-                                       vCatalog[4*i+2],
-                                       vCatalog[4*i+3]);
-    fprintf(dadosout,"\n");
+    gsl_histogram_increment(hN,nCnect);
+    for(i=0;i<nCnect;i+=1){
+      gsl_histogram_increment(hG,vCatalog[4*i+0]);
+      gsl_histogram_increment(hRc,vCatalog[4*i+1]);
+      gsl_histogram_increment(ha,vCatalog[4*i+2]);
+      gsl_histogram_increment(hb,vCatalog[4*i+3]);
+    }
+
   }
+
+  dadosout=fopen("data/histoG.txt","w");
+  gsl_histogram_fprintf(dadosout,hG,"%f","%f");
   fclose(dadosout);
-  fclose(dadosref);
+  dadosout=fopen("data/histoRc.txt","w");
+  gsl_histogram_fprintf(dadosout,hRc,"%f","%f");
+  fclose(dadosout);
+  dadosout=fopen("data/histoa.txt","w");
+  gsl_histogram_fprintf(dadosout,ha,"%f","%f");
+  fclose(dadosout);
+  dadosout=fopen("data/histob.txt","w");
+  gsl_histogram_fprintf(dadosout,hb,"%f","%f");
+  fclose(dadosout);
+  dadosout=fopen("data/histoN.txt","w");
+  gsl_histogram_fprintf(dadosout,hN,"%f","%f");
+  fclose(dadosout);
 
   if(sField!=NULL)
     free(sField);
@@ -137,5 +159,14 @@ int main(int argc,char **argv){
   free(eqClass);
 
   free(parVortex); 
+
+  /* histogram free - begin */
+  gsl_histogram_free(hG);
+  gsl_histogram_free(hRc);
+  gsl_histogram_free(ha);
+  gsl_histogram_free(hb);
+  gsl_histogram_free(hN);
+  /* histogram free - end*/
+
   return 0;
 }

@@ -41,7 +41,7 @@ int genLOseenUniformList(float Gmin,float Gmax, float rmin,float rmax,
       taint=0;
       for(j=0;j<i;j+=1){
         r = distf(a-parVortex[4*j+2],b-parVortex[4*j+3]);
-        if(r< rc+parVortex[4*j+1])
+        if(r< 1.2*(rc+parVortex[4*j+1])) /* Magic Number: change later*/
           taint=1;
       }
     }while(taint!=0);
@@ -89,7 +89,7 @@ int genLOseenBinaryList(float Gmin,float Gmax, float rmin,float rmax,
       taint=0;
       for(j=0;j<i;j+=1){
         r = distf(a-parVortex[4*j+2],b-parVortex[4*j+3]);
-        if(r< rc+parVortex[4*j+1])
+        if(r< 1.2*(rc+parVortex[4*j+1])) /* Magic Number: change later*/
           taint=1;
       }
     }while(taint!=0);

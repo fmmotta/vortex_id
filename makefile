@@ -1,5 +1,5 @@
 main: main.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o src/lambdaInit.h src/floodFill.h src/vortexGen.h src/vortexExtraction.h src/mt64.h
-	gcc -o bin/main obj/main.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/vortexExtraction.o obj/mt64.o -lm
+	gcc -o bin/main obj/main.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/vortexExtraction.o obj/mt64.o -lm -lgsl -lgslcblas
 
 test_floodFill: floodFill.o test_floodFill.o
 	gcc -o bin/test_floodFill obj/test_floodFill.o obj/floodFill.o -lm
@@ -53,70 +53,70 @@ test_vortexMultiRun: test_vortexMultiRun.o lambdaInit.o floodFill.o vortexGen.o 
 	gcc -o bin/test_vortexMultiRun obj/test_vortexMultiRun.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/vortexExtraction.o obj/mt64.o -lm 
 
 main.o: src/main.c 
-	gcc -c src/main.c -o obj/main.o
+	gcc -c src/main.c -O3 -o obj/main.o
 
 lambdaInit.o: src/lambdaInit.c src/lambdaInit.h
-	gcc -c src/lambdaInit.c -o obj/lambdaInit.o
+	gcc -c src/lambdaInit.c -O3 -o obj/lambdaInit.o
 
 floodFill.o: src/floodFill.c src/floodFill.h
-	gcc -c src/floodFill.c -o obj/floodFill.o
+	gcc -c src/floodFill.c -O3 -o obj/floodFill.o
 
 vortexGen.o: src/vortexGen.c
-	gcc -c src/vortexGen.c -o obj/vortexGen.o
+	gcc -c src/vortexGen.c -O3 -o obj/vortexGen.o
 
 vortexExtraction.o: src/vortexExtraction.c
-	gcc -c src/vortexExtraction.c -o obj/vortexExtraction.o
+	gcc -c src/vortexExtraction.c -O3 -o obj/vortexExtraction.o
 
 mt64.o: src/mt19937-64.c src/mt64.h
-	gcc -c src/mt19937-64.c -o obj/mt64.o
+	gcc -c src/mt19937-64.c -O3 -o obj/mt64.o
 
 test_floodFill.o: src/tests/test_floodFill.c src/floodFill.h
-	gcc -c src/tests/test_floodFill.c -o obj/test_floodFill.o
+	gcc -c src/tests/test_floodFill.c -O3 -o obj/test_floodFill.o
 
 test_lambOseenShear0.o: src/tests/test_lambOseenShear0.c src/floodFill.h src/lambdaInit.h
-	gcc -c src/tests/test_lambOseenShear0.c -o obj/test_lambOseenShear0.o
+	gcc -c src/tests/test_lambOseenShear0.c -O3 -o obj/test_lambOseenShear0.o
 
 test_lambOseenShear1.o: src/tests/test_lambOseenShear1.c src/floodFill.h src/lambdaInit.h
-	gcc -c src/tests/test_lambOseenShear1.c -o obj/test_lambOseenShear1.o
+	gcc -c src/tests/test_lambOseenShear1.c -O3 -o obj/test_lambOseenShear1.o
 
 test_lambOseenShear2.o: src/tests/test_lambOseenShear2.c src/floodFill.h src/lambdaInit.h
-	gcc -c src/tests/test_lambOseenShear2.c -o obj/test_lambOseenShear2.o
+	gcc -c src/tests/test_lambOseenShear2.c -O3 -o obj/test_lambOseenShear2.o
 
 test_lambOseenShear3.o: src/tests/test_lambOseenShear3.c src/floodFill.h src/lambdaInit.h
-	gcc -c src/tests/test_lambOseenShear3.c -o obj/test_lambOseenShear3.o
+	gcc -c src/tests/test_lambOseenShear3.c -O3 -o obj/test_lambOseenShear3.o
 
 test_addSingleOseen.o: src/tests/test_addSingleOseen.c src/floodFill.h src/lambdaInit.h
-	gcc -c src/tests/test_addSingleOseen.c -o obj/test_addSingleOseen.o
+	gcc -c src/tests/test_addSingleOseen.c -O3 -o obj/test_addSingleOseen.o
 
 test_genLOseenUniformList.o: src/tests/test_genLOseenUniformList.c 
-	gcc -c src/tests/test_genLOseenUniformList.c -o obj/test_genLOseenUniformList.o
+	gcc -c src/tests/test_genLOseenUniformList.c -O3 -o obj/test_genLOseenUniformList.o
 
 test_genLOseenBinaryList.o: src/tests/test_genLOseenBinaryList.c 
-	gcc -c src/tests/test_genLOseenBinaryList.c -o obj/test_genLOseenBinaryList.o
+	gcc -c src/tests/test_genLOseenBinaryList.c -O3 -o obj/test_genLOseenBinaryList.o
 
 test_vortexExtraction0.o: src/tests/test_vortexExtraction0.c
-	gcc -c src/tests/test_vortexExtraction0.c -o obj/test_vortexExtraction0.o
+	gcc -c src/tests/test_vortexExtraction0.c -O3 -o obj/test_vortexExtraction0.o
 
 test_vortexExtraction1.o: src/tests/test_vortexExtraction1.c
-	gcc -c src/tests/test_vortexExtraction1.c -o obj/test_vortexExtraction1.o
+	gcc -c src/tests/test_vortexExtraction1.c -O3 -o obj/test_vortexExtraction1.o
 
 test_vortexExtraction2.o: src/tests/test_vortexExtraction2.c
-	gcc -c src/tests/test_vortexExtraction2.c -o obj/test_vortexExtraction2.o
+	gcc -c src/tests/test_vortexExtraction2.c -O3 -o obj/test_vortexExtraction2.o
 
 test_vortexExtraction3.o: src/tests/test_vortexExtraction3.c
-	gcc -c src/tests/test_vortexExtraction3.c -o obj/test_vortexExtraction3.o
+	gcc -c src/tests/test_vortexExtraction3.c -O3 -o obj/test_vortexExtraction3.o
 
 test_vortexExtraction4.o: src/tests/test_vortexExtraction4.c
-	gcc -c src/tests/test_vortexExtraction4.c -o obj/test_vortexExtraction4.o
+	gcc -c src/tests/test_vortexExtraction4.c -O3 -o obj/test_vortexExtraction4.o
 
 test_vortexSingleRun.o: src/tests/test_vortexSingleRun.c
-	gcc -c src/tests/test_vortexSingleRun.c -o obj/test_vortexSingleRun.o
+	gcc -c src/tests/test_vortexSingleRun.c -O3 -o obj/test_vortexSingleRun.o
 
 test_vortexSingleRunTime.o: src/tests/test_vortexSingleRunTime.c
-	gcc -c src/tests/test_vortexSingleRunTime.c -o obj/test_vortexSingleRunTime.o
+	gcc -c src/tests/test_vortexSingleRunTime.c -O3 -o obj/test_vortexSingleRunTime.o
 
 test_vortexShearSingleRunTime.o: src/tests/test_vortexShearSingleRunTime.c
-	gcc -c src/tests/test_vortexShearSingleRunTime.c -o obj/test_vortexShearSingleRunTime.o
+	gcc -c src/tests/test_vortexShearSingleRunTime.c -O3 -o obj/test_vortexShearSingleRunTime.o
 
 test_vortexMultiRun.o: src/tests/test_vortexMultiRun.c
-	gcc -c src/tests/test_vortexMultiRun.c -o obj/test_vortexMultiRun.o
+	gcc -c src/tests/test_vortexMultiRun.c -O3 -o obj/test_vortexMultiRun.o
