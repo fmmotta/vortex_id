@@ -3,8 +3,8 @@
 #include <math.h>
 #include <string.h>
 #include <time.h>
-#include "../vortexGen.h"
-#include "../mt64.h"
+#include "vortexGen.h"
+#include "mt64.h"
 
 int main(int argc,char **argv){
   const int numVortex=5;

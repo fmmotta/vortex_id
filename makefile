@@ -1,122 +1,138 @@
+# Makefile for vortex_id program
+# contain build directives for main binaries and tests
+
+# Compiler Choice : Gnu C Compiler ; Can change for icc
+CC = gcc
+INC_DIR = src
+CFLAGS = -c -O3 -I$(INC_DIR)
+LIBS = -lm -lgsl -lgslcblas
+
+default: main
+
+all: main 
+
 main: main.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o src/lambdaInit.h src/floodFill.h src/vortexGen.h src/vortexExtraction.h src/mt64.h
-	gcc -o bin/main obj/main.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/vortexExtraction.o obj/mt64.o -lm -lgsl -lgslcblas
+	$(CC) -o bin/main obj/main.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/vortexExtraction.o obj/mt64.o $(LIBS)
 
 test_floodFill: floodFill.o test_floodFill.o
-	gcc -o bin/test_floodFill obj/test_floodFill.o obj/floodFill.o -lm
+	$(CC) -o bin/test_floodFill obj/test_floodFill.o obj/floodFill.o $(LIBS)
 
 test_lambOseenShear0: floodFill.o test_lambOseenShear0.o lambdaInit.o
-	gcc -o bin/test_lambOseenShear0 obj/test_lambOseenShear0.o obj/floodFill.o obj/lambdaInit.o -lm
+	$(CC) -o bin/test_lambOseenShear0 obj/test_lambOseenShear0.o obj/floodFill.o obj/lambdaInit.o $(LIBS)
 
 test_lambOseenShear1: floodFill.o test_lambOseenShear1.o lambdaInit.o
-	gcc -o bin/test_lambOseenShear1 obj/test_lambOseenShear1.o obj/floodFill.o obj/lambdaInit.o -lm
+	$(CC) -o bin/test_lambOseenShear1 obj/test_lambOseenShear1.o obj/floodFill.o obj/lambdaInit.o $(LIBS)
 
 test_lambOseenShear2: floodFill.o test_lambOseenShear2.o lambdaInit.o
-	gcc -o bin/test_lambOseenShear2 obj/test_lambOseenShear2.o obj/floodFill.o obj/lambdaInit.o -lm
+	$(CC) -o bin/test_lambOseenShear2 obj/test_lambOseenShear2.o obj/floodFill.o obj/lambdaInit.o $(LIBS)
 
 test_lambOseenShear3: floodFill.o test_lambOseenShear3.o lambdaInit.o
-	gcc -o bin/test_lambOseenShear3 obj/test_lambOseenShear3.o obj/floodFill.o obj/lambdaInit.o -lm
+	$(CC) -o bin/test_lambOseenShear3 obj/test_lambOseenShear3.o obj/floodFill.o obj/lambdaInit.o $(LIBS)
 
 test_addSingleOseen: test_addSingleOseen.o lambdaInit.o floodFill.o
-	gcc -o bin/test_addSingleOseen obj/test_addSingleOseen.o obj/floodFill.o obj/lambdaInit.o -lm
+	$(CC) -o bin/test_addSingleOseen obj/test_addSingleOseen.o obj/floodFill.o obj/lambdaInit.o $(LIBS)
 
 test_genLOseenUniformList: test_genLOseenUniformList.o mt64.o vortexGen.o
-	gcc -o bin/test_genLOseenUniformList obj/test_genLOseenUniformList.o obj/mt64.o obj/vortexGen.o -lm
+	$(CC) -o bin/test_genLOseenUniformList obj/test_genLOseenUniformList.o obj/mt64.o obj/vortexGen.o $(LIBS)
 
 test_genLOseenBinaryList: test_genLOseenBinaryList.o mt64.o vortexGen.o
-	gcc -o bin/test_genLOseenBinaryList obj/test_genLOseenBinaryList.o obj/mt64.o obj/vortexGen.o -lm
+	$(CC) -o bin/test_genLOseenBinaryList obj/test_genLOseenBinaryList.o obj/mt64.o obj/vortexGen.o $(LIBS)
 
 test_vortexExtraction0: test_vortexExtraction0.o floodFill.o lambdaInit.o vortexExtraction.o
-	gcc -o bin/test_vortexExtraction0 obj/test_vortexExtraction0.o obj/floodFill.o obj/lambdaInit.o obj/vortexExtraction.o -lm
+	$(CC) -o bin/test_vortexExtraction0 obj/test_vortexExtraction0.o obj/floodFill.o obj/lambdaInit.o obj/vortexExtraction.o $(LIBS)
 
 test_vortexExtraction1: test_vortexExtraction1.o floodFill.o lambdaInit.o vortexExtraction.o
-	gcc -o bin/test_vortexExtraction1 obj/test_vortexExtraction1.o obj/floodFill.o obj/lambdaInit.o obj/vortexExtraction.o -lm
+	$(CC) -o bin/test_vortexExtraction1 obj/test_vortexExtraction1.o obj/floodFill.o obj/lambdaInit.o obj/vortexExtraction.o $(LIBS)
 
 test_vortexExtraction2: test_vortexExtraction2.o floodFill.o lambdaInit.o vortexExtraction.o
-	gcc -o bin/test_vortexExtraction2 obj/test_vortexExtraction2.o obj/floodFill.o obj/lambdaInit.o obj/vortexExtraction.o -lm
+	$(CC) -o bin/test_vortexExtraction2 obj/test_vortexExtraction2.o obj/floodFill.o obj/lambdaInit.o obj/vortexExtraction.o $(LIBS)
 
 test_vortexExtraction3: test_vortexExtraction3.o floodFill.o lambdaInit.o vortexExtraction.o
-	gcc -o bin/test_vortexExtraction3 obj/test_vortexExtraction3.o obj/floodFill.o obj/lambdaInit.o obj/vortexExtraction.o -lm
+	$(CC) -o bin/test_vortexExtraction3 obj/test_vortexExtraction3.o obj/floodFill.o obj/lambdaInit.o obj/vortexExtraction.o $(LIBS)
 
 test_vortexExtraction4: test_vortexExtraction4.o floodFill.o lambdaInit.o vortexExtraction.o
-	gcc -o bin/test_vortexExtraction4 obj/test_vortexExtraction4.o obj/floodFill.o obj/lambdaInit.o obj/vortexExtraction.o -lm
+	$(CC) -o bin/test_vortexExtraction4 obj/test_vortexExtraction4.o obj/floodFill.o obj/lambdaInit.o obj/vortexExtraction.o $(LIBS)
 
 test_vortexSingleRun: test_vortexSingleRun.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o src/lambdaInit.h src/floodFill.h src/vortexGen.h src/vortexExtraction.h src/mt64.h
-	gcc -o bin/test_vortexSingleRun obj/test_vortexSingleRun.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/vortexExtraction.o obj/mt64.o -lm
+	$(CC) -o bin/test_vortexSingleRun obj/test_vortexSingleRun.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/vortexExtraction.o obj/mt64.o $(LIBS)
 
 test_vortexSingleRunTime: test_vortexSingleRunTime.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o src/lambdaInit.h src/floodFill.h src/vortexGen.h src/vortexExtraction.h src/mt64.h
-	gcc -o bin/test_vortexSingleRunTime obj/test_vortexSingleRunTime.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/vortexExtraction.o obj/mt64.o -lm 
+	$(CC) -o bin/test_vortexSingleRunTime obj/test_vortexSingleRunTime.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/vortexExtraction.o obj/mt64.o $(LIBS) 
 
 test_vortexShearSingleRunTime: test_vortexShearSingleRunTime.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o src/lambdaInit.h src/floodFill.h src/vortexGen.h src/vortexExtraction.h src/mt64.h
-	gcc -o bin/test_vortexShearSingleRunTime obj/test_vortexShearSingleRunTime.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/vortexExtraction.o obj/mt64.o -lm 
+	$(CC) -o bin/test_vortexShearSingleRunTime obj/test_vortexShearSingleRunTime.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/vortexExtraction.o obj/mt64.o $(LIBS) 
 
 test_vortexMultiRun: test_vortexMultiRun.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o src/lambdaInit.h src/floodFill.h src/vortexGen.h src/vortexExtraction.h src/mt64.h
-	gcc -o bin/test_vortexMultiRun obj/test_vortexMultiRun.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/vortexExtraction.o obj/mt64.o -lm 
+	$(CC) -o bin/test_vortexMultiRun obj/test_vortexMultiRun.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/vortexExtraction.o obj/mt64.o $(LIBS) 
 
 main.o: src/main.c 
-	gcc -c src/main.c -O3 -o obj/main.o
+	$(CC) $(CFLAGS) src/main.c -o obj/main.o
 
 lambdaInit.o: src/lambdaInit.c src/lambdaInit.h
-	gcc -c src/lambdaInit.c -O3 -o obj/lambdaInit.o
+	$(CC) $(CFLAGS) src/lambdaInit.c -o obj/lambdaInit.o
 
 floodFill.o: src/floodFill.c src/floodFill.h
-	gcc -c src/floodFill.c -O3 -o obj/floodFill.o
+	$(CC) $(CFLAGS) src/floodFill.c -o obj/floodFill.o
 
 vortexGen.o: src/vortexGen.c
-	gcc -c src/vortexGen.c -O3 -o obj/vortexGen.o
+	$(CC) $(CFLAGS) src/vortexGen.c -o obj/vortexGen.o
 
 vortexExtraction.o: src/vortexExtraction.c
-	gcc -c src/vortexExtraction.c -O3 -o obj/vortexExtraction.o
+	$(CC) $(CFLAGS) src/vortexExtraction.c -o obj/vortexExtraction.o
 
 mt64.o: src/mt19937-64.c src/mt64.h
-	gcc -c src/mt19937-64.c -O3 -o obj/mt64.o
+	$(CC) $(CFLAGS) src/mt19937-64.c -o obj/mt64.o
 
 test_floodFill.o: src/tests/test_floodFill.c src/floodFill.h
-	gcc -c src/tests/test_floodFill.c -O3 -o obj/test_floodFill.o
+	$(CC) $(CFLAGS) src/tests/test_floodFill.c -o obj/test_floodFill.o
 
 test_lambOseenShear0.o: src/tests/test_lambOseenShear0.c src/floodFill.h src/lambdaInit.h
-	gcc -c src/tests/test_lambOseenShear0.c -O3 -o obj/test_lambOseenShear0.o
+	$(CC) $(CFLAGS) src/tests/test_lambOseenShear0.c -o obj/test_lambOseenShear0.o
 
 test_lambOseenShear1.o: src/tests/test_lambOseenShear1.c src/floodFill.h src/lambdaInit.h
-	gcc -c src/tests/test_lambOseenShear1.c -O3 -o obj/test_lambOseenShear1.o
+	$(CC) $(CFLAGS) src/tests/test_lambOseenShear1.c -o obj/test_lambOseenShear1.o
 
 test_lambOseenShear2.o: src/tests/test_lambOseenShear2.c src/floodFill.h src/lambdaInit.h
-	gcc -c src/tests/test_lambOseenShear2.c -O3 -o obj/test_lambOseenShear2.o
+	$(CC) $(CFLAGS) src/tests/test_lambOseenShear2.c -o obj/test_lambOseenShear2.o
 
 test_lambOseenShear3.o: src/tests/test_lambOseenShear3.c src/floodFill.h src/lambdaInit.h
-	gcc -c src/tests/test_lambOseenShear3.c -O3 -o obj/test_lambOseenShear3.o
+	$(CC) $(CFLAGS) src/tests/test_lambOseenShear3.c -o obj/test_lambOseenShear3.o
 
 test_addSingleOseen.o: src/tests/test_addSingleOseen.c src/floodFill.h src/lambdaInit.h
-	gcc -c src/tests/test_addSingleOseen.c -O3 -o obj/test_addSingleOseen.o
+	$(CC) $(CFLAGS) src/tests/test_addSingleOseen.c -o obj/test_addSingleOseen.o
 
 test_genLOseenUniformList.o: src/tests/test_genLOseenUniformList.c 
-	gcc -c src/tests/test_genLOseenUniformList.c -O3 -o obj/test_genLOseenUniformList.o
+	$(CC) $(CFLAGS) src/tests/test_genLOseenUniformList.c -o obj/test_genLOseenUniformList.o
 
 test_genLOseenBinaryList.o: src/tests/test_genLOseenBinaryList.c 
-	gcc -c src/tests/test_genLOseenBinaryList.c -O3 -o obj/test_genLOseenBinaryList.o
+	$(CC) $(CFLAGS) src/tests/test_genLOseenBinaryList.c -o obj/test_genLOseenBinaryList.o
 
 test_vortexExtraction0.o: src/tests/test_vortexExtraction0.c
-	gcc -c src/tests/test_vortexExtraction0.c -O3 -o obj/test_vortexExtraction0.o
+	$(CC) $(CFLAGS) src/tests/test_vortexExtraction0.c -o obj/test_vortexExtraction0.o
 
 test_vortexExtraction1.o: src/tests/test_vortexExtraction1.c
-	gcc -c src/tests/test_vortexExtraction1.c -O3 -o obj/test_vortexExtraction1.o
+	$(CC) $(CFLAGS) src/tests/test_vortexExtraction1.c -o obj/test_vortexExtraction1.o
 
 test_vortexExtraction2.o: src/tests/test_vortexExtraction2.c
-	gcc -c src/tests/test_vortexExtraction2.c -O3 -o obj/test_vortexExtraction2.o
+	$(CC) $(CFLAGS) src/tests/test_vortexExtraction2.c -o obj/test_vortexExtraction2.o
 
 test_vortexExtraction3.o: src/tests/test_vortexExtraction3.c
-	gcc -c src/tests/test_vortexExtraction3.c -O3 -o obj/test_vortexExtraction3.o
+	$(CC) $(CFLAGS) src/tests/test_vortexExtraction3.c -o obj/test_vortexExtraction3.o
 
 test_vortexExtraction4.o: src/tests/test_vortexExtraction4.c
-	gcc -c src/tests/test_vortexExtraction4.c -O3 -o obj/test_vortexExtraction4.o
+	$(CC) $(CFLAGS) src/tests/test_vortexExtraction4.c -o obj/test_vortexExtraction4.o
 
 test_vortexSingleRun.o: src/tests/test_vortexSingleRun.c
-	gcc -c src/tests/test_vortexSingleRun.c -O3 -o obj/test_vortexSingleRun.o
+	$(CC) $(CFLAGS) src/tests/test_vortexSingleRun.c -o obj/test_vortexSingleRun.o
 
 test_vortexSingleRunTime.o: src/tests/test_vortexSingleRunTime.c
-	gcc -c src/tests/test_vortexSingleRunTime.c -O3 -o obj/test_vortexSingleRunTime.o
+	$(CC) $(CFLAGS) src/tests/test_vortexSingleRunTime.c -o obj/test_vortexSingleRunTime.o
 
 test_vortexShearSingleRunTime.o: src/tests/test_vortexShearSingleRunTime.c
-	gcc -c src/tests/test_vortexShearSingleRunTime.c -O3 -o obj/test_vortexShearSingleRunTime.o
+	$(CC) $(CFLAGS) src/tests/test_vortexShearSingleRunTime.c -o obj/test_vortexShearSingleRunTime.o
 
 test_vortexMultiRun.o: src/tests/test_vortexMultiRun.c
-	gcc -c src/tests/test_vortexMultiRun.c -O3 -o obj/test_vortexMultiRun.o
+	$(CC) $(CFLAGS) src/tests/test_vortexMultiRun.c -o obj/test_vortexMultiRun.o
+
+clean:
+	rm bin/* obj/*

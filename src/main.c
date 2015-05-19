@@ -11,20 +11,20 @@
 #include "vortexExtraction.h"
 
 int main(int argc,char **argv){
-  const int Width = 100, Height = 100,Pop=10,nVortex=5,nRuns=10000;
+  const int Width = 100, Height = 100,Pop=10,nVortex=5,nRuns=1000;
   int seed=98755;
   int i,j,err,ngbr,found,nCnect,*label,n,bin;
   int nbList[8],eqList[Pop],**eqClass;
   float Gmin=1.,Gmax=20.,rmin=0.5,rmax=1.;
-  float xmin[2]={-9.,-9.},xmax[2]={9.,9.};
+  float xmin[2]={1.,1.},xmax[2]={9.,9.};
   float *parVortex=NULL,x0[2],dx[2],xf[2],*sField=NULL,*gField;
   float x,y,v0y0 = 0.00,*vCatalog=NULL;
   FILE *dadosgen,*dadosout;
   int hNG=55,hNRc=55,hNa=40,hNb=40,hNN=10;
   gsl_histogram *hG,*hRc,*ha,*hb,*hN;
   
-  x0[0]=-10.; xf[0]= 10.; dx[0] = (xf[0]-x0[0])/Height;
-  x0[1]=-10.; xf[1]= 10.; dx[1] = (xf[1]-x0[1])/Width;
+  x0[0]=0.; xf[0]= 10.; dx[0] = (xf[0]-x0[0])/Height;
+  x0[1]=0.; xf[1]= 10.; dx[1] = (xf[1]-x0[1])/Width;
 
   if(argc>1)
     seed = atoi(argv[1]);

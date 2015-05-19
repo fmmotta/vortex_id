@@ -3,11 +3,11 @@
 #include <math.h>
 #include <string.h>
 #include <time.h>
-#include "../mt64.h"
-#include "../floodFill.h"
-#include "../lambdaInit.h"
-#include "../vortexGen.h"
-#include "../vortexExtraction.h"
+#include "mt64.h"
+#include "floodFill.h"
+#include "lambdaInit.h"
+#include "vortexGen.h"
+#include "vortexExtraction.h"
 
 int main(int argc,char **argv){
   const int Width = 100, Height = 100,Pop=10,nVortex=5,nRuns=5000;
