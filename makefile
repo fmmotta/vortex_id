@@ -9,7 +9,7 @@ LIBS = -lm -lgsl -lgslcblas
 
 default: main
 
-all: main 
+all: main test_floodFill test_lambOseenShear0 test_lambOseenShear1 test_lambOseenShear2 test_lambOseenShear3 test_addSingleOseen test_genLOseenUniformList test_genLOseenBinaryList test_vortexQuickSort test_vortexExtraction0 test_vortexExtraction1 test_vortexExtraction2 test_vortexExtraction3 test_vortexSingleRun test_vortexSingleRunTime test_vortexShearSingleRunTime test_vortexMultiRun test_vortexMultiRunHistogram
 
 main: main.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o src/lambdaInit.h src/floodFill.h src/vortexGen.h src/vortexExtraction.h src/mt64.h
 	$(CC) -o bin/main obj/main.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/vortexExtraction.o obj/mt64.o $(LIBS)
@@ -38,6 +38,9 @@ test_genLOseenUniformList: test_genLOseenUniformList.o mt64.o vortexGen.o
 test_genLOseenBinaryList: test_genLOseenBinaryList.o mt64.o vortexGen.o
 	$(CC) -o bin/test_genLOseenBinaryList obj/test_genLOseenBinaryList.o obj/mt64.o obj/vortexGen.o $(LIBS)
 
+test_vortexQuickSort: test_vortexQuickSort.o mt64.o vortexGen.o vortexExtraction.o lambdaInit.o floodFill.o
+	$(CC) -o bin/test_vortexQuickSort obj/test_vortexQuickSort.o obj/mt64.o obj/vortexGen.o obj/vortexExtraction.o obj/lambdaInit.o obj/floodFill.o $(LIBS)
+
 test_vortexExtraction0: test_vortexExtraction0.o floodFill.o lambdaInit.o vortexExtraction.o
 	$(CC) -o bin/test_vortexExtraction0 obj/test_vortexExtraction0.o obj/floodFill.o obj/lambdaInit.o obj/vortexExtraction.o $(LIBS)
 
@@ -64,6 +67,9 @@ test_vortexShearSingleRunTime: test_vortexShearSingleRunTime.o lambdaInit.o floo
 
 test_vortexMultiRun: test_vortexMultiRun.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o src/lambdaInit.h src/floodFill.h src/vortexGen.h src/vortexExtraction.h src/mt64.h
 	$(CC) -o bin/test_vortexMultiRun obj/test_vortexMultiRun.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/vortexExtraction.o obj/mt64.o $(LIBS) 
+
+test_vortexMultiRunHistogram: test_vortexMultiRunHistogram.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o src/lambdaInit.h src/floodFill.h src/vortexGen.h src/vortexExtraction.h src/mt64.h
+	$(CC) -o bin/test_vortexMultiRunHistogram obj/test_vortexMultiRunHistogram.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/vortexExtraction.o obj/mt64.o $(LIBS) 
 
 main.o: src/main.c 
 	$(CC) $(CFLAGS) src/main.c -o obj/main.o
@@ -107,6 +113,9 @@ test_genLOseenUniformList.o: src/tests/test_genLOseenUniformList.c
 test_genLOseenBinaryList.o: src/tests/test_genLOseenBinaryList.c 
 	$(CC) $(CFLAGS) src/tests/test_genLOseenBinaryList.c -o obj/test_genLOseenBinaryList.o
 
+test_vortexQuickSort.o: src/tests/test_vortexQuickSort.c 
+	$(CC) $(CFLAGS) src/tests/test_vortexQuickSort.c -o obj/test_vortexQuickSort.o
+
 test_vortexExtraction0.o: src/tests/test_vortexExtraction0.c
 	$(CC) $(CFLAGS) src/tests/test_vortexExtraction0.c -o obj/test_vortexExtraction0.o
 
@@ -133,6 +142,9 @@ test_vortexShearSingleRunTime.o: src/tests/test_vortexShearSingleRunTime.c
 
 test_vortexMultiRun.o: src/tests/test_vortexMultiRun.c
 	$(CC) $(CFLAGS) src/tests/test_vortexMultiRun.c -o obj/test_vortexMultiRun.o
+
+test_vortexMultiRunHistogram.o: src/tests/test_vortexMultiRunHistogram.c
+	$(CC) $(CFLAGS) src/tests/test_vortexMultiRunHistogram.c -o obj/test_vortexMultiRunHistogram.o
 
 clean:
 	rm bin/* obj/*

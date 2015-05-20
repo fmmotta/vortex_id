@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include "lambdaInit.h"
+#include "floodFill.h"
+#include "vortexExtraction.h"
 
 int vortexExtraction(int Height,int Width, int nCnect,
 	                 float *x0, float *dx,float *sField,
@@ -22,6 +25,8 @@ int vortexExtraction(int Height,int Width, int nCnect,
   }
   else{
     /*
+     * WARNING : 
+     *
      * potentially problematic behaviour, but works with
      * glibc, but have to check if it works for other libs.
      * I'm exploring the fact that if the size of the allocated array
@@ -73,6 +78,124 @@ int vortexExtraction(int Height,int Width, int nCnect,
   }
 
   *vCatalogOut=vCatalog;
+
+  return 0;
+}
+
+/*
+ * Quicksort implementation inspired on Roseta Code:
+ * http://rosettacode.org/wiki/Sorting_algorithms/Quicksort#C
+ */
+
+void vortexQuickSort(float *v,int nCnect,
+                     int (*cmp)(const float*,const float*)){
+  int i,j;
+  float p[4],t[4];
+  if(nCnect<2)
+    return;
+
+  p[0] = v[4*(nCnect/2)+0];
+  p[1] = v[4*(nCnect/2)+1];
+  p[2] = v[4*(nCnect/2)+2];
+  p[3] = v[4*(nCnect/2)+3];
+  for(i=0,j=nCnect-1;;i++,j--){
+    //while( v[4*i+0]/(v[4*i+1]*v[4*i+1]) > p[0]/(p[1]*p[1]) )
+    while( cmp(v+4*i,p) )
+      i++;
+    //while( p[0]/(p[1]*p[1]) > v[4*j+0]/(v[4*j+1]*v[4*j+1]) )
+    while( cmp(p,v+4*j) )
+      j--;
+    if(i >= j)
+      break;
+
+    t[0]=v[4*i+0]; t[1]=v[4*i+1];
+    t[2]=v[4*i+2]; t[3]=v[4*i+3];
+
+    v[4*i+0]=v[4*j+0]; v[4*i+1]=v[4*j+1]; 
+    v[4*i+2]=v[4*j+2]; v[4*i+3]=v[4*j+3];
+
+    v[4*j+0]=t[0]; v[4*j+1]=t[1]; 
+    v[4*j+2]=t[2]; v[4*j+3]=t[3];
+  }
+  vortexQuickSort(v,i,cmp);
+  vortexQuickSort(v+4*i,nCnect-i,cmp);
+}
+
+int lesserCirculation(const float *v,const float *p){
+  if(v[0]<p[0])
+    return 1;
+  else
+    return 0;
+}
+
+int greaterCirculation(const float *v,const float *p){
+  if(v[0]>p[0])
+    return 1;
+  else
+    return 0;
+}
+
+int lesserVorticity(const float *v,const float *p){
+  if(v[0]/(v[1]*v[1])<p[0]/(p[1]*p[1]))
+    return 1;
+  else
+    return 0;
+}
+
+int greaterVorticity(const float *v,const float *p){
+  if(v[0]/(v[1]*v[1])>p[0]/(p[1]*p[1]))
+    return 1;
+  else
+    return 0;
+}
+
+int lesserRadius(const float *v,const float *p){
+  if(v[1]<p[1])
+    return 1;
+  else
+    return 0;
+}
+
+int greaterRadius(const float *v,const float *p){
+  if(v[1]>p[1])
+    return 1;
+  else
+    return 0;
+}
+
+int vortexExtRecursive(int Height,int Width, int nCnect,
+                       float *x0, float *dx,int **eqClass,
+                       float *sField,float *gField,int *label,
+                       float *rCatalogOut){
+  int i,err=0,pass=0;
+  float *vCatalog;
+  do{
+    for(i=0;i<Height*Width;i+=1)
+      label[i]=-1;
+
+    err = gradUtoLamb(Height,Width,gField,&sField);
+    if(err!=0)
+      printf("Problems in gradUtoLamb\n");
+  
+    err = floodFill(sField,Width,Height,eqClass,label);
+    if(err!=0)
+      printf("Problems in floodFill\n");
+
+    err = renameLabels(Height,Width,label);
+    if(err>0)
+      nCnect=err;
+    else
+      printf("problems with renameLabels - %d\n",err);
+
+    err=vortexExtraction(Height,Width,nCnect,x0,dx,sField,
+                         gField,label,&vCatalog);
+    if(err!=0){
+      printf("error on vortexExtraction - %d\n",err);
+      return err; 
+    }
+    
+    
+  }while(pass!=0);
 
   return 0;
 }
