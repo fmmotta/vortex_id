@@ -13,12 +13,12 @@ int vortexExtraction(int Height,int Width, int nCnect,
   int i,j,k;
   float G,a,b,x,y,rc,gradU[2][2]; // vorticity
   float w[nCnect],A[nCnect],a0[nCnect],b0[nCnect];
-  float *vCatalog;
+  float *vCatalog=NULL;
 
   if((Height<=0)||(Width<=0))
   	return -1;
 
-  if(vCatalogOut==NULL){
+  if(*vCatalogOut==NULL){
     vCatalog=(float*)malloc(4*nCnect*sizeof(float));
     if(vCatalog==NULL)
       return -3;
@@ -135,6 +135,13 @@ int greaterCirculation(const float *v,const float *p){
     return 0;
 }
 
+int greaterAbsCirculation(const float *v,const float *p){
+  if(fabs(v[0])>fabs(p[0]))
+    return 1;
+  else
+    return 0;
+}
+
 int lesserVorticity(const float *v,const float *p){
   if(v[0]/(v[1]*v[1])<p[0]/(p[1]*p[1]))
     return 1;
@@ -144,6 +151,13 @@ int lesserVorticity(const float *v,const float *p){
 
 int greaterVorticity(const float *v,const float *p){
   if(v[0]/(v[1]*v[1])>p[0]/(p[1]*p[1]))
+    return 1;
+  else
+    return 0;
+}
+
+int greaterAbsVorticity(const float *v,const float *p){
+  if( fabs(v[0]/(v[1]*v[1]))>fabs(p[0]/(p[1]*p[1])) )
     return 1;
   else
     return 0;
@@ -163,38 +177,67 @@ int greaterRadius(const float *v,const float *p){
     return 0;
 }
 
-int vortexExtRecursive(int Height,int Width, int nCnect,
-                       float *x0, float *dx,int **eqClass,
-                       float *sField,float *gField,int *label,
-                       float *rCatalogOut){
-  int i,err=0,pass=0;
-  float *vCatalog;
+int vortexExtRecursive(int Height,int Width,float *x0, float *dx,
+                       int **eqClass,float *sField,float *gField,
+                       int *label,float threshold, float **rCatalogOut){
+  int maxIt;
+  int i=0,err=0,pass=0,rCnect=0,nCnect=0,nCnect0=0,it=0;
+  float *rCatalog=NULL,*vCatalog=NULL,majorVortex[4];
+
   do{
+    // if(it>=maxIt) break;
     for(i=0;i<Height*Width;i+=1)
       label[i]=-1;
 
     err = gradUtoLamb(Height,Width,gField,&sField);
     if(err!=0)
-      printf("Problems in gradUtoLamb\n");
+      return err;
   
     err = floodFill(sField,Width,Height,eqClass,label);
     if(err!=0)
-      printf("Problems in floodFill\n");
+      return err;
 
     err = renameLabels(Height,Width,label);
-    if(err>0)
+    if(err>0){
       nCnect=err;
+      if((rCnect==0)&&(it==0)){
+        nCnect0 = nCnect;
+        rCatalog = (float*)malloc(4*nCnect*sizeof(float));
+      }
+    }
     else
-      printf("problems with renameLabels - %d\n",err);
+      return err;
 
     err=vortexExtraction(Height,Width,nCnect,x0,dx,sField,
                          gField,label,&vCatalog);
-    if(err!=0){
-      printf("error on vortexExtraction - %d\n",err);
-      return err; 
+    if(err!=0)
+      return err;
+
+    vortexQuickSort(vCatalog,nCnect,&greaterAbsCirculation);
+
+    if(abs(vCatalog[4*0+0])>threshold){
+      pass=1; 
+      rCnect+=1;
+      majorVortex[0]=vCatalog[0];
+      majorVortex[1]=vCatalog[1];
+      majorVortex[2]=vCatalog[2];
+      majorVortex[3]=vCatalog[3];
     }
-    
-    
+    else 
+      break;
+
+    if(rCnect>nCnect0){
+      rCatalog=(float*)realloc(rCatalog,4*rCnect*sizeof(float));
+      if(rCatalog==NULL)
+        return -5;
+      rCnect0 = rCnect;
+    }
+
+    err = addSingleOseen(1,majorVortex,x0,dx,Height,Width,&gField);
+    if(err!=0)
+      return err;
+
+    it+=1;
   }while(pass!=0);
 
   return 0;
