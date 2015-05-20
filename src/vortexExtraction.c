@@ -223,14 +223,14 @@ int vortexExtRecursive(int Height,int Width,float *x0, float *dx,
       majorVortex[2]=vCatalog[2];
       majorVortex[3]=vCatalog[3];
     }
-    else 
+    else
       break;
 
     if(rCnect>nCnect0){
       rCatalog=(float*)realloc(rCatalog,4*rCnect*sizeof(float));
       if(rCatalog==NULL)
         return -5;
-      rCnect0 = rCnect;
+      nCnect0 = rCnect;
     }
 
     err = addSingleOseen(1,majorVortex,x0,dx,Height,Width,&gField);
