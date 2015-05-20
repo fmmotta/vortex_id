@@ -275,5 +275,8 @@ int vortexExtRecursive(int Height,int Width,float *x0, float *dx,
     it+=1;
   }while(pass!=0);
 
+  *rCnectOut = rCnect;
+  *rCatalogOut = rCatalog; 
+
   return 0;
 }
