@@ -82,6 +82,41 @@ int vortexExtraction(int Height,int Width, int nCnect,
   return 0;
 }
 
+int vortexExtSimple(int Height,int Width,float *x0, float *dx,
+                    int **eqClass,float *sField,float *gField,int *label,
+                    float threshold,int *nCnectOut,float **vCatalogOut){
+  
+  int i=0,err=0,pass=0,nCnect=0,nCnect0=0,it=0;
+  float *vCatalog=NULL,majorVortex[4];
+  
+  for(i=0;i<Height*Width;i+=1)
+    label[i]=-1;
+
+  err = gradUtoLamb(Height,Width,gField,&sField);
+  if(err!=0)
+    return err;
+ 
+  err = floodFill(sField,Width,Height,eqClass,label);
+  if(err!=0)
+    return err;
+
+  err = renameLabels(Height,Width,label);
+  if(err>0)
+    nCnect=err;
+  else
+    return err;
+
+  err=vortexExtraction(Height,Width,nCnect,x0,dx,sField,
+                       gField,label,&vCatalog);
+  if(err!=0)
+    return err; 
+
+  *nCnectOut = nCnect;
+  *vCatalogOut = vCatalog;
+
+  return 0;
+}
+
 /*
  * Quicksort implementation inspired on Roseta Code:
  * http://rosettacode.org/wiki/Sorting_algorithms/Quicksort#C
@@ -178,8 +213,8 @@ int greaterRadius(const float *v,const float *p){
 }
 
 int vortexExtRecursive(int Height,int Width,float *x0, float *dx,
-                       int **eqClass,float *sField,float *gField,
-                       int *label,float threshold, float **rCatalogOut){
+                       int **eqClass,float *sField,float *gField,int *label,
+                       float threshold, int *rCnectOut,float **rCatalogOut){
   int maxIt;
   int i=0,err=0,pass=0,rCnect=0,nCnect=0,nCnect0=0,it=0;
   float *rCatalog=NULL,*vCatalog=NULL,majorVortex[4];
@@ -231,7 +266,7 @@ int vortexExtRecursive(int Height,int Width,float *x0, float *dx,
       if(rCatalog==NULL)
         return -5;
       nCnect0 = rCnect;
-    }
+    } 
 
     err = addSingleOseen(1,majorVortex,x0,dx,Height,Width,&gField);
     if(err!=0)

@@ -9,7 +9,7 @@ LIBS = -lm -lgsl -lgslcblas
 
 default: main
 
-all: main test_floodFill test_lambOseenShear0 test_lambOseenShear1 test_lambOseenShear2 test_lambOseenShear3 test_addSingleOseen test_genLOseenUniformList test_genLOseenBinaryList test_vortexQuickSort test_vortexExtraction0 test_vortexExtraction1 test_vortexExtraction2 test_vortexExtraction3 test_vortexSingleRun test_vortexSingleRunTime test_vortexShearSingleRunTime test_vortexMultiRun test_vortexMultiRunHistogram
+all: main test_floodFill test_lambOseenShear0 test_lambOseenShear1 test_lambOseenShear2 test_lambOseenShear3 test_addSingleOseen test_genLOseenUniformList test_genLOseenBinaryList test_vortexQuickSort test_vortexExtraction0 test_vortexExtraction1 test_vortexExtraction2 test_vortexExtraction3 test_vortexSingleRun test_vortexSingleRunTime test_vortexShearSingleRunTime test_vortexMultiRun test_vortexMultiRunHistogram test_vortexExtSimple
 
 main: main.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o src/lambdaInit.h src/floodFill.h src/vortexGen.h src/vortexExtraction.h src/mt64.h
 	$(CC) -o bin/main obj/main.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/vortexExtraction.o obj/mt64.o $(LIBS)
@@ -70,6 +70,9 @@ test_vortexMultiRun: test_vortexMultiRun.o lambdaInit.o floodFill.o vortexGen.o 
 
 test_vortexMultiRunHistogram: test_vortexMultiRunHistogram.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o src/lambdaInit.h src/floodFill.h src/vortexGen.h src/vortexExtraction.h src/mt64.h
 	$(CC) -o bin/test_vortexMultiRunHistogram obj/test_vortexMultiRunHistogram.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/vortexExtraction.o obj/mt64.o $(LIBS) 
+
+test_vortexExtSimple: test_vortexExtSimple.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o src/lambdaInit.h src/floodFill.h src/vortexGen.h src/vortexExtraction.h src/mt64.h
+	$(CC) -o bin/test_vortexExtSimple obj/test_vortexExtSimple.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/vortexExtraction.o obj/mt64.o $(LIBS) 
 
 main.o: src/main.c 
 	$(CC) $(CFLAGS) src/main.c -o obj/main.o
@@ -146,5 +149,8 @@ test_vortexMultiRun.o: src/tests/test_vortexMultiRun.c
 test_vortexMultiRunHistogram.o: src/tests/test_vortexMultiRunHistogram.c
 	$(CC) $(CFLAGS) src/tests/test_vortexMultiRunHistogram.c -o obj/test_vortexMultiRunHistogram.o
 
+test_vortexExtSimple.o: src/tests/test_vortexExtSimple.c
+	$(CC) $(CFLAGS) src/tests/test_vortexExtSimple.c -o obj/test_vortexExtSimple.o
+
 clean:
-	rm bin/* obj/*
+	rm bin/* obj/* data/*.txt
