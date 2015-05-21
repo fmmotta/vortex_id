@@ -88,6 +88,7 @@ int vortexExtSimple(int Height,int Width,float *x0, float *dx,
   
   int i=0,err=0,pass=0,nCnect=0,nCnect0=0,it=0;
   float *vCatalog=NULL,majorVortex[4];
+  vCatalog = *vCatalogOut;
   
   for(i=0;i<Height*Width;i+=1)
     label[i]=-1;
@@ -253,10 +254,10 @@ int vortexExtRecursive(int Height,int Width,float *x0, float *dx,
     if(abs(vCatalog[4*0+0])>threshold){
       pass=1; 
       rCnect+=1;
-      majorVortex[0]=vCatalog[0];
-      majorVortex[1]=vCatalog[1];
-      majorVortex[2]=vCatalog[2];
-      majorVortex[3]=vCatalog[3];
+      majorVortex[0]=-vCatalog[0]; rCatalog[4*it+0] = vCatalog[0];
+      majorVortex[1]= vCatalog[1]; rCatalog[4*it+1] = vCatalog[1];
+      majorVortex[2]= vCatalog[2]; rCatalog[4*it+2] = vCatalog[2];
+      majorVortex[3]= vCatalog[3]; rCatalog[4*it+3] = vCatalog[3];
     }
     else
       break;

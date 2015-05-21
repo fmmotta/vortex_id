@@ -79,6 +79,7 @@ int main(int argc,char **argv){
   }
 
   for(n=0;n<nRuns;n+=1){
+    //printf("n=%d\n",n);
     err=genLOseenBinaryList(Gmin,Gmax,rmin,rmax,xmin,xmax,seed,
                              nVortex,&parVortex);
     if(err!=0)
