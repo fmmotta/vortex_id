@@ -159,4 +159,4 @@ test_vortexExtRecursive.o: src/tests/test_vortexExtRecursive.c
 	$(CC) $(CFLAGS) src/tests/test_vortexExtRecursive.c -o obj/test_vortexExtRecursive.o
 
 clean:
-	rm bin/* obj/* data/*.txt data/*.tex data/*.eps
+	rm bin/* obj/* data/*.txt data/*.tex data/*.eps data/*.pdf data/*.aux data/*.log

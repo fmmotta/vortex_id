@@ -10,9 +10,9 @@
 #include "vortexExtraction.h"
 
 int main(int argc,char **argv){
-  const int Width = 100, Height = 100,Pop=10,nVortex=5,nRuns=5000;
+  const int Width = 100, Height = 100,Pop=10,nVortex=5,nRuns=1000;
   int seed=98755;
-  int i,j,err,ngbr,found,nCnect,*label,n,bin;
+  int i,j,err,ngbr,found,nCnect,*label,n,bin,nMax=20;
   int nbList[8],eqList[Pop],**eqClass;
   float Gmin=1,Gmax=2,rmin=1,rmax=1;
   float xmin[2]={-9.,-9.},xmax[2]={9.,9.};
@@ -22,6 +22,33 @@ int main(int argc,char **argv){
   
   x0[0]=-10.; xf[0]= 10.; dx[0] = (xf[0]-x0[0])/Height;
   x0[1]=-10.; xf[1]= 10.; dx[1] = (xf[1]-x0[1])/Width;
+  
+  gField = (float *)malloc(4*Height*Width*sizeof(float));
+  if(gField==NULL){
+    printf("memory not allocked\n");
+    return 1;
+  }
+  
+  label = (int*)malloc(Height*Width*sizeof(int));
+  if(label==NULL){
+    printf("memory not allocked\n");
+    return 2;
+  }
+
+  vCatalog = (float*)malloc(4*nMax*sizeof(float));
+  if(vCatalog==NULL){
+    printf("memory not allocked\n");
+    return 3;
+  }
+
+  eqClass=(int**)malloc(NumCls*sizeof(int*));
+  if(eqClass==NULL)
+    return 1;
+  for(i=0;i<NumCls;i+=1){
+    eqClass[i]=(int*)malloc(NumCls*sizeof(int));
+    if(eqClass[i]==NULL)
+      return(i+2);
+  }
 
   if(argc>1)
     seed = atoi(argv[1]);
@@ -41,27 +68,6 @@ int main(int argc,char **argv){
   fprintf(dadosgen,"\nshear v0/y0=%f\n",v0y0);
   fclose(dadosgen);
 
-  eqClass=(int**)malloc(NumCls*sizeof(int*));
-  if(eqClass==NULL)
-    return 1;
-  for(i=0;i<NumCls;i+=1){
-    eqClass[i]=(int*)malloc(NumCls*sizeof(int));
-    if(eqClass[i]==NULL)
-      return(i+2);
-  }
-  
-  gField = (float *)malloc(4*Height*Width*sizeof(float));
-  if(gField==NULL){
-    printf("memory not allocked\n");
-    return 1;
-  }
-  
-  label = (int*)malloc(Height*Width*sizeof(int));
-  if(label==NULL){
-    printf("memory not allocked\n");
-    return 2;
-  }
-
   dadosref=fopen("data/multiRunRef.txt","w");
   dadosout=fopen("data/multiRunRes.txt","w");
 
@@ -76,6 +82,8 @@ int main(int argc,char **argv){
 
     for(i=0;i<Height*Width;i+=1)
       label[i]=-1;
+
+
 
     err = addSingleOseen(nVortex,parVortex,x0,dx,Height,Width,&gField);
     if(err!=0)
@@ -122,6 +130,7 @@ int main(int argc,char **argv){
                                        vCatalog[4*i+3]);
     fprintf(dadosout,"\n");
   }
+
   fclose(dadosout);
   fclose(dadosref);
 
@@ -139,5 +148,6 @@ int main(int argc,char **argv){
   free(eqClass);
 
   free(parVortex); 
+
   return 0;
 }

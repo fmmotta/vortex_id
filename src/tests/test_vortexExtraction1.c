@@ -7,7 +7,7 @@
 
 int main(int argc,char **argv){
   const int Width = 100, Height = 100, Pop=10,nVortex=1;
-  int i,j,err,ngbr,found,nCnect,*label;
+  int i,j,err,ngbr,found,nCnect,*label,nMax=20;
   int nbList[8],eqList[Pop],**eqClass;
   float parVortex[4*nVortex],x0[2],dx[2],xf[2],*sField=NULL,*gField;
   float x,y,v0y0 = 0.05,*vCatalog=NULL;
@@ -19,6 +19,12 @@ int main(int argc,char **argv){
     eqClass[i]=(int*)malloc(NumCls*sizeof(int));
     if(eqClass[i]==NULL)
       return(i+2);
+  }
+
+  vCatalog = (float*)malloc(4*nMax*sizeof(float));
+  if(vCatalog==NULL){
+    printf("memory not allocked\n");
+    return 3;
   }
 
   x0[0]=-5.; xf[0]= 5.; dx[0] = (xf[0]-x0[0])/Height;

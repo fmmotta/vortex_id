@@ -17,13 +17,8 @@ int vortexExtraction(int Height,int Width, int nCnect,
 
   if((Height<=0)||(Width<=0))
   	return -1;
-
-  if(*vCatalogOut==NULL){
-    vCatalog=(float*)malloc(4*nCnect*sizeof(float));
-    if(vCatalog==NULL)
-      return -3;
-  }
-  else{
+  
+  vCatalog = *vCatalogOut;
     /*
      * WARNING : 
      *
@@ -35,10 +30,21 @@ int vortexExtraction(int Height,int Width, int nCnect,
      * see: http://stackoverflow.com/questions/18617620/
      *      behavior-of-realloc-when-the-new-size-is-the-same-as-the-old-one
      */
-    vCatalog=(float*)realloc(*vCatalogOut,4*nCnect*sizeof(float));
+  /*   
+   * BAD IDEA -- trocar essa bosta assim que possível
+   * está a caminho
+   *
+  if(*vCatalogOut==NULL){
+    vCatalog=(float*)malloc(4*nCnect*sizeof(float));
+    if(vCatalog==NULL)
+      return -3;
+  }
+  else{
+    vCatalog=(float*)realloc(vCatalog,4*nCnect*sizeof(float));
     if(vCatalog==NULL)
       return -2;
   }
+  */
 
   for(k=0;k<nCnect;k+=1){
     w[k]=0.;A[k]=0.;a0[k]=0.;b0[k]=0.;
@@ -215,10 +221,14 @@ int greaterRadius(const float *v,const float *p){
 
 int vortexExtRecursive(int Height,int Width,float *x0, float *dx,
                        int **eqClass,float *sField,float *gField,int *label,
-                       float threshold, int *rCnectOut,float **rCatalogOut){
+                       float threshold, float *vCatalog, 
+                       int *rCnectOut,float **rCatalogOut){
   int maxIt;
   int i=0,err=0,pass=0,rCnect=0,nCnect=0,nCnect0=0,it=0;
-  float *rCatalog=NULL,*vCatalog=NULL,majorVortex[4];
+  float *rCatalog=NULL,majorVortex[4];
+
+  rCatalog = *rCatalogOut;
+  vCatalog = (float*)malloc(20*4*sizeof(float));
 
   do{
     // if(it>=maxIt) break;
@@ -236,10 +246,10 @@ int vortexExtRecursive(int Height,int Width,float *x0, float *dx,
     err = renameLabels(Height,Width,label);
     if(err>0){
       nCnect=err;
-      if((rCnect==0)&&(it==0)){
-        nCnect0 = nCnect;
-        rCatalog = (float*)malloc(4*nCnect*sizeof(float));
-      }
+      //if((rCnect==0)&&(it==0)){
+      //  nCnect0 = nCnect;
+      //  rCatalog = (float*)malloc(4*nCnect*sizeof(float));
+      //}
     }
     else
       return err;
@@ -261,20 +271,25 @@ int vortexExtRecursive(int Height,int Width,float *x0, float *dx,
     }
     else
       break;
-
+    
+    /*
     if(rCnect>nCnect0){
       rCatalog=(float*)realloc(rCatalog,4*rCnect*sizeof(float));
       if(rCatalog==NULL)
         return -5;
       nCnect0 = rCnect;
-    } 
+    } */
 
     err = addSingleOseen(1,majorVortex,x0,dx,Height,Width,&gField);
-    if(err!=0)
-      return err;
+    if(err!=0){
+      printf("alguma merda séria tá acontecendo\n");
+      return err;}
 
     it+=1;
   }while(pass!=0);
+
+
+  free(vCatalog);
 
   *rCnectOut = rCnect;
   *rCatalogOut = rCatalog; 

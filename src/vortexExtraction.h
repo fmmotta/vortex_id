@@ -10,9 +10,9 @@ int vortexExtSimple(int Height,int Width,float *x0, float *dx,
 void vortexQuickSort(float *v,int nCnect,
                      int cmp(const float*,const float*));
 
-int vortexExtRecursive(int Height,int Width,float *x0, float *dx,
-                       int **eqClass,float *sField,float *gField,int *label,
-                       float threshold, int *rCnectOut,float **rCatalogOut);
+int vortexExtRecursive(int Height,int Width,float *x0, float *dx,int **eqClass,
+                       float *sField,float *gField,int *label, float threshold, 
+                       float *vCatalog, int *rCnectOut,float **rCatalogOut);
 
 int lesserCirculation(const float *v,const float *p);
 
