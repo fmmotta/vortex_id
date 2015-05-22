@@ -11,7 +11,7 @@
 #include "vortexExtraction.h"
 
 int main(int argc,char **argv){
-  const int Width = 100, Height = 100,Pop=10,nVortex=5,nRuns=1;
+  const int Width = 100, Height = 100,Pop=10,nVortex=5,nRuns=1000;
   int seed=98755;
   int i,j,err,ngbr,found,nCnect,*label,n,bin,nMax=20;
   int nbList[8],eqList[Pop],**eqClass;
@@ -62,7 +62,7 @@ int main(int argc,char **argv){
   rCatalog = (float*)malloc(4*nMax*sizeof(float));
   if(rCatalog==NULL){
     printf("memory not allocked\n");
-    return 3;
+    return 4;
   }
 
   /* histogram preparation - begin */

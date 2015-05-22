@@ -219,19 +219,18 @@ int greaterRadius(const float *v,const float *p){
     return 0;
 }
 
-int vortexExtRecursive(int Height,int Width,float *x0, float *dx,
-                       int **eqClass,float *sField,float *gField,int *label,
-                       float threshold, float *vCatalog, 
-                       int *rCnectOut,float **rCatalogOut){
+int vortexExtRecursive(int Height,int Width,float *x0, float *dx,int **eqClass,
+                       float *sField,float *gField,int *label, float threshold, 
+                       float *vCatalog, int *rCnectOut,float **rCatalogOut){
   int maxIt;
   int i=0,err=0,pass=0,rCnect=0,nCnect=0,nCnect0=0,it=0;
   float *rCatalog=NULL,majorVortex[4];
 
   rCatalog = *rCatalogOut;
-  vCatalog = (float*)malloc(20*4*sizeof(float));
 
   do{
     // if(it>=maxIt) break;
+    printf("it=%d\n",it);
     for(i=0;i<Height*Width;i+=1)
       label[i]=-1;
 
@@ -246,10 +245,6 @@ int vortexExtRecursive(int Height,int Width,float *x0, float *dx,
     err = renameLabels(Height,Width,label);
     if(err>0){
       nCnect=err;
-      //if((rCnect==0)&&(it==0)){
-      //  nCnect0 = nCnect;
-      //  rCatalog = (float*)malloc(4*nCnect*sizeof(float));
-      //}
     }
     else
       return err;
@@ -271,14 +266,6 @@ int vortexExtRecursive(int Height,int Width,float *x0, float *dx,
     }
     else
       break;
-    
-    /*
-    if(rCnect>nCnect0){
-      rCatalog=(float*)realloc(rCatalog,4*rCnect*sizeof(float));
-      if(rCatalog==NULL)
-        return -5;
-      nCnect0 = rCnect;
-    } */
 
     err = addSingleOseen(1,majorVortex,x0,dx,Height,Width,&gField);
     if(err!=0){
@@ -287,9 +274,6 @@ int vortexExtRecursive(int Height,int Width,float *x0, float *dx,
 
     it+=1;
   }while(pass!=0);
-
-
-  free(vCatalog);
 
   *rCnectOut = rCnect;
   *rCatalogOut = rCatalog; 
