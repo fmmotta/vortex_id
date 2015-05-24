@@ -22,6 +22,7 @@ int main(int argc,char **argv){
   FILE *dadosgen,*dadosout;
   int hNG=55,hNRc=55,hNa=40,hNb=40,hNN=10;
   gsl_histogram *hG,*hRc,*ha,*hb,*hN;
+  gsl_histogram *iG,*iRc,*ia,*ib;
   
   x0[0]=0.; xf[0]= 10.; dx[0] = (xf[0]-x0[0])/Height;
   x0[1]=0.; xf[1]= 10.; dx[1] = (xf[1]-x0[1])/Width;
@@ -64,12 +65,23 @@ int main(int argc,char **argv){
   gsl_histogram_set_ranges_uniform(hb,xmin[1],xmax[1]);
   hN = gsl_histogram_alloc(hNN);
   gsl_histogram_set_ranges_uniform(hN,0,2*nVortex);
+
+  iG = gsl_histogram_alloc(hNG); 
+  gsl_histogram_set_ranges_uniform(iG,0.,2.5*Gmax);
+  iRc = gsl_histogram_alloc(hNRc); 
+  gsl_histogram_set_ranges_uniform(iRc,0.,2.5*rmax);
+  ia = gsl_histogram_alloc(hNa); 
+  gsl_histogram_set_ranges_uniform(ia,xmin[0],xmax[0]);
+  ib = gsl_histogram_alloc(hNb); 
+  gsl_histogram_set_ranges_uniform(ib,xmin[1],xmax[1]);
   /* histogram preparation - end*/
 
   if(argc>1)
     seed = atoi(argv[1]);
   else
     seed = (int) time(NULL);
+
+  seed = 98755; // Fix seed for comparison
  
   dadosgen=fopen("data/multiRunGen.txt","w");
   fprintf(dadosgen,"seed: %d\n",seed);
@@ -125,6 +137,13 @@ int main(int argc,char **argv){
       return err; 
     }
 
+    for(i=0;i<nVortex;i+=1){
+      gsl_histogram_increment(iG,parVortex[4*i+0]);
+      gsl_histogram_increment(iRc,parVortex[4*i+1]);
+      gsl_histogram_increment(ia,parVortex[4*i+2]);
+      gsl_histogram_increment(ib,parVortex[4*i+3]);
+    }
+
     gsl_histogram_increment(hN,nCnect);
     for(i=0;i<nCnect;i+=1){
       gsl_histogram_increment(hG,vCatalog[4*i+0]);
@@ -135,20 +154,33 @@ int main(int argc,char **argv){
 
   }
 
-  dadosout=fopen("data/histoG.txt","w");
+  dadosout=fopen("data/histoOuG.txt","w");
   gsl_histogram_fprintf(dadosout,hG,"%f","%f");
   fclose(dadosout);
-  dadosout=fopen("data/histoRc.txt","w");
+  dadosout=fopen("data/histoOuRc.txt","w");
   gsl_histogram_fprintf(dadosout,hRc,"%f","%f");
   fclose(dadosout);
-  dadosout=fopen("data/histoa.txt","w");
+  dadosout=fopen("data/histoOua.txt","w");
   gsl_histogram_fprintf(dadosout,ha,"%f","%f");
   fclose(dadosout);
-  dadosout=fopen("data/histob.txt","w");
+  dadosout=fopen("data/histoOub.txt","w");
   gsl_histogram_fprintf(dadosout,hb,"%f","%f");
   fclose(dadosout);
-  dadosout=fopen("data/histoN.txt","w");
+  dadosout=fopen("data/histoOuN.txt","w");
   gsl_histogram_fprintf(dadosout,hN,"%f","%f");
+  fclose(dadosout);
+
+  dadosout=fopen("data/histoInG.txt","w");
+  gsl_histogram_fprintf(dadosout,iG,"%f","%f");
+  fclose(dadosout);
+  dadosout=fopen("data/histoInRc.txt","w");
+  gsl_histogram_fprintf(dadosout,iRc,"%f","%f");
+  fclose(dadosout);
+  dadosout=fopen("data/histoIna.txt","w");
+  gsl_histogram_fprintf(dadosout,ia,"%f","%f");
+  fclose(dadosout);
+  dadosout=fopen("data/histoInb.txt","w");
+  gsl_histogram_fprintf(dadosout,ib,"%f","%f");
   fclose(dadosout);
 
   if(sField!=NULL)
@@ -172,6 +204,11 @@ int main(int argc,char **argv){
   gsl_histogram_free(ha);
   gsl_histogram_free(hb);
   gsl_histogram_free(hN);
+
+  gsl_histogram_free(iG);
+  gsl_histogram_free(iRc);
+  gsl_histogram_free(ia);
+  gsl_histogram_free(ib);
   /* histogram free - end*/
 
   return 0;
