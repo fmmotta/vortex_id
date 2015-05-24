@@ -18,9 +18,13 @@ int lesserCirculation(const float *v,const float *p);
 
 int greaterCirculation(const float *v,const float *p);
 
+int greaterAbsCirculation(const float *v,const float *p);
+
 int lesserVorticity(const float *v,const float *p);
 
 int greaterVorticity(const float *v,const float *p);
+
+int greaterAbsVorticity(const float *v,const float *p);
 
 int lesserRadius(const float *v,const float *p);
 

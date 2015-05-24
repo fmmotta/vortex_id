@@ -33,7 +33,7 @@ int gradUtoLamb(int Height,int Width, float *gField,float **sFieldOut){
   float gradU[2][2],*sField;
   float a,b,G,R,x,y,fa,fb,r2,r,lamb,cutoff=0.001;
   
-  if((*sFieldOut) == NULL){
+  if((*sFieldOut) == NULL){ // Remove this later, plz
     sField = (float*)malloc(Height*Width*sizeof(float));
     if(sField == NULL)
       return 1;

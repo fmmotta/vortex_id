@@ -68,6 +68,9 @@ test_vortexShearSingleRunTime: test_vortexShearSingleRunTime.o lambdaInit.o floo
 test_vortexMultiRun: test_vortexMultiRun.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o src/lambdaInit.h src/floodFill.h src/vortexGen.h src/vortexExtraction.h src/mt64.h
 	$(CC) -o bin/test_vortexMultiRun obj/test_vortexMultiRun.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/vortexExtraction.o obj/mt64.o $(LIBS) 
 
+test_vortexMultiRunRecursive: test_vortexMultiRunRecursive.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o src/lambdaInit.h src/floodFill.h src/vortexGen.h src/vortexExtraction.h src/mt64.h
+	$(CC) -o bin/test_vortexMultiRunRecursive obj/test_vortexMultiRunRecursive.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/vortexExtraction.o obj/mt64.o $(LIBS) 
+
 test_vortexMultiRunHistogram: test_vortexMultiRunHistogram.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o src/lambdaInit.h src/floodFill.h src/vortexGen.h src/vortexExtraction.h src/mt64.h
 	$(CC) -o bin/test_vortexMultiRunHistogram obj/test_vortexMultiRunHistogram.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/vortexExtraction.o obj/mt64.o $(LIBS) 
 
@@ -151,6 +154,9 @@ test_vortexMultiRun.o: src/tests/test_vortexMultiRun.c
 
 test_vortexMultiRunHistogram.o: src/tests/test_vortexMultiRunHistogram.c
 	$(CC) $(CFLAGS) src/tests/test_vortexMultiRunHistogram.c -o obj/test_vortexMultiRunHistogram.o
+
+test_vortexMultiRunRecursive.o: src/tests/test_vortexMultiRunRecursive.c
+	$(CC) $(CFLAGS) src/tests/test_vortexMultiRunRecursive.c -o obj/test_vortexMultiRunRecursive.o
 
 test_vortexExtSimple.o: src/tests/test_vortexExtSimple.c
 	$(CC) $(CFLAGS) src/tests/test_vortexExtSimple.c -o obj/test_vortexExtSimple.o
