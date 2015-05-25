@@ -31,18 +31,18 @@ int main(int argc,char **argv){
 
   for(i=0;i<numVortex;i+=1)
     printf("G=%lf rc = %lf a=%lf b=%lf\n",parVortex[4*i+0],
-                                        parVortex[4*i+1],
-                                        parVortex[4*i+2],
-                                        parVortex[4*i+3]);
+                                          parVortex[4*i+1],
+                                          parVortex[4*i+2],
+                                          parVortex[4*i+3]);
 
-  vortexQuickSort(parVortex,numVortex,&vCmp);
+  vortexQuickSort(parVortex,numVortex,&greaterCirculation);
 
   printf("\n");
   for(i=0;i<numVortex;i+=1)
     printf("G=%lf rc = %lf a=%lf b=%lf\n",parVortex[4*i+0],
-                                        parVortex[4*i+1],
-                                        parVortex[4*i+2],
-                                        parVortex[4*i+3]);
+                                          parVortex[4*i+1],
+                                          parVortex[4*i+2],
+                                          parVortex[4*i+3]);
 
   free(parVortex); parVortex=NULL;
   

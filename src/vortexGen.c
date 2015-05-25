@@ -12,7 +12,7 @@ int genLOseenUniformList(float Gmin,float Gmax, float rmin,float rmax,
 	                     float *xmin,float *xmax, unsigned long long int seed,
 	                     int numVortex,float **parVortexOut){
   int i,j,taint=0;
-  static stat_counter=0;
+  static int stat_counter=0;
   float G,rc,a,b,r,*parVortex;
 
   if(fabs(xmax[0]-xmin[0])<=0)
@@ -61,7 +61,7 @@ int genLOseenBinaryList(float Gmin,float Gmax, float rmin,float rmax,
 	                    float *xmin,float *xmax, unsigned long long int seed,
 	                    int numVortex,float **parVortexOut){
   int i,j,taint=0;
-  static stat_counter=0;
+  static int stat_counter=0;
   float G,rc,a,b,r,*parVortex;
 
   if(fabs(xmax[0]-xmin[0])<=0)

@@ -11,14 +11,14 @@
 #include "vortexExtraction.h"
 
 int main(int argc,char **argv){
-  const int Width = 100, Height = 100,Pop=10,nVortex=5,nRuns=1000;
+  const int Width = 100, Height = 100,Pop=10,nVortex=5,nRuns=1;
   int seed=98755;
   int i,j,err,ngbr,found,nCnect,rCnect=0,*label,n,bin,nMax=50,pass=0;
-  int nbList[8],eqList[Pop],**eqClass,it;
-  float Gmin=1.,Gmax=20.,rmin=0.5,rmax=1.,threshold=0.0;
-  float xmin[2]={1.,1.},xmax[2]={9.,9.},majorVortex[4];
+  int nbList[8],eqList[Pop],**eqClass,it,nRecon=0;
+  float Gmin=1.,Gmax=20.,rmin=0.5,rmax=1.,threshold=0.5;
+  float xmin[2]={1.,1.},xmax[2]={9.,9.};
   float *parVortex=NULL,x0[2],dx[2],xf[2],*sField=NULL,*gField;
-  float x,y,v0y0 = 0.00,*vCatalog=NULL,*rCatalog=NULL;
+  float x,y,v0y0 = 0.00,*vCatalog=NULL,*rCatalog=NULL,*majorVortex=NULL;
   FILE *dadosgen,*dadosout;
   int hNG=55,hNRc=55,hNa=40,hNb=40,hNN=10;
   gsl_histogram *hG,*hRc,*ha,*hb,*hN;
@@ -64,6 +64,12 @@ int main(int argc,char **argv){
   if(rCatalog==NULL){
     printf("memory not allocked\n");
     return 4;
+  }
+
+  majorVortex = (float*)malloc(4*sizeof(float));
+  if(majorVortex==NULL){
+    printf("memory not allocked\n");
+    return 5;
   }
 
   /* histogram preparation - begin */
@@ -127,6 +133,12 @@ int main(int argc,char **argv){
     if(err!=0)
       printf("Problems in addConstXYShear\n");
 
+    printf("Input Vortexes\n");
+    for(i=0;i<nVortex;i+=1)
+      printf("%f %f %f %f\n",parVortex[4*i+0],parVortex[4*i+1],
+                             parVortex[4*i+2],parVortex[4*i+3]);
+    printf("\n");
+
     it=0;
     pass=0;
     rCnect=0;
@@ -155,19 +167,21 @@ int main(int argc,char **argv){
         return err; 
       }
 
-      vortexQuickSort(vCatalog,nCnect,&greaterAbsCirculation);
+      vortexQuickSort(vCatalog,nCnect,&greaterCirculation);
 
       if(abs(vCatalog[4*0+0])>threshold){
         pass=1; 
-        rCnect+=1;
-        if(rCnect>nMax){
+        if(rCnect>=nMax-1){
           printf("transpassing max size for rCatalog");
           return -10;
         }
-        majorVortex[0]=-vCatalog[0]; rCatalog[4*it+0] = vCatalog[0];
-        majorVortex[1]= vCatalog[1]; rCatalog[4*it+1] = vCatalog[1];
-        majorVortex[2]= vCatalog[2]; rCatalog[4*it+2] = vCatalog[2];
-        majorVortex[3]= vCatalog[3]; rCatalog[4*it+3] = vCatalog[3];
+
+        majorVortex[0]=-vCatalog[0]; rCatalog[4*rCnect+0] = vCatalog[0];
+        majorVortex[1]= vCatalog[1]; rCatalog[4*rCnect+1] = vCatalog[1];
+        majorVortex[2]= vCatalog[2]; rCatalog[4*rCnect+2] = vCatalog[2];
+        majorVortex[3]= vCatalog[3]; rCatalog[4*rCnect+3] = vCatalog[3];
+
+        rCnect+=1;
       }
       else
         break;
@@ -180,10 +194,29 @@ int main(int argc,char **argv){
 
       it+=1;
 
+
+      printf("Identified Vortexes\n");
+      for(i=0;i<nCnect;i+=1)
+        printf("%f %f %f %f\n",vCatalog[4*i+0],vCatalog[4*i+1],
+                               vCatalog[4*i+2],vCatalog[4*i+3]);
+
+      printf("Major Vortex:\n");
+      printf("%f %f %f %f\n",-majorVortex[0],majorVortex[1],
+                             majorVortex[2],majorVortex[3]);
+      
+      printf("number of components: Identified reconstructed iterated\n");
+      printf("%d %d %d\n",nCnect,rCnect,it);
+      printf("\n");
+    
       for(i=0;i<4*nCnect;i+=1)
         vCatalog[i]=0.;
-    
     }while(pass!=0);
+
+    printf("\n");
+    nRecon += rCnect;
+
+    if(nCnect<2)
+      printf("Too Few Vortices\n");
 
     for(i=0;i<nVortex;i+=1){
       gsl_histogram_increment(iG,parVortex[4*i+0]);
@@ -200,6 +233,8 @@ int main(int argc,char **argv){
       gsl_histogram_increment(hb,rCatalog[4*i+3]);
     }
   }
+
+  printf("nTotalVortex = %d nRecon=%d\n",nRuns*nVortex,nRecon);
 
   dadosout=fopen("data/histoOuG.txt","w");
   gsl_histogram_fprintf(dadosout,hG,"%f","%f");
@@ -240,12 +275,14 @@ int main(int argc,char **argv){
     free(vCatalog);
   if(rCatalog!=NULL)
     free(rCatalog);
+  if(majorVortex!=NULL)
+    free(majorVortex);
 
   for(i=0;i<NumCls;i+=1)
     free(eqClass[i]);
   free(eqClass);
 
-  free(parVortex); 
+  free(parVortex);
 
   /* histogram free - begin */
   gsl_histogram_free(hG);
