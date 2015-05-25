@@ -11,11 +11,11 @@
 #include "vortexExtraction.h"
 
 int main(int argc,char **argv){
-  const int Width = 100, Height = 100,Pop=10,nVortex=5,nRuns=1;
+  const int Width = 100, Height = 100,Pop=10,nVortex=5,nRuns=1000;
   int seed=98755;
-  int i,j,err,ngbr,found,nCnect,rCnect=0,*label,n,bin,nMax=50,pass=0;
+  int i,j,err,ngbr,found,nCnect,rCnect=0,*label,n,bin,nMax=500,pass=0;
   int nbList[8],eqList[Pop],**eqClass,it,nRecon=0;
-  float Gmin=1.,Gmax=20.,rmin=0.5,rmax=1.,threshold=0.5;
+  float Gmin=1.,Gmax=20.,rmin=0.5,rmax=1.,threshold=0.05;
   float xmin[2]={1.,1.},xmax[2]={9.,9.};
   float *parVortex=NULL,x0[2],dx[2],xf[2],*sField=NULL,*gField;
   float x,y,v0y0 = 0.00,*vCatalog=NULL,*rCatalog=NULL,*majorVortex=NULL;
@@ -24,6 +24,8 @@ int main(int argc,char **argv){
   gsl_histogram *hG,*hRc,*ha,*hb,*hN;
   gsl_histogram *iG,*iRc,*ia,*ib;
   
+  threshold=0.05;
+
   x0[0]=0.; xf[0]= 10.; dx[0] = (xf[0]-x0[0])/Height;
   x0[1]=0.; xf[1]= 10.; dx[1] = (xf[1]-x0[1])/Width;
   
@@ -114,7 +116,6 @@ int main(int argc,char **argv){
   fprintf(dadosgen,"\nshear v0/y0=%f\n",v0y0);
   fclose(dadosgen);
 
-  threshold=0.5;
   for(n=0;n<nRuns;n+=1){
 
     //err=genLOseenBinaryList(Gmin,Gmax,rmin,rmax,xmin,xmax,seed,
@@ -134,12 +135,6 @@ int main(int argc,char **argv){
     err=addConstXYShear(x0,dx,Height,Width,v0y0,&gField);
     if(err!=0)
       printf("Problems in addConstXYShear\n");
-
-    printf("Input Vortexes\n");
-    for(i=0;i<nVortex;i+=1)
-      printf("%f %f %f %f\n",parVortex[4*i+0],parVortex[4*i+1],
-                             parVortex[4*i+2],parVortex[4*i+3]);
-    printf("\n");
 
     it=0;
     pass=0;
@@ -171,29 +166,7 @@ int main(int argc,char **argv){
 
       vortexQuickSort(vCatalog,nCnect,&greaterCirculation);
 
-      printf("Identified Vortexes\n");
-      for(i=0;i<nCnect;i+=1)
-        printf("%f %f %f %f\n",vCatalog[4*i+0],vCatalog[4*i+1],
-                               vCatalog[4*i+2],vCatalog[4*i+3]);
-
-      printf("Major Vortex:\n");
-      printf("%f %f %f %f\n",vCatalog[0],vCatalog[1],
-                             vCatalog[2],vCatalog[3]);
-      
-      printf("number of components: Identified reconstructed iterated\n");
-      printf("%d %d %d\n",nCnect,rCnect,it);
-      printf("\n");
-
-      printf("abs(Gamma): %f > threshold: %f\n",vCatalog[0],threshold);
-    
-      printf("\n");
-      if(fabs(vCatalog[0])>threshold)
-        printf("vai entrar\n");
-      else
-        printf("vai quebrar\n");
-
       if(fabs(vCatalog[0])>threshold){
-        printf("Identificou alguma coisa\n");
         pass=1; 
         if(rCnect>=nMax-1){
           printf("transpassing max size for rCatalog");
@@ -207,13 +180,8 @@ int main(int argc,char **argv){
 
         rCnect+=1;
       }
-      else{
-        printf("quebrou?\n");
-        printf("Last vCatalog:\n");
-        printf("%f %f %f %f\n",vCatalog[0],vCatalog[1],
-                               vCatalog[2],vCatalog[3]);
+      else
         break;
-      }
 
       err = addSingleOseen(1,majorVortex,x0,dx,Height,Width,&gField);
       if(err!=0){
@@ -225,13 +193,9 @@ int main(int argc,char **argv){
 
       for(i=0;i<4*nCnect;i+=1)
         vCatalog[i]=0.;
-    }while(pass!=0);
+    }while( (pass!=0)&&(it<nVortex) );//while(pass!=0);
 
-    printf("\n");
     nRecon += rCnect;
-
-    if(nCnect<2)
-      printf("Too Few Vortices\n");
 
     for(i=0;i<nVortex;i+=1){
       gsl_histogram_increment(iG,parVortex[4*i+0]);
