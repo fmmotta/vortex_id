@@ -114,11 +114,13 @@ int main(int argc,char **argv){
   fprintf(dadosgen,"\nshear v0/y0=%f\n",v0y0);
   fclose(dadosgen);
 
-  threshold=0.0;
+  threshold=0.5;
   for(n=0;n<nRuns;n+=1){
 
-    err=genLOseenBinaryList(Gmin,Gmax,rmin,rmax,xmin,xmax,seed,
-                             nVortex,&parVortex);
+    //err=genLOseenBinaryList(Gmin,Gmax,rmin,rmax,xmin,xmax,seed,
+    //                         nVortex,&parVortex);
+    err=genLOseenLucaList(Gmin,Gmax,rmin,rmax,xmin,xmax,seed,
+                          nVortex,&parVortex);
     if(err!=0)
       return err;
 
@@ -169,7 +171,29 @@ int main(int argc,char **argv){
 
       vortexQuickSort(vCatalog,nCnect,&greaterCirculation);
 
-      if(abs(vCatalog[4*0+0])>threshold){
+      printf("Identified Vortexes\n");
+      for(i=0;i<nCnect;i+=1)
+        printf("%f %f %f %f\n",vCatalog[4*i+0],vCatalog[4*i+1],
+                               vCatalog[4*i+2],vCatalog[4*i+3]);
+
+      printf("Major Vortex:\n");
+      printf("%f %f %f %f\n",vCatalog[0],vCatalog[1],
+                             vCatalog[2],vCatalog[3]);
+      
+      printf("number of components: Identified reconstructed iterated\n");
+      printf("%d %d %d\n",nCnect,rCnect,it);
+      printf("\n");
+
+      printf("abs(Gamma): %f > threshold: %f\n",vCatalog[0],threshold);
+    
+      printf("\n");
+      if(fabs(vCatalog[0])>threshold)
+        printf("vai entrar\n");
+      else
+        printf("vai quebrar\n");
+
+      if(fabs(vCatalog[0])>threshold){
+        printf("Identificou alguma coisa\n");
         pass=1; 
         if(rCnect>=nMax-1){
           printf("transpassing max size for rCatalog");
@@ -183,8 +207,13 @@ int main(int argc,char **argv){
 
         rCnect+=1;
       }
-      else
+      else{
+        printf("quebrou?\n");
+        printf("Last vCatalog:\n");
+        printf("%f %f %f %f\n",vCatalog[0],vCatalog[1],
+                               vCatalog[2],vCatalog[3]);
         break;
+      }
 
       err = addSingleOseen(1,majorVortex,x0,dx,Height,Width,&gField);
       if(err!=0){
@@ -194,20 +223,6 @@ int main(int argc,char **argv){
 
       it+=1;
 
-
-      printf("Identified Vortexes\n");
-      for(i=0;i<nCnect;i+=1)
-        printf("%f %f %f %f\n",vCatalog[4*i+0],vCatalog[4*i+1],
-                               vCatalog[4*i+2],vCatalog[4*i+3]);
-
-      printf("Major Vortex:\n");
-      printf("%f %f %f %f\n",-majorVortex[0],majorVortex[1],
-                             majorVortex[2],majorVortex[3]);
-      
-      printf("number of components: Identified reconstructed iterated\n");
-      printf("%d %d %d\n",nCnect,rCnect,it);
-      printf("\n");
-    
       for(i=0;i<4*nCnect;i+=1)
         vCatalog[i]=0.;
     }while(pass!=0);
