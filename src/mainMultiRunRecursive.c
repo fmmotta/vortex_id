@@ -11,23 +11,25 @@
 #include "vortexExtraction.h"
 
 int main(int argc,char **argv){
-  const int Width = 100, Height = 100,Pop=10,nVortex=5,nRuns=1000;
-  int seed=98755;
+  const int Width = 200, Height = 200,Pop=10,nFixVortex=20,nRuns=100000;
+  const int numG=3,numRc=3;
+  int seed=98755,nVortex=20;
   int i,j,err,ngbr,found,nCnect,rCnect=0,*label,n,bin,nMax=500,pass=0;
   int nbList[8],eqList[Pop],**eqClass,it,nRecon=0;
-  float Gmin=1.,Gmax=20.,rmin=0.5,rmax=1.,threshold=0.05;
-  float xmin[2]={1.,1.},xmax[2]={9.,9.};
-  float *parVortex=NULL,x0[2],dx[2],xf[2],*sField=NULL,*gField;
+  float Gmin=1.,Gmax=20.,rmin=0.5,rmax=1.5,threshold=0.5;
+  float xmin[2]={-9.,-9.},xmax[2]={9.,9.};
+  float Glist[3]={1,5,10},Rclist[3]={0.5,1.0,1.5};
+  float *parVortex=NULL,x0[2],dx[2],xf[2],*sField=NULL,*gField=NULL;
   float x,y,v0y0 = 0.00,*vCatalog=NULL,*rCatalog=NULL,*majorVortex=NULL;
   FILE *dadosgen,*dadosout;
-  int hNG=55,hNRc=55,hNa=40,hNb=40,hNN=10;
+  int hNG=50,hNRc=53,hNa=40,hNb=40,hNN=10;
   gsl_histogram *hG,*hRc,*ha,*hb,*hN;
   gsl_histogram *iG,*iRc,*ia,*ib;
   
-  threshold=0.05;
+  threshold=0.5;
 
-  x0[0]=0.; xf[0]= 10.; dx[0] = (xf[0]-x0[0])/Height;
-  x0[1]=0.; xf[1]= 10.; dx[1] = (xf[1]-x0[1])/Width;
+  x0[0]=-10.; xf[0]= 10.; dx[0] = (xf[0]-x0[0])/Height;
+  x0[1]=-10.; xf[1]= 10.; dx[1] = (xf[1]-x0[1])/Width;
   
   gField = (float *)malloc(4*Height*Width*sizeof(float));
   if(gField==NULL){
@@ -76,9 +78,9 @@ int main(int argc,char **argv){
 
   /* histogram preparation - begin */
   hG = gsl_histogram_alloc(hNG); 
-  gsl_histogram_set_ranges_uniform(hG,0.,2.5*Gmax);
+  gsl_histogram_set_ranges_uniform(hG,-0.5,2.5*Gmax);
   hRc = gsl_histogram_alloc(hNRc); 
-  gsl_histogram_set_ranges_uniform(hRc,0.,2.5*rmax);
+  gsl_histogram_set_ranges_uniform(hRc,-0.18,2.5*rmax);
   ha = gsl_histogram_alloc(hNa); 
   gsl_histogram_set_ranges_uniform(ha,xmin[0],xmax[0]);
   hb = gsl_histogram_alloc(hNb); 
@@ -103,7 +105,7 @@ int main(int argc,char **argv){
 
   seed = 98755; // Fix seed for comparison
 
-  dadosgen=fopen("data/multiRunGen.txt","w");
+  dadosgen=fopen("data/Uniform Comparison/Recursive/multiRunGen.txt","w");
   fprintf(dadosgen,"seed: %d\n",seed);
   fprintf(dadosgen,"\ndomain: xi xf dx\n");
   fprintf(dadosgen,"%f %f %f\n",x0[0],xf[0],dx[0]);
@@ -117,21 +119,26 @@ int main(int argc,char **argv){
   fclose(dadosgen);
 
   for(n=0;n<nRuns;n+=1){
-    err=genLOseenLucaList(Gmin,Gmax,rmin,rmax,xmin,xmax,seed,
-                          nVortex,&parVortex);
-    if(err!=0)
+    if(n%1000 == 0)
+      printf("%d runs have passed\n",n);
+
+    nVortex = nFixVortex;
+    err=genLOseenUniformList(Gmin,Gmax,rmin,rmax,xmin,xmax,seed,
+                             nVortex,&parVortex);
+    if(err<0)
       return err;
+    else if((err>0) && (err<nVortex))
+      nVortex = err;
 
     for(i=0;i<4*Height*Width;i+=1)
       gField[i]=0.;
 
+    for(i=0;i<Height*Width;i+=1)
+      label[i]=-1;
+
     err = addSingleOseen(nVortex,parVortex,x0,dx,Height,Width,&gField);
     if(err!=0)
       printf("Problems in addSingleOseen\n");
-
-    err=addConstXYShear(x0,dx,Height,Width,v0y0,&gField);
-    if(err!=0)
-      printf("Problems in addConstXYShear\n");
 
     it=0;
     pass=0;
@@ -212,32 +219,32 @@ int main(int argc,char **argv){
 
   printf("nTotalVortex = %d nRecon=%d\n",nRuns*nVortex,nRecon);
 
-  dadosout=fopen("data/histoOuG.txt","w");
+  dadosout=fopen("data/Uniform Comparison/Recursive/histoOuG.txt","w");
   gsl_histogram_fprintf(dadosout,hG,"%f","%f");
   fclose(dadosout);
-  dadosout=fopen("data/histoOuRc.txt","w");
+  dadosout=fopen("data/Uniform Comparison/Recursive/histoOuRc.txt","w");
   gsl_histogram_fprintf(dadosout,hRc,"%f","%f");
   fclose(dadosout);
-  dadosout=fopen("data/histoOua.txt","w");
+  dadosout=fopen("data/Uniform Comparison/Recursive/histoOua.txt","w");
   gsl_histogram_fprintf(dadosout,ha,"%f","%f");
   fclose(dadosout);
-  dadosout=fopen("data/histoOub.txt","w");
+  dadosout=fopen("data/Uniform Comparison/Recursive/histoOub.txt","w");
   gsl_histogram_fprintf(dadosout,hb,"%f","%f");
   fclose(dadosout);
-  dadosout=fopen("data/histoOuN.txt","w");
+  dadosout=fopen("data/Uniform Comparison/Recursive/histoOuN.txt","w");
   gsl_histogram_fprintf(dadosout,hN,"%f","%f");
   fclose(dadosout);
 
-  dadosout=fopen("data/histoInG.txt","w");
+  dadosout=fopen("data/Uniform Comparison/Recursive/histoInG.txt","w");
   gsl_histogram_fprintf(dadosout,iG,"%f","%f");
   fclose(dadosout);
-  dadosout=fopen("data/histoInRc.txt","w");
+  dadosout=fopen("data/Uniform Comparison/Recursive/histoInRc.txt","w");
   gsl_histogram_fprintf(dadosout,iRc,"%f","%f");
   fclose(dadosout);
-  dadosout=fopen("data/histoIna.txt","w");
+  dadosout=fopen("data/Uniform Comparison/Recursive/histoIna.txt","w");
   gsl_histogram_fprintf(dadosout,ia,"%f","%f");
   fclose(dadosout);
-  dadosout=fopen("data/histoInb.txt","w");
+  dadosout=fopen("data/Uniform Comparison/Recursive/histoInb.txt","w");
   gsl_histogram_fprintf(dadosout,ib,"%f","%f");
   fclose(dadosout);
 
@@ -258,7 +265,7 @@ int main(int argc,char **argv){
     free(eqClass[i]);
   free(eqClass);
 
-  free(parVortex);
+  free(parVortex); 
 
   /* histogram free - begin */
   gsl_histogram_free(hG);

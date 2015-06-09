@@ -14,6 +14,12 @@ all: main test_floodFill test_lambOseenShear0 test_lambOseenShear1 test_lambOsee
 main: main.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o src/lambdaInit.h src/floodFill.h src/vortexGen.h src/vortexExtraction.h src/mt64.h
 	$(CC) -o bin/main obj/main.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/vortexExtraction.o obj/mt64.o $(LIBS)
 
+mainMultiRunHistogram: mainMultiRunHistogram.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o src/lambdaInit.h src/floodFill.h src/vortexGen.h src/vortexExtraction.h src/mt64.h
+	$(CC) -o bin/mainMultiRunHistogram obj/mainMultiRunHistogram.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/vortexExtraction.o obj/mt64.o $(LIBS)
+
+mainMultiRunRecursive: mainMultiRunRecursive.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o src/lambdaInit.h src/floodFill.h src/vortexGen.h src/vortexExtraction.h src/mt64.h
+	$(CC) -o bin/mainMultiRunRecursive obj/mainMultiRunRecursive.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/vortexExtraction.o obj/mt64.o $(LIBS)
+
 test_floodFill: floodFill.o test_floodFill.o
 	$(CC) -o bin/test_floodFill obj/test_floodFill.o obj/floodFill.o $(LIBS)
 
@@ -82,6 +88,12 @@ test_vortexExtRecursive: test_vortexExtRecursive.o lambdaInit.o floodFill.o vort
 
 main.o: src/main.c 
 	$(CC) $(CFLAGS) src/main.c -o obj/main.o
+
+mainMultiRunHistogram.o: src/mainMultiRunHistogram.c 
+	$(CC) $(CFLAGS) src/mainMultiRunHistogram.c -o obj/mainMultiRunHistogram.o
+
+mainMultiRunRecursive.o: src/mainMultiRunRecursive.c 
+	$(CC) $(CFLAGS) src/mainMultiRunRecursive.c -o obj/mainMultiRunRecursive.o
 
 lambdaInit.o: src/lambdaInit.c src/lambdaInit.h
 	$(CC) $(CFLAGS) src/lambdaInit.c -o obj/lambdaInit.o
