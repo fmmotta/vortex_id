@@ -10,6 +10,62 @@
 #include "vortexGen.h"
 #include "vortexExtraction.h"
 
+int fprintfRunParameters(FILE *dadosgen,long long int seed,float x0[],
+                         float xf[],float dx[],float Gmin, float Gmax,
+                         float rmin, float rmax, float xmin[], float xmax[], 
+                         float v0y0)
+{
+  int i;
+
+  if(dadosgen==NULL)
+    return 1;
+
+  fprintf(dadosgen,"seed: %d\n",seed);
+  fprintf(dadosgen,"\ndomain: xi xf dx\n");
+  fprintf(dadosgen,"%f %f %f\n",x0[0],xf[0],dx[0]);
+  fprintf(dadosgen,"%f %f %f\n",x0[1],xf[1],dx[1]);
+  fprintf(dadosgen,"\nvortex params: Uniform\n");
+  fprintf(dadosgen,"G : %f %f\n",Gmin,Gmax);
+  fprintf(dadosgen,"Rc: %f %f\n",rmin,rmax);
+  fprintf(dadosgen,"a : %f %f\n",xmin[0],xmax[0]);
+  fprintf(dadosgen,"b : %f %f\n",xmin[1],xmax[1]);
+  fprintf(dadosgen,"\nshear v0/y0=%f\n",v0y0);
+  
+  return 0;
+}
+
+int histoIncVortex(int nVortex, float *parVortex,
+                   gsl_histogram *iG, gsl_histogram *iRc,
+                   gsl_histogram *ia, gsl_histogram *ib){
+  int i;
+
+  for(i=0;i<nVortex;i+=1){
+    gsl_histogram_increment(iG,parVortex[4*i+0]);
+    gsl_histogram_increment(iRc,parVortex[4*i+1]);
+    gsl_histogram_increment(ia,parVortex[4*i+2]);
+    gsl_histogram_increment(ib,parVortex[4*i+3]);
+  }
+
+  return 0;
+}
+
+int fprintVortex(FILE *dadosout, int run,int nVortex, float *vCatalog){
+  int i;
+
+  if(dadosout==NULL || run<0 || nVortex<=0 || vCatalog==NULL)
+    return 1;
+
+  for(i=0;i<nVortex;i+=1)
+    fprintf(dadosout,"%d %d : %f %f %f %f\n",run,i,vCatalog[4*i+0]
+                                                  ,vCatalog[4*i+1]
+                                                  ,vCatalog[4*i+2]
+                                                  ,vCatalog[4*i+3]);
+
+  fprintf(dadosout,"\n");
+
+  return 0;
+}
+
 int main(int argc,char **argv){
   const int Width = 200, Height = 200,Pop=10,nFixVortex=20,nRuns=100000;
   const int numG=3,numRc=3;
@@ -21,7 +77,7 @@ int main(int argc,char **argv){
   float Glist[3]={1,5,10},Rclist[3]={0.5,1.0,1.5};
   float *parVortex=NULL,x0[2],dx[2],xf[2],*sField=NULL,*gField=NULL;
   float x,y,v0y0 = 0.00,*vCatalog=NULL,*rCatalog=NULL,*majorVortex=NULL;
-  FILE *dadosgen,*dadosout;
+  FILE *dadosgen,*dadosout,*dadosVin,*dadosVout;
   int hNG=50,hNRc=53,hNa=40,hNb=40,hNN=10;
   gsl_histogram *hG,*hRc,*ha,*hb,*hN;
   gsl_histogram *iG,*iRc,*ia,*ib;
@@ -106,17 +162,12 @@ int main(int argc,char **argv){
   seed = 98755; // Fix seed for comparison
 
   dadosgen=fopen("data/Uniform Comparison/Recursive/multiRunGen.txt","w");
-  fprintf(dadosgen,"seed: %d\n",seed);
-  fprintf(dadosgen,"\ndomain: xi xf dx\n");
-  fprintf(dadosgen,"%f %f %f\n",x0[0],xf[0],dx[0]);
-  fprintf(dadosgen,"%f %f %f\n",x0[1],xf[1],dx[1]);
-  fprintf(dadosgen,"\nvortex params: Binary\n");
-  fprintf(dadosgen,"G : %f %f\n",Gmin,Gmax);
-  fprintf(dadosgen,"rc: %f %f\n",rmin,rmax);
-  fprintf(dadosgen,"a : %f %f\n",xmin[0],xmax[0]);
-  fprintf(dadosgen,"b : %f %f\n",xmin[1],xmax[1]);
-  fprintf(dadosgen,"\nshear v0/y0=%f\n",v0y0);
+  err=fprintfRunParameters(dadosgen,seed,x0,xf,dx,Gmin,Gmax,rmin,
+                           rmax,xmin,xmax,v0y0);
   fclose(dadosgen);
+
+  dadosVin = fopen("data/Uniform Comparison/Recursive/inputVortexes.txt","w");
+  dadosVout = fopen("data/Uniform Comparison/Recursive/outputVortexes.txt","w");
 
   for(n=0;n<nRuns;n+=1){
     if(n%1000 == 0)
@@ -201,21 +252,23 @@ int main(int argc,char **argv){
 
     nRecon += rCnect;
 
-    for(i=0;i<nVortex;i+=1){
-      gsl_histogram_increment(iG,parVortex[4*i+0]);
-      gsl_histogram_increment(iRc,parVortex[4*i+1]);
-      gsl_histogram_increment(ia,parVortex[4*i+2]);
-      gsl_histogram_increment(ib,parVortex[4*i+3]);
-    }
+    err=histoIncVortex(nVortex,parVortex,iG,iRc,ia,ib);
+    if(err!=0){printf("problems\n"); return -5;}
 
-    gsl_histogram_increment(hN,rCnect);
-    for(i=0;i<rCnect;i+=1){
-      gsl_histogram_increment(hG,rCatalog[4*i+0]);
-      gsl_histogram_increment(hRc,rCatalog[4*i+1]);
-      gsl_histogram_increment(ha,rCatalog[4*i+2]);
-      gsl_histogram_increment(hb,rCatalog[4*i+3]);
-    }
+    gsl_histogram_increment(hN,nCnect);
+
+    err=histoIncVortex(rCnect,rCatalog,hG,hRc,ha,hb);
+    if(err!=0){printf("problems\n"); return -5;}
+
+    err=fprintVortex(dadosVin,n,nVortex,parVortex);
+    if(err!=0){printf("problems\n"); return -6;}
+
+    err=fprintVortex(dadosVout,n,rCnect,rCatalog);
+    if(err!=0){printf("problems\n"); return -6;}
   }
+
+  fclose(dadosVin);
+  fclose(dadosVout);
 
   printf("nTotalVortex = %d nRecon=%d\n",nRuns*nVortex,nRecon);
 

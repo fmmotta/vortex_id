@@ -11,8 +11,8 @@ float distf(float a,float b){
 int genLOseenUniformList(float Gmin,float Gmax, float rmin,float rmax,
 	                     float *xmin,float *xmax, unsigned long long int seed,
 	                     int numVortex,float **parVortexOut){
-  const int itMax = 100;
-  int i,j,taint=0,it=0;
+  const int itMax = 100,gitMax=200;
+  int i,j,taint=0,it=0,git=0;
   static int stat_counter=0;
   float G,rc,a,b,r,*parVortex;
 
@@ -34,12 +34,16 @@ int genLOseenUniformList(float Gmin,float Gmax, float rmin,float rmax,
   for(i=0;i<numVortex;i+=1){
     G  = Gmin+(Gmax-Gmin)*genrand64_real1();
     rc = rmin+(rmax-rmin)*genrand64_real1();
-   
+
     parVortex[4*i+0]=G;
     parVortex[4*i+1]=rc;
   }
 
   for(i=0;i<numVortex;i+=1){
+    git=0;
+    
+    retry: /* WARNING : goto label */
+
     it=0;
     do{
       a  = xmin[0]+(xmax[0]-xmin[0])*genrand64_real1();
@@ -55,17 +59,31 @@ int genLOseenUniformList(float Gmin,float Gmax, float rmin,float rmax,
       it+=1;
     }while((taint!=0)&&(it<=itMax));//while(taint!=0 || it>=itMax);
 
-    if(it>=itMax)
-      break;
+    if(it>=itMax){
+      //printf("it transpassed itMax - git=%d\n",git);
+      git+=1;
+      if(git>=gitMax)
+        return -10;
+      else{
+        G  = Gmin+(Gmax-Gmin)*genrand64_real1();
+        rc = rmin+(rmax-rmin)*genrand64_real1();
+   
+        parVortex[4*i+0]=G;
+        parVortex[4*i+1]=rc;
+        goto retry; /* WARNING : goto statement */
+      }             // I know that this is not recommended,
+    }               // but it will stay like this for the time
 
-    parVortex[4*i+0]=G;
-    parVortex[4*i+1]=rc;
+    //parVortex[4*i+0]=G;  Caralho, isso tava deturpando meus resultados
+    //parVortex[4*i+1]=rc; Warning; check for this on other functions
     parVortex[4*i+2]=a;
     parVortex[4*i+3]=b;
   }
 
-  if(it>=itMax)
-    return i;
+  if(git>=gitMax){
+    printf("Holy Crap, you should revise this code\n");
+    return -(11+i);
+  }
 
   *parVortexOut=parVortex;
 
