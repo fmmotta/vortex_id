@@ -19,17 +19,20 @@ int vortexExtraction(int Height,int Width, int nCnect,
   	return -1;
   
   vCatalog = *vCatalogOut;
-    /*
-     * WARNING : 
-     *
-     * potentially problematic behaviour, but works with
-     * glibc, but have to check if it works for other libs.
-     * I'm exploring the fact that if the size of the allocated array
-     * is the same as the one I'm resizing it to, 
-     * realloc changes nothing. 
-     * see: http://stackoverflow.com/questions/18617620/
-     *      behavior-of-realloc-when-the-new-size-is-the-same-as-the-old-one
-     */
+  /*
+   * WARNING : 
+   *
+   * potentially problematic behaviour, but works with
+   * glibc, but have to check if it works for other libs.
+   * I'm exploring the fact that if the size of the allocated array
+   * is the same as the one I'm resizing it to, 
+   * realloc changes nothing. 
+   * see: http://stackoverflow.com/questions/18617620/
+   *      behavior-of-realloc-when-the-new-size-is-the-same-as-the-old-one
+   *
+   * update: stack overflow suggestion does not seems to work on my computer
+   */
+
   /*   
    * BAD IDEA -- trocar essa bosta assim que possível
    * está a caminho
@@ -225,6 +228,97 @@ int vortexExtRecursive(int Height,int Width,float *x0, float *dx,int **eqClass,
   int maxIt;
   int i=0,err=0,pass=0,rCnect=0,nCnect=0,nCnect0=0,it=0;
   float *rCatalog=NULL,majorVortex[4];
+
+  if(Height<=0 || Width<=0)
+    return -1;
+
+  rCatalog = *rCatalogOut;
+
+  do{
+    // if(it>=maxIt) break;
+    printf("it=%d\n",it);
+    for(i=0;i<Height*Width;i+=1)
+      label[i]=-1;
+
+    err = gradUtoLamb(Height,Width,gField,&sField);
+    if(err!=0)
+      return err;
+  
+    err = floodFill(sField,Width,Height,eqClass,label);
+    if(err!=0)
+      return err;
+
+    err = renameLabels(Height,Width,label);
+    if(err>0){
+      nCnect=err;
+    }
+    else
+      return err;
+
+    err=vortexExtraction(Height,Width,nCnect,x0,dx,sField,
+                         gField,label,&vCatalog);
+    if(err!=0)
+      return err;
+
+    vortexQuickSort(vCatalog,nCnect,&greaterAbsCirculation);
+
+    if(abs(vCatalog[4*0+0])>threshold){
+      pass=1; 
+      rCnect+=1;
+      majorVortex[0]=-vCatalog[0]; rCatalog[4*it+0] = vCatalog[0];
+      majorVortex[1]= vCatalog[1]; rCatalog[4*it+1] = vCatalog[1];
+      majorVortex[2]= vCatalog[2]; rCatalog[4*it+2] = vCatalog[2];
+      majorVortex[3]= vCatalog[3]; rCatalog[4*it+3] = vCatalog[3];
+    }
+    else
+      break;
+
+    err = addSingleOseen(1,majorVortex,x0,dx,Height,Width,&gField);
+    if(err!=0){
+      printf("alguma merda séria tá acontecendo\n");
+      return err;}
+
+    it+=1;
+  }while(pass!=0);
+
+  *rCnectOut = rCnect;
+  *rCatalogOut = rCatalog; 
+
+  return 0;
+}
+
+int applySwirlingStrengthThreshold(int Height,int Width,float *sField,
+                                   float theta)
+{
+  int i,j;
+
+  if(Height<=0 || Width<=0)
+    return -1;
+
+  if(sField==NULL)
+    return -2;
+
+  if(theta<0.)
+    return -3;
+
+  for(i=0;i<Height;i+=1)
+    for(j=0;j<Width;j+=1){
+      if(sField[i*Width+j]<= theta)
+        sField[i*Width+j]=0.;
+    }
+  
+  return 0;
+}
+
+int vortexExtRecursive(int Height,int Width,float *x0, float *dx,int **eqClass,
+                       float *sField,float *gField,int *label, float threshold, 
+                       float *vCatalog, int *rCnectOut,float **rCatalogOut){
+  int maxIt;
+  int i=0,err=0,pass=0,rCnect=0,nCnect=0,nCnect0=0,it=0;
+  float *rCatalog=NULL,majorVortex[4];
+
+  if(Height<=0 || Width<=0)
+    return -1;
 
   rCatalog = *rCatalogOut;
 

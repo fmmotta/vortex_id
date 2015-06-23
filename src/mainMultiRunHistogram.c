@@ -67,7 +67,7 @@ int fprintVortex(FILE *dadosout, int run,int nVortex, float *vCatalog){
 }
 
 int main(int argc,char **argv){
-  const int Width = 200, Height = 200,Pop=10,nFixVortex=20,nRuns=10;
+  const int Width = 200, Height = 200,Pop=10,nFixVortex=20,nRuns=100000;
   const int numG=3,numRc=3;
   int seed=98755,nVortex=20;
   int i,j,err,ngbr,found,nCnect,rCnect=0,*label,n,bin,nMax=500,pass=0;
@@ -210,6 +210,11 @@ int main(int argc,char **argv){
 
     err=histoIncVortex(nCnect,vCatalog,hG,hRc,ha,hb);
     if(err!=0){printf("problems\n"); return -5;}
+
+    /* Preparing for printing */
+
+    vortexQuickSort(parVortex,nVortex,&greaterAbsVorticity);
+    vortexQuickSort(vCatalog,nCnect,&greaterAbsVorticity);
 
     err=fprintVortex(dadosVin,n,nVortex,parVortex);
     if(err!=0){printf("problems\n"); return -6;}

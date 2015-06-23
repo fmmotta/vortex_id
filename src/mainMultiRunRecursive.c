@@ -248,7 +248,7 @@ int main(int argc,char **argv){
 
       for(i=0;i<4*nCnect;i+=1)
         vCatalog[i]=0.;
-    }while( (pass!=0)&&(it<nVortex) );//while(pass!=0);
+    }/*while( (pass!=0)&&(it<nVortex) );*/while(pass!=0);
 
     nRecon += rCnect;
 
@@ -259,6 +259,11 @@ int main(int argc,char **argv){
 
     err=histoIncVortex(rCnect,rCatalog,hG,hRc,ha,hb);
     if(err!=0){printf("problems\n"); return -5;}
+
+    /* Preparing for printing */
+
+    vortexQuickSort(parVortex,nVortex,&greaterAbsVorticity);
+    vortexQuickSort(rCatalog,rCnect,&greaterAbsVorticity);
 
     err=fprintVortex(dadosVin,n,nVortex,parVortex);
     if(err!=0){printf("problems\n"); return -6;}
