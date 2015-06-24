@@ -161,24 +161,6 @@ int addOseen2ndGrad(int nVortex,float *parVortex, float *x0, float *dx,
       gField[4*(i*Width+j)+3]+=gradU[1][1];
     }
 
-  for(i=0;i<Height;i+=1)
-    for(j=0;j<Width;j+=1){
-
-      x = x0[0] + i*dx[0];
-      y = x0[1] + j*dx[1];
-      w=0.;
-      for(k=0;k<nVortex;k+=1){
-        G = parVortex[4*k+0]; R = parVortex[4*k+1];
-        a = parVortex[4*k+2]; b = parVortex[4*k+3];
-        
-        r2 = (x-a)*(x-a)+(y-b)*(y-b);
-        r = sqrt(r2);
-
-      }
-
-      Dw = gField[4*(i*Width+j)+1]-gField[4*(i*Width+j)+2];
-    }  
-  
   return 0;
 }
 
@@ -212,6 +194,21 @@ int s2ndGradUtoLamb(int nVortex,float *parVortex, float *x0, float *dx,
       }
 
       Dw = gField[4*(i*Width+j)+1]-gField[4*(i*Width+j)+2];
+      
+      gradU[0][0] = gField[4*(i*Width+j)+0];
+      gradU[0][1] = gField[4*(i*Width+j)+1];
+      gradU[1][0] = gField[4*(i*Width+j)+2];
+      gradU[1][1] = gField[4*(i*Width+j)+3];
+
+      // \Delta = (tr gU)^2-4.*det gU; \Delta<0 ==> Imaginary eigenvalue
+      // (lamb)^2 = - 4.*\Delta;
+      lamb =  (gradU[0][0]*gradU[1][1]-gradU[0][1]*gradU[1][0]);
+      lamb-= ((gradU[0][0]+gradU[1][1])*(gradU[0][0]+gradU[1][1]))/4.;
+      
+      if(lamb>0. && (w*Dw<0.))
+        sField[i*Width+j] = sqrt(lamb);
+      else
+        sField[i*Width+j] = 0.;
     }  
   
   return 0;
