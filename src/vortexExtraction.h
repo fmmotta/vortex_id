@@ -21,6 +21,10 @@ int vortexExtTreshold(int Height,int Width, int nCnect,float theta,
                       float *x0, float *dx,float *sField,
                       float *gField,int *label,float **vCatalogOut);
 
+int vortexExt2ndSwirl(int Height,int Width, int nCnect,
+                      float *x0, float *dx,float *sField,
+                      float *gField,int *label,float **vCatalogOut);
+
 int lesserCirculation(const float *v,const float *p);
 
 int greaterCirculation(const float *v,const float *p);
