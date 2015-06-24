@@ -124,6 +124,101 @@ int addSingleOseen(int nVortex,float *parVortex, float *x0, float *dx,
   return 0;
 }
 
+int addOseen2ndGrad(int nVortex,float *parVortex, float *x0, float *dx, 
+                    int Height,int Width, float **gFieldOut){
+  int i,j,k;
+  float gradU[2][2],*gField;
+  float a,b,G,R,x,y,fa,fb,r2,r,lamb,bulk=0.,w,Dw;
+
+  if(*gFieldOut==NULL)
+    return 1;
+  gField = *gFieldOut;
+  
+  for(i=0;i<Height;i+=1)
+    for(j=0;j<Width;j+=1){
+      gradU[0][0] = gradU[0][1] = gradU[1][0] = gradU[1][1] = 0.;
+      
+      x = x0[0] + i*dx[0];
+      y = x0[1] + j*dx[1];
+      for(k=0;k<nVortex;k+=1){
+        G = parVortex[4*k+0]; R = parVortex[4*k+1];
+        a = parVortex[4*k+2]; b = parVortex[4*k+3];
+        
+        r2 = (x-a)*(x-a)+(y-b)*(y-b);
+        r = sqrt(r2);
+        
+        // maybe add an if clause for small r2/(R*R)
+        bulk = ((4.0*G)/(M_PI*R*R*R*R))*exp(-r2/(R*R));
+        gradU[0][0] =   ((x*y)/(R*R))*bulk;
+        gradU[0][1] = (-0.5+((y*y)/(R*R)) )*bulk;
+        gradU[1][0] = ( 0.5-((x*y)/(R*R)) )*bulk;
+        gradU[1][1] = - ((x*y)/(R*R))*bulk;
+      }
+      
+      gField[4*(i*Width+j)+0]+=gradU[0][0];
+      gField[4*(i*Width+j)+1]+=gradU[0][1];
+      gField[4*(i*Width+j)+2]+=gradU[1][0];
+      gField[4*(i*Width+j)+3]+=gradU[1][1];
+    }
+
+  for(i=0;i<Height;i+=1)
+    for(j=0;j<Width;j+=1){
+
+      x = x0[0] + i*dx[0];
+      y = x0[1] + j*dx[1];
+      w=0.;
+      for(k=0;k<nVortex;k+=1){
+        G = parVortex[4*k+0]; R = parVortex[4*k+1];
+        a = parVortex[4*k+2]; b = parVortex[4*k+3];
+        
+        r2 = (x-a)*(x-a)+(y-b)*(y-b);
+        r = sqrt(r2);
+
+      }
+
+      Dw = gField[4*(i*Width+j)+1]-gField[4*(i*Width+j)+2];
+    }  
+  
+  return 0;
+}
+
+int s2ndGradUtoLamb(int nVortex,float *parVortex, float *x0, float *dx,
+                    int Height,int Width, float *gField,float *sField){
+  int i,j,k;
+  float gradU[2][2];
+  float a,b,G,R,x,y,fa,fb,r2,r,lamb,bulk=0.,w,Dw;
+
+  if(gField==NULL)
+    return 1;
+  if(sField==NULL)
+    return 2;
+  if((Height<=0)||(Width<=0))
+    return -1;
+
+  for(i=0;i<Height;i+=1)
+    for(j=0;j<Width;j+=1){
+
+      x = x0[0] + i*dx[0];
+      y = x0[1] + j*dx[1];
+      w=0.;
+      for(k=0;k<nVortex;k+=1){
+        G = parVortex[4*k+0]; R = parVortex[4*k+1];
+        a = parVortex[4*k+2]; b = parVortex[4*k+3];
+        
+        r2 = (x-a)*(x-a)+(y-b)*(y-b);
+        r = sqrt(r2);
+        
+        w += (G/(M_PI*R*R))*exp(-r2/(R*R));
+      }
+
+      Dw = gField[4*(i*Width+j)+1]-gField[4*(i*Width+j)+2];
+    }  
+  
+  return 0;
+
+  return 0;
+}
+
 int addConstXYShear(float *x0, float *dx,int Height,
                     int Width, float v0y0,float **gFieldOut){
   int i,j,k;

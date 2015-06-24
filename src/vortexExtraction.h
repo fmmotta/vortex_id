@@ -14,6 +14,13 @@ int vortexExtRecursive(int Height,int Width,float *x0, float *dx,int **eqClass,
                        float *sField,float *gField,int *label, float threshold, 
                        float *vCatalog, int *rCnectOut,float **rCatalogOut);
 
+int applySwirlingStrengthThreshold(int Height,int Width,float *sField,
+                                   float theta);
+
+int vortexExtTreshold(int Height,int Width, int nCnect,float theta,
+                      float *x0, float *dx,float *sField,
+                      float *gField,int *label,float **vCatalogOut);
+
 int lesserCirculation(const float *v,const float *p);
 
 int greaterCirculation(const float *v,const float *p);

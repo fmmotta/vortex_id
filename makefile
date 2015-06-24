@@ -20,6 +20,9 @@ mainMultiRunHistogram: mainMultiRunHistogram.o lambdaInit.o floodFill.o vortexGe
 mainMultiRunRecursive: mainMultiRunRecursive.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o src/lambdaInit.h src/floodFill.h src/vortexGen.h src/vortexExtraction.h src/mt64.h
 	$(CC) -o bin/mainMultiRunRecursive obj/mainMultiRunRecursive.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/vortexExtraction.o obj/mt64.o $(LIBS)
 
+mainMultiRunThreshold: mainMultiRunThreshold.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o src/lambdaInit.h src/floodFill.h src/vortexGen.h src/vortexExtraction.h src/mt64.h
+	$(CC) -o bin/mainMultiRunThreshold obj/mainMultiRunThreshold.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/vortexExtraction.o obj/mt64.o $(LIBS)
+
 test_floodFill: floodFill.o test_floodFill.o
 	$(CC) -o bin/test_floodFill obj/test_floodFill.o obj/floodFill.o $(LIBS)
 
@@ -94,6 +97,9 @@ mainMultiRunHistogram.o: src/mainMultiRunHistogram.c
 
 mainMultiRunRecursive.o: src/mainMultiRunRecursive.c 
 	$(CC) $(CFLAGS) src/mainMultiRunRecursive.c -o obj/mainMultiRunRecursive.o
+
+mainMultiRunThreshold.o: src/mainMultiRunThreshold.c 
+	$(CC) $(CFLAGS) src/mainMultiRunThreshold.c -o obj/mainMultiRunThreshold.o
 
 lambdaInit.o: src/lambdaInit.c src/lambdaInit.h
 	$(CC) $(CFLAGS) src/lambdaInit.c -o obj/lambdaInit.o

@@ -4,6 +4,7 @@
 #include <string.h>
 #include <time.h>
 #include <gsl/gsl_histogram.h>
+#include <gsl/gsl_math.h>
 #include "mt64.h"
 #include "floodFill.h"
 #include "lambdaInit.h"
@@ -67,7 +68,7 @@ int fprintVortex(FILE *dadosout, int run,int nVortex, float *vCatalog){
 }
 
 int main(int argc,char **argv){
-  const int Width = 200, Height = 200,Pop=10,nFixVortex=20,nRuns=1000;
+  const int Width = 200, Height = 200,Pop=10,nFixVortex=20,nRuns=100000;
   const int numG=3,numRc=3;
   int seed=98755,nVortex=20;
   int i,j,err,ngbr,found,nCnect,rCnect=0,*label,n,bin,nMax=500,pass=0;
@@ -76,7 +77,7 @@ int main(int argc,char **argv){
   float xmin[2]={-9.,-9.},xmax[2]={9.,9.};
   float Glist[3]={1,5,10},Rclist[3]={0.5,1.0,1.5};
   float *parVortex=NULL,x0[2],dx[2],xf[2],*sField=NULL,*gField=NULL;
-  float x,y,v0y0 = 0.00,*vCatalog=NULL;
+  float x,y,v0y0 = 0.00,*vCatalog=NULL,theta;
   FILE *dadosgen,*dadosout,*dadosVin,*dadosVout;
   int hNG=50,hNRc=53,hNa=40,hNb=40,hNN=10;
   gsl_histogram *hG,*hRc,*ha,*hb,*hN;
@@ -149,13 +150,16 @@ int main(int argc,char **argv){
 
   seed = 98755; // Fix seed for comparison
 
-  dadosgen=fopen("data/Uniform Comparison/Simple/multiRunGen.txt","w");
+  dadosgen=fopen("data/Uniform Comparison/Threshold/multiRunGen.txt","w");
   err=fprintfRunParameters(dadosgen,seed,x0,xf,dx,Gmin,Gmax,rmin,
                            rmax,xmin,xmax,v0y0);
   fclose(dadosgen);
 
-  dadosVin = fopen("data/Uniform Comparison/Simple/inputVortexes.txt","w");
-  dadosVout = fopen("data/Uniform Comparison/Simple/outputVortexes.txt","w");
+  dadosVin = fopen("data/Uniform Comparison/Threshold/inputVortexes.txt","w");
+  dadosVout = fopen("data/Uniform Comparison/Threshold/outputVortexes.txt","w");
+
+  theta = 1.0*(Gmin/(2.0*M_PI*rmax*rmax));
+  //theta = 0.0;
 
   for(n=0;n<nRuns;n+=1){
     if(n%1000 == 0){
@@ -186,6 +190,10 @@ int main(int argc,char **argv){
     if(err!=0)
       printf("Problems in gradUtoLamb\n");
   
+    err = applySwirlingStrengthThreshold(Height,Width,sField,theta);
+    if(err!=0)
+      printf("Problems in applySwirlingStrengthThreshold\n");
+
     err = floodFill(sField,Width,Height,eqClass,label);
     if(err!=0)
       printf("Problems in floodFill\n");
@@ -196,8 +204,8 @@ int main(int argc,char **argv){
     else
       printf("problems with renameLabels - %d\n",err);
 
-    err=vortexExtraction(Height,Width,nCnect,x0,dx,sField,
-                         gField,label,&vCatalog);
+    err=vortexExtTreshold(Height,Width,nCnect,theta,x0,dx,
+                          sField,gField,label,&vCatalog);
     if(err!=0){
       printf("error on vortexExtraction - %d\n",err);
       return err; 
@@ -226,32 +234,32 @@ int main(int argc,char **argv){
   fclose(dadosVin);
   fclose(dadosVout);
 
-  dadosout=fopen("data/Uniform Comparison/Simple/histoOuG.txt","w");
+  dadosout=fopen("data/Uniform Comparison/Threshold/histoOuG.txt","w");
   gsl_histogram_fprintf(dadosout,hG,"%f","%f");
   fclose(dadosout);
-  dadosout=fopen("data/Uniform Comparison/Simple/histoOuRc.txt","w");
+  dadosout=fopen("data/Uniform Comparison/Threshold/histoOuRc.txt","w");
   gsl_histogram_fprintf(dadosout,hRc,"%f","%f");
   fclose(dadosout);
-  dadosout=fopen("data/Uniform Comparison/Simple/histoOua.txt","w");
+  dadosout=fopen("data/Uniform Comparison/Threshold/histoOua.txt","w");
   gsl_histogram_fprintf(dadosout,ha,"%f","%f");
   fclose(dadosout);
-  dadosout=fopen("data/Uniform Comparison/Simple/histoOub.txt","w");
+  dadosout=fopen("data/Uniform Comparison/Threshold/histoOub.txt","w");
   gsl_histogram_fprintf(dadosout,hb,"%f","%f");
   fclose(dadosout);
-  dadosout=fopen("data/Uniform Comparison/Simple/histoOuN.txt","w");
+  dadosout=fopen("data/Uniform Comparison/Threshold/histoOuN.txt","w");
   gsl_histogram_fprintf(dadosout,hN,"%f","%f");
   fclose(dadosout);
 
-  dadosout=fopen("data/Uniform Comparison/Simple/histoInG.txt","w");
+  dadosout=fopen("data/Uniform Comparison/Threshold/histoInG.txt","w");
   gsl_histogram_fprintf(dadosout,iG,"%f","%f");
   fclose(dadosout);
-  dadosout=fopen("data/Uniform Comparison/Simple/histoInRc.txt","w");
+  dadosout=fopen("data/Uniform Comparison/Threshold/histoInRc.txt","w");
   gsl_histogram_fprintf(dadosout,iRc,"%f","%f");
   fclose(dadosout);
-  dadosout=fopen("data/Uniform Comparison/Simple/histoIna.txt","w");
+  dadosout=fopen("data/Uniform Comparison/Threshold/histoIna.txt","w");
   gsl_histogram_fprintf(dadosout,ia,"%f","%f");
   fclose(dadosout);
-  dadosout=fopen("data/Uniform Comparison/Simple/histoInb.txt","w");
+  dadosout=fopen("data/Uniform Comparison/Threshold/histoInb.txt","w");
   gsl_histogram_fprintf(dadosout,ib,"%f","%f");
   fclose(dadosout);
 
