@@ -86,7 +86,7 @@ int fprintsField(FILE *dadosout,float *x0,float *dx,
 }
 
 int main(int argc,char **argv){
-  const int Width = 200, Height = 200,Pop=10,nFixVortex=20,nRuns=1000;
+  const int Width = 200, Height = 200,Pop=10,nFixVortex=20,nRuns=100000;
   const int numG=3,numRc=3;
   int seed=98755,nVortex=20;
   int i,j,err,ngbr,found,nCnect,rCnect=0,*label,n,bin,nMax=500,pass=0;
@@ -206,7 +206,7 @@ int main(int argc,char **argv){
     if(err!=0)
       printf("Problems in gradUtoLamb\n");
     
-    if(n%100==0){
+    if(n%1000==0){
       sprintf(filename,"data/Uniform Comparison/2ndSwirl/sField-%d.txt",n);
       dadosField = fopen(filename,"w");
       fprintsField(dadosField,x0,dx,Height,Width,sField);

@@ -52,7 +52,8 @@ int genLOseenUniformList(float Gmin,float Gmax, float rmin,float rmax,
       taint=0;
       for(j=0;j<i;j+=1){
         r = distf(a-parVortex[4*j+2],b-parVortex[4*j+3]);
-        if(r< 1.2*(parVortex[4*i+1]+parVortex[4*j+1])) /* Magic Number: change later*/
+        //if(r< 1.2*(parVortex[4*i+1]+parVortex[4*j+1])) /* Magic Number: change later*/
+        if(r< 1.0*(parVortex[4*i+1]+parVortex[4*j+1]))
           taint=1;
       }
 

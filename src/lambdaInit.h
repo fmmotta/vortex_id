@@ -24,3 +24,6 @@ int addOseen2ndGrad(int nVortex,float *parVortex, float *x0, float *dx,
 
 int s2ndGradUtoLamb(int nVortex,float *parVortex, float *x0, float *dx,
                     int Height,int Width, float *gField,float *sField);
+
+int sndGradUwFieldToLamb(int Height,int Width,float *gField,float *wField,
+                         float *sField);

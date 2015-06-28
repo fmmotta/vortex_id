@@ -472,11 +472,12 @@ int vortexExt2ndSwirl(int Height,int Width, int nCnect,
     }
 
   for(k=0;k<nCnect;k+=1){
-    rc= sqrtf(A[k]/M_PI)/sqrtf(2.); // Constant comming from lamb-oseen vortex;
+    rc= sqrtf(A[k]/M_PI)*sqrtf(2.); // Constant comming from lamb-oseen vortex;
     a=a0[k]/w[k]; 
     b=b0[k]/w[k]; 
-    G = 2.5414940825367984*w[k]; // Constant comming from lamb-oseen vortex;
-                                 // equals 1/(1.-exp(-0.5))
+    G = 0.8243606353500641*rc*rc*w[k]; // Constant comming from lamb-oseen 
+                                       // vortex; Based on laplacian of omega
+                                       // equals to sqrt(e)/2
     vCatalog[4*k+0] = G;
     vCatalog[4*k+1] = rc;
     vCatalog[4*k+2] = a;
