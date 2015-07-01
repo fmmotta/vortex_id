@@ -3,8 +3,8 @@
 
 # Compiler Choice : Gnu C Compiler ; Can change for icc
 CC = gcc
-INC_DIR = src
-CFLAGS = -c -O3 -I$(INC_DIR)
+INC_DIR = -Isrc -Isrc/inih
+CFLAGS = -c -O3 $(INC_DIR)
 LIBS = -lm -lgsl -lgslcblas
 
 default: main
@@ -92,6 +92,9 @@ test_vortexExtSimple: test_vortexExtSimple.o lambdaInit.o floodFill.o vortexGen.
 test_vortexExtRecursive: test_vortexExtRecursive.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o src/lambdaInit.h src/floodFill.h src/vortexGen.h src/vortexExtraction.h src/mt64.h
 	$(CC) -o bin/test_vortexExtRecursive obj/test_vortexExtRecursive.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/vortexExtraction.o obj/mt64.o $(LIBS) 
 
+test_vortexIdHandler: test_vortexIdHandler.o ini.o inputManager.o
+	$(CC) -o bin/test_vortexIdHandler obj/test_vortexIdHandler.o obj/ini.o obj/inputManager.o
+
 main.o: src/main.c 
 	$(CC) $(CFLAGS) src/main.c -o obj/main.o
 
@@ -121,6 +124,12 @@ vortexExtraction.o: src/vortexExtraction.c
 
 mt64.o: src/mt19937-64.c src/mt64.h
 	$(CC) $(CFLAGS) src/mt19937-64.c -o obj/mt64.o
+
+ini.o: src/inih/ini.c
+	$(CC) $(CFLAGS) src/inih/ini.c -o obj/ini.o
+
+inputManager.o: src/inputManager.c
+	$(CC) $(CFLAGS) src/inputManager.c -o obj/inputManager.o
 
 test_floodFill.o: src/tests/test_floodFill.c src/floodFill.h
 	$(CC) $(CFLAGS) src/tests/test_floodFill.c -o obj/test_floodFill.o
@@ -187,6 +196,9 @@ test_vortexExtSimple.o: src/tests/test_vortexExtSimple.c
 
 test_vortexExtRecursive.o: src/tests/test_vortexExtRecursive.c
 	$(CC) $(CFLAGS) src/tests/test_vortexExtRecursive.c -o obj/test_vortexExtRecursive.o
+
+test_vortexIdHandler.o: src/tests/test_vortexIdHandler.c
+	$(CC) $(CFLAGS) src/tests/test_vortexIdHandler.c -o obj/test_vortexIdHandler.o
 
 clean:
 	rm bin/* obj/* data/*.txt data/*.tex data/*.eps data/*.pdf data/*.aux data/*.log
