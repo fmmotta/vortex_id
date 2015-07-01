@@ -26,6 +26,9 @@ mainMultiRunThreshold: mainMultiRunThreshold.o lambdaInit.o floodFill.o vortexGe
 mainMultiRun2ndLamb: mainMultiRun2ndLamb.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o src/lambdaInit.h src/floodFill.h src/vortexGen.h src/vortexExtraction.h src/mt64.h
 	$(CC) -o bin/mainMultiRun2ndLamb obj/mainMultiRun2ndLamb.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/vortexExtraction.o obj/mt64.o $(LIBS)
 
+mainMultiRunHistoShear: mainMultiRunHistoShear.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o src/lambdaInit.h src/floodFill.h src/vortexGen.h src/vortexExtraction.h src/mt64.h
+	$(CC) -o bin/mainMultiRunHistoShear obj/mainMultiRunHistoShear.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/vortexExtraction.o obj/mt64.o $(LIBS)
+
 test_floodFill: floodFill.o test_floodFill.o
 	$(CC) -o bin/test_floodFill obj/test_floodFill.o obj/floodFill.o $(LIBS)
 
@@ -109,6 +112,9 @@ mainMultiRunThreshold.o: src/mainMultiRunThreshold.c
 
 mainMultiRun2ndLamb.o: src/mainMultiRun2ndLamb.c 
 	$(CC) $(CFLAGS) src/mainMultiRun2ndLamb.c -o obj/mainMultiRun2ndLamb.o
+
+mainMultiRunHistoShear.o: src/mainMultiRunHistoShear.c 
+	$(CC) $(CFLAGS) src/mainMultiRunHistoShear.c -o obj/mainMultiRunHistoShear.o
 
 lambdaInit.o: src/lambdaInit.c src/lambdaInit.h
 	$(CC) $(CFLAGS) src/lambdaInit.c -o obj/lambdaInit.o

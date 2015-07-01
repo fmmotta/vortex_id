@@ -10,7 +10,7 @@
 #include "vortexGen.h"
 #include "vortexExtraction.h"
 
-int fprintfRunParameters(FILE *dadosgen,long long int seed,float x0[],
+int fprintfRunParamSigned(FILE *dadosgen,long long int seed,float x0[],
                          float xf[],float dx[],float Gmin, float Gmax,
                          float rmin, float rmax, float xmin[], float xmax[], 
                          float v0y0)
@@ -25,7 +25,7 @@ int fprintfRunParameters(FILE *dadosgen,long long int seed,float x0[],
   fprintf(dadosgen,"%f %f %f\n",x0[0],xf[0],dx[0]);
   fprintf(dadosgen,"%f %f %f\n",x0[1],xf[1],dx[1]);
   fprintf(dadosgen,"\nvortex params: Uniform\n");
-  fprintf(dadosgen,"G : %f %f\n",Gmin,Gmax);
+  fprintf(dadosgen,"G :+- %f %f\n",Gmin,Gmax);
   fprintf(dadosgen,"Rc: %f %f\n",rmin,rmax);
   fprintf(dadosgen,"a : %f %f\n",xmin[0],xmax[0]);
   fprintf(dadosgen,"b : %f %f\n",xmin[1],xmax[1]);
@@ -122,7 +122,7 @@ int main(int argc,char **argv){
 
   /* histogram preparation - begin */
   hG = gsl_histogram_alloc(hNG); 
-  gsl_histogram_set_ranges_uniform(hG,-0.5,2.5*Gmax);
+  gsl_histogram_set_ranges_uniform(hG,-2.5*Gmax,2.5*Gmax);
   hRc = gsl_histogram_alloc(hNRc); 
   gsl_histogram_set_ranges_uniform(hRc,-0.18,2.5*rmax);
   ha = gsl_histogram_alloc(hNa); 
@@ -133,7 +133,7 @@ int main(int argc,char **argv){
   gsl_histogram_set_ranges_uniform(hN,0,2*nVortex);
 
   iG = gsl_histogram_alloc(hNG); 
-  gsl_histogram_set_ranges_uniform(iG,0.,2.5*Gmax);
+  gsl_histogram_set_ranges_uniform(iG,-2.5*Gmax,2.5*Gmax);
   iRc = gsl_histogram_alloc(hNRc); 
   gsl_histogram_set_ranges_uniform(iRc,0.,2.5*rmax);
   ia = gsl_histogram_alloc(hNa); 
@@ -149,13 +149,13 @@ int main(int argc,char **argv){
 
   seed = 98755; // Fix seed for comparison
 
-  dadosgen=fopen("data/Uniform Comparison/Simple/multiRunGen.txt","w");
-  err=fprintfRunParameters(dadosgen,seed,x0,xf,dx,Gmin,Gmax,rmin,
-                           rmax,xmin,xmax,v0y0);
+  dadosgen=fopen("data/Uniform Comparison/Signed/multiRunGen.txt","w");
+  err=fprintfRunParamSigned(dadosgen,seed,x0,xf,dx,Gmin,Gmax,rmin,
+                            rmax,xmin,xmax,v0y0);
   fclose(dadosgen);
 
-  dadosVin = fopen("data/Uniform Comparison/Simple/inputVortexes.txt","w");
-  dadosVout = fopen("data/Uniform Comparison/Simple/outputVortexes.txt","w");
+  dadosVin = fopen("data/Uniform Comparison/Signed/inputVortexes.txt","w");
+  dadosVout = fopen("data/Uniform Comparison/Signed/outputVortexes.txt","w");
 
   for(n=0;n<nRuns;n+=1){
     if(n%1000 == 0){
@@ -165,8 +165,8 @@ int main(int argc,char **argv){
     }
 
     nVortex = nFixVortex;
-    err=genLOseenUniformList(Gmin,Gmax,rmin,rmax,xmin,xmax,seed,
-                             nVortex,&parVortex);
+    err=genLOseenSignUniformList(Gmin,Gmax,rmin,rmax,xmin,xmax,seed,
+                                 nVortex,&parVortex);
     if(err<0)
       return err;
     else if((err>0) && (err<nVortex))
@@ -226,32 +226,32 @@ int main(int argc,char **argv){
   fclose(dadosVin);
   fclose(dadosVout);
 
-  dadosout=fopen("data/Uniform Comparison/Simple/histoOuG.txt","w");
+  dadosout=fopen("data/Uniform Comparison/Signed/histoOuG.txt","w");
   gsl_histogram_fprintf(dadosout,hG,"%f","%f");
   fclose(dadosout);
-  dadosout=fopen("data/Uniform Comparison/Simple/histoOuRc.txt","w");
+  dadosout=fopen("data/Uniform Comparison/Signed/histoOuRc.txt","w");
   gsl_histogram_fprintf(dadosout,hRc,"%f","%f");
   fclose(dadosout);
-  dadosout=fopen("data/Uniform Comparison/Simple/histoOua.txt","w");
+  dadosout=fopen("data/Uniform Comparison/Signed/histoOua.txt","w");
   gsl_histogram_fprintf(dadosout,ha,"%f","%f");
   fclose(dadosout);
-  dadosout=fopen("data/Uniform Comparison/Simple/histoOub.txt","w");
+  dadosout=fopen("data/Uniform Comparison/Signed/histoOub.txt","w");
   gsl_histogram_fprintf(dadosout,hb,"%f","%f");
   fclose(dadosout);
-  dadosout=fopen("data/Uniform Comparison/Simple/histoOuN.txt","w");
+  dadosout=fopen("data/Uniform Comparison/Signed/histoOuN.txt","w");
   gsl_histogram_fprintf(dadosout,hN,"%f","%f");
   fclose(dadosout);
 
-  dadosout=fopen("data/Uniform Comparison/Simple/histoInG.txt","w");
+  dadosout=fopen("data/Uniform Comparison/Signed/histoInG.txt","w");
   gsl_histogram_fprintf(dadosout,iG,"%f","%f");
   fclose(dadosout);
-  dadosout=fopen("data/Uniform Comparison/Simple/histoInRc.txt","w");
+  dadosout=fopen("data/Uniform Comparison/Signed/histoInRc.txt","w");
   gsl_histogram_fprintf(dadosout,iRc,"%f","%f");
   fclose(dadosout);
-  dadosout=fopen("data/Uniform Comparison/Simple/histoIna.txt","w");
+  dadosout=fopen("data/Uniform Comparison/Signed/histoIna.txt","w");
   gsl_histogram_fprintf(dadosout,ia,"%f","%f");
   fclose(dadosout);
-  dadosout=fopen("data/Uniform Comparison/Simple/histoInb.txt","w");
+  dadosout=fopen("data/Uniform Comparison/Signed/histoInb.txt","w");
   gsl_histogram_fprintf(dadosout,ib,"%f","%f");
   fclose(dadosout);
 

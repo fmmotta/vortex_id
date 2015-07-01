@@ -10,7 +10,7 @@
 #include "vortexGen.h"
 #include "vortexExtraction.h"
 
-int fprintfRunParamSigned(FILE *dadosgen,long long int seed,float x0[],
+int fprintfRunParameters(FILE *dadosgen,long long int seed,float x0[],
                          float xf[],float dx[],float Gmin, float Gmax,
                          float rmin, float rmax, float xmin[], float xmax[], 
                          float v0y0)
@@ -25,7 +25,7 @@ int fprintfRunParamSigned(FILE *dadosgen,long long int seed,float x0[],
   fprintf(dadosgen,"%f %f %f\n",x0[0],xf[0],dx[0]);
   fprintf(dadosgen,"%f %f %f\n",x0[1],xf[1],dx[1]);
   fprintf(dadosgen,"\nvortex params: Uniform\n");
-  fprintf(dadosgen,"G :+- %f %f\n",Gmin,Gmax);
+  fprintf(dadosgen,"G : %f %f\n",Gmin,Gmax);
   fprintf(dadosgen,"Rc: %f %f\n",rmin,rmax);
   fprintf(dadosgen,"a : %f %f\n",xmin[0],xmax[0]);
   fprintf(dadosgen,"b : %f %f\n",xmin[1],xmax[1]);
@@ -66,62 +66,24 @@ int fprintVortex(FILE *dadosout, int run,int nVortex, float *vCatalog){
   return 0;
 }
 
-int fprintsField(FILE *dadosout,float *x0,float *dx,
-                 int Width, int Height, float *sField){
-  int i,j;
-  float x,y;
-
-  if(dadosout==NULL || Width<0 || Height<=0 || sField==NULL)
-    return 1;
-
-  for(i=0;i<Height;i+=1)
-    for(j=0;j<Width;j+=1){
-      x = x0[0] + i*dx[0];
-      y = x0[1] + j*dx[1];
-
-      fprintf(dadosout,"%f %f %f\n",x,y,sField[i*Width+j]);
-    }  
-
-  return 0;
-}
-
-int fprintLabels(FILE *dadosout,float *x0,float *dx,
-                 int Width, int Height, int *label){
-  int i,j;
-  float x,y;
-
-  if(dadosout==NULL || Width<0 || Height<=0 || label==NULL)
-    return 1;
-
-  for(i=0;i<Height;i+=1)
-    for(j=0;j<Width;j+=1){
-      x = x0[0] + i*dx[0];
-      y = x0[1] + j*dx[1];
-
-      fprintf(dadosout,"%f %f %d\n",x,y,label[i*Width+j]);
-    }  
-
-  return 0;
-}
-
 int main(int argc,char **argv){
   const int Width = 200, Height = 200,Pop=10,nFixVortex=20,nRuns=100000;
   const int numG=3,numRc=3;
   int seed=98755,nVortex=20;
   int i,j,err,ngbr,found,nCnect,rCnect=0,*label,n,bin,nMax=500,pass=0;
   int nbList[8],eqList[Pop],**eqClass;
-  float Gmin=1.,Gmax=20.,rmin=0.5,rmax=1.5,threshold=0.5,norm;
+  float Gmin=1.,Gmax=20.,rmin=0.5,rmax=1.5,threshold=0.5;
   float xmin[2]={-9.,-9.},xmax[2]={9.,9.};
   float Glist[3]={1,5,10},Rclist[3]={0.5,1.0,1.5};
   float *parVortex=NULL,x0[2],dx[2],xf[2],*sField=NULL,*gField=NULL;
   float x,y,v0y0 = 0.00,*vCatalog=NULL;
-  char filename[511+1];
-  FILE *dadosgen,*dadosout,*dadosVin,*dadosVout,*dadosField;
+  FILE *dadosgen,*dadosout,*dadosVin,*dadosVout;
   int hNG=50,hNRc=53,hNa=40,hNb=40,hNN=10;
   gsl_histogram *hG,*hRc,*ha,*hb,*hN;
   gsl_histogram *iG,*iRc,*ia,*ib;
   
   threshold=0.5;
+  v0y0 = 0.07073553;
 
   x0[0]=-10.; xf[0]= 10.; dx[0] = (xf[0]-x0[0])/Height;
   x0[1]=-10.; xf[1]= 10.; dx[1] = (xf[1]-x0[1])/Width;
@@ -161,7 +123,7 @@ int main(int argc,char **argv){
 
   /* histogram preparation - begin */
   hG = gsl_histogram_alloc(hNG); 
-  gsl_histogram_set_ranges_uniform(hG,-2.5*Gmax,2.5*Gmax);
+  gsl_histogram_set_ranges_uniform(hG,-0.5,2.5*Gmax);
   hRc = gsl_histogram_alloc(hNRc); 
   gsl_histogram_set_ranges_uniform(hRc,-0.18,2.5*rmax);
   ha = gsl_histogram_alloc(hNa); 
@@ -172,9 +134,9 @@ int main(int argc,char **argv){
   gsl_histogram_set_ranges_uniform(hN,0,2*nVortex);
 
   iG = gsl_histogram_alloc(hNG); 
-  gsl_histogram_set_ranges_uniform(iG,-2.5*Gmax,2.5*Gmax);
+  gsl_histogram_set_ranges_uniform(iG,0.,2.5*Gmax);
   iRc = gsl_histogram_alloc(hNRc); 
-  gsl_histogram_set_ranges_uniform(iRc,-0.18,2.5*rmax);
+  gsl_histogram_set_ranges_uniform(iRc,0.,2.5*rmax);
   ia = gsl_histogram_alloc(hNa); 
   gsl_histogram_set_ranges_uniform(ia,xmin[0],xmax[0]);
   ib = gsl_histogram_alloc(hNb); 
@@ -188,13 +150,13 @@ int main(int argc,char **argv){
 
   seed = 98755; // Fix seed for comparison
 
-  dadosgen=fopen("data/Uniform Comparison/Signed-2ndSwirl/multiRunGen.txt","w");
-  err=fprintfRunParamSigned(dadosgen,seed,x0,xf,dx,Gmin,Gmax,rmin,
-                            rmax,xmin,xmax,v0y0);
+  dadosgen=fopen("data/Uniform Comparison/ShearSmall/multiRunGen.txt","w");
+  err=fprintfRunParameters(dadosgen,seed,x0,xf,dx,Gmin,Gmax,rmin,
+                           rmax,xmin,xmax,v0y0);
   fclose(dadosgen);
 
-  dadosVin = fopen("data/Uniform Comparison/Signed-2ndSwirl/inputVortexes.txt","w");
-  dadosVout = fopen("data/Uniform Comparison/Signed-2ndSwirl/outputVortexes.txt","w");
+  dadosVin = fopen("data/Uniform Comparison/ShearSmall/inputVortexes.txt","w");
+  dadosVout = fopen("data/Uniform Comparison/ShearSmall/outputVortexes.txt","w");
 
   for(n=0;n<nRuns;n+=1){
     if(n%1000 == 0){
@@ -204,8 +166,8 @@ int main(int argc,char **argv){
     }
 
     nVortex = nFixVortex;
-    err=genLOseenSignUniformList(Gmin,Gmax,rmin,rmax,xmin,xmax,seed,
-                                 nVortex,&parVortex);
+    err=genLOseenUniformList(Gmin,Gmax,rmin,rmax,xmin,xmax,seed,
+                             nVortex,&parVortex);
     if(err<0)
       return err;
     else if((err>0) && (err<nVortex))
@@ -217,14 +179,18 @@ int main(int argc,char **argv){
     for(i=0;i<Height*Width;i+=1)
       label[i]=-1;
 
-    err = addOseen2ndGrad(nVortex,parVortex,x0,dx,Height,Width,&gField);
+    err = addSingleOseen(nVortex,parVortex,x0,dx,Height,Width,&gField);
     if(err!=0)
       printf("Problems in addSingleOseen\n");
 
-    err = s2ndGradUtoLamb(nVortex,parVortex,x0,dx,Height,Width,gField,sField);
+    err=addConstXYShear(x0,dx,Height,Width,v0y0,&gField);
+    if(err!=0)
+      printf("Problems in addConstXYShear\n");
+
+    err = gradUtoLamb(Height,Width,gField,&sField);
     if(err!=0)
       printf("Problems in gradUtoLamb\n");
-
+  
     err = floodFill(sField,Width,Height,eqClass,label);
     if(err!=0)
       printf("Problems in floodFill\n");
@@ -234,20 +200,8 @@ int main(int argc,char **argv){
       nCnect=err;
     else
       printf("problems with renameLabels - %d\n",err);
-    
-    if(n%1000==0){
-      sprintf(filename,"data/Uniform Comparison/Signed-2ndSwirl/sField-%d.txt",n);
-      dadosField = fopen(filename,"w");
-      fprintsField(dadosField,x0,dx,Height,Width,sField);
-      fclose(dadosField);
 
-      sprintf(filename,"data/Uniform Comparison/Signed-2ndSwirl/labels-%d.txt",n);
-      dadosField = fopen(filename,"w");
-      fprintLabels(dadosField,x0,dx,Width,Height,label);
-      fclose(dadosField);
-    }
-
-    err=vortexExt2ndSwirl(Height,Width,nCnect,x0,dx,sField,
+    err=vortexExtraction(Height,Width,nCnect,x0,dx,sField,
                          gField,label,&vCatalog);
     if(err!=0){
       printf("error on vortexExtraction - %d\n",err);
@@ -277,32 +231,32 @@ int main(int argc,char **argv){
   fclose(dadosVin);
   fclose(dadosVout);
 
-  dadosout=fopen("data/Uniform Comparison/Signed-2ndSwirl/histoOuG.txt","w");
+  dadosout=fopen("data/Uniform Comparison/ShearSmall/histoOuG.txt","w");
   gsl_histogram_fprintf(dadosout,hG,"%f","%f");
   fclose(dadosout);
-  dadosout=fopen("data/Uniform Comparison/Signed-2ndSwirl/histoOuRc.txt","w");
+  dadosout=fopen("data/Uniform Comparison/ShearSmall/histoOuRc.txt","w");
   gsl_histogram_fprintf(dadosout,hRc,"%f","%f");
   fclose(dadosout);
-  dadosout=fopen("data/Uniform Comparison/Signed-2ndSwirl/histoOua.txt","w");
+  dadosout=fopen("data/Uniform Comparison/ShearSmall/histoOua.txt","w");
   gsl_histogram_fprintf(dadosout,ha,"%f","%f");
   fclose(dadosout);
-  dadosout=fopen("data/Uniform Comparison/Signed-2ndSwirl/histoOub.txt","w");
+  dadosout=fopen("data/Uniform Comparison/ShearSmall/histoOub.txt","w");
   gsl_histogram_fprintf(dadosout,hb,"%f","%f");
   fclose(dadosout);
-  dadosout=fopen("data/Uniform Comparison/Signed-2ndSwirl/histoOuN.txt","w");
+  dadosout=fopen("data/Uniform Comparison/ShearSmall/histoOuN.txt","w");
   gsl_histogram_fprintf(dadosout,hN,"%f","%f");
   fclose(dadosout);
 
-  dadosout=fopen("data/Uniform Comparison/Signed-2ndSwirl/histoInG.txt","w");
+  dadosout=fopen("data/Uniform Comparison/ShearSmall/histoInG.txt","w");
   gsl_histogram_fprintf(dadosout,iG,"%f","%f");
   fclose(dadosout);
-  dadosout=fopen("data/Uniform Comparison/Signed-2ndSwirl/histoInRc.txt","w");
+  dadosout=fopen("data/Uniform Comparison/ShearSmall/histoInRc.txt","w");
   gsl_histogram_fprintf(dadosout,iRc,"%f","%f");
   fclose(dadosout);
-  dadosout=fopen("data/Uniform Comparison/Signed-2ndSwirl/histoIna.txt","w");
+  dadosout=fopen("data/Uniform Comparison/ShearSmall/histoIna.txt","w");
   gsl_histogram_fprintf(dadosout,ia,"%f","%f");
   fclose(dadosout);
-  dadosout=fopen("data/Uniform Comparison/Signed-2ndSwirl/histoInb.txt","w");
+  dadosout=fopen("data/Uniform Comparison/ShearSmall/histoInb.txt","w");
   gsl_histogram_fprintf(dadosout,ib,"%f","%f");
   fclose(dadosout);
 
