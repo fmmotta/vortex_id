@@ -11,10 +11,10 @@ default: main
 
 all: main test_floodFill test_lambOseenShear0 test_lambOseenShear1 test_lambOseenShear2 test_lambOseenShear3 test_addSingleOseen test_genLOseenUniformList test_genLOseenBinaryList test_vortexQuickSort test_vortexExtraction0 test_vortexExtraction1 test_vortexExtraction2 test_vortexExtraction3 test_vortexSingleRun test_vortexSingleRunTime test_vortexShearSingleRunTime test_vortexMultiRun test_vortexMultiRunHistogram test_vortexExtSimple test_vortexExtRecursive
 
-main: main.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o src/lambdaInit.h src/floodFill.h src/vortexGen.h src/vortexExtraction.h src/mt64.h
-	$(CC) -o bin/main obj/main.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/vortexExtraction.o obj/mt64.o $(LIBS)
+main: main.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o ini.o inputManager.o
+	$(CC) -o bin/main obj/main.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/vortexExtraction.o obj/mt64.o obj/ini.o obj/inputManager.o $(LIBS)
 
-mainMultiRunHistogram: mainMultiRunHistogram.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o src/lambdaInit.h src/floodFill.h src/vortexGen.h src/vortexExtraction.h src/mt64.h
+mainMultiRunHistogram: mainMultiRunHistogram.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o
 	$(CC) -o bin/mainMultiRunHistogram obj/mainMultiRunHistogram.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/vortexExtraction.o obj/mt64.o $(LIBS)
 
 mainMultiRunRecursive: mainMultiRunRecursive.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o src/lambdaInit.h src/floodFill.h src/vortexGen.h src/vortexExtraction.h src/mt64.h

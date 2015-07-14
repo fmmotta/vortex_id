@@ -154,10 +154,8 @@ void vortexQuickSort(float *v,int nCnect,
   p[2] = v[4*(nCnect/2)+2];
   p[3] = v[4*(nCnect/2)+3];
   for(i=0,j=nCnect-1;;i++,j--){
-    //while( v[4*i+0]/(v[4*i+1]*v[4*i+1]) > p[0]/(p[1]*p[1]) )
     while( cmp(v+4*i,p) )
       i++;
-    //while( p[0]/(p[1]*p[1]) > v[4*j+0]/(v[4*j+1]*v[4*j+1]) )
     while( cmp(p,v+4*j) )
       j--;
     if(i >= j)

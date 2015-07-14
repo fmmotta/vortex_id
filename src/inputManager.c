@@ -185,7 +185,7 @@ int printConfig(configVar *cfg){
   printf("Swirling Strength Threshold: %f\n",cfg->swThresh);
   printf("2nd Swirling Strength Threshold: %f\n",cfg->swThresh);
 
-  printf("\nHisotgram Parameters");
+  printf("\nHistogram Parameters\n");
   printf("Number of G bins: %d\n",cfg->hNG);
   printf("Number of Rc bins: %d\n",cfg->hNRc);
   printf("Number of a bins: %d\n",cfg->hNa);
