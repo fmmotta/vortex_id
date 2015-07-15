@@ -6,7 +6,7 @@
 int initConfig(configVar *cfg){
   cfg->Width=0; cfg->Height=0; cfg->nVortex=0; cfg->nRuns=0;
   cfg->runType=-1; cfg->seed=0; cfg->dim=2; cfg->adaptive=0;
-  cfg->numG =0; cfg->numRc =0; cfg->hNmax=0;
+  cfg->numG =0; cfg->numRc =0; cfg->hNmax=0; cfg->genType=0;
   cfg->Gmin=0.; cfg->Gmax =0.; cfg->RcMin=0.; cfg->RcMax=0.;
   cfg->hNG=0; cfg->hNRc=0; cfg->hNa=0; cfg->hNb=0; cfg->hNN=0;
   cfg->Glist=NULL; cfg->Rclist=NULL; 
@@ -20,7 +20,7 @@ int initConfig(configVar *cfg){
 int freeConfig(configVar *cfg){
   cfg->Width=0; cfg->Height=0; cfg->nVortex=0; cfg->nRuns=0;
   cfg->runType=-1; cfg->seed=0; cfg->dim=2; cfg->adaptive=0;
-  cfg->numG =0; cfg->numRc =0; cfg->hNmax=0;
+  cfg->numG =0; cfg->numRc =0; cfg->hNmax=0; cfg->adaptive=0;
   cfg->Gmin=0.; cfg->Gmax =0.; cfg->RcMin=0.; cfg->RcMax=0.;
   cfg->swThresh=0.; cfg->sndSwThresh=0.;
   cfg->hNG=0; cfg->hNRc=0; cfg->hNa=0; cfg->hNb=0; cfg->hNN=0;
@@ -60,7 +60,7 @@ int vortexIdHandler(void* user, const char* section,
   else if (MATCH("Grid-Parameters","xf"))
     sscanf(value,"%f %f",&(vConfig->xf[0]), &(vConfig->xf[1]) );
   else if (MATCH("Vortex-Generation","type"))
-    vConfig->runType = atoi(value);
+    vConfig->genType = atoi(value);
   else if (MATCH("Vortex-Generation","number-of-vortices"))
     vConfig->nVortex = atoi(value);
   else if (MATCH("Vortex-Generation","seed"))
@@ -79,6 +79,8 @@ int vortexIdHandler(void* user, const char* section,
     vConfig->RcMax = atof(value);
   else if (MATCH("Vortex-Generation","Vertical-Shear"))
     vConfig->v0y0 = atof(value);
+  else if (MATCH("Runtime-Info","type"))
+    vConfig->runType = atoi(value);
   else if (MATCH("Runtime-Info", "Tag"))
     vConfig->tag = strdup(value);
   else if (MATCH("Runtime-Info", "Parameter-Savefile"))
@@ -155,7 +157,7 @@ int printConfig(configVar *cfg){
   printf("Gen Type: %d\n",cfg->runType);
   printf("Number of Vortices/Run: %d\n",cfg->nVortex);
   printf("PNRG seed: %d\n",cfg->seed);
-  if(cfg->runType==0){
+  if(cfg->genType==0){
     printf("G interval: [%f,%f]\n",cfg->Gmin, cfg->Gmax);
     printf("Rc interval: [%f,%f]\n",cfg->RcMin, cfg->RcMax);
   }
@@ -174,6 +176,7 @@ int printConfig(configVar *cfg){
   printf("Vertical Shear: %f\n",cfg->v0y0);
 
   printf("\nRuntime Info: \n");
+  printf("type: %s\n",cfg->runType);
   printf("tag: %s\n",cfg->tag);
   printf("genFile: %s\n",cfg->genFile);
   printf("number of Runs: %d\n",cfg->nRuns);
