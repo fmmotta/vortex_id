@@ -36,7 +36,7 @@ int fprintLabels(FILE *dadosout,float *x0,float *dx,
                  int Width, int Height, int *label);
 
 int main(int argc,char **argv){
-  int Width = 100, Height = 100,nVortex=5,nFixVortex=5,nRuns=1000;
+  int Width = 200, Height = 200,nVortex=5,nFixVortex=5,nRuns=1000;
   int runType=0;
   int numG=3,numRc=3;
   int *label=NULL,**eqClass=NULL;
@@ -50,7 +50,7 @@ int main(int argc,char **argv){
   float x,y,v0y0 = 0.00,*vCatalog=NULL,*rCatalog=NULL,*majorVortex=NULL;
   float hGmin=0.,hGmax=0.,hRcMin=0.,hRcMax=0.;
   char genFile[300+1],folder[100+1],tag[100+1],filename[400+1];
-  FILE *dadosgen,*dadosout,*dadosVin,*dadosVout;
+  FILE *dadosgen,*dadosout,*dadosVin,*dadosVout,*dadosField;
   gsl_histogram *hG,*hRc,*ha,*hb,*hN;
   gsl_histogram *iG,*iRc,*ia,*ib;
   configVar cfg;
@@ -257,6 +257,18 @@ int main(int argc,char **argv){
       nCnect=err;
     else
       printf("problems with renameLabels - %d\n",err);
+    
+    if(n%1000==0){
+      sprintf(filename,"%s/sField-%d.txt",folder,n);
+      dadosField = fopen(filename,"w");
+      fprintsField(dadosField,x0,dx,Height,Width,sField);
+      fclose(dadosField);
+
+      sprintf(filename,"%s/labels-%d.txt",folder,n);
+      dadosField = fopen(filename,"w");
+      fprintLabels(dadosField,x0,dx,Width,Height,label);
+      fclose(dadosField);
+    }
 
     err=vortexExtraction(Height,Width,nCnect,x0,dx,sField,
                          gField,label,&vCatalog);
