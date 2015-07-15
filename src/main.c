@@ -137,6 +137,7 @@ int main(int argc,char **argv){
   rmin    = cfg.RcMin;
   rmax    = cfg.RcMax;
   v0y0    = cfg.v0y0;
+  circCut = 0.5;
 
   if(runType==0)
     threshold = cfg.swThresh;
@@ -308,7 +309,7 @@ int main(int argc,char **argv){
 
     vortexQuickSort(parVortex,nVortex,&greaterAbsCirculation);
     vortexQuickSort(vCatalog,nCnect,&greaterAbsCirculation);
-    /*
+    
     rCnect=0;
     for(i=0;i<nCnect;i+=1){
       if(fabs(vCatalog[4*i+0])>circCut){
@@ -318,12 +319,12 @@ int main(int argc,char **argv){
         rCatalog[4*i+2]=vCatalog[4*i+2];
         rCatalog[4*i+3]=vCatalog[4*i+3];
       }
-    }*/
+    }
 
     err=fprintVortex(dadosVin,n,nVortex,parVortex);
     if(err!=0){printf("problems\n"); return -6;}
 
-    err=fprintVortex(dadosVout,n,nCnect,vCatalog);
+    err=fprintVortex(dadosVout,n,rCnect,rCatalog);
     if(err!=0){printf("problems\n"); return -6;}
   }
 
