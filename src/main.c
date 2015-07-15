@@ -18,13 +18,6 @@
 
 #define DEBUG_MODE false
 
-// http://stackoverflow.com/questions/195975/how-to-make-a-char-string-from-a-c-macros-value
-
-#define STR_VALUE(arg)      #arg
-#define FUNCTION_NAME(name) STR_VALUE(name)
-
-#define safeExec(fun,args) err=fun(args); if(err!=0){printf("Problems in line %d\n",__line__-1); return err;}
-
 int fprintfRunParamSigned(FILE *dadosgen,long long int seed,float x0[],
                          float xf[],float dx[],float Gmin, float Gmax,
                          float rmin, float rmax, float xmin[], float xmax[], 
@@ -61,10 +54,10 @@ int main(int argc,char **argv){
   int *label=NULL,**eqClass=NULL;
   long long int seed=98755;
   int hNG=50,hNRc=53,hNa=40,hNb=40,hNN=10;
-  int i,j,err,nCnect,n,it,nMax=500,pass=0;
+  int i,j,err,nCnect,rCnect=0,n,it,nMax=500,pass=0;
   float Gmin=1.,Gmax=20.,rmin=0.5,rmax=1.0,threshold=0.5;
   float xmin[2]={-9.,-9.},xmax[2]={9.,9.};
-  float *parVortex=NULL,*Glist,*Rclist;
+  float *parVortex=NULL,*Glist,*Rclist,circCut=0.;
   float x0[2],dx[2],xf[2],*sField=NULL,*gField=NULL;
   float x,y,v0y0 = 0.00,*vCatalog=NULL,*rCatalog=NULL,*majorVortex=NULL;
   float hGmin=0.,hGmax=0.,hRcMin=0.,hRcMax=0.;
@@ -200,6 +193,12 @@ int main(int argc,char **argv){
     return 3;
   }
 
+  rCatalog = (float*)malloc(4*nMax*sizeof(float));
+  if(rCatalog==NULL){
+    printf("memory not allocked\n");
+    return 4;
+  }
+
   /* histogram preparation - begin */
   hG = gsl_histogram_alloc(hNG); 
   gsl_histogram_set_ranges_uniform(hG,hGmin,hGmax);
@@ -307,8 +306,19 @@ int main(int argc,char **argv){
 
     /* Preparing for printing */
 
-    vortexQuickSort(parVortex,nVortex,&greaterAbsVorticity);
-    vortexQuickSort(vCatalog,nCnect,&greaterAbsVorticity);
+    vortexQuickSort(parVortex,nVortex,&greaterAbsCirculation);
+    vortexQuickSort(vCatalog,nCnect,&greaterAbsCirculation);
+    /*
+    rCnect=0;
+    for(i=0;i<nCnect;i+=1){
+      if(fabs(vCatalog[4*i+0])>circCut){
+        rCnect += 1;
+        rCatalog[4*i+0]=vCatalog[4*i+0];
+        rCatalog[4*i+1]=vCatalog[4*i+1];
+        rCatalog[4*i+2]=vCatalog[4*i+2];
+        rCatalog[4*i+3]=vCatalog[4*i+3];
+      }
+    }*/
 
     err=fprintVortex(dadosVin,n,nVortex,parVortex);
     if(err!=0){printf("problems\n"); return -6;}
@@ -527,7 +537,7 @@ int genVortices(int genType,long long int seed, float xmin[],float xmax[],
     return nVortex;
   }
   else{
-    printf("Non-Recognized vortex generation type\n");
+    printf("Non-Identified vortex generation type\n");
     return -1;
   }
 
@@ -540,18 +550,36 @@ int calcScalarField(int runType,int Height,int Width,float x0[],float dx[],
 {
   int err;
 
-  err = addSingleOseen(nVortex,parVortex,x0,dx,Height,Width,&gField);
-  if(err!=0){
-    printf("Problems in addSingleOseen\n");
-    return err;
-  }
+  if(runType==0){
+    err = addSingleOseen(nVortex,parVortex,x0,dx,Height,Width,&gField);
+    if(err!=0){
+      printf("Problems in addSingleOseen\n");
+      return err;
+    }
 
-  err = gradUtoLamb(Height,Width,gField,&sField);
-  if(err!=0){
-    printf("Problems in gradUtoLamb\n");
-    return err;
+    err = gradUtoLamb(Height,Width,gField,&sField);
+    if(err!=0){
+      printf("Problems in gradUtoLamb\n");
+      return err;
+    }
   }
-  
+  else if(runType==1){
+    err = addOseen2ndGrad(nVortex,parVortex,x0,dx,Height,Width,&gField);
+    if(err!=0){
+      printf("Problems in addSingleOseen\n");
+      return err;
+    }
+
+    err = s2ndGradUtoLamb(nVortex,parVortex,x0,dx,Height,Width,gField,sField);
+    if(err!=0){
+      printf("Problems in gradUtoLamb\n");
+      return err;
+    }
+  }
+  else{
+    printf("Non-Identified run-type\n");
+    return -2;
+  }
   return 0;
 }
 
@@ -562,11 +590,25 @@ int vortexReconstruction(int runType,int Height, int Width, int nCnect,
 {
   int err;
 
-  err=vortexExtraction(Height,Width,nCnect,x0,dx,sField,
-                       gField,label,vCatalog);
-  if(err!=0){
-    printf("error on vortexExtraction - %d\n",err);
-    return err; 
+  if(runType==0){
+    err=vortexExtraction(Height,Width,nCnect,x0,dx,sField,
+                         gField,label,vCatalog);
+    if(err!=0){
+      printf("error on vortexExtraction - %d\n",err);
+      return err; 
+    }
+  }
+  else if(runType==1){
+    err=vortexExt2ndSwirl(Height,Width,nCnect,x0,dx,sField,
+                         gField,label,vCatalog);
+    if(err!=0){
+      printf("error on vortexExtraction - %d\n",err);
+      return err; 
+    }
+  } 
+  else{
+    printf("Non-Identified run-type\n");
+    return -2;
   }
 
   return 0;
