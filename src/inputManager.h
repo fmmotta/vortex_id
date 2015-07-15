@@ -2,7 +2,7 @@
 typedef struct configVar {
   long long int seed;
   int Width,Height,nVortex,nRuns;
-  int runType,dim,adaptive;
+  int runType,genType,dim,adaptive;
   int numG,numRc,hNG,hNRc,hNa,hNb,hNN,hNmax;
   float Gmin,Gmax,RcMin,RcMax;
   float *Glist,*Rclist,x0[2],xf[2];

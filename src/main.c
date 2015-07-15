@@ -18,6 +18,13 @@
 
 #define DEBUG_MODE false
 
+// http://stackoverflow.com/questions/195975/how-to-make-a-char-string-from-a-c-macros-value
+
+#define STR_VALUE(arg)      #arg
+#define FUNCTION_NAME(name) STR_VALUE(name)
+
+#define safeExec(fun,args) err=fun(args); if(err!=0){printf("Problems in line %d\n",__line__-1); return err;}
+
 int fprintfRunParamSigned(FILE *dadosgen,long long int seed,float x0[],
                          float xf[],float dx[],float Gmin, float Gmax,
                          float rmin, float rmax, float xmin[], float xmax[], 
@@ -35,14 +42,26 @@ int fprintsField(FILE *dadosout,float *x0,float *dx,
 int fprintLabels(FILE *dadosout,float *x0,float *dx,
                  int Width, int Height, int *label);
 
+int genVortices(int genType,long long int seed, float xmin[],float xmax[], 
+                int nFixVortex, float **parVortex,
+                float Gmin,float Gmax,float rmin,float rmax,
+                float numG,float numRc, float *Glist,float *Rclist);
+
+int calcScalarField(int runType,int Height,int Width,float x0[],float dx[],
+                    int nVortex,float *parVortex,float *gField,float *sField);
+
+int vortexReconstruction(int runType,int Height, int Width, int nCnect, 
+                         float x0[],float dx[],float *sField, 
+                         float *gField,int *label,float **vCatalog);
+
 int main(int argc,char **argv){
   int Width = 100, Height = 100,nVortex=5,nFixVortex=5,nRuns=1000;
-  int runType=0;
+  int runType=0,genType=0;
   int numG=3,numRc=3;
   int *label=NULL,**eqClass=NULL;
   long long int seed=98755;
   int hNG=50,hNRc=53,hNa=40,hNb=40,hNN=10;
-  int i,j,err,nCnect,rCnect=0,n,it,nMax=500,pass=0;
+  int i,j,err,nCnect,n,it,nMax=500,pass=0;
   float Gmin=1.,Gmax=20.,rmin=0.5,rmax=1.0,threshold=0.5;
   float xmin[2]={-9.,-9.},xmax[2]={9.,9.};
   float *parVortex=NULL,*Glist,*Rclist;
@@ -50,13 +69,14 @@ int main(int argc,char **argv){
   float x,y,v0y0 = 0.00,*vCatalog=NULL,*rCatalog=NULL,*majorVortex=NULL;
   float hGmin=0.,hGmax=0.,hRcMin=0.,hRcMax=0.;
   char genFile[300+1],folder[100+1],tag[100+1],filename[400+1];
-  FILE *dadosgen,*dadosout,*dadosVin,*dadosVout;
+  FILE *dadosgen,*dadosout,*dadosVin,*dadosVout,*dadosField;
   gsl_histogram *hG,*hRc,*ha,*hb,*hN;
   gsl_histogram *iG,*iRc,*ia,*ib;
   configVar cfg;
   
   if(argc!=2){
-    printf("Incorrect Number of Arguments - Need exactly the configuration file\n");
+    printf("Incorrect Number of Arguments - Need exactly "
+           "the configuration file\n");
     return -1;
   }
 
@@ -94,6 +114,7 @@ int main(int argc,char **argv){
   Height  = cfg.Height;
   nRuns   = cfg.nRuns;
   runType = cfg.runType;
+  genType = cfg.genType;
   nFixVortex = cfg.nVortex;
 
   numG    = cfg.numG;
@@ -225,29 +246,28 @@ int main(int argc,char **argv){
       fflush(dadosVin);
       fflush(dadosVout);
     }
-
+    
     nVortex = nFixVortex;
-    err=genLOseenSignUniformList(Gmin,Gmax,rmin,rmax,xmin,xmax,seed,
-                                 nVortex,&parVortex);
+    err=genVortices(genType,seed,xmin,xmax,nFixVortex,&parVortex,Gmin,Gmax,
+                    rmin,rmax,numG,numRc,Glist,Rclist);
     if(err<0)
       return err;
     else if((err>0) && (err<nVortex))
       nVortex = err;
-
+    
     for(i=0;i<4*Height*Width;i+=1)
       gField[i]=0.;
 
     for(i=0;i<Height*Width;i+=1)
       label[i]=-1;
-
-    err = addSingleOseen(nVortex,parVortex,x0,dx,Height,Width,&gField);
-    if(err!=0)
-      printf("Problems in addSingleOseen\n");
-
-    err = gradUtoLamb(Height,Width,gField,&sField);
-    if(err!=0)
-      printf("Problems in gradUtoLamb\n");
   
+    err=calcScalarField(runType,Height,Width,x0,dx,nVortex,
+                        parVortex,gField,sField);
+    if(err!=0){
+      printf("Error in calcScalarField\n");
+      return err;
+    }
+
     err = floodFill(sField,Width,Height,eqClass,label);
     if(err!=0)
       printf("Problems in floodFill\n");
@@ -258,11 +278,23 @@ int main(int argc,char **argv){
     else
       printf("problems with renameLabels - %d\n",err);
 
-    err=vortexExtraction(Height,Width,nCnect,x0,dx,sField,
-                         gField,label,&vCatalog);
+    if(n%1000==0){
+      sprintf(filename,"%s/sField-%s-%d.txt",folder,tag,n);
+      dadosField = fopen(filename,"w");
+      fprintsField(dadosField,x0,dx,Height,Width,sField);
+      fclose(dadosField);
+
+      sprintf(filename,"%s/labels-%s-%d.txt",folder,tag,n);
+      dadosField = fopen(filename,"w");
+      fprintLabels(dadosField,x0,dx,Width,Height,label);
+      fclose(dadosField);
+    }
+
+    err=vortexReconstruction(runType,Height,Width,nCnect,x0,dx,sField,
+                             gField,label,&vCatalog);
     if(err!=0){
-      printf("error on vortexExtraction - %d\n",err);
-      return err; 
+      printf("problems in vortexReconstruction\n");
+      return err;
     }
 
     err=histoIncVortex(nVortex,parVortex,iG,iRc,ia,ib);
@@ -288,32 +320,41 @@ int main(int argc,char **argv){
   fclose(dadosVin);
   fclose(dadosVout);
 
-  sprintf(filename,"%s/histoOuG-%s.txt",folder,tag); dadosout=fopen(filename,"w");
+  sprintf(filename,"%s/histoOuG-%s.txt",folder,tag); 
+  dadosout=fopen(filename,"w");
   gsl_histogram_fprintf(dadosout,hG,"%f","%f");
   fclose(dadosout);  
-  sprintf(filename,"%s/histoOuRc-%s.txt",folder,tag); dadosout=fopen(filename,"w");
+  sprintf(filename,"%s/histoOuRc-%s.txt",folder,tag); 
+  dadosout=fopen(filename,"w");
   gsl_histogram_fprintf(dadosout,hRc,"%f","%f");
   fclose(dadosout);  
-  sprintf(filename,"%s/histoOua-%s.txt",folder,tag); dadosout=fopen(filename,"w");
+  sprintf(filename,"%s/histoOua-%s.txt",folder,tag); 
+  dadosout=fopen(filename,"w");
   gsl_histogram_fprintf(dadosout,ha,"%f","%f");
   fclose(dadosout);  
-  sprintf(filename,"%s/histoOub-%s.txt",folder,tag); dadosout=fopen(filename,"w");
+  sprintf(filename,"%s/histoOub-%s.txt",folder,tag); 
+  dadosout=fopen(filename,"w");
   gsl_histogram_fprintf(dadosout,hb,"%f","%f");
   fclose(dadosout);  
-  sprintf(filename,"%s/histoOuN-%s.txt",folder,tag); dadosout=fopen(filename,"w");
+  sprintf(filename,"%s/histoOuN-%s.txt",folder,tag); 
+  dadosout=fopen(filename,"w");
   gsl_histogram_fprintf(dadosout,hN,"%f","%f");
   fclose(dadosout);
 
-  sprintf(filename,"%s/histoInG-%s.txt",folder,tag); dadosout=fopen(filename,"w");
+  sprintf(filename,"%s/histoInG-%s.txt",folder,tag); 
+  dadosout=fopen(filename,"w");
   gsl_histogram_fprintf(dadosout,iG,"%f","%f");
   fclose(dadosout);  
-  sprintf(filename,"%s/histoInRc-%s.txt",folder,tag); dadosout=fopen(filename,"w");
+  sprintf(filename,"%s/histoInRc-%s.txt",folder,tag); 
+  dadosout=fopen(filename,"w");
   gsl_histogram_fprintf(dadosout,iRc,"%f","%f");
   fclose(dadosout);  
-  sprintf(filename,"%s/histoIna-%s.txt",folder,tag); dadosout=fopen(filename,"w");
+  sprintf(filename,"%s/histoIna-%s.txt",folder,tag); 
+  dadosout=fopen(filename,"w");
   gsl_histogram_fprintf(dadosout,ia,"%f","%f");
   fclose(dadosout);  
-  sprintf(filename,"%s/histoInb-%s.txt",folder,tag); dadosout=fopen(filename,"w");
+  sprintf(filename,"%s/histoInb-%s.txt",folder,tag); 
+  dadosout=fopen(filename,"w");
   gsl_histogram_fprintf(dadosout,ib,"%f","%f");
   fclose(dadosout);
 
@@ -446,6 +487,87 @@ int fprintLabels(FILE *dadosout,float *x0,float *dx,
 
       fprintf(dadosout,"%f %f %d\n",x,y,label[i*Width+j]);
     }  
+
+  return 0;
+}
+
+int genVortices(int genType,long long int seed, float xmin[],float xmax[], 
+                int nFixVortex, float **parVortex,
+                float Gmin,float Gmax,float rmin,float rmax,
+                float numG,float numRc, float *Glist,float *Rclist)
+{
+  int err,nVortex;
+
+  if(genType==0){
+    nVortex = nFixVortex;
+    err=genLOseenUniformList(Gmin,Gmax,rmin,rmax,xmin,xmax,seed,
+                             nVortex,parVortex);
+    if(err<0)
+      return err;
+    else if((err>0) && (err<nVortex))
+      nVortex = err;
+  }
+  else if(genType==1){
+    err=genLOseenNaryList(numG,Glist,numRc,Rclist,xmin,xmax,
+                          seed,nVortex,parVortex);
+    if(err<0)
+      return err;
+    else if((err>0) && (err<nVortex))
+      nVortex = err;
+  }
+  else if(genType==2){
+    nVortex = nFixVortex;
+    err=genLOseenSignUniformList(Gmin,Gmax,rmin,rmax,xmin,xmax,seed,
+                                 nVortex,parVortex);
+    if(err<0)
+      return err;
+    else if((err>0) && (err<nVortex))
+      nVortex = err;
+
+    return nVortex;
+  }
+  else{
+    printf("Non-Recognized vortex generation type\n");
+    return -1;
+  }
+
+  return 0;
+}
+
+
+int calcScalarField(int runType,int Height,int Width,float x0[],float dx[],
+                    int nVortex,float *parVortex,float *gField,float *sField)
+{
+  int err;
+
+  err = addSingleOseen(nVortex,parVortex,x0,dx,Height,Width,&gField);
+  if(err!=0){
+    printf("Problems in addSingleOseen\n");
+    return err;
+  }
+
+  err = gradUtoLamb(Height,Width,gField,&sField);
+  if(err!=0){
+    printf("Problems in gradUtoLamb\n");
+    return err;
+  }
+  
+  return 0;
+}
+
+
+int vortexReconstruction(int runType,int Height, int Width, int nCnect, 
+                         float x0[],float dx[],float *sField, 
+                         float *gField,int *label,float **vCatalog)
+{
+  int err;
+
+  err=vortexExtraction(Height,Width,nCnect,x0,dx,sField,
+                       gField,label,vCatalog);
+  if(err!=0){
+    printf("error on vortexExtraction - %d\n",err);
+    return err; 
+  }
 
   return 0;
 }
