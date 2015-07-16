@@ -47,6 +47,9 @@ int vortexReconstruction(int runType,int Height, int Width, int nCnect,
                          float x0[],float dx[],float *sField, 
                          float *gField,int *label,float **vCatalog);
 
+int writeGnuplotScript(char *filename,char *folder,char *tag,
+                       int nRuns,int nVortex);
+
 int main(int argc,char **argv){
   int Width = 100, Height = 100,nVortex=5,nFixVortex=5,nRuns=1000;
   int runType=0,genType=0;
@@ -57,7 +60,7 @@ int main(int argc,char **argv){
   int i,j,err,nCnect,rCnect=0,n,it,nMax=500,pass=0;
   float Gmin=1.,Gmax=20.,rmin=0.5,rmax=1.0,threshold=0.5;
   float xmin[2]={-9.,-9.},xmax[2]={9.,9.};
-  float *parVortex=NULL,*Glist,*Rclist,circCut=0.;
+  float *parVortex=NULL,*Glist,*Rclist,cutoff=0.;
   float x0[2],dx[2],xf[2],*sField=NULL,*gField=NULL;
   float x,y,v0y0 = 0.00,*vCatalog=NULL,*rCatalog=NULL,*majorVortex=NULL;
   float hGmin=0.,hGmax=0.,hRcMin=0.,hRcMax=0.;
@@ -137,7 +140,7 @@ int main(int argc,char **argv){
   rmin    = cfg.RcMin;
   rmax    = cfg.RcMax;
   v0y0    = cfg.v0y0;
-  circCut = 0.5;
+  cutoff  = cfg.cutoff;
 
   if(runType==0)
     threshold = cfg.swThresh;
@@ -309,6 +312,21 @@ int main(int argc,char **argv){
       return err;
     }
 
+    vortexQuickSort(parVortex,nVortex,&greaterAbsCirculation);
+    vortexQuickSort(vCatalog,nCnect,&greaterAbsCirculation);
+    
+    /* filtering by cutoff */
+    rCnect=0;
+    for(i=0;i<nCnect;i+=1){
+      if(fabs(vCatalog[4*i+0])>cutoff){
+        rCnect += 1;
+        rCatalog[4*i+0]=vCatalog[4*i+0];
+        rCatalog[4*i+1]=vCatalog[4*i+1];
+        rCatalog[4*i+2]=vCatalog[4*i+2];
+        rCatalog[4*i+3]=vCatalog[4*i+3];
+      }
+    }
+
     err=histoIncVortex(nVortex,parVortex,iG,iRc,ia,ib);
     if(err!=0){printf("problems\n"); return -5;}
 
@@ -318,20 +336,6 @@ int main(int argc,char **argv){
     if(err!=0){printf("problems\n"); return -5;}
 
     /* Preparing for printing */
-
-    vortexQuickSort(parVortex,nVortex,&greaterAbsCirculation);
-    vortexQuickSort(vCatalog,nCnect,&greaterAbsCirculation);
-    
-    rCnect=0;
-    for(i=0;i<nCnect;i+=1){
-      if(fabs(vCatalog[4*i+0])>circCut){
-        rCnect += 1;
-        rCatalog[4*i+0]=vCatalog[4*i+0];
-        rCatalog[4*i+1]=vCatalog[4*i+1];
-        rCatalog[4*i+2]=vCatalog[4*i+2];
-        rCatalog[4*i+3]=vCatalog[4*i+3];
-      }
-    }
 
     err=fprintVortex(dadosVin,n,nVortex,parVortex);
     if(err!=0){printf("problems\n"); return -6;}
@@ -380,6 +384,10 @@ int main(int argc,char **argv){
   dadosout=fopen(filename,"w");
   gsl_histogram_fprintf(dadosout,ib,"%f","%f");
   fclose(dadosout);
+
+  sprintf(filename,"gnuplot_script.gnu",folder);
+  err=writeGnuplotScript(filename,folder,tag,nRuns,nVortex);
+  if(err!=0){printf("Error printing gnuplot script\n");return err;}
 
   if(sField!=NULL)
     free(sField);
@@ -623,6 +631,130 @@ int vortexReconstruction(int runType,int Height, int Width, int nCnect,
     printf("Non-Identified run-type\n");
     return -2;
   }
+
+  return 0;
+}
+
+
+int writeGnuplotScript(char *filename,char *folder,char *tag,
+                       int nRuns,int nVortex){
+  char gfile[200+1];
+  sprintf(gfile,"%s/%s",folder,filename);
+  FILE *dadosout = fopen(gfile,"w");
+  if(dadosout==NULL)
+    return -1;
+  
+  fprintf(dadosout,"set yr [0:]\n");
+  fprintf(dadosout,"set yl 'Counting' \n");
+  fprintf(dadosout,"set key top center\n");
+  fprintf(dadosout,"set style fill solid border -1\n");
+
+  fprintf(dadosout,"set xl '$\\Gamma$'\n");
+  fprintf(dadosout,"set yr [0:]\n");
+  fprintf(dadosout,"plot 'histoOuG-%s.txt' using "
+                   "(($1+$2)/2):3 with boxes title "
+                   "'%d events of %d vortex'\n",tag,nRuns,nVortex);
+  fprintf(dadosout,"set term epslatex standalone color colortext 12\n");
+  fprintf(dadosout,"set out 'histoOuG-%s.tex'\n",tag);
+  fprintf(dadosout,"replot\n");
+  fprintf(dadosout,"set term qt\n");
+  fprintf(dadosout,"replot\n");
+
+  fprintf(dadosout,"set xl '$r_c$'\n");
+  fprintf(dadosout,"plot 'histoOuRc-%s.txt' using "
+                   "(($1+$2)/2):3 with boxes title "
+                   "'%d events of %d vortex'\n",tag,nRuns,nVortex);
+  fprintf(dadosout,"set term epslatex standalone color colortext 12\n");
+  fprintf(dadosout,"set out 'histoOuRc-%s.tex'\n",tag);
+  fprintf(dadosout,"replot\n");
+  fprintf(dadosout,"set term qt\n");
+  fprintf(dadosout,"replot\n");
+
+  fprintf(dadosout,"set xl '$a$'\n");
+  fprintf(dadosout,"plot 'histoOua-%s.txt' using "
+                   "(($1+$2)/2):3 with boxes title "
+                   "'%d events of %d vortex'\n",tag,nRuns,nVortex);
+  fprintf(dadosout,"set term epslatex standalone color colortext 12\n");
+  fprintf(dadosout,"set out 'histoOua-%s.tex'\n",tag);
+  fprintf(dadosout,"replot\n");
+  fprintf(dadosout,"set term qt\n");
+  fprintf(dadosout,"replot\n");
+
+  fprintf(dadosout,"set xl '$b$'\n");
+  fprintf(dadosout,"plot 'histoOub-%s.txt' using "
+                   "(($1+$2)/2):3 with boxes title "
+                   "'%d events of %d vortex'\n",tag,nRuns,nVortex);
+  fprintf(dadosout,"set term epslatex standalone color colortext 12\n");
+  fprintf(dadosout,"set out 'histoOub-%s.tex'\n",tag);
+  fprintf(dadosout,"replot\n");
+  fprintf(dadosout,"set term qt\n");
+  fprintf(dadosout,"replot\n");
+
+  fprintf(dadosout,"set xl 'N'\n");
+  fprintf(dadosout,"plot 'histoOuN-%s.txt' using "
+                   "(($1+$2)/2):3 with boxes title "
+                   "'%d events of %d vortex'\n",tag,nRuns,nVortex);
+  fprintf(dadosout,"set term epslatex standalone color colortext 12\n");
+  fprintf(dadosout,"set out 'histoOuN-%s.tex'\n",tag);
+  fprintf(dadosout,"replot\n");
+  fprintf(dadosout,"set term qt\n");
+  fprintf(dadosout,"replot\n");
+
+  fprintf(dadosout,"set xl '$\\Gamma$'\n");
+  fprintf(dadosout,"plot 'histoInG-%s.txt' using "
+                   "(($1+$2)/2):3 with boxes title "
+                   "'%d events of %d vortex'\n",tag,nRuns,nVortex);
+  fprintf(dadosout,"set term epslatex standalone color colortext 12\n");
+  fprintf(dadosout,"set out 'histoInG-%s.tex'\n",tag);
+  fprintf(dadosout,"replot\n");
+  fprintf(dadosout,"set term qt\n");
+  fprintf(dadosout,"replot\n");
+  
+  fprintf(dadosout,"set xl '$r_c$'\n");
+  fprintf(dadosout,"plot 'histoInRc-%s.txt' using "
+                   "(($1+$2)/2):3 with boxes title "
+                   "'%d events of %d vortex'\n",tag,nRuns,nVortex);
+  fprintf(dadosout,"set term epslatex standalone color colortext 12\n");
+  fprintf(dadosout,"set out 'histoInRc-%s.tex'\n",tag);
+  fprintf(dadosout,"replot\n");
+  fprintf(dadosout,"set term qt\n");
+  fprintf(dadosout,"replot\n");
+
+  fprintf(dadosout,"set xl '$a$'\n");
+  fprintf(dadosout,"plot 'histoIna-%s.txt' using "
+                   "(($1+$2)/2):3 with boxes title "
+                   "'%d events of %d vortex'\n",tag,nRuns,nVortex);
+  fprintf(dadosout,"set term epslatex standalone color colortext 12\n");
+  fprintf(dadosout,"set out 'histoIna-%s.tex'\n",tag);
+  fprintf(dadosout,"replot\n");
+  fprintf(dadosout,"set term qt\n");
+  fprintf(dadosout,"replot\n");
+
+  fprintf(dadosout,"set xl '$b$'\n");
+  fprintf(dadosout,"plot 'histoInb-%s.txt' using "
+                   "(($1+$2)/2):3 with boxes title "
+                   "'%d events of %d vortex'\n",tag,nRuns,nVortex);
+  fprintf(dadosout,"set term epslatex standalone color colortext 12\n");
+  fprintf(dadosout,"set out 'histoInb-%s.tex'\n",tag);
+  fprintf(dadosout,"replot\n");
+  fprintf(dadosout,"set term qt\n");
+  fprintf(dadosout,"replot\n");
+
+  fclose(dadosout);
+
+  sprintf(gfile,"%s/graph_script.sh",folder);
+  dadosout = fopen(gfile,"w");
+  fprintf(dadosout,"gnuplot %s\n",filename);
+  fprintf(dadosout,"pdflatex histoOuG-%s.tex\n",tag);
+  fprintf(dadosout,"pdflatex histoOuRc-%s.tex\n",tag);
+  fprintf(dadosout,"pdflatex histoOua-%s.tex\n",tag);
+  fprintf(dadosout,"pdflatex histoOub-%s.tex\n",tag);
+  fprintf(dadosout,"pdflatex histoOuN-%s.tex\n",tag);
+  fprintf(dadosout,"pdflatex histoInG-%s.tex\n",tag);
+  fprintf(dadosout,"pdflatex histoInRc-%s.tex\n",tag);
+  fprintf(dadosout,"pdflatex histoIna-%s.tex \n",tag);
+  fprintf(dadosout,"pdflatex histoInb-%s.tex \n",tag);
+  fclose(dadosout);
 
   return 0;
 }

@@ -10,7 +10,7 @@ int initConfig(configVar *cfg){
   cfg->Gmin=0.; cfg->Gmax =0.; cfg->RcMin=0.; cfg->RcMax=0.;
   cfg->hNG=0; cfg->hNRc=0; cfg->hNa=0; cfg->hNb=0; cfg->hNN=0;
   cfg->Glist=NULL; cfg->Rclist=NULL; 
-  cfg->swThresh=0.; cfg->sndSwThresh=0.;
+  cfg->swThresh=0.; cfg->sndSwThresh=0.; cfg->cutoff=0.;
   cfg->genFile=NULL; cfg->tag=NULL;
   cfg->folder=NULL;
 
@@ -22,7 +22,7 @@ int freeConfig(configVar *cfg){
   cfg->runType=-1; cfg->seed=0; cfg->dim=2; cfg->adaptive=0;
   cfg->numG =0; cfg->numRc =0; cfg->hNmax=0; cfg->adaptive=0;
   cfg->Gmin=0.; cfg->Gmax =0.; cfg->RcMin=0.; cfg->RcMax=0.;
-  cfg->swThresh=0.; cfg->sndSwThresh=0.;
+  cfg->swThresh=0.; cfg->sndSwThresh=0.; cfg->cutoff=0.;
   cfg->hNG=0; cfg->hNRc=0; cfg->hNa=0; cfg->hNb=0; cfg->hNN=0;
 
   if(cfg->Glist!=NULL)
@@ -93,11 +93,13 @@ int vortexIdHandler(void* user, const char* section,
     vConfig->folder = strdup(value);
   else if (MATCH("Reconstruction-Info", "Adaptive"))
     vConfig->adaptive = atoi(value);
+  else if (MATCH("Reconstruction-Info", "Circulation-Cutoff"))
+    vConfig->cutoff = atof(value);
   else if (MATCH("Reconstruction-Info", "Swirling-Strength-Threshold"))
     vConfig->swThresh = atof(value);
   else if (MATCH("Reconstruction-Info", "Second-Swirling-Strength-Threshold"))
     vConfig->sndSwThresh = atof(value);
-  else if( MATCH("Histogram-Parameters","bin-G") )
+  else if(MATCH("Histogram-Parameters","bin-G"))
     vConfig->hNG = atoi(value);
   else if(MATCH("Histogram-Parameters","bin-Rc"))
     vConfig->hNRc = atoi(value);
@@ -119,7 +121,7 @@ int vortexIdHandler(void* user, const char* section,
     vConfig->hNmax = atoi(value);
   else if(MATCH("Vortex-Generation","Glist")){
     if(vConfig->Glist==NULL)
-        vConfig->Glist=(float*)malloc((vConfig->numG)*sizeof(float));
+      vConfig->Glist=(float*)malloc((vConfig->numG)*sizeof(float));
     
     p=strtok(value," ");
     i=0;
@@ -185,6 +187,7 @@ int printConfig(configVar *cfg){
 
   printf("\nReconstruction-Info: \n");
   printf("Adaptive: %d\n",cfg->adaptive);
+  printf("Circulation Minimum Cutoff: %f\n",cfg->cutoff);
   printf("Swirling Strength Threshold: %f\n",cfg->swThresh);
   printf("2nd Swirling Strength Threshold: %f\n",cfg->swThresh);
 

@@ -6,7 +6,7 @@ typedef struct configVar {
   int numG,numRc,hNG,hNRc,hNa,hNb,hNN,hNmax;
   float Gmin,Gmax,RcMin,RcMax;
   float *Glist,*Rclist,x0[2],xf[2];
-  float swThresh, sndSwThresh,v0y0;
+  float swThresh, sndSwThresh,cutoff,v0y0;
   float hGmin,hGmax,hRcMin,hRcMax;
   char *genFile,*tag,*folder;
 } configVar;
