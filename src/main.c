@@ -332,7 +332,7 @@ int main(int argc,char **argv){
 
     gsl_histogram_increment(hN,nCnect);
 
-    err=histoIncVortex(nCnect,vCatalog,hG,hRc,ha,hb);
+    err=histoIncVortex(rCnect,rCatalog,hG,hRc,ha,hb);
     if(err!=0){printf("problems\n"); return -5;}
 
     /* Preparing for printing */
