@@ -41,7 +41,8 @@ int genVortices(int genType,long long int seed, float xmin[],float xmax[],
                 float numG,float numRc, float *Glist,float *Rclist);
 
 int calcScalarField(int runType,int Height,int Width,float x0[],float dx[],
-                    int nVortex,float *parVortex,float *gField,float *sField);
+                    int nVortex,float *parVortex,float *gField,float v0y0,
+                    float *sField);
 
 int vortexReconstruction(int runType,int Height, int Width, int nCnect, 
                          float x0[],float dx[],float *sField, 
@@ -265,7 +266,7 @@ int main(int argc,char **argv){
       label[i]=-1;
   
     err=calcScalarField(runType,Height,Width,x0,dx,nVortex,
-                        parVortex,gField,sField);
+                        parVortex,gField,v0y0,sField);
     if(err!=0){
       printf("Error in calcScalarField\n");
       return err;
@@ -567,7 +568,8 @@ int genVortices(int genType,long long int seed, float xmin[],float xmax[],
 
 
 int calcScalarField(int runType,int Height,int Width,float x0[],float dx[],
-                    int nVortex,float *parVortex,float *gField,float *sField)
+                    int nVortex,float *parVortex,float *gField,float v0y0,
+                    float *sField)
 {
   int err;
 
@@ -597,8 +599,25 @@ int calcScalarField(int runType,int Height,int Width,float x0[],float dx[],
       return err;
     }
   }
+  else if(runType==2){
+    err = addSingleOseen(nVortex,parVortex,x0,dx,Height,Width,&gField);
+    if(err!=0){
+      printf("Problems in addSingleOseen\n");
+      return err;
+    }
+
+    err=addConstXYShear(x0,dx,Height,Width,v0y0,&gField);
+    if(err!=0)
+      printf("Problems in addConstXYShear\n");
+
+    err = gradUtoLamb(Height,Width,gField,&sField);
+    if(err!=0){
+      printf("Problems in gradUtoLamb\n");
+      return err;
+    }
+  }
   else{
-    printf("Non-Identified run-type\n");
+    printf("Non-Identified run-type - %d\n",runType);
     return -2;
   }
   return 0;
@@ -611,7 +630,7 @@ int vortexReconstruction(int runType,int Height, int Width, int nCnect,
 {
   int err;
 
-  if(runType==0){
+  if(runType==0 || runType==2){
     err=vortexExtraction(Height,Width,nCnect,x0,dx,sField,
                          gField,label,vCatalog);
     if(err!=0){
@@ -653,7 +672,7 @@ int writeGnuplotScript(char *filename,char *folder,char *tag,
   fprintf(dadosout,"set yr [0:]\n");
   fprintf(dadosout,"plot 'histoOuG-%s.txt' using "
                    "(($1+$2)/2):3 with boxes title "
-                   "'%d events of %d vortex'\n",tag,nRuns,nVortex);
+                   "'%d events of %d vortices'\n",tag,nRuns,nVortex);
   fprintf(dadosout,"set term epslatex standalone color colortext 12\n");
   fprintf(dadosout,"set out 'histoOuG-%s.tex'\n",tag);
   fprintf(dadosout,"replot\n");
@@ -663,7 +682,7 @@ int writeGnuplotScript(char *filename,char *folder,char *tag,
   fprintf(dadosout,"set xl '$r_c$'\n");
   fprintf(dadosout,"plot 'histoOuRc-%s.txt' using "
                    "(($1+$2)/2):3 with boxes title "
-                   "'%d events of %d vortex'\n",tag,nRuns,nVortex);
+                   "'%d events of %d vortices'\n",tag,nRuns,nVortex);
   fprintf(dadosout,"set term epslatex standalone color colortext 12\n");
   fprintf(dadosout,"set out 'histoOuRc-%s.tex'\n",tag);
   fprintf(dadosout,"replot\n");
@@ -673,7 +692,7 @@ int writeGnuplotScript(char *filename,char *folder,char *tag,
   fprintf(dadosout,"set xl '$a$'\n");
   fprintf(dadosout,"plot 'histoOua-%s.txt' using "
                    "(($1+$2)/2):3 with boxes title "
-                   "'%d events of %d vortex'\n",tag,nRuns,nVortex);
+                   "'%d events of %d vortices'\n",tag,nRuns,nVortex);
   fprintf(dadosout,"set term epslatex standalone color colortext 12\n");
   fprintf(dadosout,"set out 'histoOua-%s.tex'\n",tag);
   fprintf(dadosout,"replot\n");
@@ -683,7 +702,7 @@ int writeGnuplotScript(char *filename,char *folder,char *tag,
   fprintf(dadosout,"set xl '$b$'\n");
   fprintf(dadosout,"plot 'histoOub-%s.txt' using "
                    "(($1+$2)/2):3 with boxes title "
-                   "'%d events of %d vortex'\n",tag,nRuns,nVortex);
+                   "'%d events of %d vortices'\n",tag,nRuns,nVortex);
   fprintf(dadosout,"set term epslatex standalone color colortext 12\n");
   fprintf(dadosout,"set out 'histoOub-%s.tex'\n",tag);
   fprintf(dadosout,"replot\n");
@@ -693,7 +712,7 @@ int writeGnuplotScript(char *filename,char *folder,char *tag,
   fprintf(dadosout,"set xl 'N'\n");
   fprintf(dadosout,"plot 'histoOuN-%s.txt' using "
                    "(($1+$2)/2):3 with boxes title "
-                   "'%d events of %d vortex'\n",tag,nRuns,nVortex);
+                   "'%d events of %d vortices'\n",tag,nRuns,nVortex);
   fprintf(dadosout,"set term epslatex standalone color colortext 12\n");
   fprintf(dadosout,"set out 'histoOuN-%s.tex'\n",tag);
   fprintf(dadosout,"replot\n");
@@ -703,7 +722,7 @@ int writeGnuplotScript(char *filename,char *folder,char *tag,
   fprintf(dadosout,"set xl '$\\Gamma$'\n");
   fprintf(dadosout,"plot 'histoInG-%s.txt' using "
                    "(($1+$2)/2):3 with boxes title "
-                   "'%d events of %d vortex'\n",tag,nRuns,nVortex);
+                   "'%d events of %d vortices'\n",tag,nRuns,nVortex);
   fprintf(dadosout,"set term epslatex standalone color colortext 12\n");
   fprintf(dadosout,"set out 'histoInG-%s.tex'\n",tag);
   fprintf(dadosout,"replot\n");
@@ -713,7 +732,7 @@ int writeGnuplotScript(char *filename,char *folder,char *tag,
   fprintf(dadosout,"set xl '$r_c$'\n");
   fprintf(dadosout,"plot 'histoInRc-%s.txt' using "
                    "(($1+$2)/2):3 with boxes title "
-                   "'%d events of %d vortex'\n",tag,nRuns,nVortex);
+                   "'%d events of %d vortices'\n",tag,nRuns,nVortex);
   fprintf(dadosout,"set term epslatex standalone color colortext 12\n");
   fprintf(dadosout,"set out 'histoInRc-%s.tex'\n",tag);
   fprintf(dadosout,"replot\n");
@@ -723,7 +742,7 @@ int writeGnuplotScript(char *filename,char *folder,char *tag,
   fprintf(dadosout,"set xl '$a$'\n");
   fprintf(dadosout,"plot 'histoIna-%s.txt' using "
                    "(($1+$2)/2):3 with boxes title "
-                   "'%d events of %d vortex'\n",tag,nRuns,nVortex);
+                   "'%d events of %d vortices'\n",tag,nRuns,nVortex);
   fprintf(dadosout,"set term epslatex standalone color colortext 12\n");
   fprintf(dadosout,"set out 'histoIna-%s.tex'\n",tag);
   fprintf(dadosout,"replot\n");
@@ -733,7 +752,7 @@ int writeGnuplotScript(char *filename,char *folder,char *tag,
   fprintf(dadosout,"set xl '$b$'\n");
   fprintf(dadosout,"plot 'histoInb-%s.txt' using "
                    "(($1+$2)/2):3 with boxes title "
-                   "'%d events of %d vortex'\n",tag,nRuns,nVortex);
+                   "'%d events of %d vortices'\n",tag,nRuns,nVortex);
   fprintf(dadosout,"set term epslatex standalone color colortext 12\n");
   fprintf(dadosout,"set out 'histoInb-%s.tex'\n",tag);
   fprintf(dadosout,"replot\n");

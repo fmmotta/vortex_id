@@ -50,9 +50,7 @@ int main(int argc,char** argv){
     fgets(buffer,1024,uFile);
     printf("%s",buffer);
   	
-  	sscanf(buffer,"%*[(]");
-  	sscanf(buffer,"%f %f %f",&(v[i].ux),&(v[i].uy),&(v[i].uz));
-  	sscanf(buffer,"%*[)]");
+    sscanf(buffer,"(%f%f%f)",&(v[i].ux),&(v[i].uy),&(v[i].uz));
   }
 
   for(i=0;i<N;i+=1)
