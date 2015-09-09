@@ -47,10 +47,10 @@ int main(int argc,char** argv){
   fgets(buffer,1024,pFile);
 
   for(i=0;i<N;i+=1){
-    fgets(buffer,1024,uFile);
+    //fgets(buffer,1024,uFile);
     printf("%s",buffer);
-  	
-    sscanf(buffer,"(%f%f%f)",&(v[i].ux),&(v[i].uy),&(v[i].uz));
+  	fscanf(uFile," (%f%f%f)");
+    //sscanf(buffer,"(%f%f%f)",&(v[i].ux),&(v[i].uy),&(v[i].uz));
   }
 
   for(i=0;i<N;i+=1)
