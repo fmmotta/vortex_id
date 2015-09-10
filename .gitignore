@@ -3,6 +3,7 @@ obj/
 data/
 gfc/
 bin/
+src/devel
 
 #ignore file types
 *.tex

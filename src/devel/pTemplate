@@ -18,13 +18,14 @@ FoamFile
 dimensions      [0 2 -2 0 0 0 0];
 
 internalField   nonuniform List<scalar> 
-1179648
+6
 (
 0.468062
 0.374422
 0.224694
 0.100696
 0.00233922
+0.100696
 )
 ;
     }

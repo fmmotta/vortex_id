@@ -1,31 +1,48 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include <stdbool.h>
 #include <stdio.h>
 
-#define N 5
+#define DEBUG_MODE false
+
+#define id(i,j,k) (Nx*Ny*(k)+Nx*(j)+(i))
 
 typedef struct openFoamIcoData {
-    float ux,uy,uz,p;
+    double u,v,w,p;
 } openFoamIcoData;
 
-int main(int argc,char** argv){
-  int i,j,k,l,Npre,Nu,Np;
-  char buffer[1024];
-  FILE *uFile,*pFile,*ouFile;
-  openFoamIcoData v[N];
+int comp (const void * elem1, const void * elem2);
 
-  if(argc!=3){
+int main(int argc,char** argv){
+  long int N=6;
+  int i,j,k,l,Npre,Nu,Np,Nx,Ny,Nz,Nn;
+  char buffer[1024];
+  double dx,dz,Y[1000],dU,dV,dW;
+  FILE *uFile,*pFile,*nFile,*ouFile;
+  openFoamIcoData v[N],*node=NULL;
+
+  if(argc!=4){
     printf("wrong number of arguments, need exactly 2 input files, velocity and pressure files");
     return 1;
   }
 
+  Nx=256;//Nx=256;
+  Nz=192;//Nz=192;
+  Ny=96;//Ny=96;
+
+  dx = 2.0*M_PI/((double)Nx);
+  dz = 1.0*M_PI/((double)Nz);
+
   Npre=20; // preamble size
 
-  uFile = fopen(argv[1],"r");
-  pFile = fopen(argv[2],"r");
+  uFile = fopen(argv[1],"r"); // velocity file
+  pFile = fopen(argv[2],"r"); // pressure file
+  nFile = fopen(argv[3],"r"); // nodes positions file
 
-  if(uFile==NULL || pFile == NULL){printf("problems opening the files\n"); return 1;}
+  if(uFile==NULL || pFile==NULL || nFile==NULL){
+    printf("problems opening the files\n"); 
+    return 1;}
 
   for(i=0;i<Npre;i++)
     fgets(buffer,1024,uFile);
@@ -35,9 +52,48 @@ int main(int argc,char** argv){
     fgets(buffer,1024,pFile);
   fscanf(pFile,"%d",&Np);
   
-  if(Nu != Np){
-  	printf("Non-Matching number of elements - Probably wrong pair of files\n"); 
-  	fclose(uFile); fclose(pFile);
+  for(i=0;i<Npre;i++)
+    fgets(buffer,1024,nFile);
+  fscanf(nFile,"%d",&Nn);
+
+  if(Nu != Np || Nu != 2*(Nx*Ny*Nz)){
+  	printf("Non-Matching number of elements - Probably wrong pair of files\n"
+           "Or wrong number of cell sizes\n"); 
+  	fclose(uFile); fclose(pFile); fclose(nFile);
+    return 2;
+  }
+
+  fgets(buffer,1024,nFile);
+  fgets(buffer,1024,nFile);
+
+  for(j=0;j<Ny+1;j+=1){
+    double a,b,c;
+    fscanf(nFile," (%lf%lf%lf)",&a,&b,&c);
+    Y[j]=b;
+    for(i=0;i<Nx+1;i+=1)
+      fscanf(nFile," (%lf%lf%lf)",&a,&b,&c);
+    
+    if(DEBUG_MODE)
+      printf("Y[%d]=%lf\n",j,Y[j]);
+  }
+  fclose(nFile);
+  //qsort(Y,Ny+1,sizeof(int),comp); // qsort is introducing some kind of bug
+
+  ouFile = fopen("yAxis.dat","w");
+  for(j=0;j<Ny;j+=1)
+    fprintf(ouFile,"%lf\n",(Y[j]+Y[j+1])/2.);
+  fclose(ouFile);
+
+  ouFile = fopen("xAxis.dat","w");
+  for(k=0;k<Nz;k+=1)
+    fprintf(ouFile,"%lf\n",(k+0.5)*dz);
+  fclose(ouFile);
+
+  N = Nx*Ny*Nz;
+  node = (openFoamIcoData*)malloc(Nx*Ny*Nz*sizeof(openFoamIcoData));
+  if(node==NULL){
+    printf("not enough memory for openFoamIcoData\n");
+    return 1;
   }
 
   fgets(buffer,1024,uFile);
@@ -47,20 +103,54 @@ int main(int argc,char** argv){
   fgets(buffer,1024,pFile);
 
   for(i=0;i<N;i+=1){
-    //fgets(buffer,1024,uFile);
-    printf("%s",buffer);
-  	fscanf(uFile," (%f%f%f)");
-    //sscanf(buffer,"(%f%f%f)",&(v[i].ux),&(v[i].uy),&(v[i].uz));
+  	fscanf(uFile," (%lf%lf%lf)",&(node[i].u),&(node[i].v),&(node[i].w));
+    fscanf(pFile,"%lf",&(node[i].p));
   }
 
-  for(i=0;i<N;i+=1)
-  	fscanf(pFile,"%f",&(v[i].p));
+  if(DEBUG_MODE){
+    for(i=0;i<Nx;i+=1)
+      for(k=0;k<Nz;k+=1)
+        for(j=0;j<Ny;j+=1)
+          printf("%f %f %f %f %f %f\n",(i+0.5)*dx,(k+0.5)*dz,
+                                       (Y[j]+Y[j+1])/2.0,
+                                       node[id(i,j,k)].u,
+                                       node[id(i,j,k)].v,
+                                       node[id(i,j,k)].w);
+  }
 
-  printf("printing read values\n");
-  for(i=0;i<N;i+=1)
-  	printf("%d) %f %f %f %f\n",i,v[i].ux,v[i].uy,v[i].uz,v[i].p);
+  ouFile = fopen("zCut.dat","w");
+  i=0;
+  for(k=0;k<Nz;k+=1)
+    for(j=0;j<Ny;j+=1)
+      fprintf(ouFile,"%.12f %.12f %.12f %.12f\n",(k+0.5)*dz,
+                                                 (Y[j]+Y[j+1])/2.0,
+                                                 node[id(i,j,k)].v,
+                                                 node[id(i,j,k)].w);
+  fclose(ouFile);
 
-  free(uFile); free(pFile);
+  ouFile = fopen("coordinates.dat","w");
+  i=0;
+  for(k=0;k<Nz;k+=1)
+    for(j=0;j<Ny;j+=1){
+      if(DEBUG_MODE){
+        printf("k=%d j=%d\n",k,j);
+        printf("z=%f y=%f\n",(k+0.5)*dz,(Y[j]+Y[j+1])/2.0);
+      }
+      fprintf(ouFile,"%.12f %.12f\n",(k+0.5)*dz,
+                                     (Y[j]+Y[j+1])/2.0);
+  }
+  fclose(ouFile);
+
+  fclose(uFile); fclose(pFile);
 
   return 0;
+}
+
+int comp (const void * elem1, const void * elem2) 
+{
+    int f = *((int*)elem1);
+    int s = *((int*)elem2);
+    if (f > s) return  1;
+    if (f < s) return -1;
+    return 0;
 }
