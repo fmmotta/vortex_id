@@ -18,8 +18,10 @@ int main(int argc,char** argv){
   long int N=6;
   int i,j,k,l,Npre,Nu,Np,Nx,Ny,Nz,Nn;
   char buffer[1024];
+  char filename[100];
   double dx,dz,Y[1000],dU,dV,dW;
   FILE *uFile,*pFile,*nFile,*ouFile;
+  FILE *zFile,*yFile,*wFile,*vFile;
   openFoamIcoData v[N],*node=NULL;
 
   if(argc!=4){
@@ -102,32 +104,52 @@ int main(int argc,char** argv){
   fgets(buffer,1024,uFile);
   fgets(buffer,1024,pFile);
 
-  for(i=0;i<N;i+=1){
-  	fscanf(uFile," (%lf%lf%lf)",&(node[i].u),&(node[i].v),&(node[i].w));
-    fscanf(pFile,"%lf",&(node[i].p));
+  for(i=0;i<Nx;i+=1){
+    for(k=0;k<Nz;k+=1)
+      for(j=0;j<Ny;j+=1)
+        fscanf(uFile," (%lf%lf%lf)",&(node[id(i,j,k)].u),
+                                    &(node[id(i,j,k)].v),
+                                    &(node[id(i,j,k)].w));
+    
   }
 
   if(DEBUG_MODE){
+    ouFile = fopen("check.dat","w");
     for(i=0;i<Nx;i+=1)
       for(k=0;k<Nz;k+=1)
         for(j=0;j<Ny;j+=1)
-          printf("%f %f %f %f %f %f\n",(i+0.5)*dx,(k+0.5)*dz,
-                                       (Y[j]+Y[j+1])/2.0,
-                                       node[id(i,j,k)].u,
-                                       node[id(i,j,k)].v,
-                                       node[id(i,j,k)].w);
+          fprintf(ouFile,"%f %f %f %f %f %f\n",(i+0.5)*dx,(k+0.5)*dz,
+                                               (Y[j]+Y[j+1])/2.0,
+                                               node[id(i,j,k)].u,
+                                               node[id(i,j,k)].v,
+                                               node[id(i,j,k)].w);
+    fclose(ouFile);
   }
+  
+  for(i=0;i<Nx;i+=1){
+    sprintf(filename,"planes/z-%d.dat",i);
+    zFile=fopen(filename,"w");
+    sprintf(filename,"planes/y-%d.dat",i);
+    yFile=fopen(filename,"w");
+    sprintf(filename,"planes/w-%d.dat",i);
+    wFile=fopen(filename,"w");
+    sprintf(filename,"planes/v-%d.dat",i);
+    vFile=fopen(filename,"w");
 
-  ouFile = fopen("zCut.dat","w");
-  i=0;
-  for(k=0;k<Nz;k+=1)
-    for(j=0;j<Ny;j+=1)
-      fprintf(ouFile,"%.12f %.12f %.12f %.12f\n",(k+0.5)*dz,
-                                                 (Y[j]+Y[j+1])/2.0,
-                                                 node[id(i,j,k)].v,
-                                                 node[id(i,j,k)].w);
-  fclose(ouFile);
-
+    for(k=0;k<Nz;k+=1)
+      for(j=0;j<Ny;j+=1){
+        fprintf(zFile,"%.8g\n",(k+0.5)*dz);
+        fprintf(yFile,"%.8g\n",(Y[j]+Y[j+1])/2.0);
+        fprintf(wFile,"%.8g\n",node[id(i,j,k)].w);
+        fprintf(vFile,"%.8g\n",node[id(i,j,k)].v);
+      }
+      /*  fprintf(ouFile,"%.8g %.8g %.8g %.8g\n",(k+0.5)*dz,
+                                               (Y[j]+Y[j+1])/2.0,
+                                               node[id(i,j,k)].w,
+                                               node[id(i,j,k)].v);*/
+    fclose(ouFile);  
+  }
+  
   ouFile = fopen("coordinates.dat","w");
   i=0;
   for(k=0;k<Nz;k+=1)
@@ -154,3 +176,35 @@ int comp (const void * elem1, const void * elem2)
     if (f < s) return -1;
     return 0;
 }
+
+/*
+
+  sprintf(filename,"planes/zCheck.dat");
+  ouFile=fopen(filename,"w");  
+  for(i=0;i<Nx;i+=1){
+    for(k=0;k<Nz;k+=1)
+      for(j=0;j<Ny;j+=1)
+        fprintf(ouFile,"%.8g %.8g %.8g\n",//(k+0.5)*dz,
+                                          //(Y[j]+Y[j+1])/2.0,
+                                      node[id(i,j,k)].u,
+                                      node[id(i,j,k)].v,
+                                      node[id(i,j,k)].w);
+    
+  }
+  fclose(ouFile);
+*/
+ /*
+
+  for(i=0;i<Nx;i+=1){
+    sprintf(filename,"planes/xCut-%d.dat",i);
+    ouFile=fopen(filename,"w");
+    for(k=0;k<Nz;k+=1)
+      for(j=0;j<Ny;j+=1)
+        fprintf(ouFile,"%.8g %.8g\n",//(k+0.5)*dz,
+                                     //(Y[j]+Y[j+1])/2.0,
+                                      node[id(i,j,k)].w,
+                                      node[id(i,j,k)].v);
+    fclose(ouFile);  
+  }
+
+ */
