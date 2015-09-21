@@ -1,65 +1,38 @@
 #include <math.h>
+#include <stdlib.h>
+#include <stdio.h>
 #include "stencilManip.h"
 
-int checkFourStencil(int i,int j,int Width,int Height){
-  int neighbours=0;
+// Y is between 0 and 1 (half channel)
+// It's allways periodic on X (can be stream or span-wise)
+//  
+//     |
+//     |
+//     |
+//     |
+//  /\ |
+//  || |
+//  || | 
+//  i  |
+//     |
+//     |_ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+//       
+//        j ==> 
+//
 
-  // 4-way stencil check
-  if(bound_check(i+1,j,Width,Height))
-    neighbours+=1;
-  
-  if(bound_check(i,j+1,Width,Height))
-    neighbours+=1;
-
-  if(bound_check(i-1,j,Width,Height))
-    neighbours+=1;
-  
-  if(bound_check(i,j-1,Width,Height))
-    neighbours+=1;
-  
-  return neighbours;
-}
-
-int updateFrom2DVelocityField(int Width,int Height,
-                              float dx,float dy,
-                              float *uField,float *lambField){
-  int neighbours,i,j;
-  float gradU[4],detU,trU,lamb2;
-
-  for(i=0;i<Height;i+=1)
-    for(j=0;j<Width;j+=1){
-      neighbours = checkFourStencil(i,j,Width,Height);
-      if(neighbours!=4)
-        continue;
-      
-      // using centered differences to calculate the gradient
-      gradU[0*2+0] = (uField[ux(i+1,j,Width)]-uField[ux(i-1,j,Width)])/(2.*dx);
-      gradU[0*2+1] = (uField[uy(i+1,j,Width)]-uField[uy(i-1,j,Width)])/(2.*dx);
-      gradU[1*2+0] = (uField[ux(i,j+1,Width)]-uField[ux(i,j-1,Width)])/(2.*dy);
-      gradU[1*2+1] = (uField[uy(i,j+1,Width)]-uField[uy(i,j+1,Width)])/(2.*dy);
-    
-      detU = gradU[0]*gradU[3]-gradU[1]*gradU[2];
-      trU = gradU[0]+gradU[3];
-
-      // \Delta = (trU)^2 - 4.*detU ; \Delta<0 ==> Imaginary eigenvalues
-      lamb2 = detU-(trU*trU)/4.;
-      if(lamb2>=0)
-        lambField[i*Width+j] = sqrt(lamb2);
-      else
-        lambField[i*Width+j] = 0.; // I might have to change to -1
-    }
-
-  return 0;
-}
-
-int uFieldToGradU(int Height,int Width,float *dx,
-                  float *uField, float *gField){
+int uFieldToGradUopenFOAM(int Height,int Width,float *dx,float *X,float *Y, 
+                          float *uField, float *gField)
+{
+  const int refHeight;
   const int stcW=3,stcR=1;   // Stencil Width and Radius
   const int ouTW=14,inTW=ouTW+stcW-1; // Output Tile and Input Tile Width 
-  int i,j,ii,jj,idx,jdx;
+  int i,j,ii,jj,idx,jdx,ip,jp;
   int iBlks,jBlks;
   float uTile[inTW][inTW][2],gTile[ouTW][ouTW][4];
-  
+  float um,u0,up,vm,v0,vp,dYm[Height],dYp[Height];
+  float cmin[Height],c0[Height],cmax[Height];
+  float d0,dm,dmm,b1,b2;
+
   if(Width<0 || Height<0)
     return -1;
   if(dx==NULL)
@@ -68,303 +41,143 @@ int uFieldToGradU(int Height,int Width,float *dx,
     return -3;
   if(gField==NULL)
     return -4;
-
-  iBlks = (int) ((Height-1)/ouTW + 1);
-  jBlks = (int) ( (Width-1)/ouTW + 1);
-
-  for(i=0;i<iBlks;i+=1)
-    for(j=0;j<jBlks;j+=1){
-      
-      // Loading the Input Tile
-      for(ii=0;ii<inTw;ii+=1)
-        for(jj=0;jj<inTw;jj+=1){
-          idx = i*inTw + ii - stcR;
-          jdx = i*inTw + jj - stcR;
-
-          if( (idx<0) || (idx >= Height) ||
-              (jdx<0) || (jdx >= Width) ){ 
-            uTile[idx][jdx][0] = 0.;
-            uTile[idx][jdx][1] = 0.;
-          }
-          else{
-            uTile[ii][jj][0] = uField[2*(idx*Width+jdx)+0];
-            uTile[ii][jj][1] = uField[2*(idx*Width+jdx)+1];
-          }
-        }
-
-      // Specific finite diferences calculation
-      // Rewrite this for general Stencil Calulations
-      // Check latter the bounds of this loops
-      for(ii=0;ii<ouTw;ii+=1)
-        for(jj=0;jj<ouTw;jj+=1){
-          gTile[ii][jj][0] = (uTile[ii+1+1][jj+1][0] - 
-                              uTile[ii+1-1][jj+1][0])/(2.*dx[0]);
-
-          gTile[ii][jj][1] = (uTile[ii+1][jj+1+1][0] - 
-                              uTile[ii+1][jj+1-1][0])/(2.*dx[1]);
-
-          gTile[ii][jj][2] = (uTile[ii+1+1][jj+1][1] - 
-                              uTile[ii+1-1][jj+1][1])/(2.*dx[0]);
-
-          gTile[ii][jj][3] = (uTile[ii+1][jj+1+1][1] - 
-                              uTile[ii+1][jj+1+1][1])/(2.*dx[1]);
-        }
-      
-      // Writing the Output Tile
-      for(ii=0;ii<ouTw;ii+=1)
-        for(jj=0;jj<ouTw;jj+=1){
-          idx = i*ouTw + ii;
-          jdx = i*ouTw + jj;
-
-          if( (idx<=Height) && (jdx<=Width) ){
-            gField[4*(idx*Width+jdx)+0] = gTile[ii][jj][0];
-            gField[4*(idx*Width+jdx)+1] = gTile[ii][jj][1];
-            gField[4*(idx*Width+jdx)+2] = gTile[ii][jj][2];
-            gField[4*(idx*Width+jdx)+3] = gTile[ii][jj][3];
-          }
-        }
-    }
-
-  return 0;  
-}
-
-int multiChStencil(int Height,int Width,int Cha1,int Cha2,float *dx,
-                   float *uField, float *gField){
-  const int stcW=3,stcR=1;   // Stencil Width and Radius
-  const int ouTW=14,inTW=ouTW+stcW-1; // Output Tile and Input Tile Width 
-  int i,j,ii,jj,idx,jdx;
-  int iBlks,jBlks;
-  float uTile[inTW][inTW][2],gTile[ouTW][ouTW][4];
-  
-  if(Width<0 || Height<0)
-    return -1;
-  if(dx==NULL)
-    return -2;
-  if(uField==NULL)
-    return -3;
-  if(gField==NULL)
-    return -4;
-
-  iBlks = (int) ((Height-1)/ouTW + 1);
-  jBlks = (int) ( (Width-1)/ouTW + 1);
-
-  for(i=0;i<iBlks;i+=1)
-    for(j=0;j<jBlks;j+=1){
-      
-      // Loading the Input Tile
-      for(ii=0;ii<inTw;ii+=1)
-        for(jj=0;jj<inTw;jj+=1){
-          idx = i*inTw + ii - stcR;
-          jdx = i*inTw + jj - stcR;
-
-          if( (idx<0) || (idx >= Height) ||
-              (jdx<0) || (jdx >= Width) ){ 
-            uTile[idx][jdx][0] = 0.;
-            uTile[idx][jdx][1] = 0.;
-          }
-          else{
-            uTile[ii][jj][0] = uField[2*(idx*Width+jdx)+0];
-            uTile[ii][jj][1] = uField[2*(idx*Width+jdx)+1];
-          }
-        }
-
-      // Specific finite diferences calculation
-      // Rewrite this for general Stencil Calulations
-      for(ii=0;ii<ouTw;ii+=1)
-        for(jj=0;jj<ouTw;jj+=1){
-          gTile[ii][jj][0] = (uTile[ii+1+1][jj+1][0] - 
-                              uTile[ii+1-1][jj+1][0])/(2.*dx[0]);
-
-          gTile[ii][jj][1] = (uTile[ii+1][jj+1+1][0] - 
-                              uTile[ii+1][jj+1-1][0])/(2.*dx[1]);
-
-          gTile[ii][jj][2] = (uTile[ii+1+1][jj+1][1] - 
-                              uTile[ii+1-1][jj+1][1])/(2.*dx[0]);
-
-          gTile[ii][jj][3] = (uTile[ii+1][jj+1+1][1] - 
-                              uTile[ii+1][jj+1+1][1])/(2.*dx[1]);
-        }
-      
-      // Writing the Output Tile
-      for(ii=0;ii<ouTw;ii+=1)
-        for(jj=0;jj<ouTw;jj+=1){
-          idx = i*ouTw + ii;
-          jdx = i*ouTw + jj;
-
-          if( (idx<=Height) && (jdx<=Width) ){
-            gField[4*(idx*Width+jdx)+0] = gTile[ii][jj][0];
-            gField[4*(idx*Width+jdx)+1] = gTile[ii][jj][1];
-            gField[4*(idx*Width+jdx)+2] = gTile[ii][jj][2];
-            gField[4*(idx*Width+jdx)+3] = gTile[ii][jj][3];
-          }
-        }
-    }
-
-  return 0;  
-}
-
-int applyMaskConvChnWise(int Height,int Width,int Cha,float *dx,
-                         int stcW,float *Mask,float *uField){
-  int inTW=16,ouTW=inTw-stcW+1; // Output Tile and Input Tile Width 
-  int stcR = stcW/2;            // Stencil/Mask  Radius
-  int i,j,ii,jj,l,m,idx,jdx,k;
-  int iBlks,jBlks;
-  
-  if(Width<0 || Height<0)
-    return -1;
-  if(dx==NULL)
-    return -2;
-  if(uField==NULL)
-    return -3;
-  if(gField==NULL)
-    return -4;
-  if( stcW%2 == 0)
+  if(X==NULL)
     return -5;
+  if(Y==NULL)
+    return -6;
 
-  if(ouTW<0){
-    inTW = 32;
-    ouTW = ouTW=inTw-stcW+1;
-    if(ouTW<0)
-      return -6;
+  iBlks = (int) ((Height-1)/ouTW + 1);
+  jBlks = (int) ( (Width-1)/ouTW + 1);
+  
+  dYm[Height-1] = (Y[0]-0.)/2.; // Hardcode: 3 point stencil with wall
+  for(i=1;i<Height;i+=1)
+    dYm[i] = (Y[i]-Y[i-1])/2.;
+  
+  for(i=0;i<Height-1;i+=1)
+    dYp[i] = (Y[i+1]-Y[i])/2.;
+  dYp[Height-1] = (1.0-Y[Height-1])/2.0;
+
+  // 1D, 3-point, 1st derivative stencil weights
+  for(i=0;i<Height;i+=1){
+    cmin[i] = -dYp[i]/(dYm[i]*(dYm[i]+dYp[i]));
+      c0[i] =  (dYp[i]-dYm[i])/(dYm[i]*dYp[i]);
+    cmax[i] =  dYm[i]/(dYp[i]*(dYm[i]+dYp[i]));
   }
 
-  iBlks = (int) ((Height-1)/ouTW + 1);
-  jBlks = (int) ( (Width-1)/ouTW + 1);
+  // 1D, separate stencil for the mid of the channel
+  b1  = Y[Height-1] - Y[Height-2];
+  b2  = Y[Height-1] - Y[Height-3];
+  d0  =  (b1+b2)/(b1*b2);
+  dm  = -b2/(b1*(b2-b1));
+  dmm =  b1/(b2*(b2-b1));
+  
+  for(i=0;i<Height;i+=1){
+    if(i==0){
+      for(j=0;j<Width;j+=1){
+        ip = i; jp = (j-1)%Width;
+        um = uField[ 2*(ip*Width+jp) + 0 ];
+        vm = uField[ 2*(ip*Width+jp) + 1 ];
+        
+        u0 = uField[ 2*(i*Width+j) + 0 ];
+        v0 = uField[ 2*(i*Width+j) + 1 ];
+        
+        ip = i; jp = (j+1)%Width;
+        up = uField[ 2*(ip*Width+jp) + 0 ];
+        vp = uField[ 2*(ip*Width+jp) + 1 ];
 
-  for(i=0;i<iBlks;i+=1)
-    for(j=0;j<jBlks;j+=1){
-      float uTile[inTW][inTW][Cha];
-      float oTile[ouTW][ouTW][Cha];
+        // x-derivatives
+        gField[4*(i*Width+j)+0] = (up-um)/(2.*dx[0]);
+        gField[4*(i*Width+j)+2] = (vp-vm)/(2.*dx[0]);
 
-      // Loading the Input Tile
-      for(ii=0;ii<inTw;ii+=1)
-        for(jj=0;jj<inTw;jj+=1){
-          idx = i*inTw + ii - stcR;
-          jdx = i*inTw + jj - stcR;
+        // ------
+ 
+        ip = i-1; jp = j; // Down the wall
+        um = 0.;          // No slip condition
+        vm = 0.;          // No slip condition
+        
+        // just above the wall
+        u0 = uField[ 2*(i*Width+j) + 0 ];
+        v0 = uField[ 2*(i*Width+j) + 1 ];
+        
+        ip = i+1; jp = j;
+        up = uField[ 2*(ip*Width+jp) + 0 ];
+        vp = uField[ 2*(ip*Width+jp) + 1 ];
 
-          if( (idx<0) || (idx >= Height) ||
-              (jdx<0) || (jdx >= Width) ){ 
-            for(k=0;k<Cha;k+=1)
-              uTile[idx][jdx][k] = 0.;
-          }
-          else{
-            for(k=0;k<Cha;k+=1)
-              uTile[ii][jj][k] = uField[Cha*(idx*Width+jdx)+k];
-          }
-        }
-
-      // Specific finite diferences calculation
-      // Rewrite this for general Stencil Calulations
-      for(ii=0;ii<ouTw;ii+=1)
-        for(jj=0;jj<ouTw;jj+=1){
-
-          for(k=0;k<Cha;k+=1)         
-            oTile[ii][jj][k]=0.;
-          
-          // Verify this Loop
-          for(l=0;l<stcW;l+=1)
-            for(m=0;m<stcW;m+=1)
-              for(k=0;k<Cha;k+=1)
-                oTile[ii][jj][k] += Mask[l*stcW+m]*uTile[ii+l][jj+m][k];
-        }
-      
-      // Writing the Output Tile
-      for(ii=0;ii<ouTw;ii+=1)
-        for(jj=0;jj<ouTw;jj+=1){
-          idx = i*ouTw + ii;
-          jdx = i*ouTw + jj;
-
-          if( (idx<=Height) && (jdx<=Width) ){
-            
-            for(k=0;k<Cha;k+=1)
-              uTile[Cha*(idx*Width+jdx)+k] = oTile[ii][jj][k];
-          }
-        }
+        // y-derivatives
+        gField[4*(i*Width+j)+1] = cmin[i]*um + c0[i]*u0 + cmax[i]*up;
+        gField[4*(i*Width+j)+3] = cmin[i]*vm + c0[i]*v0 + cmax[i]*vp;
+      }
     }
+    else if(i==Height-1){
+      for(j=0;j<Width;j+=1){
+        ip = i; jp = (j-1)%Width;
+        um = uField[ 2*(ip*Width+jp) + 0 ];
+        vm = uField[ 2*(ip*Width+jp) + 1 ];
+        
+        u0 = uField[ 2*(i*Width+j) + 0 ];
+        v0 = uField[ 2*(i*Width+j) + 1 ];
+        
+        ip = i; jp = (j+1)%Width;
+        up = uField[ 2*(ip*Width+jp) + 0 ];
+        vp = uField[ 2*(ip*Width+jp) + 1 ];
+
+        // x-derivatives
+        gField[4*(i*Width+j)+0] = (up-um)/(2.*dx[0]);
+        gField[4*(i*Width+j)+2] = (vp-vm)/(2.*dx[0]);
+
+        ip = i; jp = j;
+        u0 = uField[ 2*(ip*Width+jp) + 0 ];
+        v0 = uField[ 2*(ip*Width+jp) + 1 ];
+
+        ip = i-1; jp = j;
+        um = uField[ 2*(ip*Width+jp) + 0 ];
+        vm = uField[ 2*(ip*Width+jp) + 1 ];
+
+        ip = i-2; jp = j;
+        up = uField[ 2*(ip*Width+jp) + 0 ];
+        vp = uField[ 2*(ip*Width+jp) + 1 ];
+
+        // y-derivatives
+        gField[4*(i*Width+j)+1] = d0*u0 + dm*um + dmm*up;
+        gField[4*(i*Width+j)+3] = d0*v0 + dm*vm + dmm*vp;        
+      }
+    }
+    else{
+      for(j=0;j<Width;j+=1){
+        ip = i; jp = (j-1)%Width;
+        um = uField[ 2*(ip*Width+jp) + 0 ];
+        vm = uField[ 2*(ip*Width+jp) + 1 ];
+        
+        u0 = uField[ 2*(i*Width+j) + 0 ];
+        v0 = uField[ 2*(i*Width+j) + 1 ];
+        
+        ip = i; jp = (j+1)%Width;
+        up = uField[ 2*(ip*Width+jp) + 0 ];
+        vp = uField[ 2*(ip*Width+jp) + 1 ];
+
+        // x-derivatives
+        gField[4*(i*Width+j)+0] = (up-um)/(2.*dx[0]);
+        gField[4*(i*Width+j)+2] = (vp-vm)/(2.*dx[0]);
+
+        // ------
+        
+        ip = i-1; jp = j; 
+        um = uField[ 2*(ip*Width+jp) + 0 ];
+        vm = uField[ 2*(ip*Width+jp) + 1 ];
+        
+        u0 = uField[ 2*(i*Width+j) + 0 ];
+        v0 = uField[ 2*(i*Width+j) + 1 ];
+        
+        ip = i+1; jp = j;
+        up = uField[ 2*(ip*Width+jp) + 0 ];
+        vp = uField[ 2*(ip*Width+jp) + 1 ];
+
+        // y-derivatives
+        gField[4*(i*Width+j)+1] = cmin[i]*um + c0[i]*u0 + cmax[i]*up;
+        gField[4*(i*Width+j)+3] = cmin[i]*vm + c0[i]*v0 + cmax[i]*vp;
+      }
+    }
+  }
 
   return 0;
-}
-
-int gradUToGradU2(int Height,int Width,float *dx,
-                  float *gField, float *g2Field){
-  const int stcW=3,stcR=1;   // Stencil Width and Radius
-  const int ouTW=14,inTW=ouTW+stcW-1; // Output Tile and Input Tile Width 
-  int i,j,ii,jj,idx,jdx;
-  int iBlks,jBlks;
-  float gTile[inTW][inTW][4],g2Tile[ouTW][ouTW][4];
-  
-  if(Width<0 || Height<0)
-    return -1;
-  if(dx==NULL)
-    return -2;
-  if(gField==NULL)
-    return -3;
-  if(g2Field==NULL)
-    return -4;
-
-  iBlks = (int) ((Height-1)/ouTW + 1);
-  jBlks = (int) ( (Width-1)/ouTW + 1);
-
-  for(i=0;i<iBlks;i+=1)
-    for(j=0;j<jBlks;j+=1){
-      
-      // Loading the Input Tile
-      for(ii=0;ii<inTw;ii+=1)
-        for(jj=0;jj<inTw;jj+=1){
-          idx = i*inTw + ii - stcR;
-          jdx = i*inTw + jj - stcR;
-
-          if( (idx<0) || (idx >= Height) ||
-              (jdx<0) || (jdx >= Width) ){ 
-            gTile[idx][jdx][0] = 0.;
-            gTile[idx][jdx][1] = 0.;
-            gTile[idx][jdx][2] = 0.;
-            gTile[idx][jdx][3] = 0.;
-          }
-          else{
-            gTile[ii][jj][0] = gField[2*(idx*Width+jdx)+0];
-            gTile[ii][jj][1] = gField[2*(idx*Width+jdx)+1];
-            gTile[ii][jj][2] = gField[2*(idx*Width+jdx)+2];
-            gTile[ii][jj][3] = gField[2*(idx*Width+jdx)+3];
-          }
-        }
-
-      // Converting Gradient of the Velocity Field
-      // To the Gradient of the associated velocity Field
-      for(ii=0;ii<ouTw;ii+=1)
-        for(jj=0;jj<ouTw;jj+=1){
-          
-          g2Tile[ii][jj][1]=(gTile[ii+1][jj+1+1][2] + gTile[ii+1][jj+1-1][2]
-                            -gTile[ii+1][jj+1+1][1] - gTile[ii+1][jj+1-1][2]
-                           -2.*gTile[ii+1][jj+1][2] +2.*gTile[ii+1][jj+1][2]);
-          g2Tile[ii][jj][1]=g2Tile[ii][jj][1]/(2.*dx[1]*dx[1]);
-
-          g2Tile[ii][jj][2]=(gTile[ii+1+1][jj+1][2] + gTile[ii+1-1][jj+1][2]
-                            -gTile[ii+1+1][jj+1][1] - gTile[ii+1-1][jj+1][2]
-                            -2.*gTile[ii+1][jj+1][2] +2.*gTile[ii+1][jj+1][2]);
-          g2Tile[ii][jj][2]=-g2Tile[ii][jj][1]/(2.*dx[0]*dx[0]);
-
-          g2Tile[ii][jj][0]=(gTile[ii+1+1][jj+1][2] + gTile[ii+1][jj+1+1][2]
-                            -gTile[ii+1-1][jj+1][1] - gTile[ii+1][jj+1+1][2]);
-          g2Tile[ii][jj][0]=g2Tile[ii][jj][0]/(4.*dx[0]*dx[1]);
-
-          g2Tile[ii][jj][3] = - g2Tile[ii][jj][0];
-        }
-      
-      // Writing the Output Tile
-      for(ii=0;ii<ouTw;ii+=1)
-        for(jj=0;jj<ouTw;jj+=1){
-          idx = i*ouTw + ii;
-          jdx = i*ouTw + jj;
-
-          if( (idx<=Height) && (jdx<=Width) ){
-            gField[4*(idx*Width+jdx)+0] = gTile[ii][jj][0];
-            gField[4*(idx*Width+jdx)+1] = gTile[ii][jj][1];
-            gField[4*(idx*Width+jdx)+2] = gTile[ii][jj][2];
-            gField[4*(idx*Width+jdx)+3] = gTile[ii][jj][3];
-          }
-        }
-    }
-
-  return 0;  
 }

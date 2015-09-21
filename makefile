@@ -137,6 +137,9 @@ ini.o: src/inih/ini.c
 inputManager.o: src/inputManager.c
 	$(CC) $(CFLAGS) src/inputManager.c -o obj/inputManager.o
 
+stencilManip.o: src/stencilManip.c
+	$(CC) $(CFLAGS) src/stencilManip.c -o obj/stencilManip.o
+
 test_floodFill.o: src/tests/test_floodFill.c src/floodFill.h
 	$(CC) $(CFLAGS) src/tests/test_floodFill.c -o obj/test_floodFill.o
 

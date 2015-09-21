@@ -78,6 +78,7 @@ int addSingleOseen(int nVortex,float *parVortex, float *x0, float *dx,
     for(j=0;j<Width;j+=1){
       gradU[0][0] = gradU[0][1] = gradU[1][0] = gradU[1][1] = 0.;
       
+      // Hardcoded : coordinates interchanged
       x = x0[0] + i*dx[0];
       y = x0[1] + j*dx[1];
       for(k=0;k<nVortex;k+=1){
@@ -119,6 +120,54 @@ int addSingleOseen(int nVortex,float *parVortex, float *x0, float *dx,
       gField[4*(i*Width+j)+1]+=gradU[0][1];
       gField[4*(i*Width+j)+2]+=gradU[1][0];
       gField[4*(i*Width+j)+3]+=gradU[1][1];
+    }
+
+  return 0;
+}
+
+int addUSingleOseen(int nVortex,float *parVortex, float *x0, float *dx, 
+                    int Height,int Width, float **uFieldOut)
+{
+  int i,j,k;
+  float u,v,*uField,a,b,G,R,x,y,fa,fb,r2,r,cutoff=0.001;
+
+  if(*uFieldOut==NULL)
+    return 1;
+  uField = *uFieldOut;
+
+  for(i=0;i<Height;i+=1)
+    for(j=0;j<Width;j+=1){
+      u = v = 0.;
+      
+      // Hardcoded : coordinates interchanged
+      x = x0[0] + j*dx[0];
+      y = x0[1] + i*dx[1];
+      for(k=0;k<nVortex;k+=1){
+        G = parVortex[4*k+0]; R = parVortex[4*k+1];
+        a = parVortex[4*k+2]; b = parVortex[4*k+3];
+        
+        r2 = (x-a)*(x-a)+(y-b)*(y-b);
+        r = sqrt(r2);
+        
+        // added a clause for small r/R
+        if(r<=0){
+          u = 0.;
+          v = 0.;
+        }
+        else if((r>0)&&(r/R<cutoff)){
+          fa = (G/(2.*M_PI*R*R))*(1.-0.5*(r/R)*(r/R));
+           u = fa*(-y);
+           v = fa*( x);
+        }
+        else{
+          fa = (1.-exp(-r2/(R*R)))/(2.*M_PI*r*r);
+           u = fa*(-y);
+           v = fa*( x);
+        }
+      }
+      
+      uField[2*(i*Width+j)+0] += u;
+      uField[2*(i*Width+j)+1] += v;
     }
 
   return 0;
@@ -486,5 +535,26 @@ int initOseenShear2D(int nVortex,float *parVortex,
     }
     
   *sFieldOut = sField;
+  return 0;
+}
+
+int iniUZero(int Height,int Width, float **uFieldOut){
+  int i,j,k;
+  float *uField;
+
+  if((*uFieldOut) == NULL){
+    uField = (float*)malloc(2*Height*Width*sizeof(float));
+    if(uField == NULL)
+      return 1;
+  }
+  else
+    uField = *uFieldOut;
+
+  for(i=0;i<Height;i+=1)
+    for(j=0;j<Width;j+=1){
+      uField[2*(i*Width+j)+0] = 0.;
+      uField[2*(i*Width+j)+1] = 0.;
+    }  
+
   return 0;
 }
