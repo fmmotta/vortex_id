@@ -150,7 +150,7 @@ int floodFill(float *sField,int Width,int Height,int **eqClass,int *label){
           eqClass[counter][0]=counter;
           counter+=1;
           if(counter>(1024-1))
-            printf("moments of dispair -- floodFIll\n");
+            printf("moments of dispair -- floodFill\n");
         }
       }
     }

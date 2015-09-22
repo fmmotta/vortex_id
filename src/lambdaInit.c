@@ -4,6 +4,18 @@
 #include <string.h>
 #include "lambdaInit.h"
 
+/*
+  Present dispotition:
+
+  [\partial_x u \partial_y u]      [ gradU[0][0] gradU[0][1] ]         [0 1]
+  [\partial_x v \partial_y v]  ==  [ gradU[1][0] gradU[1][1] ] = gradU [2 3]
+  
+  A possible new disposition:
+  
+  [\partial_y v \partial_x v]          [3 2]
+  [\partial_y u \partial_x u] == gradU [1 0]
+*/
+
 int initZero(int Height,int Width, float **gFieldOut){
   int i,j,k;
   float *gField;
@@ -78,9 +90,8 @@ int addSingleOseen(int nVortex,float *parVortex, float *x0, float *dx,
     for(j=0;j<Width;j+=1){
       gradU[0][0] = gradU[0][1] = gradU[1][0] = gradU[1][1] = 0.;
       
-      // Hardcoded : coordinates interchanged
-      x = x0[0] + i*dx[0];
-      y = x0[1] + j*dx[1];
+      x = x0[0] + i*dx[0]; // future : change x and y
+      y = x0[1] + j*dx[1]; // future : change x and y
       for(k=0;k<nVortex;k+=1){
         G = parVortex[4*k+0]; R = parVortex[4*k+1];
         a = parVortex[4*k+2]; b = parVortex[4*k+3];
@@ -89,6 +100,7 @@ int addSingleOseen(int nVortex,float *parVortex, float *x0, float *dx,
         r = sqrt(r2);
         
         // added a clause for small r/R
+        // future : review gradU designation
         if(r<=0){
           gradU[0][0]=0.;
           gradU[1][1]=0.;
@@ -139,9 +151,8 @@ int addUSingleOseen(int nVortex,float *parVortex, float *x0, float *dx,
     for(j=0;j<Width;j+=1){
       u = v = 0.;
       
-      // Hardcoded : coordinates interchanged
-      x = x0[0] + j*dx[0];
-      y = x0[1] + i*dx[1];
+      x = x0[0] + i*dx[0]; // future : change x and y
+      y = x0[1] + j*dx[1]; // future : change x and y
       for(k=0;k<nVortex;k+=1){
         G = parVortex[4*k+0]; R = parVortex[4*k+1];
         a = parVortex[4*k+2]; b = parVortex[4*k+3];
@@ -166,6 +177,7 @@ int addUSingleOseen(int nVortex,float *parVortex, float *x0, float *dx,
         }
       }
       
+      // future : review u and v position
       uField[2*(i*Width+j)+0] += u;
       uField[2*(i*Width+j)+1] += v;
     }
@@ -187,8 +199,8 @@ int addOseen2ndGrad(int nVortex,float *parVortex, float *x0, float *dx,
     for(j=0;j<Width;j+=1){
       gradU[0][0] = gradU[0][1] = gradU[1][0] = gradU[1][1] = 0.;
       
-      x = x0[0] + i*dx[0];
-      y = x0[1] + j*dx[1];
+      x = x0[0] + i*dx[0]; // future : change x and y
+      y = x0[1] + j*dx[1]; // future : change x and y
       for(k=0;k<nVortex;k+=1){
         G = parVortex[4*k+0]; R = parVortex[4*k+1];
         a = parVortex[4*k+2]; b = parVortex[4*k+3];
@@ -204,6 +216,7 @@ int addOseen2ndGrad(int nVortex,float *parVortex, float *x0, float *dx,
 
       }
       
+      // future : revise gradU positions
       gField[4*(i*Width+j)+0]+=gradU[0][0];
       gField[4*(i*Width+j)+1]+=gradU[0][1];
       gField[4*(i*Width+j)+2]+=gradU[1][0];
@@ -228,6 +241,7 @@ int s2ndGradUtoLamb(int nVortex,float *parVortex, float *x0, float *dx,
 
   for(i=0;i<Height;i+=1)
     for(j=0;j<Width;j+=1){
+      // future : revise gradU positions
       gradU[0][0] = gField[4*(i*Width+j)+0];
       gradU[0][1] = gField[4*(i*Width+j)+1];
       gradU[1][0] = gField[4*(i*Width+j)+2];
@@ -238,8 +252,8 @@ int s2ndGradUtoLamb(int nVortex,float *parVortex, float *x0, float *dx,
       lamb =  (gradU[0][0]*gradU[1][1]-gradU[0][1]*gradU[1][0]);
       lamb-= ((gradU[0][0]+gradU[1][1])*(gradU[0][0]+gradU[1][1]))/4.;
       
-      x = x0[0] + i*dx[0];
-      y = x0[1] + j*dx[1];
+      x = x0[0] + i*dx[0]; // future : change x and y
+      y = x0[1] + j*dx[1]; // future : change x and y
       w=0.;
       for(k=0;k<nVortex;k+=1){
         G = parVortex[4*k+0]; R = parVortex[4*k+1];
@@ -266,6 +280,7 @@ int s2ndGradUtoLamb(int nVortex,float *parVortex, float *x0, float *dx,
 
   return 0;
 }
+
 int s2ndGradUtoLambNaive(int nVortex,float *parVortex, float *x0, float *dx,
                          int Height,int Width, float *gField,float *sField){
   int i,j,k;
@@ -281,6 +296,7 @@ int s2ndGradUtoLambNaive(int nVortex,float *parVortex, float *x0, float *dx,
 
   for(i=0;i<Height;i+=1)
     for(j=0;j<Width;j+=1){
+      // future : revise gradU positions
       gradU[0][0] = gField[4*(i*Width+j)+0];
       gradU[0][1] = gField[4*(i*Width+j)+1];
       gradU[1][0] = gField[4*(i*Width+j)+2];
@@ -291,8 +307,8 @@ int s2ndGradUtoLambNaive(int nVortex,float *parVortex, float *x0, float *dx,
       lamb =  (gradU[0][0]*gradU[1][1]-gradU[0][1]*gradU[1][0]);
       lamb-= ((gradU[0][0]+gradU[1][1])*(gradU[0][0]+gradU[1][1]))/4.;
       
-      x = x0[0] + i*dx[0];
-      y = x0[1] + j*dx[1];
+      x = x0[0] + i*dx[0]; // future : change x and y
+      y = x0[1] + j*dx[1]; // future : change x and y
       w=0.;
       for(k=0;k<nVortex;k+=1){
         G = parVortex[4*k+0]; R = parVortex[4*k+1];
@@ -306,6 +322,7 @@ int s2ndGradUtoLambNaive(int nVortex,float *parVortex, float *x0, float *dx,
             
       // Dw = gField[4*(i*Width+j)+1]-gField[4*(i*Width+j)+2];
       
+      // future : revise gradU positions
       Dw = gradU[0][1] - gradU[1][0];
 
       //if(lamb>0. && (w*Dw<0.))
@@ -337,6 +354,7 @@ int sndGradUwFieldToLamb(int Height,int Width,float *gField,float *wField,
 
   for(i=0;i<Height;i+=1)
     for(j=0;j<Width;j+=1){
+      // future : revise gradU positions
       gradU[0][0] = gField[4*(i*Width+j)+0];
       gradU[0][1] = gField[4*(i*Width+j)+1];
       gradU[1][0] = gField[4*(i*Width+j)+2];
@@ -372,12 +390,13 @@ int addConstXYShear(float *x0, float *dx,int Height,
   
   for(i=0;i<Height;i+=1)
     for(j=0;j<Width;j+=1){
+      // future : revise gradU positions
       gradU[0][0] = gradU[0][1] = gradU[1][0] = gradU[1][1] = 0.;
       
-      x = x0[0] + i*dx[0];
-      y = x0[1] + j*dx[1];
+      x = x0[0] + i*dx[0]; // future: change x and y
+      y = x0[1] + j*dx[1]; // future: change x and y
 
-      gradU[0][1] += v0y0; // got to improove this later
+      gradU[0][1] += v0y0; // got to improve this later
       
       gField[4*(i*Width+j)+0]+=gradU[0][0];
       gField[4*(i*Width+j)+1]+=gradU[0][1];
