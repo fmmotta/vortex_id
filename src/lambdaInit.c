@@ -432,8 +432,8 @@ int initLambOseen2D(int nVortex,float *parVortex,
     for(j=0;j<Width;j+=1){
       gradU[0][0] = gradU[0][1] = gradU[1][0] = gradU[1][1] = 0.;
       
-      x = x0[0] + i*dx[0];
-      y = x0[1] + j*dx[1];
+      x = x0[0] + i*dx[0]; // future : change x and y
+      y = x0[1] + j*dx[1]; // future : change x and y
       for(k=0;k<nVortex;k+=1){
         G = parVortex[4*k+0]; R = parVortex[4*k+1];
         a = parVortex[4*k+2]; b = parVortex[4*k+3];
@@ -442,6 +442,7 @@ int initLambOseen2D(int nVortex,float *parVortex,
         r = sqrt(r2);
         
         // maybe add an if clause for small r2/(R*R)
+        // future : revise gradU positions
         if(r<=0){
           gradU[0][0]=0.;
           gradU[1][1]=0.;

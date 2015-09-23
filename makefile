@@ -47,6 +47,9 @@ test_lambOseenShear3: floodFill.o test_lambOseenShear3.o lambdaInit.o
 test_addSingleOseen: test_addSingleOseen.o lambdaInit.o floodFill.o
 	$(CC) -o bin/test_addSingleOseen obj/test_addSingleOseen.o obj/floodFill.o obj/lambdaInit.o $(LIBS)
 
+test_addUSingleOseen: test_addUSingleOseen.o lambdaInit.o floodFill.o stencilManip.o
+	$(CC) -o bin/test_addUSingleOseen obj/test_addUSingleOseen.o obj/floodFill.o obj/lambdaInit.o obj/stencilManip.o $(LIBS)
+
 test_genLOseenUniformList: test_genLOseenUniformList.o mt64.o vortexGen.o
 	$(CC) -o bin/test_genLOseenUniformList obj/test_genLOseenUniformList.o obj/mt64.o obj/vortexGen.o $(LIBS)
 
@@ -157,6 +160,9 @@ test_lambOseenShear3.o: src/tests/test_lambOseenShear3.c src/floodFill.h src/lam
 
 test_addSingleOseen.o: src/tests/test_addSingleOseen.c src/floodFill.h src/lambdaInit.h
 	$(CC) $(CFLAGS) src/tests/test_addSingleOseen.c -o obj/test_addSingleOseen.o
+
+test_addUSingleOseen.o: src/tests/test_addUSingleOseen.c src/floodFill.h src/lambdaInit.h src/stencilManip.h
+	$(CC) $(CFLAGS) src/tests/test_addUSingleOseen.c -o obj/test_addUSingleOseen.o
 
 test_genLOseenUniformList.o: src/tests/test_genLOseenUniformList.c 
 	$(CC) $(CFLAGS) src/tests/test_genLOseenUniformList.c -o obj/test_genLOseenUniformList.o

@@ -7,6 +7,9 @@ int gradUtoLamb(int Height,int Width, float *gField,float **sFieldOut);
 int addSingleOseen(int nVortex,float *parVortex, float *x0, float *dx, 
                    int Height,int Width, float **gFieldOut);
 
+int addUSingleOseen(int nVortex,float *parVortex, float *x0, float *dx, 
+                    int Height,int Width, float **uFieldOut);
+
 int addConstXYShear(float *x0, float *dx,
 	                int Height,int Width, 
 	                float v0y0,float **gFieldOut);

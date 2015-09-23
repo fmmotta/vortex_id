@@ -44,7 +44,8 @@ int main(int argc,char** argv){
 
   if(uFile==NULL || pFile==NULL || nFile==NULL){
     printf("problems opening the files\n"); 
-    return 1;}
+    return 1;
+  }
 
   for(i=0;i<Npre;i++)
     fgets(buffer,1024,uFile);
