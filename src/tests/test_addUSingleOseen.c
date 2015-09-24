@@ -11,7 +11,7 @@ int main(int argc,char **argv){
   int i,j,err,ngbr,found,type=0;
   int nbList[8],label[Width*Height],eqList[Pop],**eqClass;
   float parVortex[4*nVortex],x0[2],dx[2],xf[2],*sField=NULL;
-  float *gField=NULL,*uField=NULL,X[Width],Y[Height];
+  float *gField=NULL,*g2Field,*uField=NULL,X[Width],Y[Height];
   float x,y,v0y0 = 0.0;
 
   eqClass=(int**)malloc(NumCls*sizeof(int*));
@@ -36,6 +36,14 @@ int main(int argc,char **argv){
   for(i=0;i<4*Height*Width;i+=1)
     gField[i]=0.;
 
+  g2Field = (float *)malloc(4*Height*Width*sizeof(float));
+  if(g2Field==NULL){
+    printf("memory not allocked\n");
+    return 1;
+  }
+  for(i=0;i<4*Height*Width;i+=1)
+    g2Field[i]=0.;
+
   uField = (float *)malloc(2*Height*Width*sizeof(float));
   if(uField==NULL){
     printf("memory not allocked\n");
@@ -50,15 +58,15 @@ int main(int argc,char **argv){
   for(i=0;i<Height;i+=1)
     Y[i] = x0[1] + i*dx[1];
 
-  //err = addSingleOseen(nVortex,parVortex,x0,dx,Height,Width,&gField);
-  //if(err!=0)
-  //  printf("Problems in addSingleOseen\n");
+  err = addSingleOseen(nVortex,parVortex,x0,dx,Height,Width,&g2Field);
+  if(err!=0)
+    printf("Problems in addSingleOseen\n");
 
   err = addUSingleOseen(nVortex,parVortex,x0,dx,Height,Width,&uField);
   if(err!=0)
     printf("Problems in addUSingleOseen\n");
   
-  err = UToGradnonUnifFrame(Height,Width,type,x0,dx,X,Y,uField,gField);
+  err = UToGradUnUnifFullFrame(Height,Width,type,x0,dx,X,Y,uField,gField);
   if(err!=0)
     printf("Problems in uFieldToGradUopenFOAM\n");
 
@@ -81,8 +89,8 @@ int main(int argc,char **argv){
     dadosout=fopen("data/initULambOseen2D-0.txt","w");
     for(i=0;i<Height;i+=1)
       for(j=0;j<Width;j+=1){
-        x = x0[0] + i*dx[0];
-        y = x0[1] + j*dx[1];
+        y = x0[0] + i*dx[0];
+        x = x0[1] + j*dx[1];
         
         fprintf(dadosout,"%f %f %f\n",x,y,sField[i*Width+j]);
       }
@@ -92,8 +100,8 @@ int main(int argc,char **argv){
     dadosout=fopen("data/labelULambOseen2D-0.txt","w");
     for(i=0;i<Height;i+=1){
       for(j=0;j<Width;j+=1){
-        x = x0[0] + i*dx[0];
-        y = x0[1] + j*dx[1];
+        y = x0[0] + i*dx[0];
+        x = x0[1] + j*dx[1];
         
         fprintf(dadosout,"%f %f %2d \n",x,y,label[i*Width+j]+1);
       }
@@ -105,8 +113,8 @@ int main(int argc,char **argv){
     dadosout=fopen("data/uULambOseen2D-0.txt","w");
     for(i=0;i<Height;i+=1){
       for(j=0;j<Width;j+=1){
-        x = x0[0] + i*dx[0];
-        y = x0[1] + j*dx[1];
+        y = x0[0] + i*dx[0];
+        x = x0[1] + j*dx[1];
         
         fprintf(dadosout,"%f %f %f %f \n",x,y,
                                           uField[2*(i*Width+j)+0],
@@ -119,14 +127,18 @@ int main(int argc,char **argv){
     dadosout=fopen("data/gUField-0.txt","w");
     for(i=0;i<Height;i+=1){
       for(j=0;j<Width;j+=1){
-        x = x0[0] + i*dx[0];
-        y = x0[1] + j*dx[1];
+        y = x0[0] + i*dx[0];
+        x = x0[1] + j*dx[1];
         
-        fprintf(dadosout,"%f %f %f %f %f %f\n",x,y,
+        fprintf(dadosout,"%f %f %f %f %f %f ",x,y,
                                           gField[4*(i*Width+j)+0],
                                           gField[4*(i*Width+j)+1],
                                           gField[4*(i*Width+j)+2],
                                           gField[4*(i*Width+j)+3]);
+        fprintf(dadosout,"%f %f %f %f\n", g2Field[4*(i*Width+j)+0],
+                                          g2Field[4*(i*Width+j)+1],
+                                          g2Field[4*(i*Width+j)+2],
+                                          g2Field[4*(i*Width+j)+3]);
       }
     }
     fclose(dadosout);

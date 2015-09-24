@@ -495,8 +495,8 @@ int fprintsField(FILE *dadosout,float *x0,float *dx,
 
   for(i=0;i<Height;i+=1)
     for(j=0;j<Width;j+=1){
-      x = x0[0] + i*dx[0];
-      y = x0[1] + j*dx[1];
+      y = x0[0] + i*dx[0];
+      x = x0[1] + j*dx[1];
 
       fprintf(dadosout,"%f %f %f\n",x,y,sField[i*Width+j]);
     }  
@@ -514,8 +514,8 @@ int fprintLabels(FILE *dadosout,float *x0,float *dx,
 
   for(i=0;i<Height;i+=1)
     for(j=0;j<Width;j+=1){
-      x = x0[0] + i*dx[0];
-      y = x0[1] + j*dx[1];
+      y = x0[0] + i*dx[0];
+      x = x0[1] + j*dx[1];
 
       fprintf(dadosout,"%f %f %d\n",x,y,label[i*Width+j]);
     }  

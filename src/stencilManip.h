@@ -6,5 +6,8 @@ int uFieldToGradUopenFOAM(int Height,int Width,int type,float *x0,float *dx,
 int UToGradUuniformTorus(int Height,int Width,int type,float *x0,float *dx,
                          float *X,float *Y, float *uField, float *gField);
 
-int UToGradnonUnifFrame(int Height,int Width,int type,float *x0,float *dx,
-                        float *X,float *Y, float *uField, float *gField);
+int UToGradUnonUnifFrame(int Height,int Width,int type,float *x0,float *dx,
+                         float *X,float *Y, float *uField, float *gField);
+
+int UToGradUnUnifFullFrame(int Height,int Width,int type,float *x0,float *dx,
+                           float *X,float *Y, float *uField, float *gField);

@@ -69,8 +69,8 @@ int vortexExtraction(int Height,int Width, int nCnect,
         gradU[1][0] = gField[4*(i*Width+j)+2];
         gradU[1][1] = gField[4*(i*Width+j)+3];
         
-        x = x0[0] + i*dx[0]; // future : change x and y
-        y = x0[1] + j*dx[1]; // future : change x and y
+        y = x0[0] + i*dx[0]; // future : change x and y
+        x = x0[1] + j*dx[1]; // future : change x and y
 
         // I think that here is the factor of 1/2 
         // that was missing from my calculation
@@ -369,8 +369,8 @@ int vortexExtTreshold(int Height,int Width, int nCnect,float theta,
         gradU[1][0] = gField[4*(i*Width+j)+2];
         gradU[1][1] = gField[4*(i*Width+j)+3];
         
-        x = x0[0] + i*dx[0]; // future : change x and y
-        y = x0[1] + j*dx[1]; // future : change x and y
+        y = x0[0] + i*dx[0]; // future : change x and y
+        x = x0[1] + j*dx[1]; // future : change x and y
 
         A[k] += dx[0]*dx[1];
         w[k] += ( gradU[1][0]-gradU[0][1] )*dx[0]*dx[1];
@@ -459,8 +459,8 @@ int vortexExt2ndSwirl(int Height,int Width, int nCnect,
         gradU[1][0] = gField[4*(i*Width+j)+2];
         gradU[1][1] = gField[4*(i*Width+j)+3];
         
-        x = x0[0] + i*dx[0]; // change x and y
-        y = x0[1] + j*dx[1]; // change x and y
+        y = x0[0] + i*dx[0]; // change x and y
+        x = x0[1] + j*dx[1]; // change x and y
 
         A[k] += dx[0]*dx[1];
         w[k] += ( gradU[1][0]-gradU[0][1] )*dx[0]*dx[1];

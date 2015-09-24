@@ -204,23 +204,7 @@ int UToGradUuniformTorus(int Height,int Width,int type,float *x0,float *dx,
     return -6;
 
   for(i=0;i<Height;i+=1)
-    for(j=0;j<Width;j+=1){
-      ip = (i-1+Height)%Height; jp = j;
-      um = uField[ 2*(ip*Width+jp) + 0 ];
-      vm = uField[ 2*(ip*Width+jp) + 1 ];
-      
-      ip = i; jp = j;
-      u0 = uField[ 2*(ip*Width+jp) + 0 ];
-      v0 = uField[ 2*(ip*Width+jp) + 1 ];
-
-      ip = (i+1)%Height; jp = j;
-      up = uField[ 2*(ip*Width+jp) + 0 ];
-      vp = uField[ 2*(ip*Width+jp) + 1 ];
-
-      // x-derivatives
-      gField[4*(i*Width+j)+0] = (up-um)/(2.*dx[0]);
-      gField[4*(i*Width+j)+2] = (vp-vm)/(2.*dx[0]);
-      
+    for(j=0;j<Width;j+=1){      
 
       ip = i; jp = (j-1+Width)%Width;
       um = uField[ 2*(ip*Width+jp) + 0 ];
@@ -235,6 +219,22 @@ int UToGradUuniformTorus(int Height,int Width,int type,float *x0,float *dx,
       vp = uField[ 2*(ip*Width+jp) + 1 ];
 
       // x-derivatives
+      gField[4*(i*Width+j)+0] = (up-um)/(2.*dx[0]);
+      gField[4*(i*Width+j)+2] = (vp-vm)/(2.*dx[0]);
+
+      ip = (i-1+Height)%Height; jp = j;
+      um = uField[ 2*(ip*Width+jp) + 0 ];
+      vm = uField[ 2*(ip*Width+jp) + 1 ];
+      
+      ip = i; jp = j;
+      u0 = uField[ 2*(ip*Width+jp) + 0 ];
+      v0 = uField[ 2*(ip*Width+jp) + 1 ];
+
+      ip = (i+1)%Height; jp = j;
+      up = uField[ 2*(ip*Width+jp) + 0 ];
+      vp = uField[ 2*(ip*Width+jp) + 1 ];
+
+      // x-derivatives
       gField[4*(i*Width+j)+1] = (up-um)/(2.*dx[1]);
       gField[4*(i*Width+j)+3] = (vp-vm)/(2.*dx[1]);
     }
@@ -242,8 +242,8 @@ int UToGradUuniformTorus(int Height,int Width,int type,float *x0,float *dx,
   return 0;
 }
 
-int UToGradnonUnifFrame(int Height,int Width,int type,float *x0,float *dx,
-                        float *X,float *Y, float *uField, float *gField){
+int UToGradUnonUnifFrame(int Height,int Width,int type,float *x0,float *dx,
+                         float *X,float *Y, float *uField, float *gField){
   int i,j,ip,jp;
   float um,u0,up,vm,v0,vp;
   float ax,ay,bx,by;
@@ -262,14 +262,17 @@ int UToGradnonUnifFrame(int Height,int Width,int type,float *x0,float *dx,
   if(Y==NULL)
     return -6;
 
+  // Why this disposition works, it shouldn't work....
+  // maybe is of that 'future' clauses that should be modified
+
   for(i=1;i<Height-1;i+=1)
     for(j=1;j<Width-1;j+=1){
       ay = Y[i]-Y[i-1];
       by = Y[i+1]-Y[i];
       ax = X[j]-X[j-1];
       bx = X[j+1]-X[j];
-
-      ip = (i-1+Height)%Height; jp = j;
+      
+      ip = i; jp = (j-1+Width)%Width;
       um = uField[ 2*(ip*Width+jp) + 0 ];
       vm = uField[ 2*(ip*Width+jp) + 1 ];
       
@@ -277,7 +280,7 @@ int UToGradnonUnifFrame(int Height,int Width,int type,float *x0,float *dx,
       u0 = uField[ 2*(ip*Width+jp) + 0 ];
       v0 = uField[ 2*(ip*Width+jp) + 1 ];
 
-      ip = (i+1)%Height; jp = j;
+      ip = i; jp = (j+1)%Width;
       up = uField[ 2*(ip*Width+jp) + 0 ];
       vp = uField[ 2*(ip*Width+jp) + 1 ];
 
@@ -288,8 +291,8 @@ int UToGradnonUnifFrame(int Height,int Width,int type,float *x0,float *dx,
       // x-derivatives
       gField[4*(i*Width+j)+0] = cm*um + c0*u0 + cp*up;
       gField[4*(i*Width+j)+2] = cm*vm + c0*v0 + cp*vp;
-
-      ip = i; jp = (j-1+Width)%Width;
+      
+      ip = (i-1+Height)%Height; jp = j;
       um = uField[ 2*(ip*Width+jp) + 0 ];
       vm = uField[ 2*(ip*Width+jp) + 1 ];
       
@@ -297,7 +300,7 @@ int UToGradnonUnifFrame(int Height,int Width,int type,float *x0,float *dx,
       u0 = uField[ 2*(ip*Width+jp) + 0 ];
       v0 = uField[ 2*(ip*Width+jp) + 1 ];
 
-      ip = i; jp = (j+1)%Width;
+      ip = (i+1)%Height; jp = j;
       up = uField[ 2*(ip*Width+jp) + 0 ];
       vp = uField[ 2*(ip*Width+jp) + 1 ];
       
@@ -312,3 +315,174 @@ int UToGradnonUnifFrame(int Height,int Width,int type,float *x0,float *dx,
 
   return 0;
 } 
+
+
+int UToGradUnUnifFullFrame(int Height,int Width,int type,float *x0,float *dx,
+                           float *X,float *Y, float *uField, float *gField){
+  int i,j,ip,jp;
+  float um,u0,up,vm,v0,vp;
+  float ax,ay,bx,by;
+  float cp,c0,cm;
+  
+  if(Width<0 || Height<0)
+    return -1;
+  if(dx==NULL)
+    return -2;
+  if(uField==NULL)
+    return -3;
+  if(gField==NULL)
+    return -4;
+  if(X==NULL)
+    return -5;
+  if(Y==NULL)
+    return -6;
+
+  for(i=1;i<Height-1;i+=1){
+    j=0;
+    {
+      ay = Y[i]-Y[i-1];
+      by = Y[i+1]-Y[i];
+      
+      ax = X[j+1]-X[j];
+      bx = X[j+2]-X[j];
+      
+      ip = i; jp = j;
+      u0 = uField[ 2*(ip*Width+jp) + 0 ];
+      v0 = uField[ 2*(ip*Width+jp) + 1 ];
+
+      ip = i; jp = j+1;
+      um = uField[ 2*(ip*Width+jp) + 0 ];
+      vm = uField[ 2*(ip*Width+jp) + 1 ];
+
+      ip = i; jp = j+2;
+      up = uField[ 2*(ip*Width+jp) + 0 ];
+      vp = uField[ 2*(ip*Width+jp) + 1 ];
+
+      c0 = -(ax+bx)/(ax*bx);
+      cm =  bx/(ax*(bx-ax));
+      cp = -ax/(bx*(bx-ax));
+
+      // x-derivatives
+      gField[4*(i*Width+j)+0] = c0*u0 + cm*um + cp*up;
+      gField[4*(i*Width+j)+2] = c0*v0 + cm*vm + cp*vp;
+
+      ip = (i-1+Height)%Height; jp = j;
+      um = uField[ 2*(ip*Width+jp) + 0 ];
+      vm = uField[ 2*(ip*Width+jp) + 1 ];
+      
+      ip = i; jp = j;
+      u0 = uField[ 2*(ip*Width+jp) + 0 ];
+      v0 = uField[ 2*(ip*Width+jp) + 1 ];
+
+      ip = (i+1)%Height; jp = j;
+      up = uField[ 2*(ip*Width+jp) + 0 ];
+      vp = uField[ 2*(ip*Width+jp) + 1 ];
+      
+      cm = - by/(ay*(ay+by));
+      c0 =   (by-ay)/(ay*by);
+      cp =   ay/(by*(ay+by));
+
+      // y-derivatives
+      gField[4*(i*Width+j)+1] = cm*um + c0*u0 + cp*up;
+      gField[4*(i*Width+j)+3] = cm*vm + c0*v0 + cp*vp;
+    }
+
+    for(j=1;j<Width-1;j+=1){
+      ay = Y[i]-Y[i-1];
+      by = Y[i+1]-Y[i];
+      ax = X[j]-X[j-1];
+      bx = X[j+1]-X[j];
+
+      ip = i; jp = (j-1+Width)%Width;
+      um = uField[ 2*(ip*Width+jp) + 0 ];
+      vm = uField[ 2*(ip*Width+jp) + 1 ];
+      
+      ip = i; jp = j;
+      u0 = uField[ 2*(ip*Width+jp) + 0 ];
+      v0 = uField[ 2*(ip*Width+jp) + 1 ];
+
+      ip = i; jp = (j+1)%Width;
+      up = uField[ 2*(ip*Width+jp) + 0 ];
+      vp = uField[ 2*(ip*Width+jp) + 1 ];
+
+      cm = - bx/(ax*(ax+bx));
+      c0 =   (bx-ax)/(ax*bx);
+      cp =   ax/(bx*(ax+bx));
+
+      // x-derivatives
+      gField[4*(i*Width+j)+0] = cm*um + c0*u0 + cp*up;
+      gField[4*(i*Width+j)+2] = cm*vm + c0*v0 + cp*vp;
+
+      ip = (i-1+Height)%Height; jp = j;
+      um = uField[ 2*(ip*Width+jp) + 0 ];
+      vm = uField[ 2*(ip*Width+jp) + 1 ];
+      
+      ip = i; jp = j;
+      u0 = uField[ 2*(ip*Width+jp) + 0 ];
+      v0 = uField[ 2*(ip*Width+jp) + 1 ];
+
+      ip = (i+1)%Height; jp = j;
+      up = uField[ 2*(ip*Width+jp) + 0 ];
+      vp = uField[ 2*(ip*Width+jp) + 1 ];
+      
+      cm = - by/(ay*(ay+by));
+      c0 =   (by-ay)/(ay*by);
+      cp =   ay/(by*(ay+by));
+
+      // y-derivatives
+      gField[4*(i*Width+j)+1] = cm*um + c0*u0 + cp*up;
+      gField[4*(i*Width+j)+3] = cm*vm + c0*v0 + cp*vp;
+    }
+
+    j=Width-1;
+    {
+      ay = Y[i]-Y[i-1];
+      by = Y[i+1]-Y[i];
+      
+      ax = X[j]-X[j-1];
+      bx = X[j]-X[j-2];
+      
+      ip = i; jp = j;
+      u0 = uField[ 2*(ip*Width+jp) + 0 ];
+      v0 = uField[ 2*(ip*Width+jp) + 1 ];
+
+      ip = i; jp = j-1;
+      um = uField[ 2*(ip*Width+jp) + 0 ];
+      vm = uField[ 2*(ip*Width+jp) + 1 ];
+
+      ip = i; jp = j-2;
+      up = uField[ 2*(ip*Width+jp) + 0 ];
+      vp = uField[ 2*(ip*Width+jp) + 1 ];
+
+      c0 = (ax+bx)/(ax*bx);
+      cm = - bx/(ax*(bx-ax));
+      cp =  ax/(bx*(bx-ax));
+
+      // x-derivatives
+      gField[4*(i*Width+j)+0] = c0*u0 + cm*um + cp*up;
+      gField[4*(i*Width+j)+2] = c0*v0 + cm*vm + cp*vp;
+
+      ip = (i-1+Height)%Height; jp = j;
+      um = uField[ 2*(ip*Width+jp) + 0 ];
+      vm = uField[ 2*(ip*Width+jp) + 1 ];
+      
+      ip = i; jp = j;
+      u0 = uField[ 2*(ip*Width+jp) + 0 ];
+      v0 = uField[ 2*(ip*Width+jp) + 1 ];
+
+      ip = (i+1)%Height; jp = j;
+      up = uField[ 2*(ip*Width+jp) + 0 ];
+      vp = uField[ 2*(ip*Width+jp) + 1 ];
+      
+      cm = - by/(ay*(ay+by));
+      c0 =   (by-ay)/(ay*by);
+      cp =   ay/(by*(ay+by));
+
+      // y-derivatives
+      gField[4*(i*Width+j)+1] = cm*um + c0*u0 + cp*up;
+      gField[4*(i*Width+j)+3] = cm*vm + c0*v0 + cp*vp;
+    }
+  }
+
+  return 0;
+}
