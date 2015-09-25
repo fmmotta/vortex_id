@@ -101,6 +101,12 @@ test_vortexExtRecursive: test_vortexExtRecursive.o lambdaInit.o floodFill.o vort
 test_vortexIdHandler: test_vortexIdHandler.o ini.o inputManager.o
 	$(CC) -o bin/test_vortexIdHandler obj/test_vortexIdHandler.o obj/ini.o obj/inputManager.o
 
+test_vortexUnifWeightedExtraction: test_vortexUnifWeightedExtraction.o floodFill.o lambdaInit.o vortexWeightedExtraction.o vortexExtraction.o
+	$(CC) -o bin/test_vortexUnifWeightedExtraction obj/test_vortexUnifWeightedExtraction.o obj/floodFill.o obj/lambdaInit.o obj/vortexWeightedExtraction.o obj/vortexExtraction.o $(LIBS)
+
+test_vortexUnifWeightedExtraction1: test_vortexUnifWeightedExtraction1.o floodFill.o lambdaInit.o vortexWeightedExtraction.o vortexExtraction.o
+	$(CC) -o bin/test_vortexUnifWeightedExtraction1 obj/test_vortexUnifWeightedExtraction1.o obj/floodFill.o obj/lambdaInit.o obj/vortexWeightedExtraction.o obj/vortexExtraction.o $(LIBS)
+
 main.o: src/main.c 
 	$(CC) $(CFLAGS) src/main.c -o obj/main.o
 
@@ -130,6 +136,9 @@ vortexGen.o: src/vortexGen.c
 
 vortexExtraction.o: src/vortexExtraction.c
 	$(CC) $(CFLAGS) src/vortexExtraction.c -o obj/vortexExtraction.o
+
+vortexWeightedExtraction.o: src/vortexWeightedExtraction.c
+	$(CC) $(CFLAGS) src/vortexWeightedExtraction.c -o obj/vortexWeightedExtraction.o
 
 mt64.o: src/mt19937-64.c src/mt64.h
 	$(CC) $(CFLAGS) src/mt19937-64.c -o obj/mt64.o
@@ -187,6 +196,12 @@ test_vortexExtraction3.o: src/tests/test_vortexExtraction3.c
 
 test_vortexExtraction4.o: src/tests/test_vortexExtraction4.c
 	$(CC) $(CFLAGS) src/tests/test_vortexExtraction4.c -o obj/test_vortexExtraction4.o
+
+test_vortexUnifWeightedExtraction.o: src/tests/test_vortexUnifWeightedExtraction.c
+	$(CC) $(CFLAGS) src/tests/test_vortexUnifWeightedExtraction.c -o obj/test_vortexUnifWeightedExtraction.o
+
+test_vortexUnifWeightedExtraction1.o: src/tests/test_vortexUnifWeightedExtraction1.c
+	$(CC) $(CFLAGS) src/tests/test_vortexUnifWeightedExtraction1.c -o obj/test_vortexUnifWeightedExtraction1.o
 
 test_vortexSingleRun.o: src/tests/test_vortexSingleRun.c
 	$(CC) $(CFLAGS) src/tests/test_vortexSingleRun.c -o obj/test_vortexSingleRun.o
