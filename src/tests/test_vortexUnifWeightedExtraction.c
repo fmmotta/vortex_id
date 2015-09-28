@@ -8,7 +8,7 @@
 #include "vortexExtraction.h"
 
 int main(int argc,char **argv){
-  const int Width = 100, Height = 100, Pop=10,nVortex=1;
+  const int Width = 200, Height = 200, Pop=10,nVortex=1;
   int i,j,err,ngbr,found,nCnect,nMax=20;
   int nbList[8],label[Width*Height],eqList[Pop],**eqClass;
   float parVortex[4*nVortex],x0[2],dx[2],xf[2],*sField=NULL,*gField;
