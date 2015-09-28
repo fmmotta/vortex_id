@@ -184,9 +184,9 @@ int gFieldTogBuff(int Height,int Width,float *X,float *Y,float *Xbuff,
   return 0;
 }
 
-int UToGradUnUnifFullFrame(int Height,int Width,int type,float *x0,float *dx,
-                           float *X,float *Y, float *uField, float *gField,
-                           float *gBuff,float *Xbuff,float *Ybuff){
+int UToGradUPadded(int Height,int Width,int type,float *x0,float *dx,
+                        float *X,float *Y, float *uField, float *gField,
+                        float *gBuff,float *Xbuff,float *Ybuff){
   int i,j,ip,jp;
   float um,u0,up,vm,v0,vp;
   float ax,ay,bx,by;
