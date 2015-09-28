@@ -129,8 +129,8 @@ int XtoXbuff(int Width,float *X,float *Xbuff,int padWidth){
   Must test this function if a lot of care
  */
 
-int gFieldTogBuff(int Height,int Width,float *X,float *Y,float *Xbuff,
-                  float *Ybuff, float *gField,float *gBuff,int padWidth)
+int uFieldTouBuff(int Height,int Width,float *X,float *Y,float *Xbuff,
+                  float *Ybuff, float *uField,float *uBuff,int padWidth)
 {
   int i,j,ip,jp;
   float um,u0,up,vm,v0,vp;
@@ -151,46 +151,64 @@ int gFieldTogBuff(int Height,int Width,float *X,float *Y,float *Xbuff,
     return 4;
   
   for(i=0;i<padWidth;i+=1){
-    for(j=0;j<padWidth;j+=1)
-      gBuff[i*(Width+2*padWidth)+j] = gField[(2*padWidth-i)*Width+(2*padWidth-j)];
-
-    for(j=padWidth;j<Width+padWidth;j+=1)
-      gBuff[i*(Width+2*padWidth)+j] = gField[(2*padWidth-i)*Width+j];
-    
-    for(j=Width+padWidth;j<Width+2*padWidth;j+=1)
-      gBuff[i*(Width+2*padWidth)+j] = gField[(2*padWidth-i)*Width+(j-3*padWidth-1)];
+    for(j=0;j<padWidth;j+=1){
+      uBuff[2*(i*(Width+2*padWidth)+j)+0] = uField[2*((2*padWidth-i)*Width+(2*padWidth-j))+0];
+      uBuff[2*(i*(Width+2*padWidth)+j)+1] = uField[2*((2*padWidth-i)*Width+(2*padWidth-j))+1];
+    }
+    for(j=padWidth;j<Width+padWidth;j+=1){
+      uBuff[2*(i*(Width+2*padWidth)+j)+0] = uField[2*((2*padWidth-i)*Width+j)+0];
+      uBuff[2*(i*(Width+2*padWidth)+j)+1] = uField[2*((2*padWidth-i)*Width+j)+1];
+    }    
+    for(j=Width+padWidth;j<Width+2*padWidth;j+=1){
+      uBuff[2*(i*(Width+2*padWidth)+j)+0] = uField[2*((2*padWidth-i)*Width+(j-3*padWidth-1))+0];
+      uBuff[2*(i*(Width+2*padWidth)+j)+1] = uField[2*((2*padWidth-i)*Width+(j-3*padWidth-1))+1];
+    }
   }
   for(i=padWidth;i<Height+padWidth;i+=1){
-    for(j=0;j<padWidth;j+=1)
-      gBuff[i*(Width+2*padWidth)+j] = gField[i*Width+(2*padWidth-j)];
-
-    for(j=padWidth;j<Width+padWidth;j+=1)
-      gBuff[i*(Width+2*padWidth)+j] = gField[i*Width+j];
-    
-    for(j=Width+padWidth;j<Width+2*padWidth;j+=1)
-      gBuff[i*(Width+2*padWidth)+j] = gField[i*Width+(j-3*padWidth-1)];
+    for(j=0;j<padWidth;j+=1){
+      uBuff[2*(i*(Width+2*padWidth)+j)+0] = uField[2*(i*Width+(2*padWidth-j))+0];
+      uBuff[2*(i*(Width+2*padWidth)+j)+1] = uField[2*(i*Width+(2*padWidth-j))+1];
+    }
+    for(j=padWidth;j<Width+padWidth;j+=1){
+      uBuff[2*(i*(Width+2*padWidth)+j)+0] = uField[2*(i*Width+j)+0];
+      uBuff[2*(i*(Width+2*padWidth)+j)+1] = uField[2*(i*Width+j)+1];
+    }    
+    for(j=Width+padWidth;j<Width+2*padWidth;j+=1){
+      uBuff[2*(i*(Width+2*padWidth)+j)+0] = uField[2*(i*Width+(j-3*padWidth-1))+0];
+      uBuff[2*(i*(Width+2*padWidth)+j)+1] = uField[2*(i*Width+(j-3*padWidth-1))+1];
+    }
   }
   for(i=Height+padWidth;i<Height+2*padWidth;i+=1){
-    for(j=0;j<padWidth;j+=1)
-      gBuff[i*(Width+2*padWidth)+j] = gField[(i-3*padWidth-1)*Width+(2*padWidth-j)];
-
-    for(j=padWidth;j<Width+padWidth;j+=1)
-      gBuff[i*(Width+2*padWidth)+j] = gField[(i-3*padWidth-1)*Width+j];
+    for(j=0;j<padWidth;j+=1){
+      uBuff[2*(i*(Width+2*padWidth)+j)+0] = uField[2*((i-3*padWidth-1)*Width+(2*padWidth-j))+0];
+      uBuff[2*(i*(Width+2*padWidth)+j)+1] = uField[2*((i-3*padWidth-1)*Width+(2*padWidth-j))+1];
+    }
+    for(j=padWidth;j<Width+padWidth;j+=1){
+      uBuff[2*(i*(Width+2*padWidth)+j)+0] = uField[2*((i-3*padWidth-1)*Width+j)+0];
+      uBuff[2*(i*(Width+2*padWidth)+j)+1] = uField[2*((i-3*padWidth-1)*Width+j)+1];
+    }
     
-    for(j=Width+padWidth;j<Width+2*padWidth;j+=1)
-      gBuff[i*(Width+2*padWidth)+j] = gField[(i-3*padWidth-1)*Width+(j-3*padWidth-1)];
+    for(j=Width+padWidth;j<Width+2*padWidth;j+=1){
+      uBuff[2*(i*(Width+2*padWidth)+j)+0] = uField[2*((i-3*padWidth-1)*Width+(j-3*padWidth-1))+0];
+      uBuff[2*(i*(Width+2*padWidth)+j)+1] = uField[2*((i-3*padWidth-1)*Width+(j-3*padWidth-1))+1];
+    }
   }
 
   return 0;
 }
 
+/*
+ Danger: I'm not sure if this direct product of stencils is valid!
+ */
 int UToGradUPadded(int Height,int Width,int type,float *x0,float *dx,
                         float *X,float *Y, float *uField, float *gField,
-                        float *gBuff,float *Xbuff,float *Ybuff){
-  int i,j,ip,jp;
-  float um,u0,up,vm,v0,vp;
-  float ax,ay,bx,by;
-  float cp,c0,cm;
+                        float *uBuff,float *Xbuff,float *Ybuff)
+{
+  const int MaskWidth=5,padWidth=2;
+  int i,j,ip,jp,ii,jj;
+  float a1,a2,a3,a4,c[MaskWidth]; // x positions and weights
+  float b1,b2,b3,b4,d[MaskWidth]; // y-positions and weights
+  float uBlock[MaskWidth][MaskWidth][2], stencil[MaskWidth][MaskWidth]; // local block and stencil
   
   if(Width<0 || Height<0)
     return -1;
@@ -205,7 +223,115 @@ int UToGradUPadded(int Height,int Width,int type,float *x0,float *dx,
   if(Y==NULL)
     return -6;
   
+  // Need to add +padWidth in order to offset the 
+  // value of the padding. the reference value is
+  // thus i+padWidth and not i alone, the same for j
+  for(i=0;i<Height;i+=1){
+    b1 = Y[i+padWidth-2] - Y[i+padWidth];
+    b2 = Y[i+padWidth-1] - Y[i+padWidth];
+    b3 = Y[i+padWidth+1] - Y[i+padWidth];
+    b4 = Y[i+padWidth+2] - Y[i+padWidth];
 
+  	for(j=0;j<Width;j+=1){
+      gField[4*(i*Width+j)+0]=0.;
+      gField[4*(i*Width+j)+1]=0.;
+      gField[4*(i*Width+j)+2]=0.;
+      gField[4*(i*Width+j)+3]=0.;
+
+      a1 = X[i+padWidth-2] - X[i+padWidth];
+      a2 = X[i+padWidth-1] - X[i+padWidth];
+      a3 = X[i+padWidth+1] - X[i+padWidth];
+      a4 = X[i+padWidth+2] - X[i+padWidth];
+
+      for(ii=0;ii<MaskWidth;ii+=1)
+      	for(jj=0;jj<MaskWidth;jj+=1){
+          uBlock[ii][jj][0] = uBuff[2*( (i+ii)*Width+(j+jj) )+0];
+          uBlock[ii][jj][1] = uBuff[2*( (i+ii)*Width+(j+jj) )+1];
+      	}
+      
+      /******************************************************************/
+
+      // \partial_x^2
+      c[2]  = a3*a4 + a2*(a3+a4) + a1*(a2+a3+a4);
+      c[2] *= 2./(a1*a2*a3*a4); // c0
+      c[0]  = a3*a4+a2*(a3+a4);
+      c[0] *= 2./(a1*(a1-a2)*(a1-a3)*(a1-a4)); // c1
+      c[1]  = a3*a4+a1*(a3+a4);
+      c[1] *= 2./(a2*(a2-a1)*(a2-a3)*(a2-a4)); // c2
+      c[3]  = a2*a4+a1*(a2+a4);
+      c[3] *= 2./(a3*(a3-a1)*(a3-a2)*(a3-a4)); // c3
+      c[4]  = a2*a3+a1*(a2+a3);
+      c[4] *= 2./(a4*(a4-a1)*(a4-a2)*(a4-a3)); // c4
+
+      // \partial_y 
+      d[2] = -1./b1 -1./b2 - (b3+b4)/(b3*b4); // d0
+      d[0] = -b2*b3*b4/(b1*(b1-b2)*(b1-b3)*(b1-b4)); // d1
+      d[1] = -b1*b3*b4/(b2*(b2-b1)*(b2-b3)*(b2-b4)); // d2
+      d[3] = -b1*b2*b4/(b3*(b3-b1)*(b3-b2)*(b3-b4)); // d3
+      d[4] = -b1*b2*b3/(b4*(b4-b1)*(b4-b2)*(b4-b3)); // d4
+
+      // \partial_x^2 \partial_y u & \partial_x^2 \partial_y^2 v      
+      for(ii=0;ii<MaskWidth;ii+=1)
+        for(jj=0;jj<MaskWidth;jj+=1){
+          gField[4*(i+Width+j)+0] +=  c[ii]*d[jj]*uBlock[ii][jj][1]; // + v_xxy
+          gField[4*(i+Width+j)+3] += -c[ii]*d[jj]*uBlock[ii][jj][1]; // - v_xxy
+          gField[4*(i+Width+j)+2] +=  c[ii]*d[jj]*uBlock[ii][jj][0]; // + u_xxy
+      	}
+      
+      /******************************************************************/
+      
+      // \partial_x 
+      c[2] = -1./a1 -1./a2 - (a3+a4)/(a3*a4); // c0
+      c[0] = -a2*a3*a4/(a1*(a1-a2)*(a1-a3)*(a1-a4)); // c1
+      c[1] = -a1*a3*a4/(a2*(a2-a1)*(a2-a3)*(a2-a4)); // c2
+      c[3] = -a1*a2*a4/(a3*(a3-a1)*(a3-a2)*(a3-a4)); // c3
+      c[4] = -a1*a2*a3/(a4*(a4-a1)*(a4-a2)*(a4-a3)); // c4
+      
+      // \partial_y^2
+      d[2]  = b3*b4 + b2*(b3+b4) + b1*(b2+b3+b4);
+      d[2] *= 2./(b1*b2*b3*b4); // d0
+      d[0]  = b3*b4+b2*(b3+b4);
+      d[0] *= 2./(b1*(b1-b2)*(b1-b3)*(b1-b4)); // d1
+      d[1]  = b3*b4+b1*(b3+b4);
+      d[1] *= 2./(b2*(b2-b1)*(b2-b3)*(b2-b4)); // d2
+      d[3]  = b2*b4+b1*(b2+b4);
+      d[3] *= 2./(b3*(b3-b1)*(b3-b2)*(b3-b4)); // d3
+      d[4]  = b2*b3+b1*(b2+b3);
+      d[4] *= 2./(b4*(b4-b1)*(b4-b2)*(b4-b3)); // d4
+      
+      // \partial_x \partial_y^2 u & \partial_x \partial_y^2 v      
+      for(ii=0;ii<MaskWidth;ii+=1)
+        for(jj=0;jj<MaskWidth;jj+=1){
+          gField[4*(i+Width+j)+0] += -c[ii]*d[jj]*uBlock[ii][jj][0]; // - u_xyy
+          gField[4*(i+Width+j)+1] +=  c[ii]*d[jj]*uBlock[ii][jj][1]; // + v_xyy
+          gField[4*(i+Width+j)+3] +=  c[ii]*d[jj]*uBlock[ii][jj][0]; // + u_xxy
+      	}
+      
+      /******************************************************************/
+      
+      // \partial_x^3 
+      c[2] = - (6.*(a1+a2+a3+a4))/(a1*a2*a3*a4);
+      c[0] = - (6.*(a2+a3+a4))/(a1*(a1-a2)*(a1-a3)*(a1-a4));
+      c[1] = - (6.*(a1+a3+a4))/(a2*(a2-a1)*(a2-a3)*(a2-a4));
+      c[3] = - (6.*(a1+a2+a4))/(a3*(a3-a1)*(a3-a2)*(a3-a4));
+      c[4] = - (6.*(a1+a2+a3))/(a4*(a4-a1)*(a4-a2)*(a4-a3));
+
+      // \partial_y^3 
+      d[2] = - (6.*(b1+b2+b3+b4))/(b1*b2*b3*b4);
+      d[0] = - (6.*(b2+b3+b4))/(b1*(b1-b2)*(b1-b3)*(b1-b4));
+      d[1] = - (6.*(b1+b3+b4))/(b2*(b2-b1)*(b2-b3)*(b2-b4));
+      d[3] = - (6.*(b1+b2+b4))/(b3*(b3-b1)*(b3-b2)*(b3-b4));
+      d[4] = - (6.*(b1+b2+b3))/(b4*(b4-b1)*(b4-b2)*(b4-b3));
+
+      // \partial_y^3 u
+      for(ii=0;ii<MaskWidth;ii+=1)
+      	gField[4*(i+Width+j)+1] += - d[ii]*uBlock[ii][padWidth][0]; // -u_yyy
+
+      // \partial_x^3 v
+      for(jj=0;jj<MaskWidth;jj+=1)
+      	gField[4*(i+Width+j)+2] += - c[jj]*uBlock[padWidth][jj][1]; // -v_xxx
+  	}
+  }
 
   return 0;
 }
