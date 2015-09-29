@@ -40,6 +40,7 @@ padWidth+1+i = 3 + 1 = 4
 1: 4 0 1 2 3
 2: 0 1 2 3 4
 3: 1 2 3 4 5
+4: 2 3 4 5 6
 ...
 
 i=202
@@ -114,7 +115,7 @@ int XtoXbuff(int Width,float *X,float *Xbuff,int padWidth){
     return 4;
 
   for(i=0;i<padWidth;i+=1)
-    Xbuff[i] = X[2*padWidth-i];
+    Xbuff[i] = X[padWidth+1+i];
 
   for(i=padWidth;i<Width+padWidth;i+=1)
     Xbuff[i] = X[i-padWidth];
@@ -139,9 +140,9 @@ int uFieldTouBuff(int Height,int Width,float *X,float *Y,float *Xbuff,
   
   if(Width<0 || Height<0)
     return -1;
-  if(gBuff==NULL)
+  if(uBuff==NULL)
     return -3;
-  if(gField==NULL)
+  if(uField==NULL)
     return -4;
   if(X==NULL)
     return -5;
@@ -152,22 +153,22 @@ int uFieldTouBuff(int Height,int Width,float *X,float *Y,float *Xbuff,
   
   for(i=0;i<padWidth;i+=1){
     for(j=0;j<padWidth;j+=1){
-      uBuff[2*(i*(Width+2*padWidth)+j)+0] = uField[2*((2*padWidth-i)*Width+(2*padWidth-j))+0];
-      uBuff[2*(i*(Width+2*padWidth)+j)+1] = uField[2*((2*padWidth-i)*Width+(2*padWidth-j))+1];
+      uBuff[2*(i*(Width+2*padWidth)+j)+0] = uField[2*((padWidth+1+i)*Width+(padWidth+1+j))+0];
+      uBuff[2*(i*(Width+2*padWidth)+j)+1] = uField[2*((padWidth+1+i)*Width+(padWidth+1+j))+1];
     }
     for(j=padWidth;j<Width+padWidth;j+=1){
-      uBuff[2*(i*(Width+2*padWidth)+j)+0] = uField[2*((2*padWidth-i)*Width+j)+0];
-      uBuff[2*(i*(Width+2*padWidth)+j)+1] = uField[2*((2*padWidth-i)*Width+j)+1];
+      uBuff[2*(i*(Width+2*padWidth)+j)+0] = uField[2*((padWidth+1+i)*Width+j)+0];
+      uBuff[2*(i*(Width+2*padWidth)+j)+1] = uField[2*((padWidth+1+i)*Width+j)+1];
     }    
     for(j=Width+padWidth;j<Width+2*padWidth;j+=1){
-      uBuff[2*(i*(Width+2*padWidth)+j)+0] = uField[2*((2*padWidth-i)*Width+(j-3*padWidth-1))+0];
-      uBuff[2*(i*(Width+2*padWidth)+j)+1] = uField[2*((2*padWidth-i)*Width+(j-3*padWidth-1))+1];
+      uBuff[2*(i*(Width+2*padWidth)+j)+0] = uField[2*((padWidth+1+i)*Width+(j-3*padWidth-1))+0];
+      uBuff[2*(i*(Width+2*padWidth)+j)+1] = uField[2*((padWidth+1+i)*Width+(j-3*padWidth-1))+1];
     }
   }
   for(i=padWidth;i<Height+padWidth;i+=1){
     for(j=0;j<padWidth;j+=1){
-      uBuff[2*(i*(Width+2*padWidth)+j)+0] = uField[2*(i*Width+(2*padWidth-j))+0];
-      uBuff[2*(i*(Width+2*padWidth)+j)+1] = uField[2*(i*Width+(2*padWidth-j))+1];
+      uBuff[2*(i*(Width+2*padWidth)+j)+0] = uField[2*(i*Width+(padWidth+1+j))+0];
+      uBuff[2*(i*(Width+2*padWidth)+j)+1] = uField[2*(i*Width+(padWidth+1+j))+1];
     }
     for(j=padWidth;j<Width+padWidth;j+=1){
       uBuff[2*(i*(Width+2*padWidth)+j)+0] = uField[2*(i*Width+j)+0];
@@ -180,8 +181,8 @@ int uFieldTouBuff(int Height,int Width,float *X,float *Y,float *Xbuff,
   }
   for(i=Height+padWidth;i<Height+2*padWidth;i+=1){
     for(j=0;j<padWidth;j+=1){
-      uBuff[2*(i*(Width+2*padWidth)+j)+0] = uField[2*((i-3*padWidth-1)*Width+(2*padWidth-j))+0];
-      uBuff[2*(i*(Width+2*padWidth)+j)+1] = uField[2*((i-3*padWidth-1)*Width+(2*padWidth-j))+1];
+      uBuff[2*(i*(Width+2*padWidth)+j)+0] = uField[2*((i-3*padWidth-1)*Width+(padWidth+1+j))+0];
+      uBuff[2*(i*(Width+2*padWidth)+j)+1] = uField[2*((i-3*padWidth-1)*Width+(padWidth+1+j))+1];
     }
     for(j=padWidth;j<Width+padWidth;j+=1){
       uBuff[2*(i*(Width+2*padWidth)+j)+0] = uField[2*((i-3*padWidth-1)*Width+j)+0];

@@ -44,6 +44,9 @@ test_lambOseenShear2: floodFill.o test_lambOseenShear2.o lambdaInit.o
 test_lambOseenShear3: floodFill.o test_lambOseenShear3.o lambdaInit.o
 	$(CC) -o bin/test_lambOseenShear3 obj/test_lambOseenShear3.o obj/floodFill.o obj/lambdaInit.o $(LIBS)
 
+test_lambOseenNSecGrad: floodFill.o test_lambOseenNSecGrad.o lambdaInit.o stencilExtended.o
+	$(CC) -o bin/test_lambOseenNSecGrad obj/test_lambOseenNSecGrad.o obj/floodFill.o obj/lambdaInit.o obj/stencilExtended.o $(LIBS)
+
 test_addSingleOseen: test_addSingleOseen.o lambdaInit.o floodFill.o
 	$(CC) -o bin/test_addSingleOseen obj/test_addSingleOseen.o obj/floodFill.o obj/lambdaInit.o $(LIBS)
 
@@ -152,6 +155,9 @@ inputManager.o: src/inputManager.c
 stencilManip.o: src/stencilManip.c
 	$(CC) $(CFLAGS) src/stencilManip.c -o obj/stencilManip.o
 
+stencilExtended.o: src/stencilExtended.c
+	$(CC) $(CFLAGS) src/stencilExtended.c -o obj/stencilExtended.o
+
 test_floodFill.o: src/tests/test_floodFill.c src/floodFill.h
 	$(CC) $(CFLAGS) src/tests/test_floodFill.c -o obj/test_floodFill.o
 
@@ -166,6 +172,9 @@ test_lambOseenShear2.o: src/tests/test_lambOseenShear2.c src/floodFill.h src/lam
 
 test_lambOseenShear3.o: src/tests/test_lambOseenShear3.c src/floodFill.h src/lambdaInit.h
 	$(CC) $(CFLAGS) src/tests/test_lambOseenShear3.c -o obj/test_lambOseenShear3.o
+
+test_lambOseenNSecGrad.o: src/tests/test_lambOseenNSecGrad.c src/floodFill.h src/lambdaInit.h
+	$(CC) $(CFLAGS) src/tests/test_lambOseenNSecGrad.c -o obj/test_lambOseenNSecGrad.o
 
 test_addSingleOseen.o: src/tests/test_addSingleOseen.c src/floodFill.h src/lambdaInit.h
 	$(CC) $(CFLAGS) src/tests/test_addSingleOseen.c -o obj/test_addSingleOseen.o
