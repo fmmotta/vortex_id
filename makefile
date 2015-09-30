@@ -110,6 +110,12 @@ test_vortexUnifWeightedExtraction: test_vortexUnifWeightedExtraction.o floodFill
 test_vortexUnifWeightedExtraction1: test_vortexUnifWeightedExtraction1.o floodFill.o lambdaInit.o vortexWeightedExtraction.o vortexExtraction.o
 	$(CC) -o bin/test_vortexUnifWeightedExtraction1 obj/test_vortexUnifWeightedExtraction1.o obj/floodFill.o obj/lambdaInit.o obj/vortexWeightedExtraction.o obj/vortexExtraction.o $(LIBS)
 
+test_XtoXbuff: test_XtoXbuff.o stencilExtended.o 
+	$(CC) -o bin/test_XtoXbuff obj/test_XtoXbuff.o obj/stencilExtended.o $(LIBS)
+
+test_uFieldTouBuff: test_uFieldTouBuff.o stencilExtended.o 
+	$(CC) -o bin/test_uFieldTouBuff obj/test_uFieldTouBuff.o obj/stencilExtended.o $(LIBS)
+
 main.o: src/main.c 
 	$(CC) $(CFLAGS) src/main.c -o obj/main.o
 
@@ -238,6 +244,12 @@ test_vortexExtRecursive.o: src/tests/test_vortexExtRecursive.c
 
 test_vortexIdHandler.o: src/tests/test_vortexIdHandler.c
 	$(CC) $(CFLAGS) src/tests/test_vortexIdHandler.c -o obj/test_vortexIdHandler.o
+
+test_XtoXbuff.o: src/tests/test_XtoXbuff.c
+	$(CC) $(CFLAGS) src/tests/test_XtoXbuff.c -o obj/test_XtoXbuff.o
+
+test_uFieldTouBuff.o: src/tests/test_uFieldTouBuff.c
+	$(CC) $(CFLAGS) src/tests/test_uFieldTouBuff.c -o obj/test_uFieldTouBuff.o
 
 clean:
 	rm bin/* obj/* data/*.txt data/*.tex data/*.eps data/*.pdf data/*.aux data/*.log

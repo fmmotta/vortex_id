@@ -8,11 +8,11 @@
 
 int main(int argc,char **argv){
   const int Width = 100, Height = 100, Pop=10,nVortex=3;
-  int i,j,err,ngbr,found;
+  int i,j,err,ngbr,found, padWidth=2;
   int nbList[8],label[Width*Height],eqList[Pop],**eqClass;
   float parVortex[4*nVortex],x0[2],dx[2],xf[2],*sField=NULL;
   float *gField=NULL,*g2Field,*uField=NULL,X[Width],Y[Height];
-  float *Xbuff=NULL,*Ybuff=NULL,*uBuff=NULL,X[Width+4],Y[Height+4];
+  float *uBuff=NULL,Xbuff[Width+4],Ybuff[Height+4];
   float x,y,v0y0 = 0.05;
 
   eqClass=(int**)malloc(NumCls*sizeof(int*));
@@ -55,6 +55,14 @@ int main(int argc,char **argv){
   for(i=0;i<2*Height*Width;i+=1)
     uField[i]=0;
 
+  uBuff = (float *)malloc(2*(Height+2*padWidth)*(Width+2*padWidth)*sizeof(float));
+  if(uBuff==NULL){
+    printf("memory not allocked\n");
+    return 1;
+  }
+  for(i=0;i<2*(Height+2*padWidth)*(Width+2*padWidth);i+=1)
+    uBuff[i]=0;
+
   for(j=0;j<Width;j+=1)
     X[j] = x0[0] + j*dx[0];
 
@@ -62,7 +70,7 @@ int main(int argc,char **argv){
     Y[i] = x0[1] + i*dx[1];
 
   err = XtoXbuff(Width,X,Xbuff,2);
-  err = YtoYbuff(Height,Y,Ybuff,2);
+  err = XtoXbuff(Height,Y,Ybuff,2);
   
   /*
   err = initOseenShear2D(nVortex,parVortex,x0,dx,Height,Width,v0y0,&sField);
@@ -74,9 +82,18 @@ int main(int argc,char **argv){
   if(err!=0)
     printf("Problems in addUSingleOseen\n");
   
+  err = uFieldTouBuff(Height,Width,uField,uBuff,padWidth);
+  if(err!=0)
+    printf("Problems in uFieldTouBuff\n");
+
+  /*
   err = UToGradUnUnifFullFrame(Height,Width,type,x0,dx,X,Y,uField,gField);
   if(err!=0)
-    printf("Problems in uFieldToGradUopenFOAM\n");
+    printf("Problems in uFieldToGradUopenFOAM\n");*/
+
+  err = UToGrad3UPadded(Height,Width,gField,uBuff,Xbuff,Ybuff);
+  if(err!=0)
+    printf("Problems in UToGrad3UPadded\n");
 
   err = gradUtoLamb(Height,Width,gField,&sField);
   if(err!=0)

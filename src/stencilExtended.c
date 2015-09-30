@@ -130,8 +130,7 @@ int XtoXbuff(int Width,float *X,float *Xbuff,int padWidth){
   Must test this function if a lot of care
  */
 
-int uFieldTouBuff(int Height,int Width,float *X,float *Y,float *Xbuff,
-                  float *Ybuff, float *uField,float *uBuff,int padWidth)
+int uFieldTouBuff(int Height,int Width,float *uField,float *uBuff,int padWidth)
 {
   int i,j,ip,jp;
   float um,u0,up,vm,v0,vp;
@@ -144,12 +143,8 @@ int uFieldTouBuff(int Height,int Width,float *X,float *Y,float *Xbuff,
     return -3;
   if(uField==NULL)
     return -4;
-  if(X==NULL)
-    return -5;
-  if(Y==NULL)
-    return -6;
   if(padWidth >= (Width/2)-2)
-    return 4;
+    return -4;
   
   for(i=0;i<padWidth;i+=1){
     for(j=0;j<padWidth;j+=1){
@@ -201,9 +196,7 @@ int uFieldTouBuff(int Height,int Width,float *X,float *Y,float *Xbuff,
 /*
  Danger: I'm not sure if this direct product of stencils is valid!
  */
-int UToGradUPadded(int Height,int Width,int type,float *x0,float *dx,
-                        float *X,float *Y, float *uField, float *gField,
-                        float *uBuff,float *Xbuff,float *Ybuff)
+int UToGrad3UPadded(int Height,int Width,float *gField,float *uBuff,float *Xbuff,float *Ybuff)
 {
   const int MaskWidth=5,padWidth=2;
   int i,j,ip,jp,ii,jj;
@@ -213,25 +206,21 @@ int UToGradUPadded(int Height,int Width,int type,float *x0,float *dx,
   
   if(Width<0 || Height<0)
     return -1;
-  if(dx==NULL)
-    return -2;
-  if(uField==NULL)
-    return -3;
   if(gField==NULL)
     return -4;
-  if(X==NULL)
+  if(Xbuff==NULL)
     return -5;
-  if(Y==NULL)
+  if(Ybuff==NULL)
     return -6;
   
   // Need to add +padWidth in order to offset the 
   // value of the padding. the reference value is
   // thus i+padWidth and not i alone, the same for j
   for(i=0;i<Height;i+=1){
-    b1 = Y[i+padWidth-2] - Y[i+padWidth];
-    b2 = Y[i+padWidth-1] - Y[i+padWidth];
-    b3 = Y[i+padWidth+1] - Y[i+padWidth];
-    b4 = Y[i+padWidth+2] - Y[i+padWidth];
+    b1 = Ybuff[i+padWidth-2] - Ybuff[i+padWidth];
+    b2 = Ybuff[i+padWidth-1] - Ybuff[i+padWidth];
+    b3 = Ybuff[i+padWidth+1] - Ybuff[i+padWidth];
+    b4 = Ybuff[i+padWidth+2] - Ybuff[i+padWidth];
 
   	for(j=0;j<Width;j+=1){
       gField[4*(i*Width+j)+0]=0.;
@@ -239,10 +228,10 @@ int UToGradUPadded(int Height,int Width,int type,float *x0,float *dx,
       gField[4*(i*Width+j)+2]=0.;
       gField[4*(i*Width+j)+3]=0.;
 
-      a1 = X[i+padWidth-2] - X[i+padWidth];
-      a2 = X[i+padWidth-1] - X[i+padWidth];
-      a3 = X[i+padWidth+1] - X[i+padWidth];
-      a4 = X[i+padWidth+2] - X[i+padWidth];
+      a1 = Xbuff[i+padWidth-2] - Xbuff[i+padWidth];
+      a2 = Xbuff[i+padWidth-1] - Xbuff[i+padWidth];
+      a3 = Xbuff[i+padWidth+1] - Xbuff[i+padWidth];
+      a4 = Xbuff[i+padWidth+2] - Xbuff[i+padWidth];
 
       for(ii=0;ii<MaskWidth;ii+=1)
       	for(jj=0;jj<MaskWidth;jj+=1){
