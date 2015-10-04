@@ -168,20 +168,19 @@ int addUSingleOseen(int nVortex,float *parVortex, float *x0, float *dx,
           v = 0.;
         }
         else if((r>0)&&(r/R<cutoff)){
-          fa = (G/(2.*M_PI*R*R))*(1.-0.5*(r/R)*(r/R));
-           u = fa*(-y);
-           v = fa*( x);
+          fa = (G/(2.*M_PI*R*R))*(1.-0.5*(r2/(R*R)));
+           u = -fa*(y-b);
+           v =  fa*(x-a);
         }
         else{
-          fa = (1.-exp(-r2/(R*R)))/(2.*M_PI*r*r);
-           u = fa*(-y);
-           v = fa*( x);
+          fa = (1.-exp(-r2/(R*R)))/(2.*M_PI*r2);
+           u = -fa*(y-b);
+           v =  fa*(x-a);
         }
+        // future : review u and v position
+        uField[2*(i*Width+j)+0] += u;
+        uField[2*(i*Width+j)+1] += v;
       }
-      
-      // future : review u and v position
-      uField[2*(i*Width+j)+0] += u;
-      uField[2*(i*Width+j)+1] += v;
     }
 
   return 0;

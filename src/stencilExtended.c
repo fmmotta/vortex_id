@@ -228,10 +228,10 @@ int UToGrad3UPadded(int Height,int Width,float *gField,float *uBuff,float *Xbuff
       gField[4*(i*Width+j)+2]=0.;
       gField[4*(i*Width+j)+3]=0.;
 
-      a1 = Xbuff[i+padWidth-2] - Xbuff[i+padWidth];
-      a2 = Xbuff[i+padWidth-1] - Xbuff[i+padWidth];
-      a3 = Xbuff[i+padWidth+1] - Xbuff[i+padWidth];
-      a4 = Xbuff[i+padWidth+2] - Xbuff[i+padWidth];
+      a1 = Xbuff[j+padWidth-2] - Xbuff[j+padWidth];
+      a2 = Xbuff[j+padWidth-1] - Xbuff[j+padWidth];
+      a3 = Xbuff[j+padWidth+1] - Xbuff[j+padWidth];
+      a4 = Xbuff[j+padWidth+2] - Xbuff[j+padWidth];
 
       for(ii=0;ii<MaskWidth;ii+=1)
       	for(jj=0;jj<MaskWidth;jj+=1){
