@@ -235,10 +235,10 @@ int UToGrad3UPadded(int Height,int Width,float *gField,float *uBuff,
       a3 = Xbuff[j+padWidth+1] - Xbuff[j+padWidth];
       a4 = Xbuff[j+padWidth+2] - Xbuff[j+padWidth];
 
-      for(ii=-padWidth;ii<padWidth;ii+=1)
-      	for(jj=-padWidth;jj<padWidth;jj+=1){
-          uBlock[ii][jj][0] = uBuff[2*( (i+ii)*Width+(j+jj) )+0];
-          uBlock[ii][jj][1] = uBuff[2*( (i+ii)*Width+(j+jj) )+1];
+      for(ii=0;ii<=2*padWidth;ii+=1)
+      	for(jj=0;jj<=2*padWidth;jj+=1){
+          uBlock[ii][jj][0] = uBuff[2*( (i+ii)*(Width+2*padWidth)+(j+jj) )+0];
+          uBlock[ii][jj][1] = uBuff[2*( (i+ii)*(Width+2*padWidth)+(j+jj) )+1];
       	}
       
       /******************************************************************/
@@ -265,9 +265,9 @@ int UToGrad3UPadded(int Height,int Width,float *gField,float *uBuff,
       // \partial_x^2 \partial_y u & \partial_x^2 \partial_y^2 v      
       for(ii=0;ii<MaskWidth;ii+=1)
         for(jj=0;jj<MaskWidth;jj+=1){
-          gField[4*(i+Width+j)+0] +=  c[ii]*d[jj]*uBlock[ii][jj][1]; // + v_xxy
-          gField[4*(i+Width+j)+3] += -c[ii]*d[jj]*uBlock[ii][jj][1]; // - v_xxy
-          gField[4*(i+Width+j)+2] +=  c[ii]*d[jj]*uBlock[ii][jj][0]; // + u_xxy
+          gField[4*(i+Width+j)+0] +=  d[ii]*c[jj]*uBlock[ii][jj][1]; // + v_xxy
+          gField[4*(i+Width+j)+3] += -d[ii]*c[jj]*uBlock[ii][jj][1]; // - v_xxy
+          gField[4*(i+Width+j)+2] +=  d[ii]*c[jj]*uBlock[ii][jj][0]; // + u_xxy
       	}
       
       /******************************************************************/
@@ -294,9 +294,9 @@ int UToGrad3UPadded(int Height,int Width,float *gField,float *uBuff,
       // \partial_x \partial_y^2 u & \partial_x \partial_y^2 v      
       for(ii=0;ii<MaskWidth;ii+=1)
         for(jj=0;jj<MaskWidth;jj+=1){
-          gField[4*(i+Width+j)+0] += -c[ii]*d[jj]*uBlock[ii][jj][0]; // - u_xyy
-          gField[4*(i+Width+j)+1] +=  c[ii]*d[jj]*uBlock[ii][jj][1]; // + v_xyy
-          gField[4*(i+Width+j)+3] +=  c[ii]*d[jj]*uBlock[ii][jj][0]; // + u_xxy
+          gField[4*(i+Width+j)+0] += -d[ii]*c[jj]*uBlock[ii][jj][0]; // - u_xyy
+          gField[4*(i+Width+j)+1] +=  d[ii]*c[jj]*uBlock[ii][jj][1]; // + v_xyy
+          gField[4*(i+Width+j)+3] +=  d[ii]*c[jj]*uBlock[ii][jj][0]; // + u_xxy
       	}
       
       /******************************************************************/

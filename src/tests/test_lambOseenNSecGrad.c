@@ -111,7 +111,7 @@ int main(int argc,char **argv){
 
   {
     FILE *dadosout;
-    dadosout=fopen("data/initLambOseen2D-3.txt","w");
+    dadosout=fopen("data/initNsecGrad-3.txt","w");
     for(i=0;i<Height;i+=1)
       for(j=0;j<Width;j+=1){
         x = x0[0] + i*dx[0];
@@ -121,7 +121,7 @@ int main(int argc,char **argv){
       }
     fclose(dadosout);dadosout=NULL;
 
-    dadosout=fopen("data/labelLambOseen2D-3.txt","w");
+    dadosout=fopen("data/labelNsecGrad-3.txt","w");
     for(i=0;i<Height;i+=1){
       for(j=0;j<Width;j+=1){
         x = x0[0] + i*dx[0];
@@ -133,7 +133,7 @@ int main(int argc,char **argv){
     }
     fclose(dadosout);
 
-    dadosout=fopen("data/uULambOseen2D-3.txt","w");
+    dadosout=fopen("data/uUNsecGrad-3.txt","w");
     for(i=0;i<Height;i+=1){
       for(j=0;j<Width;j+=1){
         y = x0[0] + i*dx[0];
@@ -147,7 +147,7 @@ int main(int argc,char **argv){
     }
     fclose(dadosout);
 
-    dadosout=fopen("data/gradNsecLambOseen2D-3.txt","w");
+    dadosout=fopen("data/gradNsecGrad-3.txt","w");
     for(i=0;i<Height;i+=1){
       for(j=0;j<Width;j+=1){
         x = x0[0] + i*dx[0];
