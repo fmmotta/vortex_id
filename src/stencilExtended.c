@@ -355,12 +355,8 @@ int UtoUx5point(int Height,int Width,float *uDel,float *uBuff,
   // Need to add +padWidth in order to offset the 
   // value of the padding. the reference value is
   // thus i+padWidth and not i alone, the same for j
+  // and the width of uBuff is Width+2*padWidth
   for(i=0;i<Height;i+=1){
-    //b1 = Ybuff[i+padWidth-2] - Ybuff[i+padWidth];
-    //b2 = Ybuff[i+padWidth-1] - Ybuff[i+padWidth];
-    //b3 = Ybuff[i+padWidth+1] - Ybuff[i+padWidth];
-    //b4 = Ybuff[i+padWidth+2] - Ybuff[i+padWidth];
-
     for(j=0;j<Width;j+=1){
       uDel[2*(i*Width+j)+0]=0.;
       uDel[2*(i*Width+j)+1]=0.;
@@ -375,13 +371,6 @@ int UtoUx5point(int Height,int Width,float *uDel,float *uBuff,
       c[2] = -1./a1 -1./a2 -1./a3 -1./a4;
       c[3] = -(a1*a2*a4)/(a3*(a3-a1)*(a3-a2)*(a3-a4));
       c[4] = -(a1*a2*a3)/(a4*(a4-a1)*(a4-a2)*(a4-a3));
-
-      /*
-      c[0] = 0.;
-      c[1] = a2/(a3*(a2-a3));
-      c[2] = -(a2+a3)/(a2*a3);
-      c[3] = a3/(a2*(a3-a2));
-      c[4] = 0.;*/
 
       uDel[2*(i*Width+j)+0] += c[0]*uBuff[2*((i+padWidth)*(Width+2*padWidth)+(j+padWidth-2))+0];
       uDel[2*(i*Width+j)+1] += c[0]*uBuff[2*((i+padWidth)*(Width+2*padWidth)+(j+padWidth-2))+1];
@@ -424,6 +413,7 @@ int UtoUy5point(int Height,int Width,float *uDel,float *uBuff,
   // Need to add +padWidth in order to offset the 
   // value of the padding. the reference value is
   // thus i+padWidth and not i alone, the same for j
+  // and the width of uBuff is Width+2*padWidth
   for(i=0;i<Height;i+=1){
     b1 = Ybuff[i+padWidth-2] - Ybuff[i+padWidth];
     b2 = Ybuff[i+padWidth-1] - Ybuff[i+padWidth];
@@ -434,23 +424,127 @@ int UtoUy5point(int Height,int Width,float *uDel,float *uBuff,
       uDel[2*(i*Width+j)+0]=0.;
       uDel[2*(i*Width+j)+1]=0.;
 
-      //a1 = Xbuff[j+padWidth-2] - Xbuff[j+padWidth];
-      //a2 = Xbuff[j+padWidth-1] - Xbuff[j+padWidth];
-      //a3 = Xbuff[j+padWidth+1] - Xbuff[j+padWidth];
-      //a4 = Xbuff[j+padWidth+2] - Xbuff[j+padWidth];
-
       d[0] = -(b2*b3*b4)/(b1*(b1-b2)*(b1-b3)*(b1-b4));
       d[1] = (b1*b3*b4)/(b2*(b1-b2)*(b2-b3)*(b2-b4));
       d[2] = -1./b1 -1./b2 -(b3+b4)/(b3*b4);
       d[3] = (b1*b2*b4)/(b3*(b1-b3)*(b3-b2)*(b3-b4));
       d[4] = (b1*b2*b3)/(b4*(b1-b4)*(b4-b2)*(b4-b3));
 
-      /*
-      d[0] = 0.;
-      d[1] = b2/(b3*(b2-b3));
-      d[2] = -(b2+b3)/(b2*b3);
-      d[3] = b3/(b2*(b3-b2));
-      d[4] = 0.;*/
+      uDel[2*(i*Width+j)+0] += d[0]*uBuff[2*((i+padWidth-2)*(Width+2*padWidth)+(j+padWidth))+0];
+      uDel[2*(i*Width+j)+1] += d[0]*uBuff[2*((i+padWidth-2)*(Width+2*padWidth)+(j+padWidth))+1];
+
+      uDel[2*(i*Width+j)+0] += d[1]*uBuff[2*((i+padWidth-1)*(Width+2*padWidth)+(j+padWidth))+0];
+      uDel[2*(i*Width+j)+1] += d[1]*uBuff[2*((i+padWidth-1)*(Width+2*padWidth)+(j+padWidth))+1];
+
+      uDel[2*(i*Width+j)+0] += d[2]*uBuff[2*((i+padWidth+0)*(Width+2*padWidth)+(j+padWidth))+0];
+      uDel[2*(i*Width+j)+1] += d[2]*uBuff[2*((i+padWidth+0)*(Width+2*padWidth)+(j+padWidth))+1];
+
+      uDel[2*(i*Width+j)+0] += d[3]*uBuff[2*((i+padWidth+1)*(Width+2*padWidth)+(j+padWidth))+0];
+      uDel[2*(i*Width+j)+1] += d[3]*uBuff[2*((i+padWidth+1)*(Width+2*padWidth)+(j+padWidth))+1];
+
+      uDel[2*(i*Width+j)+0] += d[4]*uBuff[2*((i+padWidth+2)*(Width+2*padWidth)+(j+padWidth))+0];
+      uDel[2*(i*Width+j)+1] += d[4]*uBuff[2*((i+padWidth+2)*(Width+2*padWidth)+(j+padWidth))+1];
+    }
+  }
+
+  return 0;
+}
+
+int UtoUxx5point(int Height,int Width,float *uDel,float *uBuff,
+                 float *Xbuff,float *Ybuff)
+{
+  const int MaskWidth=5,padWidth=2;
+  int i,j,ip,jp,ii,jj;
+  float a1,a2,a3,a4,c[MaskWidth]; // x positions and weights
+  
+  if(Width<0 || Height<0)
+    return -1;
+  if(uBuff==NULL)
+    return -4;
+  if(Xbuff==NULL)
+    return -5;
+  if(Ybuff==NULL)
+    return -6;
+  if(uDel==NULL)
+    return -7;
+  
+  // Need to add +padWidth in order to offset the 
+  // value of the padding. the reference value is
+  // thus i+padWidth and not i alone, the same for j
+  // and the width of uBuff is Width+2*padWidth
+  for(i=0;i<Height;i+=1){
+    for(j=0;j<Width;j+=1){
+      uDel[2*(i*Width+j)+0]=0.;
+      uDel[2*(i*Width+j)+1]=0.;
+
+      a1 = Xbuff[j+padWidth-2] - Xbuff[j+padWidth];
+      a2 = Xbuff[j+padWidth-1] - Xbuff[j+padWidth];
+      a3 = Xbuff[j+padWidth+1] - Xbuff[j+padWidth];
+      a4 = Xbuff[j+padWidth+2] - Xbuff[j+padWidth];
+      
+      c[0] = 2.*(a3*a4+a2*(a3+a4)); c[0] /= a1*(a1-a2)*(a1-a3)*(a1-a4);
+      c[1] = 2.*(a3*a4+a1*(a3+a4)); c[1] /= a2*(a2-a1)*(a2-a3)*(a2-a4);
+      c[2] = 2.*(a3*a4+a2*(a3+a4)+a1*(a2+a3+a4)); c[2] /= a1*a2*a3*a4;
+      c[3] = 2.*(a2*a4+a2*(a1+a4)); c[3] /= a3*(a3-a1)*(a3-a2)*(a3-a4);
+      c[4] = 2.*(a2*a3+a1*(a2+a3)); c[4] /= a4*(a1-a2)*(a1-a3)*(a1-a4);
+
+      uDel[2*(i*Width+j)+0] += c[0]*uBuff[2*((i+padWidth)*(Width+2*padWidth)+(j+padWidth-2))+0];
+      uDel[2*(i*Width+j)+1] += c[0]*uBuff[2*((i+padWidth)*(Width+2*padWidth)+(j+padWidth-2))+1];
+
+      uDel[2*(i*Width+j)+0] += c[1]*uBuff[2*((i+padWidth)*(Width+2*padWidth)+(j+padWidth-1))+0];
+      uDel[2*(i*Width+j)+1] += c[1]*uBuff[2*((i+padWidth)*(Width+2*padWidth)+(j+padWidth-1))+1];
+
+      uDel[2*(i*Width+j)+0] += c[2]*uBuff[2*((i+padWidth)*(Width+2*padWidth)+(j+padWidth))+0];
+      uDel[2*(i*Width+j)+1] += c[2]*uBuff[2*((i+padWidth)*(Width+2*padWidth)+(j+padWidth))+1];
+
+      uDel[2*(i*Width+j)+0] += c[3]*uBuff[2*((i+padWidth)*(Width+2*padWidth)+(j+padWidth+1))+0];
+      uDel[2*(i*Width+j)+1] += c[3]*uBuff[2*((i+padWidth)*(Width+2*padWidth)+(j+padWidth+1))+1];
+
+      uDel[2*(i*Width+j)+0] += c[4]*uBuff[2*((i+padWidth)*(Width+2*padWidth)+(j+padWidth+2))+0];
+      uDel[2*(i*Width+j)+1] += c[4]*uBuff[2*((i+padWidth)*(Width+2*padWidth)+(j+padWidth+2))+1];
+    }
+  }
+
+  return 0;
+}
+
+int UtoUyy5point(int Height,int Width,float *uDel,float *uBuff,
+                float *Xbuff,float *Ybuff)
+{
+  const int MaskWidth=5,padWidth=2;
+  int i,j,ip,jp,ii,jj;
+  float b1,b2,b3,b4,d[MaskWidth]; // x positions and weights
+  
+  if(Width<0 || Height<0)
+    return -1;
+  if(uBuff==NULL)
+    return -4;
+  if(Xbuff==NULL)
+    return -5;
+  if(Ybuff==NULL)
+    return -6;
+  if(uDel==NULL)
+    return -7;
+  
+  // Need to add +padWidth in order to offset the 
+  // value of the padding. the reference value is
+  // thus i+padWidth and not i alone, the same for j
+  // and the width of uBuff is Width+2*padWidth
+  for(i=0;i<Height;i+=1){
+    b1 = Ybuff[i+padWidth-2] - Ybuff[i+padWidth];
+    b2 = Ybuff[i+padWidth-1] - Ybuff[i+padWidth];
+    b3 = Ybuff[i+padWidth+1] - Ybuff[i+padWidth];
+    b4 = Ybuff[i+padWidth+2] - Ybuff[i+padWidth];
+
+    for(j=0;j<Width;j+=1){
+      uDel[2*(i*Width+j)+0]=0.;
+      uDel[2*(i*Width+j)+1]=0.;
+      
+      d[0] = 2.*(b3*b4+b2*(b3+b4)); d[0] /= b1*(b1-b2)*(b1-b3)*(b1-b4);
+      d[1] = 2.*(b3*b4+b1*(b3+b4)); d[1] /= b2*(b2-b1)*(b2-b3)*(b2-b4);
+      d[2] = 2.*(b3*b4+b2*(b3+b4)+b1*(b2+b3+b4)); d[2] /= b1*b2*b3*b4;
+      d[3] = 2.*(b2*b4+b2*(b1+b4)); d[3] /= b3*(b3-b1)*(b3-b2)*(b3-b4);
+      d[4] = 2.*(b2*b3+b1*(b2+b3)); d[4] /= b4*(b1-b2)*(b1-b3)*(b1-b4);
 
       uDel[2*(i*Width+j)+0] += d[0]*uBuff[2*((i+padWidth-2)*(Width+2*padWidth)+(j+padWidth))+0];
       uDel[2*(i*Width+j)+1] += d[0]*uBuff[2*((i+padWidth-2)*(Width+2*padWidth)+(j+padWidth))+1];
