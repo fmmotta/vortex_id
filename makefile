@@ -56,6 +56,9 @@ test_addUSingleOseen: test_addUSingleOseen.o lambdaInit.o floodFill.o stencilMan
 test_addUSingleOseen3: test_addUSingleOseen3.o lambdaInit.o floodFill.o stencilManip.o
 	$(CC) -o bin/test_addUSingleOseen3 obj/test_addUSingleOseen3.o obj/floodFill.o obj/lambdaInit.o obj/stencilManip.o $(LIBS)
 
+test_splitLambOseenShear3: floodFill.o test_splitLambOseenShear3.o lambdaInit.o stencilExtended.o
+	$(CC) -o bin/test_splitLambOseenShear3 obj/test_splitLambOseenShear3.o obj/floodFill.o obj/lambdaInit.o obj/stencilExtended.o $(LIBS)
+
 test_genLOseenUniformList: test_genLOseenUniformList.o mt64.o vortexGen.o
 	$(CC) -o bin/test_genLOseenUniformList obj/test_genLOseenUniformList.o obj/mt64.o obj/vortexGen.o $(LIBS)
 
@@ -193,6 +196,9 @@ test_addUSingleOseen.o: src/tests/test_addUSingleOseen.c src/floodFill.h src/lam
 
 test_addUSingleOseen3.o: src/tests/test_addUSingleOseen3.c src/floodFill.h src/lambdaInit.h src/stencilManip.h
 	$(CC) $(CFLAGS) src/tests/test_addUSingleOseen3.c -o obj/test_addUSingleOseen3.o
+
+test_splitLambOseenShear3.o: src/tests/test_splitLambOseenShear3.c src/floodFill.h src/lambdaInit.h src/stencilManip.h
+	$(CC) $(CFLAGS) src/tests/test_splitLambOseenShear3.c -o obj/test_splitLambOseenShear3.o
 
 test_genLOseenUniformList.o: src/tests/test_genLOseenUniformList.c 
 	$(CC) $(CFLAGS) src/tests/test_genLOseenUniformList.c -o obj/test_genLOseenUniformList.o
