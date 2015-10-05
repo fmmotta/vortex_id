@@ -10,3 +10,9 @@ int UtoUx5point(int Height,int Width,float *uDel,float *uBuff,
 
 int UtoUy5point(int Height,int Width,float *uDel,float *uBuff,
                 float *Xbuff,float *Ybuff);
+
+int UtoUxx5point(int Height,int Width,float *uDel,float *uBuff,
+                 float *Xbuff,float *Ybuff);
+
+int UtoUyy5point(int Height,int Width,float *uDel,float *uBuff,
+                float *Xbuff,float *Ybuff);

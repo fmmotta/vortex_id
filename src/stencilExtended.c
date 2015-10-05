@@ -214,6 +214,8 @@ int UToGrad3UPadded(int Height,int Width,float *gField,float *uBuff,
     return -5;
   if(Ybuff==NULL)
     return -6;
+  if(padWidth >= (Width/2)-2)
+    return 4;
   
   // Need to add +padWidth in order to offset the 
   // value of the padding. the reference value is
@@ -334,6 +336,9 @@ int UToGrad3UPadded(int Height,int Width,float *gField,float *uBuff,
   then 
  */
 
+/*
+ * \partial_x \vec u = (\partial_x u,\partial_x v) stencil calculation
+ */
 int UtoUx5point(int Height,int Width,float *uDel,float *uBuff,
                 float *Xbuff,float *Ybuff)
 {
@@ -351,6 +356,8 @@ int UtoUx5point(int Height,int Width,float *uDel,float *uBuff,
     return -6;
   if(uDel==NULL)
     return -7;
+  if(padWidth >= (Width/2)-2)
+    return 4;
   
   // Need to add +padWidth in order to offset the 
   // value of the padding. the reference value is
@@ -392,12 +399,15 @@ int UtoUx5point(int Height,int Width,float *uDel,float *uBuff,
   return 0;
 }
 
+/*
+ * \partial_y \vec u = (\partial_y u,\partial_y v) stencil calculation
+ */ 
 int UtoUy5point(int Height,int Width,float *uDel,float *uBuff,
                 float *Xbuff,float *Ybuff)
 {
   const int MaskWidth=5,padWidth=2;
   int i,j,ip,jp,ii,jj;
-  float b1,b2,b3,b4,d[MaskWidth]; // x positions and weights
+  float b1,b2,b3,b4,d[MaskWidth]; // y positions and weights
   
   if(Width<0 || Height<0)
     return -1;
@@ -409,6 +419,8 @@ int UtoUy5point(int Height,int Width,float *uDel,float *uBuff,
     return -6;
   if(uDel==NULL)
     return -7;
+  if(padWidth >= (Width/2)-2)
+    return 4;
   
   // Need to add +padWidth in order to offset the 
   // value of the padding. the reference value is
@@ -450,6 +462,9 @@ int UtoUy5point(int Height,int Width,float *uDel,float *uBuff,
   return 0;
 }
 
+/*
+ * \partial_xx \vec u = (\partial_xx u,\partial_xx v) stencil calculation
+ */
 int UtoUxx5point(int Height,int Width,float *uDel,float *uBuff,
                  float *Xbuff,float *Ybuff)
 {
@@ -467,6 +482,8 @@ int UtoUxx5point(int Height,int Width,float *uDel,float *uBuff,
     return -6;
   if(uDel==NULL)
     return -7;
+  if(padWidth >= (Width/2)-2)
+    return 4;
   
   // Need to add +padWidth in order to offset the 
   // value of the padding. the reference value is
@@ -508,12 +525,15 @@ int UtoUxx5point(int Height,int Width,float *uDel,float *uBuff,
   return 0;
 }
 
+/*
+ * \partial_yy \vec u = (\partial_yy u,\partial_yy v) stencil calculation
+ */
 int UtoUyy5point(int Height,int Width,float *uDel,float *uBuff,
                 float *Xbuff,float *Ybuff)
 {
   const int MaskWidth=5,padWidth=2;
   int i,j,ip,jp,ii,jj;
-  float b1,b2,b3,b4,d[MaskWidth]; // x positions and weights
+  float b1,b2,b3,b4,d[MaskWidth]; // y positions and weights
   
   if(Width<0 || Height<0)
     return -1;
@@ -525,6 +545,8 @@ int UtoUyy5point(int Height,int Width,float *uDel,float *uBuff,
     return -6;
   if(uDel==NULL)
     return -7;
+  if(padWidth >= (Width/2)-2)
+    return 4;
   
   // Need to add +padWidth in order to offset the 
   // value of the padding. the reference value is
@@ -545,6 +567,132 @@ int UtoUyy5point(int Height,int Width,float *uDel,float *uBuff,
       d[2] = 2.*(b3*b4+b2*(b3+b4)+b1*(b2+b3+b4)); d[2] /= b1*b2*b3*b4;
       d[3] = 2.*(b2*b4+b2*(b1+b4)); d[3] /= b3*(b3-b1)*(b3-b2)*(b3-b4);
       d[4] = 2.*(b2*b3+b1*(b2+b3)); d[4] /= b4*(b1-b2)*(b1-b3)*(b1-b4);
+
+      uDel[2*(i*Width+j)+0] += d[0]*uBuff[2*((i+padWidth-2)*(Width+2*padWidth)+(j+padWidth))+0];
+      uDel[2*(i*Width+j)+1] += d[0]*uBuff[2*((i+padWidth-2)*(Width+2*padWidth)+(j+padWidth))+1];
+
+      uDel[2*(i*Width+j)+0] += d[1]*uBuff[2*((i+padWidth-1)*(Width+2*padWidth)+(j+padWidth))+0];
+      uDel[2*(i*Width+j)+1] += d[1]*uBuff[2*((i+padWidth-1)*(Width+2*padWidth)+(j+padWidth))+1];
+
+      uDel[2*(i*Width+j)+0] += d[2]*uBuff[2*((i+padWidth+0)*(Width+2*padWidth)+(j+padWidth))+0];
+      uDel[2*(i*Width+j)+1] += d[2]*uBuff[2*((i+padWidth+0)*(Width+2*padWidth)+(j+padWidth))+1];
+
+      uDel[2*(i*Width+j)+0] += d[3]*uBuff[2*((i+padWidth+1)*(Width+2*padWidth)+(j+padWidth))+0];
+      uDel[2*(i*Width+j)+1] += d[3]*uBuff[2*((i+padWidth+1)*(Width+2*padWidth)+(j+padWidth))+1];
+
+      uDel[2*(i*Width+j)+0] += d[4]*uBuff[2*((i+padWidth+2)*(Width+2*padWidth)+(j+padWidth))+0];
+      uDel[2*(i*Width+j)+1] += d[4]*uBuff[2*((i+padWidth+2)*(Width+2*padWidth)+(j+padWidth))+1];
+    }
+  }
+
+  return 0;
+}
+
+/*
+ * \partial_xxx \vec u = (\partial_xxx u,\partial_xxx v) stencil calculation
+ */
+int UtoUxxx5point(int Height,int Width,float *uDel,float *uBuff,
+                 float *Xbuff,float *Ybuff)
+{
+  const int MaskWidth=5,padWidth=2;
+  int i,j,ip,jp,ii,jj;
+  float a1,a2,a3,a4,c[MaskWidth]; // x positions and weights
+  
+  if(Width<0 || Height<0)
+    return -1;
+  if(uBuff==NULL)
+    return -4;
+  if(Xbuff==NULL)
+    return -5;
+  if(Ybuff==NULL)
+    return -6;
+  if(uDel==NULL)
+    return -7;
+  if(padWidth >= (Width/2)-2)
+    return 4;
+  
+  // Need to add +padWidth in order to offset the 
+  // value of the padding. the reference value is
+  // thus i+padWidth and not i alone, the same for j
+  // and the width of uBuff is Width+2*padWidth
+  for(i=0;i<Height;i+=1){
+    for(j=0;j<Width;j+=1){
+      uDel[2*(i*Width+j)+0]=0.;
+      uDel[2*(i*Width+j)+1]=0.;
+
+      a1 = Xbuff[j+padWidth-2] - Xbuff[j+padWidth];
+      a2 = Xbuff[j+padWidth-1] - Xbuff[j+padWidth];
+      a3 = Xbuff[j+padWidth+1] - Xbuff[j+padWidth];
+      a4 = Xbuff[j+padWidth+2] - Xbuff[j+padWidth];
+      
+      c[0] = -6.*(a2+a3+a4); c[0] /= a1*(a1-a2)*(a1-a3)*(a1-a4);
+      c[1] = -6.*(a1+a3+a4); c[1] /= a2*(a2-a1)*(a2-a3)*(a2-a4);
+      c[2] = -6.*(a1+a2+a3+a4); c[2] /= a1*a2*a3*a4;
+      c[3] = -6.*(a1+a2+a4); c[3] /= a3*(a3-a1)*(a3-a2)*(a3-a4);
+      c[4] = -6.*(a1+a2+a3); c[4] /= a4*(a4-a1)*(a4-a2)*(a4-a3);
+
+      uDel[2*(i*Width+j)+0] += c[0]*uBuff[2*((i+padWidth)*(Width+2*padWidth)+(j+padWidth-2))+0];
+      uDel[2*(i*Width+j)+1] += c[0]*uBuff[2*((i+padWidth)*(Width+2*padWidth)+(j+padWidth-2))+1];
+
+      uDel[2*(i*Width+j)+0] += c[1]*uBuff[2*((i+padWidth)*(Width+2*padWidth)+(j+padWidth-1))+0];
+      uDel[2*(i*Width+j)+1] += c[1]*uBuff[2*((i+padWidth)*(Width+2*padWidth)+(j+padWidth-1))+1];
+
+      uDel[2*(i*Width+j)+0] += c[2]*uBuff[2*((i+padWidth)*(Width+2*padWidth)+(j+padWidth))+0];
+      uDel[2*(i*Width+j)+1] += c[2]*uBuff[2*((i+padWidth)*(Width+2*padWidth)+(j+padWidth))+1];
+
+      uDel[2*(i*Width+j)+0] += c[3]*uBuff[2*((i+padWidth)*(Width+2*padWidth)+(j+padWidth+1))+0];
+      uDel[2*(i*Width+j)+1] += c[3]*uBuff[2*((i+padWidth)*(Width+2*padWidth)+(j+padWidth+1))+1];
+
+      uDel[2*(i*Width+j)+0] += c[4]*uBuff[2*((i+padWidth)*(Width+2*padWidth)+(j+padWidth+2))+0];
+      uDel[2*(i*Width+j)+1] += c[4]*uBuff[2*((i+padWidth)*(Width+2*padWidth)+(j+padWidth+2))+1];
+    }
+  }
+
+  return 0;
+}
+
+/*
+ * \partial_yyy \vec u = (\partial_yyy u,\partial_yyy v) stencil calculation
+ */
+int UtoUyyy5point(int Height,int Width,float *uDel,float *uBuff,
+                float *Xbuff,float *Ybuff)
+{
+  const int MaskWidth=5,padWidth=2;
+  int i,j,ip,jp,ii,jj;
+  float b1,b2,b3,b4,d[MaskWidth]; // y positions and weights
+  
+  if(Width<0 || Height<0)
+    return -1;
+  if(uBuff==NULL)
+    return -4;
+  if(Xbuff==NULL)
+    return -5;
+  if(Ybuff==NULL)
+    return -6;
+  if(uDel==NULL)
+    return -7;
+  if(padWidth >= (Width/2)-2)
+    return 4;
+  
+  // Need to add +padWidth in order to offset the 
+  // value of the padding. the reference value is
+  // thus i+padWidth and not i alone, the same for j
+  // and the width of uBuff is Width+2*padWidth
+  for(i=0;i<Height;i+=1){
+    b1 = Ybuff[i+padWidth-2] - Ybuff[i+padWidth];
+    b2 = Ybuff[i+padWidth-1] - Ybuff[i+padWidth];
+    b3 = Ybuff[i+padWidth+1] - Ybuff[i+padWidth];
+    b4 = Ybuff[i+padWidth+2] - Ybuff[i+padWidth];
+
+    for(j=0;j<Width;j+=1){
+      uDel[2*(i*Width+j)+0]=0.;
+      uDel[2*(i*Width+j)+1]=0.;
+      
+      d[0] = -6.*(b2+b3+b4); c[0] /= b1*(b1-b2)*(b1-b3)*(b1-b4);
+      d[1] = -6.*(b1+b3+b4); c[1] /= b2*(b2-b1)*(b2-b3)*(b2-b4);
+      d[2] = -6.*(b1+b2+b3+b4); c[2] /= b1*b2*b3*b4;
+      d[3] = -6.*(b1+b2+b4); c[3] /= b3*(b3-b1)*(b3-b2)*(b3-b4);
+      d[4] = -6.*(b1+b2+b3); c[4] /= a4*(b4-b1)*(b4-b2)*(b4-b3);
 
       uDel[2*(i*Width+j)+0] += d[0]*uBuff[2*((i+padWidth-2)*(Width+2*padWidth)+(j+padWidth))+0];
       uDel[2*(i*Width+j)+1] += d[0]*uBuff[2*((i+padWidth-2)*(Width+2*padWidth)+(j+padWidth))+1];
