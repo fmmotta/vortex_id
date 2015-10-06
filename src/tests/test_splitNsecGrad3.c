@@ -17,12 +17,12 @@
                                   }                                     \
 
 int main(int argc,char **argv){
-  const int Width = 100, Height = 100, Pop=10,nVortex=3;
+  const int Width = 100, Height = 100, Pop=10,nVortex=1;
   int i,j,err,ngbr,found, padWidth=2;
   int nbList[8],label[Width*Height],eqList[Pop],**eqClass;
   float parVortex[4*nVortex],x0[2],dx[2],xf[2],*sField=NULL;
   float *gField=NULL,*g2Field=NULL,*uField=NULL,X[Width],Y[Height];
-  float *uBuff=NULL,Xbuff[Width+4],Ybuff[Height+4];
+  float *uBuff=NULL,Xbuff[Width+4],Ybuff[Height+4],*g2Ref;
   float *ux,*uy,*uxxy,*uxyy,*uxxx,*uyyy,*w;
   float x,y,v0y0 = 0.0;
 
@@ -38,13 +38,15 @@ int main(int argc,char **argv){
   x0[0]=-5.; xf[0]= 5.; dx[0] = (xf[0]-x0[0])/Height;
   x0[1]=-5.; xf[1]= 5.; dx[1] = (xf[1]-x0[1])/Width;
 
-  parVortex[0]=1.; parVortex[1]=1.; parVortex[2]=-2.; parVortex[3]=0.;
-  parVortex[4+0]=1.; parVortex[4+1]=1.; parVortex[4+2]=2.; parVortex[4+3]=0.;
-  parVortex[8+0]=1.; parVortex[8+1]=1.; parVortex[8+2]=0.; parVortex[8+3]=4.;
+  parVortex[0]=1.; parVortex[1]=1.; parVortex[2]=0.; parVortex[3]=0.;
+  //parVortex[0]=1.; parVortex[1]=1.; parVortex[2]=-2.; parVortex[3]=0.;
+  //parVortex[4+0]=1.; parVortex[4+1]=1.; parVortex[4+2]=2.; parVortex[4+3]=0.;
+  //parVortex[8+0]=1.; parVortex[8+1]=1.; parVortex[8+2]=0.; parVortex[8+3]=4.;
  
   fieldAlloc(sField ,Height*Width,float);
   fieldAlloc(gField ,4*Height*Width,float);
   fieldAlloc(g2Field,4*Height*Width,float);
+  fieldAlloc(g2Ref,4*Height*Width,float);
   fieldAlloc(uField,2*Height*Width,float);
   fieldAlloc(  ux  ,2*Height*Width,float);
   fieldAlloc(  uy  ,2*Height*Width,float);
@@ -123,13 +125,13 @@ int main(int argc,char **argv){
     for(j=0;j<Width;j+=1){
       g2Field[4*(i*Width+j)+0] = uxxy[2*(i*Width+j)+1]-uxyy[2*(i*Width+j)+0];
       g2Field[4*(i*Width+j)+1] = uxyy[2*(i*Width+j)+1]-uyyy[2*(i*Width+j)+0];
-      g2Field[4*(i*Width+j)+2] = uxxy[2*(i*Width+j)+1]-uxxx[2*(i*Width+j)+1];
-      g2Field[4*(i*Width+j)+3] = -g2Field[4*(i*Width+j)+0];
+      g2Field[4*(i*Width+j)+2] = uxxy[2*(i*Width+j)+0]-uxxx[2*(i*Width+j)+1];
+      g2Field[4*(i*Width+j)+3] = uxyy[2*(i*Width+j)+0]-uxxy[2*(i*Width+j)+1];
     }
 
-  /*
-  err = gradUtoLamb(Height,Width,gField,&sField);*/
-  err=gradU2UtoLambda(Height,Width,gField,g2Field,&sField);
+  //err = gradUtoLamb(Height,Width,gField,&sField);
+  err = gradUtoLamb(Height,Width,g2Field,&sField);
+  //err=gradU2UtoLambda(Height,Width,gField,g2Field,&sField);
   if(err!=0)
     printf("Problems in gradU2UtoLambda\n");
 
@@ -143,6 +145,9 @@ int main(int argc,char **argv){
   else
     printf("problems with renameLabels - %d\n",err);
 
+  err = addOseen2ndGrad(nVortex,parVortex,x0,dx,Height,Width,&g2Ref);
+  if(err!=0)
+    printf("problems calculating g2Ref\n");
   {
     FILE *dadosout;
     dadosout=fopen("data/initUSplit-3.txt","w");
@@ -183,6 +188,62 @@ int main(int argc,char **argv){
     }
     fclose(dadosout);
 
+    dadosout=fopen("data/uxxyUsplit-3.txt","w");
+    for(i=0;i<Height;i+=1){
+      for(j=0;j<Width;j+=1){
+        y = x0[0] + i*dx[0];
+        x = x0[1] + j*dx[1];
+        
+        fprintf(dadosout,"%f %f %f %f \n",x,y,
+                                          uxxy[2*(i*Width+j)+0],
+                                          uxxy[2*(i*Width+j)+1]);
+      }
+      fprintf(dadosout,"\n");
+    }
+    fclose(dadosout);
+
+    dadosout=fopen("data/uxyyUsplit-3.txt","w");
+    for(i=0;i<Height;i+=1){
+      for(j=0;j<Width;j+=1){
+        y = x0[0] + i*dx[0];
+        x = x0[1] + j*dx[1];
+        
+        fprintf(dadosout,"%f %f %f %f \n",x,y,
+                                          uxyy[2*(i*Width+j)+0],
+                                          uxyy[2*(i*Width+j)+1]);
+      }
+      fprintf(dadosout,"\n");
+    }
+    fclose(dadosout);
+
+    dadosout=fopen("data/uxxxUsplit-3.txt","w");
+    for(i=0;i<Height;i+=1){
+      for(j=0;j<Width;j+=1){
+        y = x0[0] + i*dx[0];
+        x = x0[1] + j*dx[1];
+        
+        fprintf(dadosout,"%f %f %f %f \n",x,y,
+                                          uxxx[2*(i*Width+j)+0],
+                                          uxxx[2*(i*Width+j)+1]);
+      }
+      fprintf(dadosout,"\n");
+    }
+    fclose(dadosout);
+
+    dadosout=fopen("data/uyyyUsplit-3.txt","w");
+    for(i=0;i<Height;i+=1){
+      for(j=0;j<Width;j+=1){
+        y = x0[0] + i*dx[0];
+        x = x0[1] + j*dx[1];
+        
+        fprintf(dadosout,"%f %f %f %f \n",x,y,
+                                          uyyy[2*(i*Width+j)+0],
+                                          uyyy[2*(i*Width+j)+1]);
+      }
+      fprintf(dadosout,"\n");
+    }
+    fclose(dadosout);
+
     dadosout=fopen("data/uUbuffsplit-3.txt","w");
     for(i=0;i<(Height+2*padWidth);i+=1){
       for(j=0;j<(Width+2*padWidth);j+=1){
@@ -203,11 +264,15 @@ int main(int argc,char **argv){
         y = x0[0] + i*dx[0];
         x = x0[1] + j*dx[1];
         
-        fprintf(dadosout,"%f %f %f %f %f %f \n",x,y,
-                                          gField[4*(i*Width+j)+0],
-                                          gField[4*(i*Width+j)+1],
-                                          gField[4*(i*Width+j)+2],
-                                          gField[4*(i*Width+j)+3]);
+        fprintf(dadosout,"%f %f %f %f %f %f ",x,y,
+                                          g2Field[4*(i*Width+j)+0],
+                                          g2Field[4*(i*Width+j)+1],
+                                          g2Field[4*(i*Width+j)+2],
+                                          g2Field[4*(i*Width+j)+3]);
+        fprintf(dadosout,"%f %f %f %f \n",g2Ref[4*(i*Width+j)+0],
+                                          g2Ref[4*(i*Width+j)+1],
+                                          g2Ref[4*(i*Width+j)+2],
+                                          g2Ref[4*(i*Width+j)+3]);
       }
     }
     fclose(dadosout);

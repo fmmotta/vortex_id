@@ -577,7 +577,6 @@ int UtoUyyy5point(int Height,int Width,float *uDel,float *uBuff,
   return 0;
 }
 
-
 /*
  Danger: I'm not sure if this direct product of stencils is valid!
  Obs: this function is failing miserably.
