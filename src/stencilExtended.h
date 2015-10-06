@@ -16,3 +16,12 @@ int UtoUxx5point(int Height,int Width,float *uDel,float *uBuff,
 
 int UtoUyy5point(int Height,int Width,float *uDel,float *uBuff,
                 float *Xbuff,float *Ybuff);
+
+int UtoUxxx5point(int Height,int Width,float *uDel,float *uBuff,
+                  float *Xbuff,float *Ybuff);
+
+int UtoUyyy5point(int Height,int Width,float *uDel,float *uBuff,
+                  float *Xbuff,float *Ybuff);
+
+int gradU2UtoLambda(int Height,int Width, float *gField,float *g2Field,
+                    float **sFieldOut);

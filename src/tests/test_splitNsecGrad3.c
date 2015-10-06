@@ -6,14 +6,22 @@
 #include "lambdaInit.h"
 #include "stencilExtended.h"
 
-#define fieldAlloc(ptr,size,type) ptr=(type*)malloc(size*sizeof(type));if(ptr==NULL){printf("memory not allocked\n"); return 1;}
+#define fieldAlloc(ptr,size,type) ptr=(type*)malloc(size*sizeof(type)); \
+                                  if(ptr==NULL){                        \
+                                    printf("memory not allocked\n");    \
+                                    return 1;                           \
+                                  }                                     \
+                                  else{                                 \
+                                    for(i=0;i<size;i+=1)                \
+                                      ptr[i]=(type) 0;                  \
+                                  }                                     \
 
 int main(int argc,char **argv){
   const int Width = 100, Height = 100, Pop=10,nVortex=3;
   int i,j,err,ngbr,found, padWidth=2;
   int nbList[8],label[Width*Height],eqList[Pop],**eqClass;
   float parVortex[4*nVortex],x0[2],dx[2],xf[2],*sField=NULL;
-  float *gField=NULL,*uField=NULL,X[Width],Y[Height];
+  float *gField=NULL,*g2Field=NULL,*uField=NULL,X[Width],Y[Height];
   float *uBuff=NULL,Xbuff[Width+4],Ybuff[Height+4];
   float *ux,*uy,*uxxy,*uxyy,*uxxx,*uyyy,*w;
   float x,y,v0y0 = 0.0;
@@ -34,41 +42,17 @@ int main(int argc,char **argv){
   parVortex[4+0]=1.; parVortex[4+1]=1.; parVortex[4+2]=2.; parVortex[4+3]=0.;
   parVortex[8+0]=1.; parVortex[8+1]=1.; parVortex[8+2]=0.; parVortex[8+3]=4.;
  
-  fieldAlloc(gField,4*Height*Width,float);
-  for(i=0;i<4*Height*Width;i+=1)
-    gField[i]=0.;
-
+  fieldAlloc(sField ,Height*Width,float);
+  fieldAlloc(gField ,4*Height*Width,float);
+  fieldAlloc(g2Field,4*Height*Width,float);
   fieldAlloc(uField,2*Height*Width,float);
-  for(i=0;i<2*Height*Width;i+=1)
-    uField[i]=0.;
-
-  fieldAlloc(uBuff,2*(Height+2*padWidth)*(Width+2*padWidth),float);
-  for(i=0;i<2*(Height+2*padWidth)*(Width+2*padWidth);i+=1)
-    uBuff[i]=0;
-
-  fieldAlloc(ux,2*Height*Width,float);
-  for(i=0;i<2*Height*Width;i+=1)
-    ux[i]=0.;
-
-  fieldAlloc(uy,2*Height*Width,float);
-  for(i=0;i<2*Height*Width;i+=1)
-    uy[i]=0.;
-
-  fieldAlloc(uxxy,2*Height*Width,float);
-  for(i=0;i<2*Height*Width;i+=1)
-    uxxy[i]=0.;
-
-  fieldAlloc(uxyy,2*Height*Width,float);
-  for(i=0;i<2*Height*Width;i+=1)
-    uxyy[i]=0.;
-
-  fieldAlloc(uxxx,2*Height*Width,float);
-  for(i=0;i<2*Height*Width;i+=1)
-    uxxx[i]=0.;
-
-  fieldAlloc(uyyy,2*Height*Width,float);
-  for(i=0;i<2*Height*Width;i+=1)
-    uyyy[i]=0.;
+  fieldAlloc(  ux  ,2*Height*Width,float);
+  fieldAlloc(  uy  ,2*Height*Width,float);
+  fieldAlloc( uxxy ,2*Height*Width,float);
+  fieldAlloc( uxyy ,2*Height*Width,float);
+  fieldAlloc( uxxx ,2*Height*Width,float);
+  fieldAlloc( uyyy ,2*Height*Width,float);
+  fieldAlloc(uBuff ,2*(Height+2*padWidth)*(Width+2*padWidth),float);
 
   for(j=0;j<Width;j+=1)
     X[j] = x0[0] + j*dx[0];
@@ -83,11 +67,6 @@ int main(int argc,char **argv){
   if(err!=0)
     printf("problem in XtoXbuff - Y\n");
 
-  /*
-  err = addSingleOseen(nVortex,parVortex,x0,dx,Height,Width,&g2Field);
-  if(err!=0)
-    printf("Problems in addSingleOseen\n");*/
-
   err = addUSingleOseen(nVortex,parVortex,x0,dx,Height,Width,&uField);
   if(err!=0)
     printf("Problems in addUSingleOseen\n");
@@ -96,18 +75,41 @@ int main(int argc,char **argv){
   if(err!=0)
     printf("Problems in uFieldTouBuff\n");
   
-  /*
-  err = UToGradUnUnifFullFrame(Height,Width,type,x0,dx,X,Y,uField,gField);
-  if(err!=0)
-    printf("Problems in uFieldToGradUopenFOAM\n");*/
-
+  // \partial_x \vec u
   err = UtoUx5point(Height,Width,ux,uBuff,Xbuff,Ybuff);
   if(err!=0)
     printf("Problems in UtoUx5point\n");
 
+  // \partial_y \vec u
   err = UtoUy5point(Height,Width,uy,uBuff,Xbuff,Ybuff);
   if(err!=0)
     printf("Problems in UtoUy5point\n");
+
+  // \partial_xxx \vec u
+  err = UtoUxxx5point(Height,Width,uxxx,uBuff,Xbuff,Ybuff);
+  if(err!=0)
+    printf("Problems in UtoUx5point\n");
+
+  // \partial_yyy \vec u
+  err = UtoUyyy5point(Height,Width,uyyy,uBuff,Xbuff,Ybuff);
+  if(err!=0)
+    printf("Problems in UtoUy5point\n");
+  
+  // \partial_xxy \vec u
+  err = uFieldTouBuff(Height,Width,uy,uBuff,padWidth);
+  if(err!=0)
+    printf("Problems in uFieldTouBuff\n");
+  err = UtoUxx5point(Height,Width,uxxy,uBuff,Xbuff,Ybuff);
+  if(err!=0)
+    printf("Problems in UtoUxx5point\n");
+
+  // \partial_yyx \vec u
+  err = uFieldTouBuff(Height,Width,ux,uBuff,padWidth);
+  if(err!=0)
+    printf("Problems in uFieldTouBuff\n");
+  err = UtoUyy5point(Height,Width,uxyy,uBuff,Xbuff,Ybuff);
+  if(err!=0)
+    printf("Problems in UtoUyy5point\n");
 
   for(i=0;i<Height;i+=1)
     for(j=0;j<Width;j+=1){
@@ -117,10 +119,20 @@ int main(int argc,char **argv){
       gField[4*(i*Width+j)+3] = uy[2*(i*Width+j)+1];
     }
 
-  err = gradUtoLamb(Height,Width,gField,&sField);
+  for(i=0;i<Height;i+=1)
+    for(j=0;j<Width;j+=1){
+      g2Field[4*(i*Width+j)+0] = uxxy[2*(i*Width+j)+1]-uxyy[2*(i*Width+j)+0];
+      g2Field[4*(i*Width+j)+1] = uxyy[2*(i*Width+j)+1]-uyyy[2*(i*Width+j)+0];
+      g2Field[4*(i*Width+j)+2] = uxxy[2*(i*Width+j)+1]-uxxx[2*(i*Width+j)+1];
+      g2Field[4*(i*Width+j)+3] = -g2Field[4*(i*Width+j)+0];
+    }
+
+  /*
+  err = gradUtoLamb(Height,Width,gField,&sField);*/
+  err=gradU2UtoLambda(Height,Width,gField,g2Field,&sField);
   if(err!=0)
-    printf("Problems in gradUtoLamb\n");
-  
+    printf("Problems in gradU2UtoLambda\n");
+
   err = floodFill(sField,Width,Height,eqClass,label);
   if(err!=0)
     printf("Problems in floodFill\n");
