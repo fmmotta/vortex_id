@@ -364,12 +364,14 @@ int UtoUxx5point(int Height,int Width,float *uDel,float *uBuff,
 
       //printf("%f %f %f %f\n",a1,a2,a3,a4);
       
-      c[0] = 2.*(a3*a4+a2*(a3+a4)); c[0] /= a1*(a1-a2)*(a1-a3)*(a1-a4);
-      c[1] = 2.*(a3*a4+a1*(a3+a4)); c[1] /= a2*(a2-a1)*(a2-a3)*(a2-a4);
-      c[2] = 2.*(a3*a4+a2*(a3+a4)+a1*(a2+a3+a4)); c[2] /= a1*a2*a3*a4;
-      c[3] = 2.*(a1*a4+a2*(a1+a4)); c[3] /= a3*(a3-a1)*(a3-a2)*(a3-a4);
-      c[4] = 2.*(a2*a3+a1*(a2+a3)); c[4] /= a4*(a4-a1)*(a4-a2)*(a4-a3);
-    
+      //c[0] = 2.*(a3*a4+a2*(a3+a4)); c[0] /= a1*(a1-a2)*(a1-a3)*(a1-a4);
+      //c[1] = 2.*(a3*a4+a1*(a3+a4)); c[1] /= a2*(a2-a1)*(a2-a3)*(a2-a4);
+      //c[2] = 2.*(a3*a4+a2*(a3+a4)+a1*(a2+a3+a4)); c[2] /= a1*a2*a3*a4;
+      //c[3] = 2.*(a1*a4+a2*(a1+a4)); c[3] /= a3*(a3-a1)*(a3-a2)*(a3-a4);
+      //c[4] = 2.*(a2*a3+a1*(a2+a3)); c[4] /= a4*(a4-a1)*(a4-a2)*(a4-a3);
+      
+      c[0]= -1./(12.*a3*a3); c[1]= 4./(3.*a3*a3); c[2]= -5./(2.*a3*a3);
+      c[3]= 4./(3.*a3*a3); c[4]= -1./(12.*a3*a3);
       //printf("%f %f %f %f %f\n\n",c[0],c[1],c[2],c[3],c[4]);
 
       uDel[2*(i*Width+j)+0] += c[0]*uBuff[2*((i+padWidth)*(Width+2*padWidth)+(j+padWidth-2))+0];
@@ -431,12 +433,15 @@ int UtoUyy5point(int Height,int Width,float *uDel,float *uBuff,
     // TO DO : check it latter why the hell it only works here
     //    partial answer, if I print b1,b2,b3,b4, things get strange
     //     check latter
-    d[0] = 2.*(b3*b4+b2*(b3+b4)); d[0] /= b1*(b1-b2)*(b1-b3)*(b1-b4);
-    d[1] = 2.*(b3*b4+b1*(b3+b4)); d[1] /= b2*(b2-b1)*(b2-b3)*(b2-b4);
-    d[2] = 2.*(b3*b4+b2*(b3+b4)+b1*(b2+b3+b4)); d[2] /= b1*b2*b3*b4;
-    d[3] = 2.*(b1*b4+b2*(b1+b4)); d[3] /= b3*(b3-b1)*(b3-b2)*(b3-b4);
-    d[4] = 2.*(b2*b3+b1*(b2+b3)); d[4] /= b4*(b4-b1)*(b4-b2)*(b4-b3);
     
+    //d[0] = 2.*(b3*b4+b2*(b3+b4)); d[0] /= b1*(b1-b2)*(b1-b3)*(b1-b4);
+    //d[1] = 2.*(b3*b4+b1*(b3+b4)); d[1] /= b2*(b2-b1)*(b2-b3)*(b2-b4);
+    //d[2] = 2.*(b3*b4+b2*(b3+b4)+b1*(b2+b3+b4)); d[2] /= b1*b2*b3*b4;
+    //d[3] = 2.*(b1*b4+b2*(b1+b4)); d[3] /= b3*(b3-b1)*(b3-b2)*(b3-b4);
+    //d[4] = 2.*(b2*b3+b1*(b2+b3)); d[4] /= b4*(b4-b1)*(b4-b2)*(b4-b3);
+    
+      d[0]= -1./(12.*b3*b3); d[1]= 4./(3.*b3*b3); d[2]= -5./(2.*b3*b3);
+      d[3]=  4./(3.*b3*b3); d[4]= -1./(12.*b3*b3);
     //printf("%f %f %f %f %f\n\n",d[0],d[1],d[2],d[3],d[4]);
     for(j=0;j<Width;j+=1){
       uDel[2*(i*Width+j)+0]=0.;
