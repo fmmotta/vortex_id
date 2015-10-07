@@ -9,7 +9,7 @@
 #include "vortexGen.h"
 #include "vortexExtraction.h"
 
-int vCmp(const float *v,const float *p){
+int vCmp(const double *v,const double *p){
   if(v[0]/(v[1]*v[1])>p[0]/(p[1]*p[1]))
     return 1;
   else
@@ -19,9 +19,9 @@ int vCmp(const float *v,const float *p){
 int main(int argc,char **argv){
   const int numVortex=10;
   int i,err,seed=98755;
-  float Gmin=1,Gmax=2,rmin=1,rmax=2;
-  float xmin[2]={-4.,-4.},xmax[2]={4.,4.};
-  float *parVortex=NULL;
+  double Gmin=1,Gmax=2,rmin=1,rmax=2;
+  double xmin[2]={-4.,-4.},xmax[2]={4.,4.};
+  double *parVortex=NULL;
 
   if(argc>1)
     seed = atoi(argv[1]);

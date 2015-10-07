@@ -10,10 +10,10 @@
 #include "vortexGen.h"
 #include "vortexExtraction.h"
 
-int fprintfRunParameters(FILE *dadosgen,long long int seed,float x0[],
-                         float xf[],float dx[],float Gmin, float Gmax,
-                         float rmin, float rmax, float xmin[], float xmax[], 
-                         float v0y0)
+int fprintfRunParameters(FILE *dadosgen,long long int seed,double x0[],
+                         double xf[],double dx[],double Gmin, double Gmax,
+                         double rmin, double rmax, double xmin[], double xmax[], 
+                         double v0y0)
 {
   int i;
 
@@ -34,7 +34,7 @@ int fprintfRunParameters(FILE *dadosgen,long long int seed,float x0[],
   return 0;
 }
 
-int histoIncVortex(int nVortex, float *parVortex,
+int histoIncVortex(int nVortex, double *parVortex,
                    gsl_histogram *iG, gsl_histogram *iRc,
                    gsl_histogram *ia, gsl_histogram *ib){
   int i;
@@ -49,7 +49,7 @@ int histoIncVortex(int nVortex, float *parVortex,
   return 0;
 }
 
-int fprintVortex(FILE *dadosout, int run,int nVortex, float *vCatalog){
+int fprintVortex(FILE *dadosout, int run,int nVortex, double *vCatalog){
   int i;
 
   if(dadosout==NULL || run<0 || nVortex<=0 || vCatalog==NULL)
@@ -72,11 +72,11 @@ int main(int argc,char **argv){
   int seed=98755,nVortex=20;
   int i,j,err,ngbr,found,nCnect,rCnect=0,*label,n,bin,nMax=500,pass=0;
   int nbList[8],eqList[Pop],**eqClass,it,nRecon=0;
-  float Gmin=1.,Gmax=20.,rmin=0.5,rmax=1.5,threshold=0.5;
-  float xmin[2]={-9.,-9.},xmax[2]={9.,9.};
-  float Glist[3]={1,5,10},Rclist[3]={0.5,1.0,1.5};
-  float *parVortex=NULL,x0[2],dx[2],xf[2],*sField=NULL,*gField=NULL;
-  float x,y,v0y0 = 0.00,*vCatalog=NULL,*rCatalog=NULL,*majorVortex=NULL;
+  double Gmin=1.,Gmax=20.,rmin=0.5,rmax=1.5,threshold=0.5;
+  double xmin[2]={-9.,-9.},xmax[2]={9.,9.};
+  double Glist[3]={1,5,10},Rclist[3]={0.5,1.0,1.5};
+  double *parVortex=NULL,x0[2],dx[2],xf[2],*sField=NULL,*gField=NULL;
+  double x,y,v0y0 = 0.00,*vCatalog=NULL,*rCatalog=NULL,*majorVortex=NULL;
   FILE *dadosgen,*dadosout,*dadosVin,*dadosVout;
   int hNG=50,hNRc=53,hNa=40,hNb=40,hNN=10;
   gsl_histogram *hG,*hRc,*ha,*hb,*hN;
@@ -87,13 +87,13 @@ int main(int argc,char **argv){
   x0[0]=-10.; xf[0]= 10.; dx[0] = (xf[0]-x0[0])/Height;
   x0[1]=-10.; xf[1]= 10.; dx[1] = (xf[1]-x0[1])/Width;
   
-  gField = (float *)malloc(4*Height*Width*sizeof(float));
+  gField = (double *)malloc(4*Height*Width*sizeof(double));
   if(gField==NULL){
     printf("memory not allocked\n");
     return 1;
   }
   
-  sField = (float *)malloc(Height*Width*sizeof(float));
+  sField = (double *)malloc(Height*Width*sizeof(double));
   if(sField==NULL){
     printf("memory not allocked\n");
     return 1;
@@ -114,19 +114,19 @@ int main(int argc,char **argv){
       return(i+2);
   }
 
-  vCatalog = (float*)malloc(4*nMax*sizeof(float));
+  vCatalog = (double*)malloc(4*nMax*sizeof(double));
   if(vCatalog==NULL){
     printf("memory not allocked\n");
     return 3;
   }
 
-  rCatalog = (float*)malloc(4*nMax*sizeof(float));
+  rCatalog = (double*)malloc(4*nMax*sizeof(double));
   if(rCatalog==NULL){
     printf("memory not allocked\n");
     return 4;
   }
 
-  majorVortex = (float*)malloc(4*sizeof(float));
+  majorVortex = (double*)malloc(4*sizeof(double));
   if(majorVortex==NULL){
     printf("memory not allocked\n");
     return 5;

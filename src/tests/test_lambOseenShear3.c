@@ -9,8 +9,8 @@ int main(int argc,char **argv){
   const int Width = 100, Height = 100, Pop=10,nVortex=3;
   int i,j,err,ngbr,found;
   int nbList[8],label[Width*Height],eqList[Pop],**eqClass;
-  float parVortex[4*nVortex],x0[2],dx[2],xf[2],*sField=NULL;
-  float x,y,v0y0 = 0.00;
+  double parVortex[4*nVortex],x0[2],dx[2],xf[2],*sField=NULL;
+  double x,y,v0y0 = 0.00;
 
   eqClass=(int**)malloc(NumCls*sizeof(int*));
   if(eqClass==NULL)
