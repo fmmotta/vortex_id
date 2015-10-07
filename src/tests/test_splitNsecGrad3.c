@@ -16,6 +16,9 @@
                                       ptr[i]=(type) 0;                  \
                                   }                                     \
 
+int oseenUxxy(int nVortex,float *parVortex, float *x0, float *dx, 
+              int Height,int Width, float **sRefOut);
+
 int main(int argc,char **argv){
   const int Width = 100, Height = 100, Pop=10,nVortex=1;
   int i,j,err,ngbr,found, padWidth=2;
@@ -23,7 +26,7 @@ int main(int argc,char **argv){
   float parVortex[4*nVortex],x0[2],dx[2],xf[2],*sField=NULL;
   float *gField=NULL,*g2Field=NULL,*uField=NULL,X[Width],Y[Height];
   float *uBuff=NULL,Xbuff[Width+4],Ybuff[Height+4],*g2Ref;
-  float *ux,*uy,*uxxy,*uxyy,*uxxx,*uyyy,*w;
+  float *ux,*uy,*uxxy,*uxyy,*uxxx,*uyyy,*w,*sRef1,*sRef2;
   float x,y,v0y0 = 0.0;
 
   eqClass=(int**)malloc(NumCls*sizeof(int*));
@@ -44,6 +47,7 @@ int main(int argc,char **argv){
   //parVortex[8+0]=1.; parVortex[8+1]=1.; parVortex[8+2]=0.; parVortex[8+3]=4.;
  
   fieldAlloc(sField ,Height*Width,float);
+  fieldAlloc(sRef1 ,Height*Width,float);
   fieldAlloc(gField ,4*Height*Width,float);
   fieldAlloc(g2Field,4*Height*Width,float);
   fieldAlloc(g2Ref,4*Height*Width,float);
@@ -148,6 +152,7 @@ int main(int argc,char **argv){
   err = addOseen2ndGrad(nVortex,parVortex,x0,dx,Height,Width,&g2Ref);
   if(err!=0)
     printf("problems calculating g2Ref\n");
+
   {
     FILE *dadosout;
     dadosout=fopen("data/initUSplit-3.txt","w");
@@ -187,16 +192,20 @@ int main(int argc,char **argv){
       fprintf(dadosout,"\n");
     }
     fclose(dadosout);
-
+    
+    err = oseenUxxy(nVortex,parVortex,x0,dx,Height,Width,&sRef1);
+    if(err!=0)
+      printf("problems calculating ossen Uxxy\n");
     dadosout=fopen("data/uxxyUsplit-3.txt","w");
     for(i=0;i<Height;i+=1){
       for(j=0;j<Width;j+=1){
         y = x0[0] + i*dx[0];
         x = x0[1] + j*dx[1];
         
-        fprintf(dadosout,"%f %f %f %f \n",x,y,
+        fprintf(dadosout,"%f %f %f %f ",x,y,
                                           uxxy[2*(i*Width+j)+0],
                                           uxxy[2*(i*Width+j)+1]);
+        fprintf(dadosout,"%f\n",sRef1[i*Width+j]);
       }
       fprintf(dadosout,"\n");
     }
@@ -284,6 +293,58 @@ int main(int argc,char **argv){
   for(i=0;i<NumCls;i+=1)
     free(eqClass[i]);
   free(eqClass);
+
+  return 0;
+}
+
+int oseenUxxy(int nVortex,float *parVortex, float *x0, float *dx, 
+              int Height,int Width, float **sRefOut){
+  int i,j,k;
+  float *sRef;
+  float s,a,b,G,R,x,y,fa,fb,r2,r,lamb,cutoff=0.001;
+  float s0,xa2,yb2,R2;
+
+  if(*sRefOut==NULL)
+    return 1;
+  sRef = *sRefOut;
+  
+  for(i=0;i<Height;i+=1)
+    for(j=0;j<Width;j+=1){
+      s=0.;
+
+      y = x0[0] + i*dx[0]; 
+      x = x0[1] + j*dx[1]; 
+      for(k=0;k<nVortex;k+=1){
+        G = parVortex[4*k+0]; R = parVortex[4*k+1];
+        a = parVortex[4*k+2]; b = parVortex[4*k+3];
+        
+        r2 = (x-a)*(x-a)+(y-b)*(y-b);
+        r = sqrt(r2);
+        xa2=(x-a)*(x-a);
+        yb2=(y-b)*(y-b);
+        R2 = R*R;
+        
+        // added a clause for small r/R
+        // future : review gradU designation
+        if(r<=0)
+          s+=G/(2.*M_PI*R2*R2);
+        else if((r>0)&&(r/R<cutoff))
+          s+=(G/(2.*M_PI*R2*R2))*(1.-2.*(r2/R2));
+        else{          
+          fa = -(G*exp(-r2/R2))/(M_PI*R2*R2*R2*r2*r2);
+          fb = 3.*(exp(r2/R2)-1.)*R2*R2*R2;
+          
+          s0  = 4.*xa2*yb2*r2*r2*r2;
+          s0 += fb*(xa2*xa2 - 6.*xa2*yb2 + yb2*yb2);
+          s0 += 2.*R2*r2*r2*(xa2*xa2 - 4.*xa2*yb2 + yb2*yb2);
+          s0 += -3.*R2*R2*(xa2*xa2*xa2-5.*xa2*xa2*yb2-5.*xa2*yb2*yb2+yb2*yb2*yb2);
+          
+          s += s0*fa;
+        }
+      }
+
+      sRef[i*Width+j]+=s;
+    }
 
   return 0;
 }
