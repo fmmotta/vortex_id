@@ -61,9 +61,9 @@ int main(int argc,char **argv){
   fieldAlloc(uBuff ,2*(Height+2*padWidth)*(Width+2*padWidth),float);
 
   for(j=0;j<Width;j+=1)
-    X[j] = x0[0] + j*dx[0];
+    X[j] = x0[0] + ((float)j)*dx[0];
   for(i=0;i<Height;i+=1)
-    Y[i] = x0[1] + i*dx[1];
+    Y[i] = x0[1] + ((float)i)*dx[1];
 
   err = XtoXbuff(Width,X,Xbuff,padWidth);
   if(err!=0)
