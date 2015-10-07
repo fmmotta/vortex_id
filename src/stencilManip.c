@@ -20,10 +20,10 @@
 //        j ==> 
 //
 
-int UToGradUuniformTorus(int Height,int Width,int type,double *x0,double *dx,
-                         double *X,double *Y, double *uField, double *gField){
+int UToGradUuniformTorus(int Height,int Width,int type,float *x0,float *dx,
+                         float *X,float *Y, float *uField, float *gField){
   int i,j,ip,jp;
-  double um,u0,up,vm,v0,vp;
+  float um,u0,up,vm,v0,vp;
   
   if(Width<0 || Height<0)
     return -1;
@@ -77,12 +77,12 @@ int UToGradUuniformTorus(int Height,int Width,int type,double *x0,double *dx,
   return 0;
 }
 
-int UToGradUnonUnifFrame(int Height,int Width,int type,double *x0,double *dx,
-                         double *X,double *Y, double *uField, double *gField){
+int UToGradUnonUnifFrame(int Height,int Width,int type,float *x0,float *dx,
+                         float *X,float *Y, float *uField, float *gField){
   int i,j,ip,jp;
-  double um,u0,up,vm,v0,vp;
-  double ax,ay,bx,by;
-  double cp,c0,cm;
+  float um,u0,up,vm,v0,vp;
+  float ax,ay,bx,by;
+  float cp,c0,cm;
   
   if(Width<0 || Height<0)
     return -1;
@@ -154,12 +154,12 @@ int UToGradUnonUnifFrame(int Height,int Width,int type,double *x0,double *dx,
   return 0;
 } 
 
-int UToGradUnUnifHalfFrame(int Height,int Width,int type,double *x0,double *dx,
-                           double *X,double *Y, double *uField, double *gField){
+int UToGradUnUnifHalfFrame(int Height,int Width,int type,float *x0,float *dx,
+                           float *X,float *Y, float *uField, float *gField){
   int i,j,ip,jp;
-  double um,u0,up,vm,v0,vp;
-  double ax,ay,bx,by;
-  double cp,c0,cm;
+  float um,u0,up,vm,v0,vp;
+  float ax,ay,bx,by;
+  float cp,c0,cm;
   
   if(Width<0 || Height<0)
     return -1;
@@ -324,12 +324,12 @@ int UToGradUnUnifHalfFrame(int Height,int Width,int type,double *x0,double *dx,
   return 0;
 }
 
-int UToGradUnUnifFullFrame(int Height,int Width,int type,double *x0,double *dx,
-                           double *X,double *Y, double *uField, double *gField){
+int UToGradUnUnifFullFrame(int Height,int Width,int type,float *x0,float *dx,
+                           float *X,float *Y, float *uField, float *gField){
   int i,j,ip,jp;
-  double um,u0,up,vm,v0,vp;
-  double ax,ay,bx,by;
-  double cp,c0,cm;
+  float um,u0,up,vm,v0,vp;
+  float ax,ay,bx,by;
+  float cp,c0,cm;
   
   if(Width<0 || Height<0)
     return -1;

@@ -10,8 +10,8 @@ int main(int argc,char **argv){
   const int Width = 100, Height = 100, Pop=10,nVortex=2;
   int i,j,err,ngbr,found,nCnect,*label,nMax=20;
   int nbList[8],eqList[Pop],**eqClass;
-  double parVortex[4*nVortex],x0[2],dx[2],xf[2],*sField=NULL,*gField;
-  double x,y,v0y0 = 0.00,*vCatalog=NULL;
+  float parVortex[4*nVortex],x0[2],dx[2],xf[2],*sField=NULL,*gField;
+  float x,y,v0y0 = 0.00,*vCatalog=NULL;
 
   eqClass=(int**)malloc(NumCls*sizeof(int*));
   if(eqClass==NULL)
@@ -22,7 +22,7 @@ int main(int argc,char **argv){
       return(i+2);
   }
 
-  vCatalog = (double*)malloc(4*nMax*sizeof(double));
+  vCatalog = (float*)malloc(4*nMax*sizeof(float));
   if(vCatalog==NULL){
     printf("memory not allocked\n");
     return 3;
@@ -34,7 +34,7 @@ int main(int argc,char **argv){
   parVortex[0]=1.; parVortex[1]=1.; parVortex[2]=-2.0; parVortex[3]=0.;
   parVortex[4+0]=1.; parVortex[4+1]=1.; parVortex[4+2]=2.; parVortex[4+3]=0.;
   
-  gField = (double *)malloc(4*Height*Width*sizeof(double));
+  gField = (float *)malloc(4*Height*Width*sizeof(float));
   if(gField==NULL){
     printf("memory not allocked\n");
     return 1;

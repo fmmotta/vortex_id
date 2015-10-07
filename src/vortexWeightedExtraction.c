@@ -18,8 +18,8 @@
          64   [1  6 1]
 */
 
-double weight_neighbours(int i,int j,int *label,int Width,int Height){
-  double weight=36.0; // counting the weight of the point itseft
+float weight_neighbours(int i,int j,int *label,int Width,int Height){
+  float weight=36.0; // counting the weight of the point itseft
 
   // 4-way conectivity
   if(bound_check(i+1,j,Width,Height) && (label[(i+1)*Width+j]>=0))
@@ -59,13 +59,13 @@ double weight_neighbours(int i,int j,int *label,int Width,int Height){
  */
 
 int vortexUnifWeightedExtraction(int Height,int Width, int nCnect,
-                                 double *x0, double *dx,double *sField,
-                                 double *gField,int *label,double **vCatalogOut)
+                                 float *x0, float *dx,float *sField,
+                                 float *gField,int *label,float **vCatalogOut)
 { 
   int i,j,k;
-  double G,a,b,x,y,rc,gradU[2][2],weight; 
-  double w[nCnect],A[nCnect],a0[nCnect],b0[nCnect];
-  double *vCatalog=NULL;
+  float G,a,b,x,y,rc,gradU[2][2],weight; 
+  float w[nCnect],A[nCnect],a0[nCnect],b0[nCnect];
+  float *vCatalog=NULL;
 
   if((Height<=0)||(Width<=0))
     return -1;
@@ -120,13 +120,13 @@ int vortexUnifWeightedExtraction(int Height,int Width, int nCnect,
 /*
 
 int vortexUnifWeightedExtraction(int Height,int Width, int nCnect,
-                                 double *x0, double *dx,double *sField,
-                                 double *gField,int *label,double **vCatalogOut)
+                                 float *x0, float *dx,float *sField,
+                                 float *gField,int *label,float **vCatalogOut)
 { 
   int i,j,k;
-  double G,a,b,x,y,rc,gradU[2][2],weight; 
-  double w[nCnect],A[nCnect],a0[nCnect],b0[nCnect];
-  double *vCatalog=NULL;
+  float G,a,b,x,y,rc,gradU[2][2],weight; 
+  float w[nCnect],A[nCnect],a0[nCnect],b0[nCnect];
+  float *vCatalog=NULL;
 
   if((Height<=0)||(Width<=0))
     return -1;

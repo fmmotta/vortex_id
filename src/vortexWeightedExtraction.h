@@ -1,4 +1,4 @@
 
 int vortexUnifWeightedExtraction(int Height,int Width, int nCnect,
-                                 double *x0, double *dx,double *sField,
-                                 double *gField,int *label,double **vCatalogOut);
+                                 float *x0, float *dx,float *sField,
+                                 float *gField,int *label,float **vCatalogOut);

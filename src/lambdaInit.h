@@ -1,32 +1,32 @@
 #define _USE_MATH_DEFINES
 
-int initZero(int Height,int Width, double **gFieldOut);
+int initZero(int Height,int Width, float **gFieldOut);
 
-int gradUtoLamb(int Height,int Width, double *gField,double **sFieldOut);
+int gradUtoLamb(int Height,int Width, float *gField,float **sFieldOut);
 
-int addSingleOseen(int nVortex,double *parVortex, double *x0, double *dx, 
-                   int Height,int Width, double **gFieldOut);
+int addSingleOseen(int nVortex,float *parVortex, float *x0, float *dx, 
+                   int Height,int Width, float **gFieldOut);
 
-int addUSingleOseen(int nVortex,double *parVortex, double *x0, double *dx, 
-                    int Height,int Width, double **uFieldOut);
+int addUSingleOseen(int nVortex,float *parVortex, float *x0, float *dx, 
+                    int Height,int Width, float **uFieldOut);
 
-int addConstXYShear(double *x0, double *dx,
+int addConstXYShear(float *x0, float *dx,
 	                int Height,int Width, 
-	                double v0y0,double **gFieldOut);
+	                float v0y0,float **gFieldOut);
 
-int initLambOseen2D(int nVortex,double *parVortex,
-                    double *x0, double *dx, int Height,int Width,
-                    double **sFieldOut);
+int initLambOseen2D(int nVortex,float *parVortex,
+                    float *x0, float *dx, int Height,int Width,
+                    float **sFieldOut);
 
-int initOseenShear2D(int nVortex,double *parVortex,
-                     double *x0, double *dx, int Height,int Width,
-                     double v0y0, double **sFieldOut);
+int initOseenShear2D(int nVortex,float *parVortex,
+                     float *x0, float *dx, int Height,int Width,
+                     float v0y0, float **sFieldOut);
 
-int addOseen2ndGrad(int nVortex,double *parVortex, double *x0, double *dx, 
-                    int Height,int Width, double **gFieldOut);
+int addOseen2ndGrad(int nVortex,float *parVortex, float *x0, float *dx, 
+                    int Height,int Width, float **gFieldOut);
 
-int s2ndGradUtoLamb(int nVortex,double *parVortex, double *x0, double *dx,
-                    int Height,int Width, double *gField,double *sField);
+int s2ndGradUtoLamb(int nVortex,float *parVortex, float *x0, float *dx,
+                    int Height,int Width, float *gField,float *sField);
 
-int sndGradUwFieldToLamb(int Height,int Width,double *gField,double *wField,
-                         double *sField);
+int sndGradUwFieldToLamb(int Height,int Width,float *gField,float *wField,
+                         float *sField);

@@ -15,10 +15,10 @@ int main(int argc,char **argv){
   int seed=98755;
   int i,j,err,ngbr,found,nCnect,*label,n,bin,nMax=20;
   int nbList[8],eqList[Pop],**eqClass;
-  double Gmin=1.,Gmax=20.,rmin=0.5,rmax=1.;
-  double xmin[2]={1.,1.},xmax[2]={9.,9.};
-  double *parVortex=NULL,x0[2],dx[2],xf[2],*sField=NULL,*gField;
-  double x,y,v0y0 = 0.00,*vCatalog=NULL;
+  float Gmin=1.,Gmax=20.,rmin=0.5,rmax=1.;
+  float xmin[2]={1.,1.},xmax[2]={9.,9.};
+  float *parVortex=NULL,x0[2],dx[2],xf[2],*sField=NULL,*gField;
+  float x,y,v0y0 = 0.00,*vCatalog=NULL;
   FILE *dadosgen,*dadosout;
   int hNG=55,hNRc=55,hNa=40,hNb=40,hNN=10;
   gsl_histogram *hG,*hRc,*ha,*hb,*hN;
@@ -27,7 +27,7 @@ int main(int argc,char **argv){
   x0[0]=0.; xf[0]= 10.; dx[0] = (xf[0]-x0[0])/Height;
   x0[1]=0.; xf[1]= 10.; dx[1] = (xf[1]-x0[1])/Width;
   
-  gField = (double *)malloc(4*Height*Width*sizeof(double));
+  gField = (float *)malloc(4*Height*Width*sizeof(float));
   if(gField==NULL){
     printf("memory not allocked\n");
     return 1;
@@ -48,7 +48,7 @@ int main(int argc,char **argv){
       return(i+2);
   }
 
-  vCatalog = (double*)malloc(4*nMax*sizeof(double));
+  vCatalog = (float*)malloc(4*nMax*sizeof(float));
   if(vCatalog==NULL){
     printf("memory not allocked\n");
     return 3;

@@ -18,12 +18,12 @@
   [\partial_y u \partial_x u] == gradU [1 0]
 */
 
-int initZero(int Height,int Width, double **gFieldOut){
+int initZero(int Height,int Width, float **gFieldOut){
   int i,j,k;
-  double *gField;
+  float *gField;
 
   if((*gFieldOut) == NULL){
-    gField = (double*)malloc(4*Height*Width*sizeof(double));
+    gField = (float*)malloc(4*Height*Width*sizeof(float));
     if(gField == NULL)
       return 1;
   }
@@ -42,13 +42,13 @@ int initZero(int Height,int Width, double **gFieldOut){
   return 0;
 }
 
-int gradUtoLamb(int Height,int Width, double *gField,double **sFieldOut){
+int gradUtoLamb(int Height,int Width, float *gField,float **sFieldOut){
   int i,j,k;
-  double gradU[2][2],*sField;
-  double a,b,G,R,x,y,fa,fb,r2,r,lamb,cutoff=0.001;
+  float gradU[2][2],*sField;
+  float a,b,G,R,x,y,fa,fb,r2,r,lamb,cutoff=0.001;
   
   if((*sFieldOut) == NULL){ // Remove this later, plz
-    sField = (double*)malloc(Height*Width*sizeof(double));
+    sField = (float*)malloc(Height*Width*sizeof(float));
     if(sField == NULL)
       return 1;
   }
@@ -78,11 +78,11 @@ int gradUtoLamb(int Height,int Width, double *gField,double **sFieldOut){
   return 0;
 }
 
-int addSingleOseen(int nVortex,double *parVortex, double *x0, double *dx, 
-                   int Height,int Width, double **gFieldOut){
+int addSingleOseen(int nVortex,float *parVortex, float *x0, float *dx, 
+                   int Height,int Width, float **gFieldOut){
   int i,j,k;
-  double gradU[2][2],*gField;
-  double a,b,G,R,x,y,fa,fb,r2,r,lamb,cutoff=0.001;
+  float gradU[2][2],*gField;
+  float a,b,G,R,x,y,fa,fb,r2,r,lamb,cutoff=0.001;
 
   if(*gFieldOut==NULL)
     return 1;
@@ -139,11 +139,11 @@ int addSingleOseen(int nVortex,double *parVortex, double *x0, double *dx,
   return 0;
 }
 
-int addUSingleOseen(int nVortex,double *parVortex, double *x0, double *dx, 
-                    int Height,int Width, double **uFieldOut)
+int addUSingleOseen(int nVortex,float *parVortex, float *x0, float *dx, 
+                    int Height,int Width, float **uFieldOut)
 {
   int i,j,k;
-  double u,v,*uField,a,b,G,R,x,y,fa,fb,r2,r,cutoff=0.001;
+  float u,v,*uField,a,b,G,R,x,y,fa,fb,r2,r,cutoff=0.001;
 
   if(*uFieldOut==NULL)
     return 1;
@@ -186,11 +186,11 @@ int addUSingleOseen(int nVortex,double *parVortex, double *x0, double *dx,
   return 0;
 }
 
-int addOseen2ndGrad(int nVortex,double *parVortex, double *x0, double *dx, 
-                    int Height,int Width, double **gFieldOut){
+int addOseen2ndGrad(int nVortex,float *parVortex, float *x0, float *dx, 
+                    int Height,int Width, float **gFieldOut){
   int i,j,k,err;
-  double gradU[2][2],*gField;
-  double a,b,G,R,x,y,fa,fb,r2,r,lamb,bulk=0.,w,Dw;
+  float gradU[2][2],*gField;
+  float a,b,G,R,x,y,fa,fb,r2,r,lamb,bulk=0.,w,Dw;
 
   if(*gFieldOut==NULL)
     return 1;
@@ -227,11 +227,11 @@ int addOseen2ndGrad(int nVortex,double *parVortex, double *x0, double *dx,
   return 0;
 }
 
-int s2ndGradUtoLamb(int nVortex,double *parVortex, double *x0, double *dx,
-                    int Height,int Width, double *gField,double *sField){
+int s2ndGradUtoLamb(int nVortex,float *parVortex, float *x0, float *dx,
+                    int Height,int Width, float *gField,float *sField){
   int i,j,k;
-  double gradU[2][2];
-  double a,b,G,R,x,y,fa,fb,r2,r,lamb,bulk=0.,w,Dw,norm;
+  float gradU[2][2];
+  float a,b,G,R,x,y,fa,fb,r2,r,lamb,bulk=0.,w,Dw,norm;
 
   if(gField==NULL)
     return 1;
@@ -282,11 +282,11 @@ int s2ndGradUtoLamb(int nVortex,double *parVortex, double *x0, double *dx,
   return 0;
 }
 
-int s2ndGradUtoLambNaive(int nVortex,double *parVortex, double *x0, double *dx,
-                         int Height,int Width, double *gField,double *sField){
+int s2ndGradUtoLambNaive(int nVortex,float *parVortex, float *x0, float *dx,
+                         int Height,int Width, float *gField,float *sField){
   int i,j,k;
-  double gradU[2][2];
-  double a,b,G,R,x,y,fa,fb,r2,r,lamb,bulk=0.,w,Dw,norm;
+  float gradU[2][2];
+  float a,b,G,R,x,y,fa,fb,r2,r,lamb,bulk=0.,w,Dw,norm;
 
   if(gField==NULL)
     return 1;
@@ -338,11 +338,11 @@ int s2ndGradUtoLambNaive(int nVortex,double *parVortex, double *x0, double *dx,
   return 0;
 }
 
-int sndGradUwFieldToLamb(int Height,int Width,double *gField,double *wField,
-                         double *sField){
+int sndGradUwFieldToLamb(int Height,int Width,float *gField,float *wField,
+                         float *sField){
   int i,j;
-  double gradU[2][2];
-  double lamb,Dw;
+  float gradU[2][2];
+  float lamb,Dw;
 
   if(gField==NULL)
     return 1;
@@ -379,11 +379,11 @@ int sndGradUwFieldToLamb(int Height,int Width,double *gField,double *wField,
   return 0;
 }
 
-int addConstXYShear(double *x0, double *dx,int Height,
-                    int Width, double v0y0,double **gFieldOut){
+int addConstXYShear(float *x0, float *dx,int Height,
+                    int Width, float v0y0,float **gFieldOut){
   int i,j,k;
-  double gradU[2][2],*gField;
-  double a,b,G,R,x,y,fa,fb,r2,r,lamb,cutoff=0.001;
+  float gradU[2][2],*gField;
+  float a,b,G,R,x,y,fa,fb,r2,r,lamb,cutoff=0.001;
 
   if(*gFieldOut==NULL)
     return 1;
@@ -413,16 +413,16 @@ int addConstXYShear(double *x0, double *dx,int Height,
  * it is necessary to further calculations for vortex extraction
  */
 
-int initLambOseen2D(int nVortex,double *parVortex,
-                    double *x0, double *dx, int Height,int Width,
-                    double **sFieldOut){
+int initLambOseen2D(int nVortex,float *parVortex,
+                    float *x0, float *dx, int Height,int Width,
+                    float **sFieldOut){
   int i,j,k;
-  double gradU[2][2],*sField;
-  double a,b,G,R,x,y,fa,fb,r2,r,lamb;
-  double cutoff=0.001; // cutoff should be adjustable
+  float gradU[2][2],*sField;
+  float a,b,G,R,x,y,fa,fb,r2,r,lamb;
+  float cutoff=0.001; // cutoff should be adjustable
   
   if((*sFieldOut) == NULL){
-    sField = (double*)malloc(Height*Width*sizeof(double));
+    sField = (float*)malloc(Height*Width*sizeof(float));
     if(sField == NULL)
       return 1;
   }
@@ -486,15 +486,15 @@ int initLambOseen2D(int nVortex,double *parVortex,
   return 0;
 }
 
-int initOseenShear2D(int nVortex,double *parVortex,
-                     double *x0, double *dx, int Height,int Width,
-                     double v0y0, double **sFieldOut){
+int initOseenShear2D(int nVortex,float *parVortex,
+                     float *x0, float *dx, int Height,int Width,
+                     float v0y0, float **sFieldOut){
   int i,j,k;
-  double gradU[2][2],*sField;
-  double a,b,G,R,x,y,fa,fb,r2,r,lamb,cutoff=0.001;
+  float gradU[2][2],*sField;
+  float a,b,G,R,x,y,fa,fb,r2,r,lamb,cutoff=0.001;
   
   if((*sFieldOut) == NULL){
-    sField = (double*)malloc(Height*Width*sizeof(double));
+    sField = (float*)malloc(Height*Width*sizeof(float));
     if(sField == NULL)
       return 1;
   }
@@ -559,12 +559,12 @@ int initOseenShear2D(int nVortex,double *parVortex,
   return 0;
 }
 
-int iniUZero(int Height,int Width, double **uFieldOut){
+int iniUZero(int Height,int Width, float **uFieldOut){
   int i,j,k;
-  double *uField;
+  float *uField;
 
   if((*uFieldOut) == NULL){
-    uField = (double*)malloc(2*Height*Width*sizeof(double));
+    uField = (float*)malloc(2*Height*Width*sizeof(float));
     if(uField == NULL)
       return 1;
   }

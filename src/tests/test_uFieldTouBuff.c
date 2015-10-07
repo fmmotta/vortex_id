@@ -4,10 +4,10 @@
 #include <string.h>
 #include "stencilExtended.h"
 /*
-  int uFieldTouBuff(int Height,int Width,double *uField,double *uBuff,int padWidth)
+  int uFieldTouBuff(int Height,int Width,float *uField,float *uBuff,int padWidth)
  */
 
-int print_u(int Height,int Width,double *uField,int padWidth,int comp){
+int print_u(int Height,int Width,float *uField,int padWidth,int comp){
   int i,j,k;
 
   for(k=0;k<padWidth;k+=1){
@@ -41,9 +41,9 @@ int print_u(int Height,int Width,double *uField,int padWidth,int comp){
 int main(){  
   const int Width = 10, Height = 10, padWidth=2;
   int i,j,err;
-  double *uField,*uBuff;
+  float *uField,*uBuff;
   
-  uField = (double*)malloc(2*Height*Width*sizeof(double));
+  uField = (float*)malloc(2*Height*Width*sizeof(float));
   if(uField==NULL){
     printf("problem allocking memmory\n");
     return -1;
@@ -55,7 +55,7 @@ int main(){
       uField[2*(i*Width+j)+1] = 2000+(i+1)*Width+(j+1);
   	}
 
-  uBuff = (double*)malloc(2*(Height+2*padWidth)*(Width+2*padWidth)*sizeof(double));
+  uBuff = (float*)malloc(2*(Height+2*padWidth)*(Width+2*padWidth)*sizeof(float));
   if(uBuff==NULL){
   	printf("problem allocking memmory\n");
     return -1;

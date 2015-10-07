@@ -47,8 +47,8 @@ test_lambOseenShear3: floodFill.o test_lambOseenShear3.o lambdaInit.o
 test_lambOseenNSecGrad: floodFill.o test_lambOseenNSecGrad.o lambdaInit.o stencilExtended.o
 	$(CC) -o bin/test_lambOseenNSecGrad obj/test_lambOseenNSecGrad.o obj/floodFill.o obj/lambdaInit.o obj/stencilExtended.o $(LIBS)
 
-test_splitNsecGrad3: floodFill.o test_splitNsecGrad3.o lambdaInit.o stencilExtended.o
-	$(CC) -o bin/test_splitNsecGrad3 obj/test_splitNsecGrad3.o obj/floodFill.o obj/lambdaInit.o obj/stencilExtended.o $(LIBS)
+test_splitNsecGrad3: floodFill.o test_splitNsecGrad3.o lambdaInit.o stencilExtended.o vortexExtraction.o
+	$(CC) -o bin/test_splitNsecGrad3 obj/test_splitNsecGrad3.o obj/floodFill.o obj/lambdaInit.o obj/stencilExtended.o obj/vortexExtraction.o $(LIBS)
 
 test_addSingleOseen: test_addSingleOseen.o lambdaInit.o floodFill.o
 	$(CC) -o bin/test_addSingleOseen obj/test_addSingleOseen.o obj/floodFill.o obj/lambdaInit.o $(LIBS)

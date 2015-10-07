@@ -18,21 +18,21 @@
 
 #define DEBUG_MODE false
 
-int fprintfRunParamSigned(FILE *dadosgen,long long int seed,double x0[],
-                         double xf[],double dx[],double Gmin, double Gmax,
-                         double rmin, double rmax, double xmin[], double xmax[], 
-                         double v0y0);
+int fprintfRunParamSigned(FILE *dadosgen,long long int seed,float x0[],
+                         float xf[],float dx[],float Gmin, float Gmax,
+                         float rmin, float rmax, float xmin[], float xmax[], 
+                         float v0y0);
 
-int histoIncVortex(int nVortex, double *parVortex,
+int histoIncVortex(int nVortex, float *parVortex,
                    gsl_histogram *iG, gsl_histogram *iRc,
                    gsl_histogram *ia, gsl_histogram *ib);
 
-int fprintVortex(FILE *dadosout, int run,int nVortex, double *vCatalog);
+int fprintVortex(FILE *dadosout, int run,int nVortex, float *vCatalog);
 
-int fprintsField(FILE *dadosout,double *x0,double *dx,
-                 int Width, int Height, double *sField);
+int fprintsField(FILE *dadosout,float *x0,float *dx,
+                 int Width, int Height, float *sField);
 
-int fprintLabels(FILE *dadosout,double *x0,double *dx,
+int fprintLabels(FILE *dadosout,float *x0,float *dx,
                  int Width, int Height, int *label);
 
 int main(int argc,char **argv){
@@ -43,12 +43,12 @@ int main(int argc,char **argv){
   long long int seed=98755;
   int hNG=50,hNRc=53,hNa=40,hNb=40,hNN=10;
   int i,j,err,nCnect,rCnect=0,n,it,nMax=500,pass=0;
-  double Gmin=1.,Gmax=20.,rmin=0.5,rmax=1.0,threshold=0.5;
-  double xmin[2]={-9.,-9.},xmax[2]={9.,9.};
-  double *parVortex=NULL,*Glist,*Rclist;
-  double x0[2],dx[2],xf[2],*sField=NULL,*gField=NULL;
-  double x,y,v0y0 = 0.00,*vCatalog=NULL,*rCatalog=NULL,*majorVortex=NULL;
-  double hGmin=0.,hGmax=0.,hRcMin=0.,hRcMax=0.;
+  float Gmin=1.,Gmax=20.,rmin=0.5,rmax=1.0,threshold=0.5;
+  float xmin[2]={-9.,-9.},xmax[2]={9.,9.};
+  float *parVortex=NULL,*Glist,*Rclist;
+  float x0[2],dx[2],xf[2],*sField=NULL,*gField=NULL;
+  float x,y,v0y0 = 0.00,*vCatalog=NULL,*rCatalog=NULL,*majorVortex=NULL;
+  float hGmin=0.,hGmax=0.,hRcMin=0.,hRcMax=0.;
   char genFile[300+1],folder[100+1],tag[100+1],filename[400+1];
   FILE *dadosgen,*dadosout,*dadosVin,*dadosVout;
   gsl_histogram *hG,*hRc,*ha,*hb,*hN;
@@ -59,13 +59,13 @@ int main(int argc,char **argv){
   x0[0]=-10.; xf[0]= 10.; dx[0] = (xf[0]-x0[0])/Height;
   x0[1]=-10.; xf[1]= 10.; dx[1] = (xf[1]-x0[1])/Width;
   
-  gField = (double *)malloc(4*Height*Width*sizeof(double));
+  gField = (float *)malloc(4*Height*Width*sizeof(float));
   if(gField==NULL){
     printf("memory not allocked\n");
     return 1;
   }
   
-  sField = (double *)malloc(Height*Width*sizeof(double));
+  sField = (float *)malloc(Height*Width*sizeof(float));
   if(sField==NULL){
     printf("memory not allocked\n");
     return 1;
@@ -86,7 +86,7 @@ int main(int argc,char **argv){
       return(i+2);
   }
 
-  vCatalog = (double*)malloc(4*nMax*sizeof(double));
+  vCatalog = (float*)malloc(4*nMax*sizeof(float));
   if(vCatalog==NULL){
     printf("memory not allocked\n");
     return 3;
@@ -267,10 +267,10 @@ int main(int argc,char **argv){
   return 0;
 }
 
-int fprintfRunParamSigned(FILE *dadosgen,long long int seed,double x0[],
-                         double xf[],double dx[],double Gmin, double Gmax,
-                         double rmin, double rmax, double xmin[], double xmax[], 
-                         double v0y0)
+int fprintfRunParamSigned(FILE *dadosgen,long long int seed,float x0[],
+                         float xf[],float dx[],float Gmin, float Gmax,
+                         float rmin, float rmax, float xmin[], float xmax[], 
+                         float v0y0)
 {
   int i;
 
@@ -291,7 +291,7 @@ int fprintfRunParamSigned(FILE *dadosgen,long long int seed,double x0[],
   return 0;
 }
 
-int histoIncVortex(int nVortex, double *parVortex,
+int histoIncVortex(int nVortex, float *parVortex,
                    gsl_histogram *iG, gsl_histogram *iRc,
                    gsl_histogram *ia, gsl_histogram *ib){
   int i;
@@ -306,7 +306,7 @@ int histoIncVortex(int nVortex, double *parVortex,
   return 0;
 }
 
-int fprintVortex(FILE *dadosout, int run,int nVortex, double *vCatalog){
+int fprintVortex(FILE *dadosout, int run,int nVortex, float *vCatalog){
   int i;
 
   if(dadosout==NULL || run<0 || nVortex<=0 || vCatalog==NULL)
@@ -323,10 +323,10 @@ int fprintVortex(FILE *dadosout, int run,int nVortex, double *vCatalog){
   return 0;
 }
 
-int fprintsField(FILE *dadosout,double *x0,double *dx,
-                 int Width, int Height, double *sField){
+int fprintsField(FILE *dadosout,float *x0,float *dx,
+                 int Width, int Height, float *sField){
   int i,j;
-  double x,y;
+  float x,y;
 
   if(dadosout==NULL || Width<0 || Height<=0 || sField==NULL)
     return 1;
@@ -342,10 +342,10 @@ int fprintsField(FILE *dadosout,double *x0,double *dx,
   return 0;
 }
 
-int fprintLabels(FILE *dadosout,double *x0,double *dx,
+int fprintLabels(FILE *dadosout,float *x0,float *dx,
                  int Width, int Height, int *label){
   int i,j;
-  double x,y;
+  float x,y;
 
   if(dadosout==NULL || Width<0 || Height<=0 || label==NULL)
     return 1;

@@ -7,21 +7,21 @@
 int main(){  
   const int Width = 20, Height = 20, padWidth=2;
   int i,j,err;
-  double *X,*Xbuff,*Y,*Ybuff;
+  float *X,*Xbuff,*Y,*Ybuff;
 
-  X=(double*)malloc((Width+2*padWidth)*sizeof(double));
+  X=(float*)malloc((Width+2*padWidth)*sizeof(float));
   if(X==NULL)
   	printf("problem allocating X\n");
 
-  Xbuff=(double*)malloc((Width+2*padWidth)*sizeof(double));
+  Xbuff=(float*)malloc((Width+2*padWidth)*sizeof(float));
   if(Xbuff==NULL)
   	printf("problem allocating Xbuff\n");
 
-  Y=(double*)malloc((Height+2*padWidth)*sizeof(double));
+  Y=(float*)malloc((Height+2*padWidth)*sizeof(float));
   if(Y==NULL)
   	printf("problem allocating Y\n");
 
-  Ybuff=(double*)malloc((Height+2*padWidth)*sizeof(double));
+  Ybuff=(float*)malloc((Height+2*padWidth)*sizeof(float));
   if(Ybuff==NULL)
   	printf("problem allocating Ybuff\n");
   

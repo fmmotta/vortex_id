@@ -4,10 +4,10 @@ typedef struct configVar {
   int Width,Height,nVortex,nRuns;
   int runType,genType,dim,adaptive;
   int numG,numRc,hNG,hNRc,hNa,hNb,hNN,hNmax;
-  double Gmin,Gmax,RcMin,RcMax;
-  double *Glist,*Rclist,x0[2],xf[2];
-  double swThresh, sndSwThresh,cutoff,v0y0;
-  double hGmin,hGmax,hRcMin,hRcMax;
+  float Gmin,Gmax,RcMin,RcMax;
+  float *Glist,*Rclist,x0[2],xf[2];
+  float swThresh, sndSwThresh,cutoff,v0y0;
+  float hGmin,hGmax,hRcMin,hRcMax;
   char *genFile,*tag,*folder;
 } configVar;
 

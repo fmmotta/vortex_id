@@ -10,13 +10,13 @@
 #include "vortexExtraction.h"
 
 int vortexExtraction(int Height,int Width, int nCnect,
-	                 double *x0, double *dx,double *sField,
-	                 double *gField,int *label,double **vCatalogOut)
+	                 float *x0, float *dx,float *sField,
+	                 float *gField,int *label,float **vCatalogOut)
 {
   int i,j,k;
-  double G,a,b,x,y,rc,gradU[2][2]; // vorticity
-  double w[nCnect],A[nCnect],a0[nCnect],b0[nCnect];
-  double *vCatalog=NULL;
+  float G,a,b,x,y,rc,gradU[2][2]; // vorticity
+  float w[nCnect],A[nCnect],a0[nCnect],b0[nCnect];
+  float *vCatalog=NULL;
 
   if((Height<=0)||(Width<=0))
   	return -1;
@@ -43,12 +43,12 @@ int vortexExtraction(int Height,int Width, int nCnect,
    * está a caminho
    *
   if(*vCatalogOut==NULL){
-    vCatalog=(double*)malloc(4*nCnect*sizeof(double));
+    vCatalog=(float*)malloc(4*nCnect*sizeof(float));
     if(vCatalog==NULL)
       return -3;
   }
   else{
-    vCatalog=(double*)realloc(vCatalog,4*nCnect*sizeof(double));
+    vCatalog=(float*)realloc(vCatalog,4*nCnect*sizeof(float));
     if(vCatalog==NULL)
       return -2;
   }
@@ -101,12 +101,12 @@ int vortexExtraction(int Height,int Width, int nCnect,
   return 0;
 }
 
-int vortexExtSimple(int Height,int Width,double *x0, double *dx,
-                    int **eqClass,double *sField,double *gField,int *label,
-                    double threshold,int *nCnectOut,double **vCatalogOut){
+int vortexExtSimple(int Height,int Width,float *x0, float *dx,
+                    int **eqClass,float *sField,float *gField,int *label,
+                    float threshold,int *nCnectOut,float **vCatalogOut){
   
   int i=0,err=0,pass=0,nCnect=0,nCnect0=0,it=0;
-  double *vCatalog=NULL,majorVortex[4];
+  float *vCatalog=NULL,majorVortex[4];
   vCatalog = *vCatalogOut;
   
   for(i=0;i<Height*Width;i+=1)
@@ -142,10 +142,10 @@ int vortexExtSimple(int Height,int Width,double *x0, double *dx,
  * http://rosettacode.org/wiki/Sorting_algorithms/Quicksort#C
  */
 
-void vortexQuickSort(double *v,int nCnect,
-                     int (*cmp)(const double*,const double*)){
+void vortexQuickSort(float *v,int nCnect,
+                     int (*cmp)(const float*,const float*)){
   int i,j;
-  double p[4],t[4];
+  float p[4],t[4];
   if(nCnect<2)
     return;
 
@@ -174,68 +174,68 @@ void vortexQuickSort(double *v,int nCnect,
   vortexQuickSort(v+4*i,nCnect-i,cmp);
 }
 
-int lesserCirculation(const double *v,const double *p){
+int lesserCirculation(const float *v,const float *p){
   if(v[0]<p[0])
     return 1;
   else
     return 0;
 }
 
-int greaterCirculation(const double *v,const double *p){
+int greaterCirculation(const float *v,const float *p){
   if(v[0]>p[0])
     return 1;
   else
     return 0;
 }
 
-int greaterAbsCirculation(const double *v,const double *p){
+int greaterAbsCirculation(const float *v,const float *p){
   if(fabs(v[0])>fabs(p[0]))
     return 1;
   else
     return 0;
 }
 
-int lesserVorticity(const double *v,const double *p){
+int lesserVorticity(const float *v,const float *p){
   if(v[0]/(v[1]*v[1])<p[0]/(p[1]*p[1]))
     return 1;
   else
     return 0;
 }
 
-int greaterVorticity(const double *v,const double *p){
+int greaterVorticity(const float *v,const float *p){
   if(v[0]/(v[1]*v[1])>p[0]/(p[1]*p[1]))
     return 1;
   else
     return 0;
 }
 
-int greaterAbsVorticity(const double *v,const double *p){
+int greaterAbsVorticity(const float *v,const float *p){
   if( fabs(v[0]/(v[1]*v[1]))>fabs(p[0]/(p[1]*p[1])) )
     return 1;
   else
     return 0;
 }
 
-int lesserRadius(const double *v,const double *p){
+int lesserRadius(const float *v,const float *p){
   if(v[1]<p[1])
     return 1;
   else
     return 0;
 }
 
-int greaterRadius(const double *v,const double *p){
+int greaterRadius(const float *v,const float *p){
   if(v[1]>p[1])
     return 1;
   else
     return 0;
 }
 
-int vortexExtRecursive(int Height,int Width,double *x0, double *dx,int **eqClass,
-                       double *sField,double *gField,int *label, double threshold, 
-                       double *vCatalog, int *rCnectOut,double **rCatalogOut){
+int vortexExtRecursive(int Height,int Width,float *x0, float *dx,int **eqClass,
+                       float *sField,float *gField,int *label, float threshold, 
+                       float *vCatalog, int *rCnectOut,float **rCatalogOut){
   int maxIt;
   int i=0,err=0,pass=0,rCnect=0,nCnect=0,nCnect0=0,it=0;
-  double *rCatalog=NULL,majorVortex[4];
+  float *rCatalog=NULL,majorVortex[4];
 
   if(Height<=0 || Width<=0)
     return -1;
@@ -295,8 +295,8 @@ int vortexExtRecursive(int Height,int Width,double *x0, double *dx,int **eqClass
   return 0;
 }
 
-int applySwirlingStrengthThreshold(int Height,int Width,double *sField,
-                                   double theta)
+int applySwirlingStrengthThreshold(int Height,int Width,float *sField,
+                                   float theta)
 {
   int i,j;
 
@@ -327,16 +327,16 @@ double radiusRoot(double x, void *par)
   return (val-*cut);
 }
 
-int vortexExtTreshold(int Height,int Width, int nCnect,double theta,
-                      double *x0, double *dx,double *sField,
-                      double *gField,int *label,double **vCatalogOut)
+int vortexExtTreshold(int Height,int Width, int nCnect,float theta,
+                      float *x0, float *dx,float *sField,
+                      float *gField,int *label,float **vCatalogOut)
 {
   int i,j,k;
-  double G,a,b,x,y,rc,rbar,gradU[2][2],eta; // vorticity
-  double w[nCnect],A[nCnect],a0[nCnect],b0[nCnect];
-  double *vCatalog=NULL;
+  float G,a,b,x,y,rc,rbar,gradU[2][2],eta; // vorticity
+  float w[nCnect],A[nCnect],a0[nCnect],b0[nCnect];
+  float *vCatalog=NULL;
   int iter = 0, max_iter = 100,status;
-  double x_lo = 0.1, x_hi = 1.1,cut=0.0;
+  float x_lo = 0.1, x_hi = 1.1,cut=0.0;
   const gsl_root_fsolver_type *T;
   gsl_root_fsolver *s;
   gsl_function F;
@@ -392,7 +392,7 @@ int vortexExtTreshold(int Height,int Width, int nCnect,double theta,
      * (2.*eta^2)/(exp(eta^2)-1.) = 1+(theta/w[k])^2
      */
     
-    cut = (double) ( (theta*theta)/(w[k]*w[k]) );
+    cut = (float) ( (theta*theta)/(w[k]*w[k]) );
     
     x_lo = 0.005, x_hi = 2.1;
     F.params = (void*)&cut;
@@ -401,7 +401,7 @@ int vortexExtTreshold(int Height,int Width, int nCnect,double theta,
     do{
       iter++;
       status = gsl_root_fsolver_iterate (s);
-      eta = (double) gsl_root_fsolver_root (s);
+      eta = (float) gsl_root_fsolver_root (s);
       x_lo = gsl_root_fsolver_x_lower (s);
       x_hi = gsl_root_fsolver_x_upper (s);
       status = gsl_root_test_interval (x_lo, x_hi,
@@ -429,13 +429,13 @@ int vortexExtTreshold(int Height,int Width, int nCnect,double theta,
 }
 
 int vortexExt2ndSwirl(int Height,int Width, int nCnect,
-                      double *x0, double *dx,double *sField,
-                      double *gField,int *label,double **vCatalogOut)
+                      float *x0, float *dx,float *sField,
+                      float *gField,int *label,float **vCatalogOut)
 {
   int i,j,k;
-  double G,a,b,x,y,rc,gradU[2][2]; // vorticity
-  double w[nCnect],A[nCnect],a0[nCnect],b0[nCnect];
-  double *vCatalog=NULL;
+  float G,a,b,x,y,rc,gradU[2][2]; // vorticity
+  float w[nCnect],A[nCnect],a0[nCnect],b0[nCnect];
+  float *vCatalog=NULL;
 
   if((Height<=0)||(Width<=0))
     return -1;

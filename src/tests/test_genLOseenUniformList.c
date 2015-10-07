@@ -9,9 +9,9 @@
 int main(int argc,char **argv){
   const int numVortex=5;
   int i,err,seed=98755;
-  double Gmin=1,Gmax=2,rmin=1,rmax=2;
-  double xmin[2]={-4.,-4.},xmax[2]={4.,4.};
-  double *parVortex=NULL;
+  float Gmin=1,Gmax=2,rmin=1,rmax=2;
+  float xmin[2]={-4.,-4.},xmax[2]={4.,4.};
+  float *parVortex=NULL;
 
   if(argc>1)
   	seed = atoi(argv[1]);
