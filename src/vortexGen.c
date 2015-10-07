@@ -4,17 +4,17 @@
 #include <string.h>
 #include "mt64.h"
 
-float distf(float a,float b){
+double distf(double a,double b){
   return sqrtf(a*a+b*b);
 }
 
-int genLOseenUniformList(float Gmin,float Gmax, float rmin,float rmax,
-	                     float *xmin,float *xmax, unsigned long long int seed,
-	                     int numVortex,float **parVortexOut){
+int genLOseenUniformList(double Gmin,double Gmax, double rmin,double rmax,
+	                     double *xmin,double *xmax, unsigned long long int seed,
+	                     int numVortex,double **parVortexOut){
   const int itMax = 100,gitMax=200;
   int i,j,taint=0,it=0,git=0;
   static int stat_counter=0;
-  float G,rc,a,b,r,*parVortex;
+  double G,rc,a,b,r,*parVortex;
 
   if(fabs(xmax[0]-xmin[0])<=0)
     return -1;
@@ -27,7 +27,7 @@ int genLOseenUniformList(float Gmin,float Gmax, float rmin,float rmax,
   }
   
   if(*parVortexOut==NULL)
-    parVortex=(float*)malloc(4*numVortex*sizeof(float));
+    parVortex=(double*)malloc(4*numVortex*sizeof(double));
   else
     parVortex=*parVortexOut;
 
@@ -91,13 +91,13 @@ int genLOseenUniformList(float Gmin,float Gmax, float rmin,float rmax,
   return 0;
 }
 
-int genLOseenSignUniformList(float Gmin,float Gmax, float rmin,float rmax,
-                         float *xmin,float *xmax, unsigned long long int seed,
-                         int numVortex,float **parVortexOut){
+int genLOseenSignUniformList(double Gmin,double Gmax, double rmin,double rmax,
+                         double *xmin,double *xmax, unsigned long long int seed,
+                         int numVortex,double **parVortexOut){
   const int itMax = 100,gitMax=200;
   int i,j,taint=0,it=0,git=0,sign;
   static int stat_counter=0;
-  float G,rc,a,b,r,*parVortex;
+  double G,rc,a,b,r,*parVortex;
 
   if(fabs(xmax[0]-xmin[0])<=0)
     return -1;
@@ -110,7 +110,7 @@ int genLOseenSignUniformList(float Gmin,float Gmax, float rmin,float rmax,
   }
   
   if(*parVortexOut==NULL)
-    parVortex=(float*)malloc(4*numVortex*sizeof(float));
+    parVortex=(double*)malloc(4*numVortex*sizeof(double));
   else
     parVortex=*parVortexOut;
 
@@ -183,12 +183,12 @@ int genLOseenSignUniformList(float Gmin,float Gmax, float rmin,float rmax,
 }
 
 
-int genLOseenBinaryList(float Gmin,float Gmax, float rmin,float rmax,
-	                    float *xmin,float *xmax, unsigned long long int seed,
-	                    int numVortex,float **parVortexOut){
+int genLOseenBinaryList(double Gmin,double Gmax, double rmin,double rmax,
+	                    double *xmin,double *xmax, unsigned long long int seed,
+	                    int numVortex,double **parVortexOut){
   int i,j,taint=0;
   static int stat_counter=0;
-  float G,rc,a,b,r,*parVortex;
+  double G,rc,a,b,r,*parVortex;
 
   if(fabs(xmax[0]-xmin[0])<=0)
     return 1;
@@ -201,14 +201,14 @@ int genLOseenBinaryList(float Gmin,float Gmax, float rmin,float rmax,
   }
 
   if(*parVortexOut==NULL)
-    parVortex=(float*)malloc(4*numVortex*sizeof(float));
+    parVortex=(double*)malloc(4*numVortex*sizeof(double));
   else
     parVortex=*parVortexOut;
   
   for(i=0;i<numVortex;i+=1){
     do{
-      G  = Gmin+(Gmax-Gmin)*((float)(genrand64_int64()%2));
-      rc = rmin+(rmax-rmin)*((float)(genrand64_int64()%2));
+      G  = Gmin+(Gmax-Gmin)*((double)(genrand64_int64()%2));
+      rc = rmin+(rmax-rmin)*((double)(genrand64_int64()%2));
       a  = xmin[0]+(xmax[0]-xmin[0])*(genrand64_real1());
       b  = xmin[1]+(xmax[1]-xmin[1])*(genrand64_real1());
      
@@ -231,12 +231,12 @@ int genLOseenBinaryList(float Gmin,float Gmax, float rmin,float rmax,
   return 0;
 }
 
-int genLOseenLucaList(float Gmin,float Gmax, float rmin,float rmax,
-                      float *xmin,float *xmax, unsigned long long int seed,
-                      int numVortex,float **parVortexOut){
+int genLOseenLucaList(double Gmin,double Gmax, double rmin,double rmax,
+                      double *xmin,double *xmax, unsigned long long int seed,
+                      int numVortex,double **parVortexOut){
   int i,j,taint=0;
   static int stat_counter=0;
-  float G,rc,a,b,r,*parVortex;
+  double G,rc,a,b,r,*parVortex;
 
   if(fabs(xmax[0]-xmin[0])<=0)
     return 1;
@@ -249,13 +249,13 @@ int genLOseenLucaList(float Gmin,float Gmax, float rmin,float rmax,
   }
 
   if(*parVortexOut==NULL)
-    parVortex=(float*)malloc(4*numVortex*sizeof(float));
+    parVortex=(double*)malloc(4*numVortex*sizeof(double));
   else
     parVortex=*parVortexOut;
   
   for(i=0;i<numVortex;i+=1){
-    G  = Gmin+(Gmax-Gmin)*((float)(genrand64_int64()%2));
-    rc = rmin+(rmax-rmin)*((float)(genrand64_int64()%2));
+    G  = Gmin+(Gmax-Gmin)*((double)(genrand64_int64()%2));
+    rc = rmin+(rmax-rmin)*((double)(genrand64_int64()%2));
    
     parVortex[4*i+0]=G;
     parVortex[4*i+1]=rc;
@@ -283,13 +283,13 @@ int genLOseenLucaList(float Gmin,float Gmax, float rmin,float rmax,
   return 0;
 }
 
-int genLOseenNaryList(int numG, float *Glist, int numRc, float *Rclist,
-                      float *xmin,float *xmax, unsigned long long int seed,
-                      int numVortex,float **parVortexOut){
+int genLOseenNaryList(int numG, double *Glist, int numRc, double *Rclist,
+                      double *xmin,double *xmax, unsigned long long int seed,
+                      int numVortex,double **parVortexOut){
   int i,j,taint=0;
   long long int counter;
   static int stat_counter=0;
-  float G,rc,a,b,r,*parVortex;
+  double G,rc,a,b,r,*parVortex;
 
   if(fabs(xmax[0]-xmin[0])<=0)
     return 1;
@@ -302,7 +302,7 @@ int genLOseenNaryList(int numG, float *Glist, int numRc, float *Rclist,
   }
 
   if(*parVortexOut==NULL)
-    parVortex=(float*)malloc(4*numVortex*sizeof(float));
+    parVortex=(double*)malloc(4*numVortex*sizeof(double));
   else
     parVortex=*parVortexOut;
   

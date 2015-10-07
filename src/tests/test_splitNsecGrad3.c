@@ -17,18 +17,18 @@
                                       ptr[i]=(type) 0;                  \
                                   }                                     \
 
-int oseenUxxy(int nVortex,float *parVortex, float *x0, float *dx, 
-              int Height,int Width, float **sRefOut);
+int oseenUxxy(int nVortex,double *parVortex, double *x0, double *dx, 
+              int Height,int Width, double **sRefOut);
 
 int main(int argc,char **argv){
   const int Width = 100, Height = 100, Pop=10,nVortex=3;
   int i,j,err,ngbr,found, padWidth=2;
   int nbList[8],label[Width*Height],eqList[Pop],**eqClass;
-  float parVortex[4*nVortex],x0[2],dx[2],xf[2],*sField=NULL;
-  float *gField=NULL,*g2Field=NULL,*uField=NULL,X[Width],Y[Height];
-  float *uBuff=NULL,Xbuff[Width+4],Ybuff[Height+4],*g2Ref;
-  float *ux,*uy,*uxxy,*uxyy,*uxxx,*uyyy,*w,*sRef1,*sRef2;
-  float x,y,v0y0 = 0.0,theta;
+  double parVortex[4*nVortex],x0[2],dx[2],xf[2],*sField=NULL;
+  double *gField=NULL,*g2Field=NULL,*uField=NULL,X[Width],Y[Height];
+  double *uBuff=NULL,Xbuff[Width+4],Ybuff[Height+4],*g2Ref;
+  double *ux,*uy,*uxxy,*uxyy,*uxxx,*uyyy,*w,*sRef1,*sRef2;
+  double x,y,v0y0 = 0.0,theta;
 
   eqClass=(int**)malloc(NumCls*sizeof(int*));
   if(eqClass==NULL)
@@ -47,24 +47,24 @@ int main(int argc,char **argv){
   parVortex[4+0]=1.; parVortex[4+1]=1.; parVortex[4+2]=2.; parVortex[4+3]=0.;
   parVortex[8+0]=1.; parVortex[8+1]=1.; parVortex[8+2]=0.; parVortex[8+3]=4.;
  
-  fieldAlloc(sField ,Height*Width,float);
-  fieldAlloc(sRef1 ,Height*Width,float);
-  fieldAlloc(gField ,4*Height*Width,float);
-  fieldAlloc(g2Field,4*Height*Width,float);
-  fieldAlloc(g2Ref,4*Height*Width,float);
-  fieldAlloc(uField,2*Height*Width,float);
-  fieldAlloc(  ux  ,2*Height*Width,float);
-  fieldAlloc(  uy  ,2*Height*Width,float);
-  fieldAlloc( uxxy ,2*Height*Width,float);
-  fieldAlloc( uxyy ,2*Height*Width,float);
-  fieldAlloc( uxxx ,2*Height*Width,float);
-  fieldAlloc( uyyy ,2*Height*Width,float);
-  fieldAlloc(uBuff ,2*(Height+2*padWidth)*(Width+2*padWidth),float);
+  fieldAlloc(sField ,Height*Width,double);
+  fieldAlloc(sRef1 ,Height*Width,double);
+  fieldAlloc(gField ,4*Height*Width,double);
+  fieldAlloc(g2Field,4*Height*Width,double);
+  fieldAlloc(g2Ref,4*Height*Width,double);
+  fieldAlloc(uField,2*Height*Width,double);
+  fieldAlloc(  ux  ,2*Height*Width,double);
+  fieldAlloc(  uy  ,2*Height*Width,double);
+  fieldAlloc( uxxy ,2*Height*Width,double);
+  fieldAlloc( uxyy ,2*Height*Width,double);
+  fieldAlloc( uxxx ,2*Height*Width,double);
+  fieldAlloc( uyyy ,2*Height*Width,double);
+  fieldAlloc(uBuff ,2*(Height+2*padWidth)*(Width+2*padWidth),double);
 
   for(j=0;j<Width;j+=1)
-    X[j] = x0[0] + ((float)j)*dx[0];
+    X[j] = x0[0] + ((double)j)*dx[0];
   for(i=0;i<Height;i+=1)
-    Y[i] = x0[1] + ((float)i)*dx[1];
+    Y[i] = x0[1] + ((double)i)*dx[1];
 
   err = XtoXbuff(Width,X,Xbuff,padWidth);
   if(err!=0)
@@ -303,12 +303,12 @@ int main(int argc,char **argv){
   return 0;
 }
 
-int oseenUxxy(int nVortex,float *parVortex, float *x0, float *dx, 
-              int Height,int Width, float **sRefOut){
+int oseenUxxy(int nVortex,double *parVortex, double *x0, double *dx, 
+              int Height,int Width, double **sRefOut){
   int i,j,k;
-  float *sRef;
-  float s,a,b,G,R,x,y,fa,fb,r2,r,lamb,cutoff=0.001;
-  float s0,xa2,yb2,R2;
+  double *sRef;
+  double s,a,b,G,R,x,y,fa,fb,r2,r,lamb,cutoff=0.001;
+  double s0,xa2,yb2,R2;
 
   if(*sRefOut==NULL)
     return 1;

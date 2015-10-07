@@ -9,7 +9,7 @@
 #define id(i,j,k) (Nx*Ny*(k)+Nx*(j)+(i))
 
 typedef struct openFoamIcoData {
-    float u,v,w,p;
+    double u,v,w,p;
 } openFoamIcoData;
 
 int comp (const void * elem1, const void * elem2);
@@ -19,7 +19,7 @@ int main(int argc,char** argv){
   int i,j,k,l,Npre,Nu,Np,Nx,Ny,Nz,Nn;
   char buffer[1024];
   char filename[100];
-  float dx,dz,Y[1000],dU,dV,dW;
+  double dx,dz,Y[1000],dU,dV,dW;
   FILE *uFile,*pFile,*nFile,*ouFile;
   FILE *zFile,*yFile,*wFile,*vFile;
   openFoamIcoData v[N],*node=NULL;
@@ -33,8 +33,8 @@ int main(int argc,char** argv){
   Nz=192;//Nz=192;
   Ny=96;//Ny=96;
 
-  dx = 2.0*M_PI/((float)Nx);
-  dz = 1.0*M_PI/((float)Nz);
+  dx = 2.0*M_PI/((double)Nx);
+  dz = 1.0*M_PI/((double)Nz);
 
   Npre=20; // preamble size
 
@@ -70,7 +70,7 @@ int main(int argc,char** argv){
   fgets(buffer,1024,nFile);
 
   for(j=0;j<Ny+1;j+=1){
-    float a,b,c;
+    double a,b,c;
     fscanf(nFile," (%lf%lf%lf)",&a,&b,&c);
     Y[j]=b;
     for(i=0;i<Nx+1;i+=1)

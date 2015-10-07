@@ -121,7 +121,7 @@ int vortexIdHandler(void* user, const char* section,
     vConfig->hNmax = atoi(value);
   else if(MATCH("Vortex-Generation","Glist")){
     if(vConfig->Glist==NULL)
-      vConfig->Glist=(float*)malloc((vConfig->numG)*sizeof(float));
+      vConfig->Glist=(double*)malloc((vConfig->numG)*sizeof(double));
     
     p=strtok(value," ");
     i=0;
@@ -133,7 +133,7 @@ int vortexIdHandler(void* user, const char* section,
   }
   else if(MATCH("Vortex-Generation","Rclist")){
     if(vConfig->Rclist==NULL)
-        vConfig->Rclist=(float*)malloc((vConfig->numRc)*sizeof(float));
+        vConfig->Rclist=(double*)malloc((vConfig->numRc)*sizeof(double));
     p=strtok(value," ");
     i=0;
     while(p!=NULL){

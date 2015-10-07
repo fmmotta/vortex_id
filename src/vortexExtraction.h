@@ -1,42 +1,42 @@
 
 int vortexExtraction(int Height,int Width, int nCnect,
-	                 float *x0, float *dx,float *sField,
-	                 float *gField,int *label,float **vCatalogOut);
+	                 double *x0, double *dx,double *sField,
+	                 double *gField,int *label,double **vCatalogOut);
 
-int vortexExtSimple(int Height,int Width,float *x0, float *dx,
-                    int **eqClass,float *sField,float *gField,int *label,
-                    float threshold,int *nCnectOut,float **vCatalogOut);
+int vortexExtSimple(int Height,int Width,double *x0, double *dx,
+                    int **eqClass,double *sField,double *gField,int *label,
+                    double threshold,int *nCnectOut,double **vCatalogOut);
 
-void vortexQuickSort(float *v,int nCnect,
-                     int cmp(const float*,const float*));
+void vortexQuickSort(double *v,int nCnect,
+                     int cmp(const double*,const double*));
 
-int vortexExtRecursive(int Height,int Width,float *x0, float *dx,int **eqClass,
-                       float *sField,float *gField,int *label, float threshold, 
-                       float *vCatalog, int *rCnectOut,float **rCatalogOut);
+int vortexExtRecursive(int Height,int Width,double *x0, double *dx,int **eqClass,
+                       double *sField,double *gField,int *label, double threshold, 
+                       double *vCatalog, int *rCnectOut,double **rCatalogOut);
 
-int applySwirlingStrengthThreshold(int Height,int Width,float *sField,
-                                   float theta);
+int applySwirlingStrengthThreshold(int Height,int Width,double *sField,
+                                   double theta);
 
-int vortexExtTreshold(int Height,int Width, int nCnect,float theta,
-                      float *x0, float *dx,float *sField,
-                      float *gField,int *label,float **vCatalogOut);
+int vortexExtTreshold(int Height,int Width, int nCnect,double theta,
+                      double *x0, double *dx,double *sField,
+                      double *gField,int *label,double **vCatalogOut);
 
 int vortexExt2ndSwirl(int Height,int Width, int nCnect,
-                      float *x0, float *dx,float *sField,
-                      float *gField,int *label,float **vCatalogOut);
+                      double *x0, double *dx,double *sField,
+                      double *gField,int *label,double **vCatalogOut);
 
-int lesserCirculation(const float *v,const float *p);
+int lesserCirculation(const double *v,const double *p);
 
-int greaterCirculation(const float *v,const float *p);
+int greaterCirculation(const double *v,const double *p);
 
-int greaterAbsCirculation(const float *v,const float *p);
+int greaterAbsCirculation(const double *v,const double *p);
 
-int lesserVorticity(const float *v,const float *p);
+int lesserVorticity(const double *v,const double *p);
 
-int greaterVorticity(const float *v,const float *p);
+int greaterVorticity(const double *v,const double *p);
 
-int greaterAbsVorticity(const float *v,const float *p);
+int greaterAbsVorticity(const double *v,const double *p);
 
-int lesserRadius(const float *v,const float *p);
+int lesserRadius(const double *v,const double *p);
 
-int greaterRadius(const float *v,const float *p);
+int greaterRadius(const double *v,const double *p);

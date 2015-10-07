@@ -71,10 +71,10 @@ unsigned long long genrand64_int64(void);
 long long genrand64_int63(void);
 
 /* generates a random number on [0,1]-real-interval */
-float genrand64_real1(void);
+double genrand64_real1(void);
 
 /* generates a random number on [0,1)-real-interval */
-float genrand64_real2(void);
+double genrand64_real2(void);
 
 /* generates a random number on (0,1)-real-interval */
-float genrand64_real3(void);
+double genrand64_real3(void);

@@ -14,10 +14,10 @@ int main(int argc,char **argv){
   int seed=98755;
   int i,j,err,ngbr,found,nCnect,*label;
   int nbList[8],eqList[Pop],**eqClass;
-  float Gmin=1,Gmax=2,rmin=1,rmax=1;
-  float xmin[2]={-9.,-9.},xmax[2]={9.,9.};
-  float *parVortex=NULL,x0[2],dx[2],xf[2],*sField=NULL,*gField;
-  float x,y,*vCatalog=NULL;
+  double Gmin=1,Gmax=2,rmin=1,rmax=1;
+  double xmin[2]={-9.,-9.},xmax[2]={9.,9.};
+  double *parVortex=NULL,x0[2],dx[2],xf[2],*sField=NULL,*gField;
+  double x,y,*vCatalog=NULL;
 
   x0[0]=-10.; xf[0]= 10.; dx[0] = (xf[0]-x0[0])/Height;
   x0[1]=-10.; xf[1]= 10.; dx[1] = (xf[1]-x0[1])/Width;
@@ -37,7 +37,7 @@ int main(int argc,char **argv){
       return(i+2);
   }
 
-  gField = (float *)malloc(4*Height*Width*sizeof(float));
+  gField = (double *)malloc(4*Height*Width*sizeof(double));
   if(gField==NULL){
     printf("memory not allocked\n");
     return 1;

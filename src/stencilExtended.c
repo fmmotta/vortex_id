@@ -102,7 +102,7 @@ i-3*padWidth-1 = 197 - 9 - 1 = 187
 
 */
 
-int XtoXbuff(int Width,float *X,float *Xbuff,int padWidth){
+int XtoXbuff(int Width,double *X,double *Xbuff,int padWidth){
   int i;
 
   if(Width<=0)
@@ -130,12 +130,12 @@ int XtoXbuff(int Width,float *X,float *Xbuff,int padWidth){
   Must test this function if a lot of care
  */
 
-int uFieldTouBuff(int Height,int Width,float *uField,float *uBuff,int padWidth)
+int uFieldTouBuff(int Height,int Width,double *uField,double *uBuff,int padWidth)
 {
   int i,j,ip,jp;
-  float um,u0,up,vm,v0,vp;
-  float ax,ay,bx,by;
-  float cp,c0,cm;
+  double um,u0,up,vm,v0,vp;
+  double ax,ay,bx,by;
+  double cp,c0,cm;
   
   if(Width<0 || Height<0)
     return -1;
@@ -202,12 +202,12 @@ int uFieldTouBuff(int Height,int Width,float *uField,float *uBuff,int padWidth)
 /*
  * \partial_x \vec u = (\partial_x u,\partial_x v) stencil calculation
  */
-int UtoUx5point(int Height,int Width,float *uDel,float *uBuff,
-                float *Xbuff,float *Ybuff)
+int UtoUx5point(int Height,int Width,double *uDel,double *uBuff,
+                double *Xbuff,double *Ybuff)
 {
   const int MaskWidth=5,padWidth=2;
   int i,j,ip,jp,ii,jj;
-  float a1,a2,a3,a4,c[MaskWidth]; // x positions and weights
+  double a1,a2,a3,a4,c[MaskWidth]; // x positions and weights
   
   if(Width<0 || Height<0)
     return -1;
@@ -265,12 +265,12 @@ int UtoUx5point(int Height,int Width,float *uDel,float *uBuff,
 /*
  * \partial_y \vec u = (\partial_y u,\partial_y v) stencil calculation
  */ 
-int UtoUy5point(int Height,int Width,float *uDel,float *uBuff,
-                float *Xbuff,float *Ybuff)
+int UtoUy5point(int Height,int Width,double *uDel,double *uBuff,
+                double *Xbuff,double *Ybuff)
 {
   const int MaskWidth=5,padWidth=2;
   int i,j,ip,jp,ii,jj;
-  float b1,b2,b3,b4,d[MaskWidth]; // y positions and weights
+  double b1,b2,b3,b4,d[MaskWidth]; // y positions and weights
   
   if(Width<0 || Height<0)
     return -1;
@@ -328,12 +328,12 @@ int UtoUy5point(int Height,int Width,float *uDel,float *uBuff,
 /*
  * \partial_xx \vec u = (\partial_xx u,\partial_xx v) stencil calculation
  */
-int UtoUxx5point(int Height,int Width,float *uDel,float *uBuff,
-                 float *Xbuff,float *Ybuff)
+int UtoUxx5point(int Height,int Width,double *uDel,double *uBuff,
+                 double *Xbuff,double *Ybuff)
 {
   const int MaskWidth=5,padWidth=2;
   int i,j,ip,jp,ii,jj;
-  float a1,a2,a3,a4,c[MaskWidth]; // x positions and weights
+  double a1,a2,a3,a4,c[MaskWidth]; // x positions and weights
   
   if(Width<0 || Height<0)
     return -1;
@@ -391,12 +391,12 @@ int UtoUxx5point(int Height,int Width,float *uDel,float *uBuff,
 /*
  * \partial_yy \vec u = (\partial_yy u,\partial_yy v) stencil calculation
  */
-int UtoUyy5point(int Height,int Width,float *uDel,float *uBuff,
-                float *Xbuff,float *Ybuff)
+int UtoUyy5point(int Height,int Width,double *uDel,double *uBuff,
+                double *Xbuff,double *Ybuff)
 {
   const int MaskWidth=5,padWidth=2;
   int i,j,ip,jp,ii,jj;
-  float b1,b2,b3,b4,d[MaskWidth]; // y positions and weights
+  double b1,b2,b3,b4,d[MaskWidth]; // y positions and weights
   
   if(Width<0 || Height<0)
     return -1;
@@ -461,12 +461,12 @@ int UtoUyy5point(int Height,int Width,float *uDel,float *uBuff,
 /*
  * \partial_xxx \vec u = (\partial_xxx u,\partial_xxx v) stencil calculation
  */
-int UtoUxxx5point(int Height,int Width,float *uDel,float *uBuff,
-                 float *Xbuff,float *Ybuff)
+int UtoUxxx5point(int Height,int Width,double *uDel,double *uBuff,
+                 double *Xbuff,double *Ybuff)
 {
   const int MaskWidth=5,padWidth=2;
   int i,j,ip,jp,ii,jj;
-  float a1,a2,a3,a4,c[MaskWidth]; // x positions and weights
+  double a1,a2,a3,a4,c[MaskWidth]; // x positions and weights
   
   if(Width<0 || Height<0)
     return -1;
@@ -524,12 +524,12 @@ int UtoUxxx5point(int Height,int Width,float *uDel,float *uBuff,
 /*
  * \partial_yyy \vec u = (\partial_yyy u,\partial_yyy v) stencil calculation
  */
-int UtoUyyy5point(int Height,int Width,float *uDel,float *uBuff,
-                float *Xbuff,float *Ybuff)
+int UtoUyyy5point(int Height,int Width,double *uDel,double *uBuff,
+                double *Xbuff,double *Ybuff)
 {
   const int MaskWidth=5,padWidth=2;
   int i,j,ip,jp,ii,jj;
-  float b1,b2,b3,b4,d[MaskWidth]; // y positions and weights
+  double b1,b2,b3,b4,d[MaskWidth]; // y positions and weights
   
   if(Width<0 || Height<0)
     return -1;
@@ -584,12 +584,12 @@ int UtoUyyy5point(int Height,int Width,float *uDel,float *uBuff,
   return 0;
 }
 
-int gradU2UtoLambda(int Height,int Width, float *gField,float *g2Field,
-                    float **sFieldOut)
+int gradU2UtoLambda(int Height,int Width, double *gField,double *g2Field,
+                    double **sFieldOut)
 {
   int i,j,k;
-  float gradU[2][2],grad2U[2][2],*sField,w,D2w;
-  float a,b,G,R,x,y,fa,fb,r2,r,lamb,cutoff=0.001;
+  double gradU[2][2],grad2U[2][2],*sField,w,D2w;
+  double a,b,G,R,x,y,fa,fb,r2,r,lamb,cutoff=0.001;
   
   if((*sFieldOut) == NULL) 
     return -10;

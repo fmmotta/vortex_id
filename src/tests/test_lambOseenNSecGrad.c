@@ -10,10 +10,10 @@ int main(int argc,char **argv){
   const int Width = 100, Height = 100, Pop=10,nVortex=3;
   int i,j,err,ngbr,found, padWidth=2;
   int nbList[8],label[Width*Height],eqList[Pop],**eqClass;
-  float parVortex[4*nVortex],x0[2],dx[2],xf[2],*sField=NULL;
-  float *gField=NULL,*g2Field,*uField=NULL,X[Width],Y[Height];
-  float *uBuff=NULL,Xbuff[Width+4],Ybuff[Height+4];
-  float x,y,v0y0 = 0.05;
+  double parVortex[4*nVortex],x0[2],dx[2],xf[2],*sField=NULL;
+  double *gField=NULL,*g2Field,*uField=NULL,X[Width],Y[Height];
+  double *uBuff=NULL,Xbuff[Width+4],Ybuff[Height+4];
+  double x,y,v0y0 = 0.05;
 
   eqClass=(int**)malloc(NumCls*sizeof(int*));
   if(eqClass==NULL)
@@ -31,7 +31,7 @@ int main(int argc,char **argv){
   parVortex[4+0]=1.; parVortex[4+1]=1.;  parVortex[4+2]=2.; parVortex[4+3]=0.;
   parVortex[8+0]=1.; parVortex[8+1]=1.;  parVortex[8+2]=0.; parVortex[8+3]=4.;
 
-  gField = (float *)malloc(4*Height*Width*sizeof(float));
+  gField = (double *)malloc(4*Height*Width*sizeof(double));
   if(gField==NULL){
     printf("memory not allocked\n");
     return 1;
@@ -39,7 +39,7 @@ int main(int argc,char **argv){
   for(i=0;i<4*Height*Width;i+=1)
     gField[i]=0.;
 
-  g2Field = (float *)malloc(4*Height*Width*sizeof(float));
+  g2Field = (double *)malloc(4*Height*Width*sizeof(double));
   if(g2Field==NULL){
     printf("memory not allocked\n");
     return 1;
@@ -47,7 +47,7 @@ int main(int argc,char **argv){
   for(i=0;i<4*Height*Width;i+=1)
     g2Field[i]=0.;
 
-  uField = (float *)malloc(2*Height*Width*sizeof(float));
+  uField = (double *)malloc(2*Height*Width*sizeof(double));
   if(uField==NULL){
     printf("memory not allocked\n");
     return 1;
@@ -55,7 +55,7 @@ int main(int argc,char **argv){
   for(i=0;i<2*Height*Width;i+=1)
     uField[i]=0;
 
-  uBuff = (float *)malloc(2*(Height+2*padWidth)*(Width+2*padWidth)*sizeof(float));
+  uBuff = (double *)malloc(2*(Height+2*padWidth)*(Width+2*padWidth)*sizeof(double));
   if(uBuff==NULL){
     printf("memory not allocked\n");
     return 1;

@@ -18,35 +18,35 @@
 
 #define DEBUG_MODE false
 
-int fprintfRunParamSigned(FILE *dadosgen,long long int seed,float x0[],
-                         float xf[],float dx[],float Gmin, float Gmax,
-                         float rmin, float rmax, float xmin[], float xmax[], 
-                         float v0y0);
+int fprintfRunParamSigned(FILE *dadosgen,long long int seed,double x0[],
+                         double xf[],double dx[],double Gmin, double Gmax,
+                         double rmin, double rmax, double xmin[], double xmax[], 
+                         double v0y0);
 
-int histoIncVortex(int nVortex, float *parVortex,
+int histoIncVortex(int nVortex, double *parVortex,
                    gsl_histogram *iG, gsl_histogram *iRc,
                    gsl_histogram *ia, gsl_histogram *ib);
 
-int fprintVortex(FILE *dadosout, int run,int nVortex, float *vCatalog);
+int fprintVortex(FILE *dadosout, int run,int nVortex, double *vCatalog);
 
-int fprintsField(FILE *dadosout,float *x0,float *dx,
-                 int Width, int Height, float *sField);
+int fprintsField(FILE *dadosout,double *x0,double *dx,
+                 int Width, int Height, double *sField);
 
-int fprintLabels(FILE *dadosout,float *x0,float *dx,
+int fprintLabels(FILE *dadosout,double *x0,double *dx,
                  int Width, int Height, int *label);
 
-int genVortices(int genType,long long int seed, float xmin[],float xmax[], 
-                int nFixVortex, float **parVortex,
-                float Gmin,float Gmax,float rmin,float rmax,
-                float numG,float numRc, float *Glist,float *Rclist);
+int genVortices(int genType,long long int seed, double xmin[],double xmax[], 
+                int nFixVortex, double **parVortex,
+                double Gmin,double Gmax,double rmin,double rmax,
+                double numG,double numRc, double *Glist,double *Rclist);
 
-int calcScalarField(int runType,int Height,int Width,float x0[],float dx[],
-                    int nVortex,float *parVortex,float *gField,float v0y0,
-                    float *sField);
+int calcScalarField(int runType,int Height,int Width,double x0[],double dx[],
+                    int nVortex,double *parVortex,double *gField,double v0y0,
+                    double *sField);
 
 int vortexReconstruction(int runType,int Height, int Width, int nCnect, 
-                         float x0[],float dx[],float *sField, 
-                         float *gField,int *label,float **vCatalog);
+                         double x0[],double dx[],double *sField, 
+                         double *gField,int *label,double **vCatalog);
 
 int writeGnuplotScript(char *filename,char *folder,char *tag,
                        int nRuns,int nVortex);
@@ -59,12 +59,12 @@ int main(int argc,char **argv){
   long long int seed=98755;
   int hNG=50,hNRc=53,hNa=40,hNb=40,hNN=10;
   int i,j,err,nCnect,rCnect=0,n,it,nMax=500,pass=0;
-  float Gmin=1.,Gmax=20.,rmin=0.5,rmax=1.0,threshold=0.5;
-  float xmin[2]={-9.,-9.},xmax[2]={9.,9.};
-  float *parVortex=NULL,*Glist,*Rclist,cutoff=0.;
-  float x0[2],dx[2],xf[2],*sField=NULL,*gField=NULL;
-  float x,y,v0y0 = 0.00,*vCatalog=NULL,*rCatalog=NULL,*majorVortex=NULL;
-  float hGmin=0.,hGmax=0.,hRcMin=0.,hRcMax=0.;
+  double Gmin=1.,Gmax=20.,rmin=0.5,rmax=1.0,threshold=0.5;
+  double xmin[2]={-9.,-9.},xmax[2]={9.,9.};
+  double *parVortex=NULL,*Glist,*Rclist,cutoff=0.;
+  double x0[2],dx[2],xf[2],*sField=NULL,*gField=NULL;
+  double x,y,v0y0 = 0.00,*vCatalog=NULL,*rCatalog=NULL,*majorVortex=NULL;
+  double hGmin=0.,hGmax=0.,hRcMin=0.,hRcMax=0.;
   char genFile[300+1],folder[100+1],tag[100+1],filename[400+1];
   FILE *dadosgen,*dadosout,*dadosVin,*dadosVout,*dadosField;
   gsl_histogram *hG,*hRc,*ha,*hb,*hN;
@@ -117,12 +117,12 @@ int main(int argc,char **argv){
   numG    = cfg.numG;
   numRc   = cfg.numRc;
 
-  Glist   = (float*)malloc(numG*sizeof(float));
+  Glist   = (double*)malloc(numG*sizeof(double));
   if(Glist==NULL){printf("Can't allocate Glist\n"); return 3;}
   for(i=0;i<numG;i+=1)
     Glist[i] = cfg.Glist[i];
 
-  Rclist   = (float*)malloc(numRc*sizeof(float));
+  Rclist   = (double*)malloc(numRc*sizeof(double));
   if(Rclist==NULL){printf("Can't allocate Glist\n"); return 3;}
   for(i=0;i<numRc;i+=1)
     Rclist[i]=cfg.Rclist[i];
@@ -165,13 +165,13 @@ int main(int argc,char **argv){
   /* End Loading Configuration */
   /* Memory Allocation */
 
-  gField = (float *)malloc(4*Height*Width*sizeof(float));
+  gField = (double *)malloc(4*Height*Width*sizeof(double));
   if(gField==NULL){
     printf("memory not allocked\n");
     return 1;
   }
   
-  sField = (float *)malloc(Height*Width*sizeof(float));
+  sField = (double *)malloc(Height*Width*sizeof(double));
   if(sField==NULL){
     printf("memory not allocked\n");
     return 1;
@@ -192,13 +192,13 @@ int main(int argc,char **argv){
       return(i+2);
   }
 
-  vCatalog = (float*)malloc(4*nMax*sizeof(float));
+  vCatalog = (double*)malloc(4*nMax*sizeof(double));
   if(vCatalog==NULL){
     printf("memory not allocked\n");
     return 3;
   }
 
-  rCatalog = (float*)malloc(4*nMax*sizeof(float));
+  rCatalog = (double*)malloc(4*nMax*sizeof(double));
   if(rCatalog==NULL){
     printf("memory not allocked\n");
     return 4;
@@ -429,10 +429,10 @@ int main(int argc,char **argv){
   return 0;
 }
 
-int fprintfRunParamSigned(FILE *dadosgen,long long int seed,float x0[],
-                         float xf[],float dx[],float Gmin, float Gmax,
-                         float rmin, float rmax, float xmin[], float xmax[], 
-                         float v0y0)
+int fprintfRunParamSigned(FILE *dadosgen,long long int seed,double x0[],
+                         double xf[],double dx[],double Gmin, double Gmax,
+                         double rmin, double rmax, double xmin[], double xmax[], 
+                         double v0y0)
 {
   int i;
 
@@ -453,7 +453,7 @@ int fprintfRunParamSigned(FILE *dadosgen,long long int seed,float x0[],
   return 0;
 }
 
-int histoIncVortex(int nVortex, float *parVortex,
+int histoIncVortex(int nVortex, double *parVortex,
                    gsl_histogram *iG, gsl_histogram *iRc,
                    gsl_histogram *ia, gsl_histogram *ib){
   int i;
@@ -468,7 +468,7 @@ int histoIncVortex(int nVortex, float *parVortex,
   return 0;
 }
 
-int fprintVortex(FILE *dadosout, int run,int nVortex, float *vCatalog){
+int fprintVortex(FILE *dadosout, int run,int nVortex, double *vCatalog){
   int i;
 
   if(dadosout==NULL || run<0 || nVortex<=0 || vCatalog==NULL)
@@ -485,10 +485,10 @@ int fprintVortex(FILE *dadosout, int run,int nVortex, float *vCatalog){
   return 0;
 }
 
-int fprintsField(FILE *dadosout,float *x0,float *dx,
-                 int Width, int Height, float *sField){
+int fprintsField(FILE *dadosout,double *x0,double *dx,
+                 int Width, int Height, double *sField){
   int i,j;
-  float x,y;
+  double x,y;
 
   if(dadosout==NULL || Width<0 || Height<=0 || sField==NULL)
     return 1;
@@ -504,10 +504,10 @@ int fprintsField(FILE *dadosout,float *x0,float *dx,
   return 0;
 }
 
-int fprintLabels(FILE *dadosout,float *x0,float *dx,
+int fprintLabels(FILE *dadosout,double *x0,double *dx,
                  int Width, int Height, int *label){
   int i,j;
-  float x,y;
+  double x,y;
 
   if(dadosout==NULL || Width<0 || Height<=0 || label==NULL)
     return 1;
@@ -523,10 +523,10 @@ int fprintLabels(FILE *dadosout,float *x0,float *dx,
   return 0;
 }
 
-int genVortices(int genType,long long int seed, float xmin[],float xmax[], 
-                int nFixVortex, float **parVortex,
-                float Gmin,float Gmax,float rmin,float rmax,
-                float numG,float numRc, float *Glist,float *Rclist)
+int genVortices(int genType,long long int seed, double xmin[],double xmax[], 
+                int nFixVortex, double **parVortex,
+                double Gmin,double Gmax,double rmin,double rmax,
+                double numG,double numRc, double *Glist,double *Rclist)
 {
   int err,nVortex;
 
@@ -567,9 +567,9 @@ int genVortices(int genType,long long int seed, float xmin[],float xmax[],
 }
 
 
-int calcScalarField(int runType,int Height,int Width,float x0[],float dx[],
-                    int nVortex,float *parVortex,float *gField,float v0y0,
-                    float *sField)
+int calcScalarField(int runType,int Height,int Width,double x0[],double dx[],
+                    int nVortex,double *parVortex,double *gField,double v0y0,
+                    double *sField)
 {
   int err;
 
@@ -625,8 +625,8 @@ int calcScalarField(int runType,int Height,int Width,float x0[],float dx[],
 
 
 int vortexReconstruction(int runType,int Height, int Width, int nCnect, 
-                         float x0[],float dx[],float *sField, 
-                         float *gField,int *label,float **vCatalog)
+                         double x0[],double dx[],double *sField, 
+                         double *gField,int *label,double **vCatalog)
 {
   int err;
 
