@@ -140,7 +140,7 @@ int main(int argc,char **argv){
   if(err!=0)
     printf("Problems in gradU2UtoLambda\n");
 
-  theta = 0.17e-3; // Seems to be the minimal threshold to recover the correct
+  theta = 0.; // Seems to be the minimal threshold to recover the correct
   err=applySwirlingStrengthThreshold(Height,Width,sField,theta);// behaviour
   if(err!=0)
     printf("Problems in applySwirlingStrengthThreshold\n");

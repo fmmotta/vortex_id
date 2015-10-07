@@ -462,7 +462,7 @@ int UtoUyy5point(int Height,int Width,double *uDel,double *uBuff,
  * \partial_xxx \vec u = (\partial_xxx u,\partial_xxx v) stencil calculation
  */
 int UtoUxxx5point(int Height,int Width,double *uDel,double *uBuff,
-                 double *Xbuff,double *Ybuff)
+                  double *Xbuff,double *Ybuff)
 {
   const int MaskWidth=5,padWidth=2;
   int i,j,ip,jp,ii,jj;
@@ -525,7 +525,7 @@ int UtoUxxx5point(int Height,int Width,double *uDel,double *uBuff,
  * \partial_yyy \vec u = (\partial_yyy u,\partial_yyy v) stencil calculation
  */
 int UtoUyyy5point(int Height,int Width,double *uDel,double *uBuff,
-                double *Xbuff,double *Ybuff)
+                  double *Xbuff,double *Ybuff)
 {
   const int MaskWidth=5,padWidth=2;
   int i,j,ip,jp,ii,jj;
