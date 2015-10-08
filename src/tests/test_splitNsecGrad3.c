@@ -136,8 +136,8 @@ int main(int argc,char **argv){
     }
 
   //err = gradUtoLamb(Height,Width,gField,&sField);
-  err = gradUtoLamb(Height,Width,g2Field,&sField);
-  //err=gradU2UtoLambda(Height,Width,gField,g2Field,&sField);
+  //err = gradUtoLamb(Height,Width,g2Field,&sField);
+  err=gradU2UtoLambda(Height,Width,gField,g2Field,&sField);
   if(err!=0)
     printf("Problems in gradU2UtoLambda\n");
 
@@ -160,8 +160,8 @@ int main(int argc,char **argv){
   if(err!=0)
     printf("problems calculating g2Ref\n");
 
-  err = gradUtoLamb(Height,Width,g2Ref,&sRef2);
-  //err=s2ndGradUtoLamb(nVortex,parVortex,x0,dx,Height,Width,g2Ref,sRef2);
+  //err = gradUtoLamb(Height,Width,g2Ref,&sRef2);
+  err=s2ndGradUtoLamb(nVortex,parVortex,x0,dx,Height,Width,g2Ref,sRef2);
   if(err!=0)
     printf("Problems in gradU2UtoLambda\n");
 

@@ -367,6 +367,9 @@ int UtoUxx5point(int Height,int Width,double *uDel,double *uBuff,
       c[2] = 2.*(a3*a4+a2*(a3+a4)+a1*(a2+a3+a4)); c[2] /= a1*a2*a3*a4;
       c[3] = 2.*(a1*a4+a2*(a1+a4)); c[3] /= a3*(a3-a1)*(a3-a2)*(a3-a4);
       c[4] = 2.*(a2*a3+a1*(a2+a3)); c[4] /= a4*(a4-a1)*(a4-a2)*(a4-a3);
+
+      // -8.67 9.50 2.91 -4.67 0.916
+      printf("%f %f %f %f %f\n",c[0],c[1],c[2],c[3],c[4]);
       
       uDel[2*(i*Width+j)+0] += c[0]*uBuff[2*((i+padWidth)*(Width+2*padWidth)+(j+padWidth-2))+0];
       uDel[2*(i*Width+j)+1] += c[0]*uBuff[2*((i+padWidth)*(Width+2*padWidth)+(j+padWidth-2))+1];
