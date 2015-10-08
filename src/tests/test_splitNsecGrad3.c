@@ -42,13 +42,14 @@ int main(int argc,char **argv){
   x0[0]=-5.; xf[0]= 5.; dx[0] = (xf[0]-x0[0])/Height;
   x0[1]=-5.; xf[1]= 5.; dx[1] = (xf[1]-x0[1])/Width;
 
-  parVortex[0]=1.; parVortex[1]=1.; parVortex[2]=0.; parVortex[3]=0.;
+  //parVortex[0]=1.; parVortex[1]=1.; parVortex[2]=0.; parVortex[3]=0.;
   parVortex[0]=1.; parVortex[1]=1.; parVortex[2]=-2.; parVortex[3]=0.;
   parVortex[4+0]=1.; parVortex[4+1]=1.; parVortex[4+2]=2.; parVortex[4+3]=0.;
   parVortex[8+0]=1.; parVortex[8+1]=1.; parVortex[8+2]=0.; parVortex[8+3]=4.;
  
   fieldAlloc(sField ,Height*Width,double);
   fieldAlloc(sRef1 ,Height*Width,double);
+  fieldAlloc(sRef2 ,Height*Width,double);
   fieldAlloc(gField ,4*Height*Width,double);
   fieldAlloc(g2Field,4*Height*Width,double);
   fieldAlloc(g2Ref,4*Height*Width,double);
@@ -135,15 +136,15 @@ int main(int argc,char **argv){
     }
 
   //err = gradUtoLamb(Height,Width,gField,&sField);
-  //err = gradUtoLamb(Height,Width,g2Field,&sField);
-  err=gradU2UtoLambda(Height,Width,gField,g2Field,&sField);
+  err = gradUtoLamb(Height,Width,g2Field,&sField);
+  //err=gradU2UtoLambda(Height,Width,gField,g2Field,&sField);
   if(err!=0)
     printf("Problems in gradU2UtoLambda\n");
 
-  theta = 0.; // Seems to be the minimal threshold to recover the correct
-  err=applySwirlingStrengthThreshold(Height,Width,sField,theta);// behaviour
-  if(err!=0)
-    printf("Problems in applySwirlingStrengthThreshold\n");
+  //theta = 0.; // Seems to be the minimal threshold to recover the correct
+  //err=applySwirlingStrengthThreshold(Height,Width,sField,theta);// behaviour
+  //if(err!=0)
+  //  printf("Problems in applySwirlingStrengthThreshold\n");
 
   err = floodFill(sField,Width,Height,eqClass,label);
   if(err!=0)
@@ -159,6 +160,11 @@ int main(int argc,char **argv){
   if(err!=0)
     printf("problems calculating g2Ref\n");
 
+  err = gradUtoLamb(Height,Width,g2Ref,&sRef2);
+  //err=s2ndGradUtoLamb(nVortex,parVortex,x0,dx,Height,Width,g2Ref,sRef2);
+  if(err!=0)
+    printf("Problems in gradU2UtoLambda\n");
+
   {
     FILE *dadosout;
     dadosout=fopen("data/initUSplit-3.txt","w");
@@ -167,7 +173,8 @@ int main(int argc,char **argv){
         y = x0[0] + i*dx[0];
         x = x0[1] + j*dx[1];
         
-        fprintf(dadosout,"%f %f %.12f\n",x,y,sField[i*Width+j]);
+        fprintf(dadosout,"%f %f %.12f %.12f\n",x,y,sField[i*Width+j]
+                                              ,sRef2[i*Width+j]);
       }
 
     fclose(dadosout);dadosout=NULL;
