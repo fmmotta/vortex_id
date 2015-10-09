@@ -21,7 +21,7 @@ int oseenUxxy(int nVortex,double *parVortex, double *x0, double *dx,
               int Height,int Width, double **sRefOut);
 
 int main(int argc,char **argv){
-  const int Width = 100, Height = 100, Pop=10,nVortex=3;
+  const int Width = 100, Height = 100, Pop=10,nVortex=4;
   int i,j,err,ngbr,found, padWidth=2;
   int nbList[8],label[Width*Height],eqList[Pop],**eqClass;
   double parVortex[4*nVortex],x0[2],dx[2],xf[2],*sField=NULL;
@@ -45,7 +45,8 @@ int main(int argc,char **argv){
   //parVortex[0]=1.; parVortex[1]=1.; parVortex[2]=0.; parVortex[3]=0.;
   parVortex[0]=1.; parVortex[1]=1.; parVortex[2]=-3.; parVortex[3]=-3.;
   parVortex[4+0]=1.; parVortex[4+1]=1.; parVortex[4+2]=3.; parVortex[4+3]=-3.;
-  parVortex[8+0]=1.; parVortex[8+1]=1.; parVortex[8+2]=0.; parVortex[8+3]=4.;
+  parVortex[8+0]=1.; parVortex[8+1]=1.; parVortex[8+2]=-3.; parVortex[8+3]=3.;
+  parVortex[12+0]=1.; parVortex[12+1]=1.; parVortex[12+2]=3; parVortex[12+3]=3.;
  
   fieldAlloc(sField ,Height*Width,double);
   fieldAlloc(sRef1 ,Height*Width,double);
