@@ -43,8 +43,8 @@ int main(int argc,char **argv){
   x0[1]=-5.; xf[1]= 5.; dx[1] = (xf[1]-x0[1])/Width;
 
   //parVortex[0]=1.; parVortex[1]=1.; parVortex[2]=0.; parVortex[3]=0.;
-  parVortex[0]=1.; parVortex[1]=1.; parVortex[2]=-2.; parVortex[3]=0.;
-  parVortex[4+0]=1.; parVortex[4+1]=1.; parVortex[4+2]=2.; parVortex[4+3]=0.;
+  parVortex[0]=1.; parVortex[1]=1.; parVortex[2]=-3.; parVortex[3]=-3.;
+  parVortex[4+0]=1.; parVortex[4+1]=1.; parVortex[4+2]=3.; parVortex[4+3]=-3.;
   parVortex[8+0]=1.; parVortex[8+1]=1.; parVortex[8+2]=0.; parVortex[8+3]=4.;
  
   fieldAlloc(sField ,Height*Width,double);
