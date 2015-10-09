@@ -39,7 +39,7 @@ int print_u(int Height,int Width,double *uField,int padWidth,int comp){
 }
 
 int main(){  
-  const int Width = 10, Height = 10, padWidth=2;
+  const int Width = 20, Height = 20, padWidth=2;
   int i,j,err;
   double *uField,*uBuff;
   
