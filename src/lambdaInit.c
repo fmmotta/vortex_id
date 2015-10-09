@@ -209,7 +209,7 @@ int addOseen2ndGrad(int nVortex,double *parVortex, double *x0, double *dx,
         r2 = (x-a)*(x-a)+(y-b)*(y-b);
         r = sqrt(r2);
         
-        bulk = ((2.0*G)/(M_PI*R*R*R*R))*expf(-r2/(R*R));
+        bulk = ((2.0*G)/(M_PI*R*R*R*R))*exp(-r2/(R*R));
         gradU[0][0] +=   2.*(((x-a)*(y-b))/(R*R))*bulk;
         gradU[0][1] +=  (-1+2.*(((y-b)*(y-b))/(R*R)) )*bulk;
         gradU[1][0] +=  ( 1-2.*(((x-a)*(x-a))/(R*R)) )*bulk;

@@ -2,9 +2,10 @@
 # contain build directives for main binaries and tests
 
 # Compiler Choice : Gnu C Compiler ; Can change for icc
+# optional CFLAGS: -Wconversion -Wall
 CC = gcc
 INC_DIR = -Isrc -Isrc/inih
-CFLAGS = -c -O3 $(INC_DIR)
+CFLAGS = -c  -O3 $(INC_DIR) 
 LIBS = -lm -lgsl -lgslcblas
 
 default: main

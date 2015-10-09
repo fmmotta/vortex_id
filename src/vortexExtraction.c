@@ -270,7 +270,7 @@ int vortexExtRecursive(int Height,int Width,double *x0, double *dx,int **eqClass
 
     vortexQuickSort(vCatalog,nCnect,&greaterAbsCirculation);
 
-    if(abs(vCatalog[4*0+0])>threshold){
+    if(fabs(vCatalog[4*0+0])>threshold){
       pass=1; 
       rCnect+=1;
       majorVortex[0]=-vCatalog[0]; rCatalog[4*it+0] = vCatalog[0];
@@ -470,7 +470,7 @@ int vortexExt2ndSwirl(int Height,int Width, int nCnect,
     }
 
   for(k=0;k<nCnect;k+=1){
-    rc= sqrtf(A[k]/M_PI)*sqrtf(2.); // Constant comming from lamb-oseen vortex;
+    rc= sqrt(A[k]/M_PI)*sqrtf(2.); // Constant comming from lamb-oseen vortex;
     a=a0[k]/w[k]; 
     b=b0[k]/w[k]; 
     G = 0.8243606353500641*rc*rc*w[k]; // Constant comming from lamb-oseen 

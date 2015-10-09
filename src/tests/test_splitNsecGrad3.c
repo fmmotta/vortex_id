@@ -26,7 +26,7 @@ int main(int argc,char **argv){
   int nbList[8],label[Width*Height],eqList[Pop],**eqClass;
   double parVortex[4*nVortex],x0[2],dx[2],xf[2],*sField=NULL;
   double *gField=NULL,*g2Field=NULL,*uField=NULL,X[Width],Y[Height];
-  double *uBuff=NULL,Xbuff[Width+4],Ybuff[Height+4],*g2Ref;
+  double *uBuff=NULL,Xbuff[Width+4],Ybuff[Height+4],*g2Ref,*gRef;
   double *ux,*uy,*uxxy,*uxyy,*uxxx,*uyyy,*w,*sRef1,*sRef2;
   double x,y,v0y0 = 0.0,theta;
 
@@ -53,6 +53,7 @@ int main(int argc,char **argv){
   fieldAlloc(gField ,4*Height*Width,double);
   fieldAlloc(g2Field,4*Height*Width,double);
   fieldAlloc(g2Ref,4*Height*Width,double);
+  fieldAlloc(gRef,4*Height*Width,double);
   fieldAlloc(uField,2*Height*Width,double);
   fieldAlloc(  ux  ,2*Height*Width,double);
   fieldAlloc(  uy  ,2*Height*Width,double);
@@ -160,11 +161,14 @@ int main(int argc,char **argv){
   if(err!=0)
     printf("problems calculating g2Ref\n");
 
+  err = addSingleOseen(nVortex,parVortex,x0,dx,Height,Width,&gRef);
+  if(err!=0)
+    printf("Problems calculating gRef \n");
+
   //err = gradUtoLamb(Height,Width,g2Ref,&sRef2);
   err=s2ndGradUtoLamb(nVortex,parVortex,x0,dx,Height,Width,g2Ref,sRef2);
   if(err!=0)
     printf("Problems in gradU2UtoLambda\n");
-
   {
     FILE *dadosout;
     dadosout=fopen("data/initUSplit-3.txt","w");
@@ -291,10 +295,21 @@ int main(int argc,char **argv){
                                           g2Field[4*(i*Width+j)+1],
                                           g2Field[4*(i*Width+j)+2],
                                           g2Field[4*(i*Width+j)+3]);
-        fprintf(dadosout,"%.12f %.12f %.12f %.12f \n",g2Ref[4*(i*Width+j)+0],
+        fprintf(dadosout,"%.12f %.12f %.12f %.12f ",
+                                          g2Ref[4*(i*Width+j)+0],
                                           g2Ref[4*(i*Width+j)+1],
                                           g2Ref[4*(i*Width+j)+2],
                                           g2Ref[4*(i*Width+j)+3]);
+        fprintf(dadosout,"%.12f %.12f %.12f %.12f ",
+                                          gField[4*(i*Width+j)+0],
+                                          gField[4*(i*Width+j)+1],
+                                          gField[4*(i*Width+j)+2],
+                                          gField[4*(i*Width+j)+3]);
+        fprintf(dadosout,"%.12f %.12f %.12f %.12f \n",
+                                          gRef[4*(i*Width+j)+0],
+                                          gRef[4*(i*Width+j)+1],
+                                          gRef[4*(i*Width+j)+2],
+                                          gRef[4*(i*Width+j)+3]);
       }
     }
     fclose(dadosout);
