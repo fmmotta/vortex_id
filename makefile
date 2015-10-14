@@ -126,6 +126,9 @@ test_XtoXbuff: test_XtoXbuff.o stencilExtended.o
 test_uFieldTouBuff: test_uFieldTouBuff.o stencilExtended.o 
 	$(CC) -o bin/test_uFieldTouBuff obj/test_uFieldTouBuff.o obj/stencilExtended.o $(LIBS)
 
+test_preprocessing: test_preprocessing.o preprocessing.o
+	$(CC) -o bin/test_preprocessing obj/test_preprocessing.o obj/preprocessing.o
+
 main.o: src/main.c 
 	$(CC) $(CFLAGS) src/main.c -o obj/main.o
 
@@ -173,6 +176,9 @@ stencilManip.o: src/stencilManip.c
 
 stencilExtended.o: src/stencilExtended.c
 	$(CC) $(CFLAGS) src/stencilExtended.c -o obj/stencilExtended.o
+
+preprocessing.o: src/preprocessing.c
+	$(CC) $(CFLAGS) src/preprocessing.c -o obj/preprocessing.o
 
 test_floodFill.o: src/tests/test_floodFill.c src/floodFill.h
 	$(CC) $(CFLAGS) src/tests/test_floodFill.c -o obj/test_floodFill.o
@@ -269,6 +275,9 @@ test_XtoXbuff.o: src/tests/test_XtoXbuff.c
 
 test_uFieldTouBuff.o: src/tests/test_uFieldTouBuff.c
 	$(CC) $(CFLAGS) src/tests/test_uFieldTouBuff.c -o obj/test_uFieldTouBuff.o
+
+test_preprocessing.o: src/tests/test_preprocessing.c
+	$(CC) $(CFLAGS) src/tests/test_preprocessing.c -o obj/test_preprocessing.o
 
 clean:
 	rm bin/* obj/* data/*.txt data/*.tex data/*.eps data/*.pdf data/*.aux data/*.log

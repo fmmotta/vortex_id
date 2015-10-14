@@ -4,6 +4,7 @@ data/
 gfc/
 bin/
 src/devel
+data/DNS_OPEN_FOAM
 
 #ignore file types
 *.tex
