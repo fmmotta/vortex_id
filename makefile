@@ -126,8 +126,11 @@ test_XtoXbuff: test_XtoXbuff.o stencilExtended.o
 test_uFieldTouBuff: test_uFieldTouBuff.o stencilExtended.o 
 	$(CC) -o bin/test_uFieldTouBuff obj/test_uFieldTouBuff.o obj/stencilExtended.o $(LIBS)
 
-test_preprocessing: test_preprocessing.o preprocessing.o
+test_preprocessing: test_preprocessing.o preprocessing.o 
 	$(CC) -o bin/test_preprocessing obj/test_preprocessing.o obj/preprocessing.o
+
+test_FOAMsw: test_FOAMsw.o floodFill.o lambdaInit.o stencilExtended.o vortexExtraction.o preprocessing.o
+	$(CC) -o bin/test_FOAMsw obj/test_FOAMsw.o obj/floodFill.o obj/lambdaInit.o obj/stencilExtended.o obj/vortexExtraction.o obj/preprocessing.o $(LIBS)
 
 main.o: src/main.c 
 	$(CC) $(CFLAGS) src/main.c -o obj/main.o
@@ -278,6 +281,9 @@ test_uFieldTouBuff.o: src/tests/test_uFieldTouBuff.c
 
 test_preprocessing.o: src/tests/test_preprocessing.c
 	$(CC) $(CFLAGS) src/tests/test_preprocessing.c -o obj/test_preprocessing.o
+
+test_FOAMsw.o: src/tests/test_FOAMsw.c
+	$(CC) $(CFLAGS) src/tests/test_FOAMsw.c -o obj/test_FOAMsw.o
 
 clean:
 	rm bin/* obj/* data/*.txt data/*.tex data/*.eps data/*.pdf data/*.aux data/*.log
