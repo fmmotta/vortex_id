@@ -150,7 +150,7 @@ int main(int argc,char** argv){
 
   dbgPrint(7);
   
-  /*
+  
   // \partial_xxx \vec u
   err = UtoUxxx5point(Height,Width,uxxx,uBuff,Xbuff,Ybuff);
   if(err!=0)
@@ -182,7 +182,7 @@ int main(int argc,char** argv){
   err = UtoUyy5point(Height,Width,uxyy,uBuff,Xbuff,Ybuff);
   if(err!=0)
     printf("Problems in UtoUyy5point\n");
-  */
+  
 
   dbgPrint(11);
 
@@ -193,7 +193,7 @@ int main(int argc,char** argv){
       gField[4*(i*Width+j)+2] = ux[2*(i*Width+j)+1];
       gField[4*(i*Width+j)+3] = uy[2*(i*Width+j)+1];
     }
-  /*
+  
   for(i=0;i<Height;i+=1)
     for(j=0;j<Width;j+=1){
       g2Field[4*(i*Width+j)+0] = uxxy[2*(i*Width+j)+1]-uxyy[2*(i*Width+j)+0];
@@ -201,13 +201,13 @@ int main(int argc,char** argv){
       g2Field[4*(i*Width+j)+2] = uxxy[2*(i*Width+j)+0]-uxxx[2*(i*Width+j)+1];
       g2Field[4*(i*Width+j)+3] = uxyy[2*(i*Width+j)+0]-uxxy[2*(i*Width+j)+1];
     }
-  */
+  
 
   dbgPrint(12);
   
-  err = gradUtoLamb(Height,Width,gField,&sField);
+  //err = gradUtoLamb(Height,Width,gField,&sField);
   //err = gradUtoLamb(Height,Width,g2Field,&sField);
-  //err=gradU2UtoLambda(Height,Width,gField,g2Field,&sField);
+  err=gradU2UtoLambda(Height,Width,gField,g2Field,&sField);
   if(err!=0)
     printf("Problems in gradU2UtoLambda\n");
   
@@ -233,9 +233,9 @@ int main(int argc,char** argv){
     for(i=0;i<Height;i+=1)
       for(j=0;j<Width;j+=1){
         y = Y[i];
-        x = Z[j];
+        x = X[j];
         
-        fprintf(dadosout,"%f %f %.12f \n",x,y,sField[i*Width+j]);
+        fprintf(dadosout,"%f,%f,%.12f \n",x,y,sField[i*Width+j]);
       }
 
     fclose(dadosout);dadosout=NULL;
@@ -244,9 +244,9 @@ int main(int argc,char** argv){
     for(i=0;i<Height;i+=1){
       for(j=0;j<Width;j+=1){
         y = Y[i];
-        x = Z[j];
+        x = X[j];
         
-        fprintf(dadosout,"%f %f %2d \n",x,y,label[i*Width+j]+1);
+        fprintf(dadosout,"%f,%f,%4d \n",x,y,label[i*Width+j]+1);
       }
       fprintf(dadosout,"\n");
     }
@@ -262,6 +262,18 @@ int main(int argc,char** argv){
   for(i=0;i<NumCls;i+=1)
     free(eqClass[i]);
   free(eqClass);
+  /*
+  fieldAlloc(sField ,Height*Width,double);
+  fieldAlloc(gField ,4*Height*Width,double);
+  fieldAlloc(g2Field,4*Height*Width,double);
+  fieldAlloc(uField,2*Height*Width,double);
+  fieldAlloc(  ux  ,2*Height*Width,double);
+  fieldAlloc(  uy  ,2*Height*Width,double);
+  fieldAlloc( uxxy ,2*Height*Width,double);
+  fieldAlloc( uxyy ,2*Height*Width,double);
+  fieldAlloc( uxxx ,2*Height*Width,double);
+  fieldAlloc( uyyy ,2*Height*Width,double);
+  fieldAlloc(uBuff ,2*(Height+2*padWidth)*(Width+2*padWidth),double);*/
 
   return 0;
 
