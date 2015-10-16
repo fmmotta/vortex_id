@@ -25,10 +25,10 @@
 int main(int argc,char** argv){
   const int Height=96, Width=192,Depth=256,padWidth=2, Pop=10;
   long int N=6;
-  int i,j,k,l,Npre,Nu,Np,Nx,Ny,Nz,Nn,err;
+  int i,j,k,l,Npre,Nu,Np,Nx,Ny,Nz,Nn,err,auHeight,auWidth;
   int nbList[8],eqList[Pop],**eqClass,label[Width*Height];//,*label;
   char buffer[1024],filename[100];
-  double *sField=NULL,x,y;
+  double *sField=NULL,x,y,x0[2],dx[2];
   double Z[1000],X2[1000],Y2[1000],Z2[1000];
   double *gField=NULL,*g2Field=NULL,*uField=NULL,X[Width],Y[Height];
   double *uBuff=NULL,Xbuff[Width+4],Ybuff[Height+4];
@@ -150,39 +150,6 @@ int main(int argc,char** argv){
 
   dbgPrint(7);
   
-  /*
-  // \partial_xxx \vec u
-  err = UtoUxxx5point(Height,Width,uxxx,uBuff,Xbuff,Ybuff);
-  if(err!=0)
-    printf("Problems in UtoUx5point\n");
-
-  dbgPrint(8);
-
-  // \partial_yyy \vec u
-  err = UtoUyyy5point(Height,Width,uyyy,uBuff,Xbuff,Ybuff);
-  if(err!=0)
-    printf("Problems in UtoUy5point\n");
-  
-  dbgPrint(9);
-
-  // \partial_xxy \vec u
-  err = uFieldTouBuff(Height,Width,uy,uBuff,padWidth);
-  if(err!=0)
-    printf("Problems in uFieldTouBuff\n");
-  err = UtoUxx5point(Height,Width,uxxy,uBuff,Xbuff,Ybuff);
-  if(err!=0)
-    printf("Problems in UtoUxx5point\n");
-
-  dbgPrint(10);
-
-  // \partial_yyx \vec u
-  err = uFieldTouBuff(Height,Width,ux,uBuff,padWidth);
-  if(err!=0)
-    printf("Problems in uFieldTouBuff\n");
-  err = UtoUyy5point(Height,Width,uxyy,uBuff,Xbuff,Ybuff);
-  if(err!=0)
-    printf("Problems in UtoUyy5point\n");
-  */
 
   dbgPrint(11);
 
@@ -193,21 +160,10 @@ int main(int argc,char** argv){
       gField[4*(i*Width+j)+2] = ux[2*(i*Width+j)+1];
       gField[4*(i*Width+j)+3] = uy[2*(i*Width+j)+1];
     }
-  /*
-  for(i=0;i<Height;i+=1)
-    for(j=0;j<Width;j+=1){
-      g2Field[4*(i*Width+j)+0] = uxxy[2*(i*Width+j)+1]-uxyy[2*(i*Width+j)+0];
-      g2Field[4*(i*Width+j)+1] = uxyy[2*(i*Width+j)+1]-uyyy[2*(i*Width+j)+0];
-      g2Field[4*(i*Width+j)+2] = uxxy[2*(i*Width+j)+0]-uxxx[2*(i*Width+j)+1];
-      g2Field[4*(i*Width+j)+3] = uxyy[2*(i*Width+j)+0]-uxxy[2*(i*Width+j)+1];
-    }
-  */
-
+  
   dbgPrint(12);
   
   err = gradUtoLamb(Height,Width,gField,&sField);
-  //err = gradUtoLamb(Height,Width,g2Field,&sField);
-  //err=gradU2UtoLambda(Height,Width,gField,g2Field,&sField);
   if(err!=0)
     printf("Problems in gradU2UtoLambda\n");
   
@@ -226,6 +182,13 @@ int main(int argc,char** argv){
     printf("problems with renameLabels - %d\n",err);
 
   dbgPrint(15);
+  
+  x0[0] = Y[0];
+  x0[1] = Z[0];
+  dx[0] = Y[1]-Y[0];
+  dx[1] = Z[1]-Z[1];
+  auHeight = (int)((Y[Height-1]-Y[0])/dx[0]);
+  auWidth  = (int)((X[Height-1]-Z[0])/dx[1]);
 
   {
     FILE *dadosout;
@@ -267,3 +230,13 @@ int main(int argc,char** argv){
 
   return 0;
 }
+
+int thinGridInterp(int Height,int Width,double *sField,
+                   int auHeight,int auWidth, double sInterp,){
+  int i,j,idx,idy;
+
+  
+
+  return 0;
+}
+
