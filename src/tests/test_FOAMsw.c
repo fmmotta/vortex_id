@@ -215,6 +215,7 @@ int main(int argc,char** argv){
 
   {
     FILE *dadosout;
+    ouFile  =fopen("data/dens_z000.dat","w");
     dadosout=fopen("data/initFOAMsw.txt","w");
     for(i=0;i<Height;i+=1)
       for(j=0;j<Width;j+=1){
@@ -222,9 +223,11 @@ int main(int argc,char** argv){
         x = X[j];
         
         fprintf(dadosout,"%f %f %.12f \n",x,y,sField[i*Width+j]);
+        fprintf(ouFile,"%.12f\n",sField[i*Width+j]);
       }
 
     fclose(dadosout);dadosout=NULL;
+    fclose(ouFile);ouFile=NULL;
 
     dadosout=fopen("data/labelFOAMsw.txt","w");
     for(i=0;i<Height;i+=1){
