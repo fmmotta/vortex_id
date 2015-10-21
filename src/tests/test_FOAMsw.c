@@ -22,6 +22,13 @@
 
 #define dbgPrint(i) printf("Hello - debug - %lf\n",(float)i)
 
+int isThere(int i){
+  if(i>0)
+  	return 1;
+  else
+  	return 0;
+}
+
 int main(int argc,char** argv){
   const int padWidth=2, Pop=10;
   long int N=6;
@@ -33,7 +40,7 @@ int main(int argc,char** argv){
   double Z[1000],X2[1000],Y2[1000],Z2[1000];
   double *gField=NULL,*g2Field=NULL,*uField=NULL,X[1000],Y[1000];
   double *uBuff=NULL,Xbuff[1000+4],Ybuff[1000+4];
-  double *ux,*uy,*uxxy,*uxyy,*uxxx,*uyyy,*w;
+  double *ux,*uy,*uxxy,*uxyy,*uxxx,*uyyy,*w,ua,ub;
   FILE *uFile,*pFile,*nFile,*ouFile;
   FILE *zFile,*yFile,*wFile,*vFile,*xFile,*uRFile;
   openFoamIcoData v[N],*node=NULL;
@@ -116,30 +123,32 @@ int main(int argc,char** argv){
 
   /*
   xFile=fopen("data/x.txt");
-  yFile=fopen("data/y.txt");
-  uRFile=fopen("data/t20.0275_z000.dat");
+  yFile=fopen("data/y.txt");*/
+  uRFile=fopen("data/t22.1395_z064.dat","r");
 
   for(i=0;i<Height;i+=1){
     for(j=0;j<Width;j+=1){
-
+      fscanf(uRFile,"%lf%lf",&ua,&ub);
+      uField[2*(i*Width+j)+0] = ua;
+      uField[2*(i*Width+j)+1] = ub;
     }
-  }*/
+  }
 
   dbgPrint(2.3);
 
+  /*
   err=loadFields(Nx,Ny,Nz,uFile,pFile,node);
   if(err!=0)
     printf("Problems with loadFields\n");
 
   dbgPrint(2.6);
 
-  //k=(int)(Nx/2);
   k=20;
   for(j=0;j<Height;j+=1)
     for(i=0;i<Width;i+=1){
       uField[2*(j*Width+i)+0] = node[id(i,j,k)].v;
       uField[2*(j*Width+i)+1] = node[id(i,j,k)].u;
-    }
+    }*/
 
   dbgPrint(3);
 
@@ -241,6 +250,19 @@ int main(int argc,char** argv){
     }
 
     fclose(dadosout);
+
+    dadosout=fopen("data/presentFOAMsw.txt","w");
+    for(i=0;i<Height;i+=1){
+      for(j=0;j<Width;j+=1){
+        y = Y[i];
+        x = X[j];
+        
+        fprintf(dadosout,"%f %f %2d \n",x,y,isThere(label[i*Width+j]+1));
+      }
+      fprintf(dadosout,"\n");
+    }
+
+    fclose(dadosout);
   }
   
   dbgPrint(16);
@@ -251,8 +273,6 @@ int main(int argc,char** argv){
   for(i=0;i<NumCls;i+=1)
     free(eqClass[i]);
   free(eqClass);
-
-  return 0;
 
   return 0;
 }
