@@ -23,18 +23,19 @@
 #define dbgPrint(i) printf("Hello - debug - %lf\n",(float)i)
 
 int main(int argc,char** argv){
-  const int Height=96, Width=192,Depth=256,padWidth=2, Pop=10;
+  const int padWidth=2, Pop=10;
   long int N=6;
+  int Height, Width,Depth;
   int i,j,k,l,Npre,Nu,Np,Nx,Ny,Nz,Nn,err,auHeight,auWidth;
-  int nbList[8],eqList[Pop],**eqClass,label[Width*Height];//,*label;
+  int nbList[8],eqList[Pop],**eqClass,*label;//,*label;
   char buffer[1024],filename[100];
   double *sField=NULL,x,y,x0[2],dx[2];
   double Z[1000],X2[1000],Y2[1000],Z2[1000];
-  double *gField=NULL,*g2Field=NULL,*uField=NULL,X[Width],Y[Height];
-  double *uBuff=NULL,Xbuff[Width+4],Ybuff[Height+4];
+  double *gField=NULL,*g2Field=NULL,*uField=NULL,X[1000],Y[1000];
+  double *uBuff=NULL,Xbuff[1000+4],Ybuff[1000+4];
   double *ux,*uy,*uxxy,*uxyy,*uxxx,*uyyy,*w;
   FILE *uFile,*pFile,*nFile,*ouFile;
-  FILE *zFile,*yFile,*wFile,*vFile;
+  FILE *zFile,*yFile,*wFile,*vFile,*xFile,*uRFile;
   openFoamIcoData v[N],*node=NULL;
 
   if(argc!=4 && argc!=1){
@@ -42,12 +43,22 @@ int main(int argc,char** argv){
     return 1;
   }
 
+  /*
   Nx=Depth;
   Nz=Width;
-  Ny=Height;
+  Ny=Height;*/
+
+  Ny = 96;
+  Nx = 256;
+  Nz = 192;
+
+  Height = Ny;
+  Width  = Nx;//Nz;
+  Depth  = Nz;//Nx;
   
   dbgPrint(0);
 
+  fieldAlloc(label ,Height*Width,int);
   fieldAlloc(sField ,Height*Width,double);
   fieldAlloc(gField ,4*Height*Width,double);
   fieldAlloc(g2Field,4*Height*Width,double);
@@ -103,6 +114,17 @@ int main(int argc,char** argv){
     return err;
   fclose(nFile);
 
+  /*
+  xFile=fopen("data/x.txt");
+  yFile=fopen("data/y.txt");
+  uRFile=fopen("data/t20.0275_z000.dat");
+
+  for(i=0;i<Height;i+=1){
+    for(j=0;j<Width;j+=1){
+
+    }
+  }*/
+
   dbgPrint(2.3);
 
   err=loadFields(Nx,Ny,Nz,uFile,pFile,node);
@@ -111,11 +133,12 @@ int main(int argc,char** argv){
 
   dbgPrint(2.6);
 
-  i=(int)(Nx/2);
+  //k=(int)(Nx/2);
+  k=20;
   for(j=0;j<Height;j+=1)
-    for(k=0;k<Width;k+=1){
-      uField[2*(j*Width+k)+0] = node[id(i,j,k)].v;
-      uField[2*(j*Width+k)+1] = node[id(i,j,k)].w;
+    for(i=0;i<Width;i+=1){
+      uField[2*(j*Width+i)+0] = node[id(i,j,k)].v;
+      uField[2*(j*Width+i)+1] = node[id(i,j,k)].u;
     }
 
   dbgPrint(3);
@@ -196,7 +219,7 @@ int main(int argc,char** argv){
     for(i=0;i<Height;i+=1)
       for(j=0;j<Width;j+=1){
         y = Y[i];
-        x = Z[j];
+        x = X[j];
         
         fprintf(dadosout,"%f %f %.12f \n",x,y,sField[i*Width+j]);
       }
@@ -207,7 +230,7 @@ int main(int argc,char** argv){
     for(i=0;i<Height;i+=1){
       for(j=0;j<Width;j+=1){
         y = Y[i];
-        x = Z[j];
+        x = X[j];
         
         fprintf(dadosout,"%f %f %2d \n",x,y,label[i*Width+j]+1);
       }
@@ -230,13 +253,3 @@ int main(int argc,char** argv){
 
   return 0;
 }
-
-int thinGridInterp(int Height,int Width,double *sField,
-                   int auHeight,int auWidth, double sInterp,){
-  int i,j,idx,idy;
-
-  
-
-  return 0;
-}
-

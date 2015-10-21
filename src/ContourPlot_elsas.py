@@ -2,10 +2,11 @@ import numpy as np
 import math
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 from scipy.interpolate import griddata
 from scipy.spatial import Voronoi, voronoi_plot_2d
 
-RawData =np.loadtxt("initFOAMsw.txt")
+RawData =np.loadtxt("data/initFOAMsw.txt")
 X,Y,Z	=np.transpose(RawData)
 
 xmax = np.max(X); xmin = np.min(X); Dx = xmax-xmin; xmed=(xmax+xmin)/2;
@@ -17,8 +18,8 @@ print str(xmin)+" "+str(xmax)
 print str(ymin)+" "+str(ymax)
 print str(zmin)+" "+str(zmax)
 
-Data 	= [ [x,y,z] for [x,y,z] in RawData if x<xmax and x> xmin and y<ymax and y>ymin]
-X,Y,Z	= np.transpose(Data)
+#Data 	= [ [x,y,z] for [x,y,z] in RawData if x<xmax and x> xmin and y<ymax and y>ymin]
+#X,Y,Z	= np.transpose(Data)
 #Z	= np.log(Z)
 Nsample= 150
 
@@ -30,8 +31,10 @@ fig = plt.figure()
 
 
 plt.contourf(xi, yi, zi ,Nsample)                             
+#plt.pcolormesh(xi,yi,zi)
+#plt.imshow(zi, extent = (xmin, xmax, ymin, ymax))
 #plt.clim(0,zmax)
-cb=plt.colorbar(aspect='equal',ticks=[0.,11.56,23.11,34.67,46.228])
+cb=plt.colorbar() #aspect='equal',ticks=[0.,11.56,23.11,34.67,46.228])
 plt.clim(zmin,zmax)    
 #plt.surface().set_clim([zmin,zmax])    
 #cb.set_clim(0, zmax)
@@ -41,6 +44,6 @@ plt.clim(zmin,zmax)
 
 #plt.tight_layout()
 plt.axes().set_aspect('equal')
-plt.savefig('initFOAMsw.pdf',dpi=600)#,bbox_inches='tight')
+plt.savefig('data/initFOAMsw.pdf',bbox_inches='tight')#,dpi=600)#,bbox_inches='tight')
 
 #plt.show()
