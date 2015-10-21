@@ -131,6 +131,7 @@ int loadFields(int Nx,int Ny,int Nz,FILE *uFile,FILE *pFile,
   fgets(buffer,1024,uFile);
   fgets(buffer,1024,pFile);
 
+  // Nx*Ny*k+Nx*j+i
   for(i=0;i<Nx;i+=1){
     for(k=0;k<Nz;k+=1)
       for(j=0;j<Ny;j+=1){

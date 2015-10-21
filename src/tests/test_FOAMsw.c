@@ -104,8 +104,8 @@ int main(int argc,char** argv){
     nFile = fopen(argv[3],"r"); // nodes positions file
   }
   else if(argc==1){
-    uFile = fopen("data/DNS_OPEN_FOAM/10.0075/U","r");
-    pFile = fopen("data/DNS_OPEN_FOAM/10.0075/p","r");
+    uFile = fopen("data/DNS_OPEN_FOAM/22.1395/U","r");
+    pFile = fopen("data/DNS_OPEN_FOAM/22.1395/p","r");
     nFile = fopen("data/DNS_OPEN_FOAM/constant/polyMesh/points","r");
   }
 
@@ -123,7 +123,7 @@ int main(int argc,char** argv){
 
   /*
   xFile=fopen("data/x.txt");
-  yFile=fopen("data/y.txt");*/
+  yFile=fopen("data/y.txt");
   uRFile=fopen("data/t22.1395_z064.dat","r");
 
   for(i=0;i<Height;i+=1){
@@ -132,23 +132,26 @@ int main(int argc,char** argv){
       uField[2*(i*Width+j)+0] = ua;
       uField[2*(i*Width+j)+1] = ub;
     }
-  }
+  }*/
 
   dbgPrint(2.3);
 
-  /*
+  
   err=loadFields(Nx,Ny,Nz,uFile,pFile,node);
   if(err!=0)
     printf("Problems with loadFields\n");
 
   dbgPrint(2.6);
 
-  k=20;
+  ouFile = fopen("data/mathematicaRefU.dat","w");
+  k=64;
   for(j=0;j<Height;j+=1)
     for(i=0;i<Width;i+=1){
       uField[2*(j*Width+i)+0] = node[id(i,j,k)].v;
       uField[2*(j*Width+i)+1] = node[id(i,j,k)].u;
-    }*/
+      fprintf(ouFile,"%lf %lf\n",node[id(i,j,k)].u,node[id(i,j,k)].v);
+    }
+  fclose(ouFile);ouFile=NULL;
 
   dbgPrint(3);
 
@@ -215,16 +218,9 @@ int main(int argc,char** argv){
 
   dbgPrint(15);
   
-  x0[0] = Y[0];
-  x0[1] = Z[0];
-  dx[0] = Y[1]-Y[0];
-  dx[1] = Z[1]-Z[1];
-  auHeight = (int)((Y[Height-1]-Y[0])/dx[0]);
-  auWidth  = (int)((X[Height-1]-Z[0])/dx[1]);
-
   {
     FILE *dadosout;
-    ouFile  =fopen("data/dens_z000.dat","w");
+    ouFile  =fopen("data/dens_z064.dat","w");
     dadosout=fopen("data/initFOAMsw.txt","w");
     for(i=0;i<Height;i+=1)
       for(j=0;j<Width;j+=1){
