@@ -104,8 +104,8 @@ int main(int argc,char** argv){
     nFile = fopen(argv[3],"r"); // nodes positions file
   }
   else if(argc==1){
-    uFile = fopen("data/DNS_OPEN_FOAM/22.1395/U","r");
-    pFile = fopen("data/DNS_OPEN_FOAM/22.1395/p","r");
+    uFile = fopen("data/DNS_OPEN_FOAM/10.0075/U","r");
+    pFile = fopen("data/DNS_OPEN_FOAM/10.0075/p","r");
     nFile = fopen("data/DNS_OPEN_FOAM/constant/polyMesh/points","r");
   }
 
