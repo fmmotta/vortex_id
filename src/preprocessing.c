@@ -132,14 +132,27 @@ int loadFields(int Nx,int Ny,int Nz,FILE *uFile,FILE *pFile,
   fgets(buffer,1024,pFile);
 
   // Nx*Ny*k+Nx*j+i
+  /*
   for(i=0;i<Nx;i+=1){
-    for(k=0;k<Nz;k+=1)
+    for(k=0;k<Nz;k+=1){
       for(j=0;j<Ny;j+=1){
         fscanf(pFile,"%lf",&(node[id(i,j,k)].p));
         fscanf(uFile," (%lf%lf%lf)",&(node[id(i,j,k)].u),
                                     &(node[id(i,j,k)].v),
                                     &(node[id(i,j,k)].w));
       }
+    }
+  }*/
+  
+  for(k=0;k<Nz;k+=1){
+    for(j=0;j<Ny;j+=1){
+      for(i=0;i<Nx;i+=1){
+        fscanf(pFile,"%lf",&(node[id(i,j,k)].p));
+        fscanf(uFile," (%lf%lf%lf)",&(node[id(i,j,k)].u),
+                                    &(node[id(i,j,k)].v),
+                                    &(node[id(i,j,k)].w));
+      }
+    }
   }
 
   fclose(uFile); fclose(pFile);
@@ -185,8 +198,23 @@ int printXYsplitPlanes(int Nx,int Ny, int Nz,openFoamIcoData *node,
   char filename[100+1];
   FILE *zFile,*yFile,*vFile;
 
+  printf("%.8g %.8g %.8g\n",node[id(0,0,0)].u,
+                            node[id(0,0,0)].v,
+                            node[id(0,0,0)].w);
+
+  printf("%.8g %.8g %.8g\n",node[id(0,1,0)].u,
+                            node[id(0,1,0)].v,
+                            node[id(0,1,0)].w);
+
+  printf("%.8g %.8g %.8g\n",node[id(1,0,0)].u,
+                            node[id(1,0,0)].v,
+                            node[id(1,0,0)].w);
+
+  printf("%.8g %.8g %.8g\n",node[id(0,0,1)].u,
+                            node[id(0,0,1)].v,
+                            node[id(0,0,1)].w);
   for(k=0;k<Nz;k+=1){
-    sprintf(filename,"%s/z-%d.dat",folder,k);
+    sprintf(filename,"%s/x-%d.dat",folder,k);
     zFile=fopen(filename,"w");
     sprintf(filename,"%s/y-%d.dat",folder,k);
     yFile=fopen(filename,"w");
@@ -195,11 +223,11 @@ int printXYsplitPlanes(int Nx,int Ny, int Nz,openFoamIcoData *node,
     
     // #define id(i,j,k) (Nx*Ny*(k)+Nx*(j)+(i))
     for(j=0;j<Ny;j+=1)
-      for(i=0;i<Ny;i+=1){
+      for(i=0;i<Nz;i+=1){
         fprintf(zFile,"%.8g\n",(X[i]+X[i+1])/2.0);
         fprintf(yFile,"%.8g\n",(Y[j]+Y[j+1])/2.0);
-        fprintf(vFile,"%.8g %.8g\n",node[id(i,j,k)].v,
-                                    node[id(i,j,k)].u);
+        fprintf(vFile,"%.8g %.8g\n",node[id(i,j,k)].u,
+                                    node[id(i,j,k)].v);
       }
 
     fclose(zFile);
