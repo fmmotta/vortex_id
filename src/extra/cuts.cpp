@@ -20,9 +20,9 @@ int main()
   //cout << "Steps" << endl;
   //cin >> nSteps;
 
-  NFs = 10.0075;
+  NFs = 22.1395;
   //NFe = 10.0195;
-  NFe = 10.0075;
+  NFe = 22.1395;
   nSteps = 0.0120;
   //--	
 	int NN,Nx,Nxmax,Ny,Nz, NzSkip;
@@ -142,15 +142,15 @@ int main()
       double dU,dV,dW;		
       for (int n=0;n<NN;n++) {
         //--- Each file
-		    /*
-			  for (int k=0;k<Nz;k+=NzSkip) {
+		    
+			  for (int k=0;k<Nz;k+=1) {
 
 				  // create file to save X-Y axis values 
 				  if((nCurrent == NFs && k==0))
-			  		axisFile.open("planes/axis.dat");
+			  		axisFile.open("../../data/Reference/axis.dat");
 		  			
 		  		// create output file: x-y plane cuts 
-		  		sprintf(nameout,"planes/t%.3d_z%.3d.dat", nCurrent,k);
+		  		sprintf(nameout,"../../data/Reference/t%.4f_z%d.dat", nCurrent,k);
 		  		myWriteFile.open(nameout, ios::out);
 			
 			  	for (int j=0;j<Ny;j++) 
@@ -180,15 +180,13 @@ int main()
 			  	if((nCurrent == NFs && k==0))
 			  		axisFile.close();
     			myWriteFile.close();
-		  	}*/
-			
+		  	}
+			 /*
 			  for(int i=0;i<Nx;i++){
-			    /* create file to save Z-Y axis values */
 			    //cout << "begin processing plane " << i << "\n";
 			    if((nCurrent == NFs && i==0))
-                  axisFile.open("Reference/axis.dat");
+                  axisFile.open("../../data/Reference/axis.dat");
 					
-			    /* create output file: x-y plane cuts */
 			    			  
 			    for(int k=0;k<Nz;k+=1){
 			      for(int j=0;j<Ny;j+=1){
@@ -217,7 +215,8 @@ int main()
 				    }
 			    } 
 			    //cout << "end processing plane " << i << "\n";
-			  }
+			  }*/
+          
 			  //--- Each file
         /*
         myCheckFile.open("planes/check.dat");
@@ -234,9 +233,8 @@ int main()
         myCheckFile.close();
         */
         for(int i=0;i<Nx;i++){
-         	sprintf(nameout,"Reference/t%.3f_x%d.dat", nCurrent,i);
+         	sprintf(nameout,"../../data/Reference/t%.4f_x%d.dat", nCurrent,i);
 			    myWriteFile.open(nameout, ios::out);
-
 			    for(int k=0;k<Nz;k+=1){
 			      for(int j=0;j<Ny;j+=1){
               dW = mW[Nx*Ny*k+Nx*j+i];

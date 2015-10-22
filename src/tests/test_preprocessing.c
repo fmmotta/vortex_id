@@ -35,8 +35,8 @@ int main(int argc,char** argv){
     nFile = fopen(argv[3],"r"); // nodes positions file
   }
   else if(argc==1){
-    uFile = fopen("data/DNS_OPEN_FOAM/10.0075/U","r");
-    pFile = fopen("data/DNS_OPEN_FOAM/10.0075/p","r");
+    uFile = fopen("data/DNS_OPEN_FOAM/22.1395/U","r");
+    pFile = fopen("data/DNS_OPEN_FOAM/22.1395/p","r");
     nFile = fopen("data/DNS_OPEN_FOAM/constant/polyMesh/points","r");
   }
 
@@ -61,13 +61,17 @@ int main(int argc,char** argv){
   if(err!=0)
     printf("Problems with loadFields\n");
 
-  err=printYZsplitPlanes(Nx,Ny,Nz,node,X,Y,Z,"data/planes");
+  err=printXYsplitPlanes(Nx,Ny,Nz,node,X,Y,Z,"data/planes");
   if(err!=0)
     printf("Problems on printYZsplitPlanes\n");
-  
-  err=printYZcoordinates(Nx,Ny,Nz,X,Y,Z,"data");
+  /*
+  err=printYZcoordinates(Nx,Ny,Nz,X,Y,Z,"data/planes");
   if(err!=0)
     printf("printYZcoordinates\n");
+  /*
+  err=printUField(Nx,Ny,Nz,node,X,Y,Z,"data/planes");
+  if(err!=0)
+    printf("printYZcoordinates\n");*/
 
   return 0;
 }

@@ -23,5 +23,11 @@ int loadFields(int Nx,int Ny,int Nz,FILE *uFile,FILE *pFile,
 int printYZsplitPlanes(int Nx,int Ny, int Nz,openFoamIcoData *node,
                        double *X,double *Y,double *Z,const char *folder);
 
+int printXYsplitPlanes(int Nx,int Ny, int Nz,openFoamIcoData *node,
+                       double *X,double *Y,double *Z,const char *folder);
+
 int printYZcoordinates(int Nx,int Ny,int Nz,double *X,
                        double *Y,double *Z,const char *folder);
+/*
+int printUField(int Nx,int Ny, int Nz,openFoamIcoData *node,
+                double *X,double *Y,double *Z,const char *folder);*/

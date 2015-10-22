@@ -152,29 +152,58 @@ int printYZsplitPlanes(int Nx,int Ny, int Nz,openFoamIcoData *node,
 {
   int i,j,k;
   char filename[100+1];
-  FILE *zFile,*yFile,*wFile,*vFile;
+  FILE *zFile,*yFile,*vFile;
 
   for(i=0;i<Nx;i+=1){
     sprintf(filename,"%s/z-%d.dat",folder,i);
     zFile=fopen(filename,"w");
     sprintf(filename,"%s/y-%d.dat",folder,i);
     yFile=fopen(filename,"w");
-    sprintf(filename,"%s/w-%d.dat",folder,i);
-    wFile=fopen(filename,"w");
-    sprintf(filename,"%s/v-%d.dat",folder,i);
+    sprintf(filename,"%s/plane-%d.dat",folder,i);
     vFile=fopen(filename,"w");
     
     for(k=0;k<Nz;k+=1)
       for(j=0;j<Ny;j+=1){
         fprintf(zFile,"%.8g\n",(Z[k]+Z[k+1])/2.0);
         fprintf(yFile,"%.8g\n",(Y[j]+Y[j+1])/2.0);
-        fprintf(wFile,"%.8g\n",node[id(i,j,k)].w);
-        fprintf(vFile,"%.8g\n",node[id(i,j,k)].v);
+        fprintf(vFile,"%.8g %.8g\n",node[id(i,j,k)].w,
+                                    node[id(i,j,k)].v);
       }
 
     fclose(zFile);
     fclose(yFile);
-    fclose(wFile);
+    fclose(vFile);
+  }
+
+  return 0;
+}
+
+int printXYsplitPlanes(int Nx,int Ny, int Nz,openFoamIcoData *node,
+                       double *X,double *Y,double *Z,const char *folder)
+{
+  int i,j,k;
+  char filename[100+1];
+  FILE *zFile,*yFile,*vFile;
+
+  for(k=0;k<Nz;k+=1){
+    sprintf(filename,"%s/z-%d.dat",folder,k);
+    zFile=fopen(filename,"w");
+    sprintf(filename,"%s/y-%d.dat",folder,k);
+    yFile=fopen(filename,"w");
+    sprintf(filename,"%s/plane-%d.dat",folder,k);
+    vFile=fopen(filename,"w");
+    
+    // #define id(i,j,k) (Nx*Ny*(k)+Nx*(j)+(i))
+    for(j=0;j<Ny;j+=1)
+      for(i=0;i<Ny;i+=1){
+        fprintf(zFile,"%.8g\n",(X[i]+X[i+1])/2.0);
+        fprintf(yFile,"%.8g\n",(Y[j]+Y[j+1])/2.0);
+        fprintf(vFile,"%.8g %.8g\n",node[id(i,j,k)].v,
+                                    node[id(i,j,k)].u);
+      }
+
+    fclose(zFile);
+    fclose(yFile);
     fclose(vFile);
   }
 

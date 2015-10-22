@@ -129,6 +129,9 @@ test_uFieldTouBuff: test_uFieldTouBuff.o stencilExtended.o
 test_preprocessing: test_preprocessing.o preprocessing.o 
 	$(CC) -o bin/test_preprocessing obj/test_preprocessing.o obj/preprocessing.o
 
+test_loadFields: test_loadFields.o preprocessing.o 
+	$(CC) -o bin/test_loadFields obj/test_loadFields.o obj/preprocessing.o
+
 test_FOAMsw: test_FOAMsw.o floodFill.o lambdaInit.o stencilExtended.o vortexExtraction.o preprocessing.o
 	$(CC) -o bin/test_FOAMsw obj/test_FOAMsw.o obj/floodFill.o obj/lambdaInit.o obj/stencilExtended.o obj/vortexExtraction.o obj/preprocessing.o $(LIBS)
 
@@ -281,6 +284,9 @@ test_uFieldTouBuff.o: src/tests/test_uFieldTouBuff.c
 
 test_preprocessing.o: src/tests/test_preprocessing.c
 	$(CC) $(CFLAGS) src/tests/test_preprocessing.c -o obj/test_preprocessing.o
+
+test_loadFields.o: src/tests/test_loadFields.c
+	$(CC) $(CFLAGS) src/tests/test_loadFields.c -o obj/test_loadFields.o
 
 test_FOAMsw.o: src/tests/test_FOAMsw.c
 	$(CC) $(CFLAGS) src/tests/test_FOAMsw.c -o obj/test_FOAMsw.o
