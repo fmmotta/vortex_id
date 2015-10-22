@@ -50,18 +50,13 @@ int main(int argc,char** argv){
     return 1;
   }
 
-  /*
-  Nx=Depth;
-  Nz=Width;
-  Ny=Height;*/
-
   Ny = 96;
   Nx = 256;
   Nz = 192;
 
   Height = Ny;
-  Width  = Nx;//Nz;
-  Depth  = Nz;//Nx;
+  Width  = Nx;
+  Depth  = Nz;
   
   dbgPrint(0);
 
@@ -121,21 +116,7 @@ int main(int argc,char** argv){
     return err;
   fclose(nFile);
 
-  /*
-  xFile=fopen("data/x.txt");
-  yFile=fopen("data/y.txt");
-  uRFile=fopen("data/t22.1395_z064.dat","r");
-
-  for(i=0;i<Height;i+=1){
-    for(j=0;j<Width;j+=1){
-      fscanf(uRFile,"%lf%lf",&ua,&ub);
-      uField[2*(i*Width+j)+0] = ua;
-      uField[2*(i*Width+j)+1] = ub;
-    }
-  }*/
-
   dbgPrint(2.3);
-
   
   err=loadFields(Nx,Ny,Nz,uFile,pFile,node);
   if(err!=0)

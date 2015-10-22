@@ -9,7 +9,6 @@
 #include "stencilExtended.h"
 #include "vortexExtraction.h"
 
-
 #define fieldAlloc(ptr,size,type) ptr=(type*)malloc(size*sizeof(type)); \
                                   if(ptr==NULL){                        \
                                     printf("memory not allocked\n");    \
@@ -22,19 +21,27 @@
 
 #define dbgPrint(i) printf("Hello - debug - %lf\n",(float)i)
 
+int isThere(int i){
+  if(i>0)
+    return 1;
+  else
+    return 0;
+}
+
 int main(int argc,char** argv){
-  const int Height=96, Width=192,Depth=256,padWidth=2, Pop=10;
+  const int padWidth=2, Pop=10;
   long int N=6;
-  int i,j,k,l,Npre,Nu,Np,Nx,Ny,Nz,Nn,err;
-  int nbList[8],eqList[Pop],**eqClass,label[Width*Height];//,*label;
+  int Height, Width,Depth;
+  int i,j,k,l,Npre,Nu,Np,Nx,Ny,Nz,Nn,err,auHeight,auWidth;
+  int nbList[8],eqList[Pop],**eqClass,*label;//,*label;
   char buffer[1024],filename[100];
-  double *sField=NULL,x,y;
+  double *sField=NULL,x,y,x0[2],dx[2];
   double Z[1000],X2[1000],Y2[1000],Z2[1000];
-  double *gField=NULL,*g2Field=NULL,*uField=NULL,X[Width],Y[Height];
-  double *uBuff=NULL,Xbuff[Width+4],Ybuff[Height+4];
-  double *ux,*uy,*uxxy,*uxyy,*uxxx,*uyyy,*w;
+  double *gField=NULL,*g2Field=NULL,*uField=NULL,X[1000],Y[1000];
+  double *uBuff=NULL,Xbuff[1000+4],Ybuff[1000+4];
+  double *ux,*uy,*uxxy,*uxyy,*uxxx,*uyyy,*w,ua,ub;
   FILE *uFile,*pFile,*nFile,*ouFile;
-  FILE *zFile,*yFile,*wFile,*vFile;
+  FILE *zFile,*yFile,*wFile,*vFile,*xFile,*uRFile;
   openFoamIcoData v[N],*node=NULL;
 
   if(argc!=4 && argc!=1){
@@ -42,12 +49,17 @@ int main(int argc,char** argv){
     return 1;
   }
 
-  Nx=Depth;
-  Nz=Width;
-  Ny=Height;
+  Ny = 96;
+  Nx = 256;
+  Nz = 192;
+
+  Height = Ny;
+  Width  = Nx;
+  Depth  = Nz;
   
   dbgPrint(0);
 
+  fieldAlloc(label ,Height*Width,int);
   fieldAlloc(sField ,Height*Width,double);
   fieldAlloc(gField ,4*Height*Width,double);
   fieldAlloc(g2Field,4*Height*Width,double);
@@ -104,19 +116,22 @@ int main(int argc,char** argv){
   fclose(nFile);
 
   dbgPrint(2.3);
-
+  
   err=loadFields(Nx,Ny,Nz,uFile,pFile,node);
   if(err!=0)
     printf("Problems with loadFields\n");
 
   dbgPrint(2.6);
 
-  i=(int)(Nx/2);
+  ouFile = fopen("data/mathematicaRefU.dat","w");
+  k=64;
   for(j=0;j<Height;j+=1)
-    for(k=0;k<Width;k+=1){
-      uField[2*(j*Width+k)+0] = node[id(i,j,k)].v;
-      uField[2*(j*Width+k)+1] = node[id(i,j,k)].w;
+    for(i=0;i<Width;i+=1){
+      uField[2*(j*Width+i)+0] = node[id(i,j,k)].u;
+      uField[2*(j*Width+i)+1] = node[id(i,j,k)].v;
+      fprintf(ouFile,"%lf %lf\n",node[id(i,j,k)].u,node[id(i,j,k)].v);
     }
+  fclose(ouFile);ouFile=NULL;
 
   dbgPrint(3);
 
@@ -181,8 +196,7 @@ int main(int argc,char** argv){
     printf("Problems in uFieldTouBuff\n");
   err = UtoUyy5point(Height,Width,uxyy,uBuff,Xbuff,Ybuff);
   if(err!=0)
-    printf("Problems in UtoUyy5point\n");
-  
+    printf("Problems in UtoUyy5point\n");  
 
   dbgPrint(11);
 
@@ -206,8 +220,8 @@ int main(int argc,char** argv){
   dbgPrint(12);
   
   //err = gradUtoLamb(Height,Width,gField,&sField);
-  //err = gradUtoLamb(Height,Width,g2Field,&sField);
-  err=gradU2UtoLambda(Height,Width,gField,g2Field,&sField);
+  err = gradUtoLamb(Height,Width,g2Field,&sField);
+  //err=gradU2UtoLambda(Height,Width,gField,g2Field,&sField);
   if(err!=0)
     printf("Problems in gradU2UtoLambda\n");
   
@@ -226,19 +240,22 @@ int main(int argc,char** argv){
     printf("problems with renameLabels - %d\n",err);
 
   dbgPrint(15);
-
+  
   {
     FILE *dadosout;
+    ouFile  =fopen("data/dens_z064.dat","w");
     dadosout=fopen("data/initFOAMsw.txt","w");
     for(i=0;i<Height;i+=1)
       for(j=0;j<Width;j+=1){
         y = Y[i];
         x = X[j];
         
-        fprintf(dadosout,"%f,%f,%.12f \n",x,y,sField[i*Width+j]);
+        fprintf(dadosout,"%f %f %.12f \n",x,y,log(1.+sField[i*Width+j]));
+        fprintf(ouFile,"%.12f\n",sField[i*Width+j]);
       }
 
     fclose(dadosout);dadosout=NULL;
+    fclose(ouFile);ouFile=NULL;
 
     dadosout=fopen("data/labelFOAMsw.txt","w");
     for(i=0;i<Height;i+=1){
@@ -246,7 +263,20 @@ int main(int argc,char** argv){
         y = Y[i];
         x = X[j];
         
-        fprintf(dadosout,"%f,%f,%4d \n",x,y,label[i*Width+j]+1);
+        fprintf(dadosout,"%f %f %2d \n",x,y,label[i*Width+j]+1);
+      }
+      fprintf(dadosout,"\n");
+    }
+
+    fclose(dadosout);
+
+    dadosout=fopen("data/presentFOAMsw.txt","w");
+    for(i=0;i<Height;i+=1){
+      for(j=0;j<Width;j+=1){
+        y = Y[i];
+        x = X[j];
+        
+        fprintf(dadosout,"%f %f %2d \n",x,y,isThere(label[i*Width+j]+1));
       }
       fprintf(dadosout,"\n");
     }
@@ -262,20 +292,6 @@ int main(int argc,char** argv){
   for(i=0;i<NumCls;i+=1)
     free(eqClass[i]);
   free(eqClass);
-  /*
-  fieldAlloc(sField ,Height*Width,double);
-  fieldAlloc(gField ,4*Height*Width,double);
-  fieldAlloc(g2Field,4*Height*Width,double);
-  fieldAlloc(uField,2*Height*Width,double);
-  fieldAlloc(  ux  ,2*Height*Width,double);
-  fieldAlloc(  uy  ,2*Height*Width,double);
-  fieldAlloc( uxxy ,2*Height*Width,double);
-  fieldAlloc( uxyy ,2*Height*Width,double);
-  fieldAlloc( uxxx ,2*Height*Width,double);
-  fieldAlloc( uyyy ,2*Height*Width,double);
-  fieldAlloc(uBuff ,2*(Height+2*padWidth)*(Width+2*padWidth),double);*/
-
-  return 0;
 
   return 0;
 }

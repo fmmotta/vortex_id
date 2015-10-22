@@ -135,6 +135,9 @@ test_loadFields: test_loadFields.o preprocessing.o
 test_FOAMsw: test_FOAMsw.o floodFill.o lambdaInit.o stencilExtended.o vortexExtraction.o preprocessing.o
 	$(CC) -o bin/test_FOAMsw obj/test_FOAMsw.o obj/floodFill.o obj/lambdaInit.o obj/stencilExtended.o obj/vortexExtraction.o obj/preprocessing.o $(LIBS)
 
+test_FOAMvc: test_FOAMvc.o floodFill.o lambdaInit.o stencilExtended.o vortexExtraction.o preprocessing.o
+	$(CC) -o bin/test_FOAMvc obj/test_FOAMvc.o obj/floodFill.o obj/lambdaInit.o obj/stencilExtended.o obj/vortexExtraction.o obj/preprocessing.o $(LIBS)
+
 main.o: src/main.c 
 	$(CC) $(CFLAGS) src/main.c -o obj/main.o
 
@@ -290,6 +293,9 @@ test_loadFields.o: src/tests/test_loadFields.c
 
 test_FOAMsw.o: src/tests/test_FOAMsw.c
 	$(CC) $(CFLAGS) src/tests/test_FOAMsw.c -o obj/test_FOAMsw.o
+
+test_FOAMvc.o: src/tests/test_FOAMvc.c
+	$(CC) $(CFLAGS) src/tests/test_FOAMvc.c -o obj/test_FOAMvc.o
 
 clean:
 	rm bin/* obj/* data/*.txt data/*.tex data/*.eps data/*.pdf data/*.aux data/*.log
