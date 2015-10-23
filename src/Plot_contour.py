@@ -31,7 +31,7 @@ fig = plt.figure()
 
 
 #plt.contourf(xi, yi, zi ,Nsample)                             
-plt.imshow(zi, extent=(0,2*math.pi,0,1), origin='lower')
+plt.imshow(zi, extent=(0,2*math.pi,0,1), origin='lower',cmap='nipy_spectral')
 #plt.pcolormesh(xi,yi,zi)
 #plt.imshow(zi, extent = (xmin, xmax, ymin, ymax))
 #plt.clim(0,zmax)
