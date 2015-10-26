@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from scipy.interpolate import griddata
 from scipy.spatial import Voronoi, voronoi_plot_2d
+import matplotlib.patches as mpatches
 
 RawData =np.loadtxt("data/initFOAMsw.txt")
 X,Y,Z	=np.transpose(RawData)
@@ -37,7 +38,11 @@ plt.imshow(zi, extent=(0,2*math.pi,0,1), origin='lower',cmap='nipy_spectral')
 #plt.clim(0,zmax)
 cb=plt.colorbar(aspect='equal')#,ticks=[0.,11.56,23.11,34.67,46.228])
 cb.ax.tick_params(labelsize=8) 
-plt.clim(zmin,zmax)    
+plt.clim(zmin,zmax)
+ax = fig.add_subplot(1,1,1)
+#ax.annotate('', xy=(0.51, -0.3), xycoords='axes fraction', xytext=(0.51, 0.1), 
+#           arrowprops=dict(arrowstyle="<-", color='r'))
+fig.patches.append(mpatches.Circle([0.445, 0.45], 0.03, transform=fig.transFigure,facecolor="none",linestyle="dashed",edgecolor="r",alpha=1))
 #plt.surface().set_clim([zmin,zmax])    
 #cb.set_clim(0, zmax)
 

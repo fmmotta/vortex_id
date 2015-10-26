@@ -56,9 +56,9 @@ int vortexIdHandler(void* user, const char* section,
   else if (MATCH("Grid-Parameters", "Height"))
     vConfig->Height = atoi(value);
   else if (MATCH("Grid-Parameters","x0"))
-    sscanf(value,"%f %f",&(vConfig->x0[0]), &(vConfig->x0[1]) );
+    sscanf(value,"%lf %lf",&(vConfig->x0[0]), &(vConfig->x0[1]) );
   else if (MATCH("Grid-Parameters","xf"))
-    sscanf(value,"%f %f",&(vConfig->xf[0]), &(vConfig->xf[1]) );
+    sscanf(value,"%lf %lf",&(vConfig->xf[0]), &(vConfig->xf[1]) );
   else if (MATCH("Vortex-Generation","type"))
     vConfig->genType = atoi(value);
   else if (MATCH("Vortex-Generation","number-of-vortices"))
@@ -158,7 +158,7 @@ int printConfig(configVar *cfg){
   printf("\nVortex Generation Parameters\n");
   printf("Gen Type: %d\n",cfg->runType);
   printf("Number of Vortices/Run: %d\n",cfg->nVortex);
-  printf("PNRG seed: %d\n",cfg->seed);
+  printf("PNRG seed: %lld\n",cfg->seed);
   if(cfg->genType==0){
     printf("G interval: [%f,%f]\n",cfg->Gmin, cfg->Gmax);
     printf("Rc interval: [%f,%f]\n",cfg->RcMin, cfg->RcMax);
@@ -178,7 +178,7 @@ int printConfig(configVar *cfg){
   printf("Vertical Shear: %f\n",cfg->v0y0);
 
   printf("\nRuntime Info: \n");
-  printf("type: %s\n",cfg->runType);
+  printf("type: %d\n",cfg->runType);
   printf("tag: %s\n",cfg->tag);
   printf("genFile: %s\n",cfg->genFile);
   printf("number of Runs: %d\n",cfg->nRuns);
