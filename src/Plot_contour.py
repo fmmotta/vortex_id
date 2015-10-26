@@ -46,6 +46,6 @@ plt.clim(zmin,zmax)
 
 #plt.tight_layout()
 plt.axes().set_aspect('equal')
-plt.savefig('data/initFOAMsw.pdf',bbox_inches='tight')#,dpi=600)#,bbox_inches='tight')
+plt.savefig('data/initFOAMsw.pdf',bbox_inches='tight',transparent=True)#,dpi=600)#,bbox_inches='tight')
 
 #plt.show()

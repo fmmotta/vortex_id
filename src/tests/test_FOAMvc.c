@@ -220,8 +220,8 @@ int main(int argc,char** argv){
   dbgPrint(12);
   
   //err = gradUtoLamb(Height,Width,gField,&sField);
-  err = gradUtoLamb(Height,Width,g2Field,&sField);
-  //err=gradU2UtoLambda(Height,Width,gField,g2Field,&sField);
+  //err = gradUtoLamb(Height,Width,g2Field,&sField);
+  err=gradU2UtoLambda(Height,Width,gField,g2Field,&sField);
   if(err!=0)
     printf("Problems in gradU2UtoLambda\n");
   
