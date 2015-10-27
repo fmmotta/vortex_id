@@ -32,7 +32,8 @@ fig = plt.figure()
 
 
 #plt.contourf(xi, yi, zi ,Nsample)                             
-plt.imshow(zi, extent=(0,2*math.pi,0,1), origin='lower',cmap='nipy_spectral')
+#plt.imshow(zi, extent=(0,2.*math.pi,0,1), origin='lower',cmap='nipy_spectral')
+plt.imshow(zi, extent=(0,math.pi,0,1), origin='lower',cmap='nipy_spectral')
 #plt.pcolormesh(xi,yi,zi)
 #plt.imshow(zi, extent = (xmin, xmax, ymin, ymax))
 #plt.clim(0,zmax)
@@ -42,7 +43,7 @@ plt.clim(zmin,zmax)
 ax = fig.add_subplot(1,1,1)
 #ax.annotate('', xy=(0.51, -0.3), xycoords='axes fraction', xytext=(0.51, 0.1), 
 #           arrowprops=dict(arrowstyle="<-", color='r'))
-fig.patches.append(mpatches.Circle([0.445, 0.45], 0.03, transform=fig.transFigure,facecolor="none",linestyle="dashed",edgecolor="r",alpha=1))
+fig.patches.append(mpatches.Circle([0.5, 0.45], 0.03, transform=fig.transFigure,facecolor="none",linestyle="dashed",edgecolor="r",alpha=1))
 #plt.surface().set_clim([zmin,zmax])    
 #cb.set_clim(0, zmax)
 
