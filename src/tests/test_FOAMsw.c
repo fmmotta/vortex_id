@@ -53,15 +53,14 @@ int main(int argc,char** argv){
   Ny = 96;
   Nx = 256;
   Nz = 192;
-
-  /*
+  
   Height = Ny;
   Width  = Nx;
-  Depth  = Nz;*/
+  Depth  = Nz;
 
-  Height = Ny;
-  Width  = Nz;
-  Depth  = Nx;
+  //Height = Ny;
+  //Width  = Nz;
+  //Depth  = Nx;
   
   dbgPrint(0);
 
@@ -130,7 +129,7 @@ int main(int argc,char** argv){
   dbgPrint(2.6);
 
   ouFile = fopen("data/mathematicaRefU.dat","w");
-  /*
+  
   k=64;
   for(j=0;j<Height;j+=1)
     for(i=0;i<Width;i+=1){
@@ -138,14 +137,14 @@ int main(int argc,char** argv){
       uField[2*(j*Width+i)+1] = node[id(i,j,k)].v;
       fprintf(ouFile,"%lf %lf\n",node[id(i,j,k)].u,node[id(i,j,k)].v);
     }
-  */
+  /*
   i=64;
   for(j=0;j<Height;j+=1)
     for(k=0;k<Width;k+=1){
-      uField[2*(j*Width+k)+0] = node[id(i,j,k)].u;
-      uField[2*(j*Width+k)+1] = node[id(i,j,k)].w;
-      fprintf(ouFile,"%lf %lf\n",node[id(i,j,k)].u,node[id(i,j,k)].v);
-    }
+      uField[2*(j*Width+k)+0] = node[id(i,j,k)].w;
+      uField[2*(j*Width+k)+1] = node[id(i,j,k)].v;
+      fprintf(ouFile,"%lf %lf\n",node[id(i,j,k)].w,node[id(i,j,k)].v);
+    }*/
   fclose(ouFile);ouFile=NULL;
 
   dbgPrint(3);
@@ -215,12 +214,12 @@ int main(int argc,char** argv){
   
   {
     FILE *dadosout;
-    ouFile  =fopen("data/dens_x064.dat","w");
+    ouFile  =fopen("data/dens_z064.dat","w");
     dadosout=fopen("data/initFOAMsw.txt","w");
     for(i=0;i<Height;i+=1)
       for(j=0;j<Width;j+=1){
         y = Y[i];
-        x = Z[j];
+        x = X[j];
         
         fprintf(dadosout,"%f %f %.12f \n",x,y,sField[i*Width+j]);
         fprintf(ouFile,"%.12f\n",sField[i*Width+j]);
@@ -233,11 +232,10 @@ int main(int argc,char** argv){
     for(i=0;i<Height;i+=1){
       for(j=0;j<Width;j+=1){
         y = Y[i];
-        x = Z[j];
+        x = X[j];
         
         fprintf(dadosout,"%f %f %2d \n",x,y,label[i*Width+j]+1);
       }
-      fprintf(dadosout,"\n");
     }
 
     fclose(dadosout);
@@ -246,11 +244,10 @@ int main(int argc,char** argv){
     for(i=0;i<Height;i+=1){
       for(j=0;j<Width;j+=1){
         y = Y[i];
-        x = Z[j];
+        x = X[j];
         
         fprintf(dadosout,"%f %f %2d \n",x,y,isThere(label[i*Width+j]+1));
       }
-      fprintf(dadosout,"\n");
     }
 
     fclose(dadosout);
