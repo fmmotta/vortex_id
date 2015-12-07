@@ -1,10 +1,14 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
 #include "lambdaInit.h"
 #include "floodFill.h"
 #include "vortexExtraction.h"
 
 int vortexExt2ndSwirl(int Height,int Width, int nCnect,
-                      double *x0, double *dx,double *sField,
-                      double *gField,int *label,double **vCatalogOut)
+                      double *Xbuff,double *Ybuff,
+                      double *sField,double *gField,int *label,
+                      double **vCatalogOut)
 {
   int i,j,k;
   double G,a,b,x,y,rc,gradU[2][2]; // vorticity
@@ -22,6 +26,7 @@ int vortexExt2ndSwirl(int Height,int Width, int nCnect,
     w[k]=0.;A[k]=0.;a0[k]=0.;b0[k]=0.;
   }
 
+  /*
   for(i=0;i<Height;i+=1)
     for(j=0;j<Width;j+=1){
       k=label[i*Width+j];
@@ -40,6 +45,33 @@ int vortexExt2ndSwirl(int Height,int Width, int nCnect,
         w[k] += ( gradU[1][0]-gradU[0][1] )*dx[0]*dx[1];
         a0[k] += x*( gradU[1][0]-gradU[0][1] )*dx[0]*dx[1];
         b0[k] += y*( gradU[1][0]-gradU[0][1] )*dx[0]*dx[1];
+      }
+    }
+  */
+  for(i=1;i<Height-1;i+=1)
+    for(j=1;j<Width-1;j+=1){
+      k=label[i*Width+j];
+
+      if((k>=0)&&(k<nCnect)){
+        
+        y = x0[0] + i*dx[0]; // change x and y
+        x = x0[1] + j*dx[1]; // change x and y
+
+        gradU[0][1] = 9.*gField[4*(    i*Width     +j  )+1]+
+                      3.*gField[4*((i+1)*Width     +j  )+1]+
+                      3.*gField[4*(    i*Width   +(j+1))+1]+
+                      1.*gField[4*((i+1)*Width   +(j+1))+1];
+
+        gradU[1][0] = 9.*gField[4*(    i*Width     +j  )+2]+
+                      3.*gField[4*((i+1)*Width     +j  )+2]+
+                      3.*gField[4*(    i*Width   +(j+1))+2]+
+                      1.*gField[4*((i+1)*Width   +(j+1))+2];
+
+        gradU[0][1] *= (Y[i+1]-Y[i])*(X[j+1]-X[j])/64.0;
+        gradU[1][0] *= (Y[i+1]-Y[i])*(X[j+1]-X[j])/64.0;
+
+        A[k] += 
+        w[k] += 
       }
     }
 
