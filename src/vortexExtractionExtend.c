@@ -5,13 +5,12 @@
 #include "floodFill.h"
 #include "vortexExtraction.h"
 
-int vortexExt2ndSwirl(int Height,int Width, int nCnect,
-                      double *Xbuff,double *Ybuff,
-                      double *sField,double *gField,int *label,
-                      double **vCatalogOut)
+int vortExtExtendVortCurv(int Height,int Width, int nCnect,double *X,double *Y,
+                          double *sField,double *gField,int *label,
+                          double **vCatalogOut)
 {
   int i,j,k;
-  double G,a,b,x,y,rc,gradU[2][2]; // vorticity
+  double G,a,b,rc,dx,dy,dA,dgradU[2][2]; // vorticity
   double w[nCnect],A[nCnect],a0[nCnect],b0[nCnect];
   double *vCatalog=NULL;
 
@@ -26,52 +25,218 @@ int vortexExt2ndSwirl(int Height,int Width, int nCnect,
     w[k]=0.;A[k]=0.;a0[k]=0.;b0[k]=0.;
   }
 
-  /*
-  for(i=0;i<Height;i+=1)
-    for(j=0;j<Width;j+=1){
-      k=label[i*Width+j];
-
-      if((k>=0)&&(k<nCnect)){
-
-        gradU[0][0] = gField[4*(i*Width+j)+0];
-        gradU[0][1] = gField[4*(i*Width+j)+1];
-        gradU[1][0] = gField[4*(i*Width+j)+2];
-        gradU[1][1] = gField[4*(i*Width+j)+3];
-        
-        y = x0[0] + i*dx[0]; // change x and y
-        x = x0[1] + j*dx[1]; // change x and y
-
-        A[k] += dx[0]*dx[1];
-        w[k] += ( gradU[1][0]-gradU[0][1] )*dx[0]*dx[1];
-        a0[k] += x*( gradU[1][0]-gradU[0][1] )*dx[0]*dx[1];
-        b0[k] += y*( gradU[1][0]-gradU[0][1] )*dx[0]*dx[1];
-      }
-    }
-  */
   for(i=1;i<Height-1;i+=1)
     for(j=1;j<Width-1;j+=1){
       k=label[i*Width+j];
 
       if((k>=0)&&(k<nCnect)){
+        // ++ quadrant
+
+        dgradU[0][1] = 9.*gField[4*(    i*Width     +j  )+1]+
+                       3.*gField[4*((i+1)*Width     +j  )+1]+
+                       3.*gField[4*(    i*Width   +(j+1))+1]+
+                       1.*gField[4*((i+1)*Width   +(j+1))+1];
+
+        dgradU[1][0] = 9.*gField[4*(    i*Width     +j  )+2]+
+                       3.*gField[4*((i+1)*Width     +j  )+2]+
+                       3.*gField[4*(    i*Width   +(j+1))+2]+
+                       1.*gField[4*((i+1)*Width   +(j+1))+2];
+
+        dgradU[0][1] *= (Y[i+1]-Y[i])*(X[j+1]-X[j])/64.0;
+        dgradU[1][0] *= (Y[i+1]-Y[i])*(X[j+1]-X[j])/64.0;
+
+        w[k] += dgradU[1][0]-dgradU[0][1];
         
-        y = x0[0] + i*dx[0]; // change x and y
-        x = x0[1] + j*dx[1]; // change x and y
+        dy = 9.*gField[4*(    i*Width  +j  )+1]*Y[i]  +
+             3.*gField[4*((i+1)*Width  +j  )+1]*Y[i+1]+
+             3.*gField[4*(    i*Width+(j+1))+1]*Y[i]  +
+             1.*gField[4*((i+1)*Width+(j+1))+1]*Y[i+1];
 
-        gradU[0][1] = 9.*gField[4*(    i*Width     +j  )+1]+
-                      3.*gField[4*((i+1)*Width     +j  )+1]+
-                      3.*gField[4*(    i*Width   +(j+1))+1]+
-                      1.*gField[4*((i+1)*Width   +(j+1))+1];
+        dy-= 9.*gField[4*(    i*Width  +j  )+2]*Y[i]  +
+             3.*gField[4*((i+1)*Width  +j  )+2]*Y[i+1]+
+             3.*gField[4*(    i*Width+(j+1))+2]*Y[i]  +
+             1.*gField[4*((i+1)*Width+(j+1))+2]*Y[i+1];
+        
+        dx = 9.*gField[4*(    i*Width  +j  )+1]*X[j]  +
+             3.*gField[4*((i+1)*Width  +j  )+1]*X[j]  +
+             3.*gField[4*(    i*Width+(j+1))+1]*X[j+1]+
+             1.*gField[4*((i+1)*Width+(j+1))+1]*X[j+1];
 
-        gradU[1][0] = 9.*gField[4*(    i*Width     +j  )+2]+
-                      3.*gField[4*((i+1)*Width     +j  )+2]+
-                      3.*gField[4*(    i*Width   +(j+1))+2]+
-                      1.*gField[4*((i+1)*Width   +(j+1))+2];
+        dx-= 9.*gField[4*(    i*Width  +j  )+2]*X[j]  +
+             3.*gField[4*((i+1)*Width  +j  )+2]*X[j]  +
+             3.*gField[4*(    i*Width+(j+1))+2]*X[j+1]+
+             1.*gField[4*((i+1)*Width+(j+1))+2]*X[j+1];
+        
+        dy *= (Y[i+1]-Y[i])*(X[j+1]-X[j])/64.0;
+        dx *= (Y[i+1]-Y[i])*(X[j+1]-X[j])/64.0;
+        
+        a0[k] += dx;
+        b0[k] += dy;
 
-        gradU[0][1] *= (Y[i+1]-Y[i])*(X[j+1]-X[j])/64.0;
-        gradU[1][0] *= (Y[i+1]-Y[i])*(X[j+1]-X[j])/64.0;
+        dA = 9.*((label[    i*Width  +  j]==k)?1.0:0.0)+
+             3.*((label[(i+1)*Width  +  j]==k)?1.0:0.0)+
+             3.*((label[    i*Width+(j+1)]==k)?1.0:0.0)+
+             1.*((label[(i+1)*Width+(j+1)]==k)?1.0:0.0);
 
-        A[k] += 
-        w[k] += 
+        A[k] += dA*(Y[i+1]-Y[i])*(X[j+1]-X[j])/64.0;
+        
+        /*************************************************/
+        
+        // -+ quadrant
+
+        dgradU[0][1] = 9.*gField[4*(    i*Width     +j  )+1]+
+                       3.*gField[4*((i-1)*Width     +j  )+1]+
+                       3.*gField[4*(    i*Width   +(j+1))+1]+
+                       1.*gField[4*((i-1)*Width   +(j+1))+1];
+
+        dgradU[1][0] = 9.*gField[4*(    i*Width     +j  )+2]+
+                       3.*gField[4*((i-1)*Width     +j  )+2]+
+                       3.*gField[4*(    i*Width   +(j+1))+2]+
+                       1.*gField[4*((i-1)*Width   +(j+1))+2];
+
+        dgradU[0][1] *= (Y[i]-Y[i-1])*(X[j+1]-X[j])/64.0;
+        dgradU[1][0] *= (Y[i]-Y[i-1])*(X[j+1]-X[j])/64.0;
+
+        w[k] += dgradU[1][0]-dgradU[0][1];
+        
+        dy = 9.*gField[4*(    i*Width  +j  )+1]*Y[i]  +
+             3.*gField[4*((i-1)*Width  +j  )+1]*Y[i-1]+
+             3.*gField[4*(    i*Width+(j+1))+1]*Y[i]  +
+             1.*gField[4*((i-1)*Width+(j+1))+1]*Y[i-1];
+
+        dy-= 9.*gField[4*(    i*Width  +j  )+2]*Y[i]  +
+             3.*gField[4*((i-1)*Width  +j  )+2]*Y[i-1]+
+             3.*gField[4*(    i*Width+(j+1))+2]*Y[i]  +
+             1.*gField[4*((i-1)*Width+(j+1))+2]*Y[i-1];
+        
+        dx = 9.*gField[4*(    i*Width  +j  )+1]*X[j]  +
+             3.*gField[4*((i-1)*Width  +j  )+1]*X[j]  +
+             3.*gField[4*(    i*Width+(j+1))+1]*X[j+1]+
+             1.*gField[4*((i-1)*Width+(j+1))+1]*X[j+1];
+
+        dx-= 9.*gField[4*(    i*Width  +j  )+2]*X[j]  +
+             3.*gField[4*((i-1)*Width  +j  )+2]*X[j]  +
+             3.*gField[4*(    i*Width+(j+1))+2]*X[j+1]+
+             1.*gField[4*((i-1)*Width+(j+1))+2]*X[j+1];
+        
+        dy *= (Y[i]-Y[i-1])*(X[j+1]-X[j])/64.0;
+        dx *= (Y[i]-Y[i-1])*(X[j+1]-X[j])/64.0;
+        
+        a0[k] += dx;
+        b0[k] += dy;
+
+        dA = 9.*((label[    i*Width  +  j]==k)?1.0:0.0)+
+             3.*((label[(i-1)*Width  +  j]==k)?1.0:0.0)+
+             3.*((label[    i*Width+(j+1)]==k)?1.0:0.0)+
+             1.*((label[(i-1)*Width+(j+1)]==k)?1.0:0.0);
+
+        A[k] += dA*(Y[i]-Y[i-1])*(X[j+1]-X[j])/64.0;
+        
+        /*************************************************/
+
+        // +- quadrant
+
+        dgradU[0][1] = 9.*gField[4*(    i*Width     +j  )+1]+
+                       3.*gField[4*((i+1)*Width     +j  )+1]+
+                       3.*gField[4*(    i*Width   +(j-1))+1]+
+                       1.*gField[4*((i+1)*Width   +(j-1))+1];
+
+        dgradU[1][0] = 9.*gField[4*(    i*Width     +j  )+2]+
+                       3.*gField[4*((i+1)*Width     +j  )+2]+
+                       3.*gField[4*(    i*Width   +(j-1))+2]+
+                       1.*gField[4*((i+1)*Width   +(j-1))+2];
+
+        dgradU[0][1] *= (Y[i+1]-Y[i])*(X[j]-X[j-1])/64.0;
+        dgradU[1][0] *= (Y[i+1]-Y[i])*(X[j]-X[j-1])/64.0;
+
+        w[k] += dgradU[1][0]-dgradU[0][1];
+        
+        dy = 9.*gField[4*(    i*Width  +j  )+1]*Y[i]  +
+             3.*gField[4*((i+1)*Width  +j  )+1]*Y[i+1]+
+             3.*gField[4*(    i*Width+(j-1))+1]*Y[i]  +
+             1.*gField[4*((i+1)*Width+(j-1))+1]*Y[i+1];
+
+        dy-= 9.*gField[4*(    i*Width  +j  )+2]*Y[i]  +
+             3.*gField[4*((i+1)*Width  +j  )+2]*Y[i+1]+
+             3.*gField[4*(    i*Width+(j-1))+2]*Y[i]  +
+             1.*gField[4*((i+1)*Width+(j-1))+2]*Y[i+1];
+        
+        dx = 9.*gField[4*(    i*Width  +j  )+1]*X[j]  +
+             3.*gField[4*((i+1)*Width  +j  )+1]*X[j]  +
+             3.*gField[4*(    i*Width+(j-1))+1]*X[j-1]+
+             1.*gField[4*((i+1)*Width+(j-1))+1]*X[j-1];
+
+        dx-= 9.*gField[4*(    i*Width  +j  )+2]*X[j]  +
+             3.*gField[4*((i+1)*Width  +j  )+2]*X[j]  +
+             3.*gField[4*(    i*Width+(j-1))+2]*X[j-1]+
+             1.*gField[4*((i+1)*Width+(j-1))+2]*X[j-1];
+        
+        dy *= (Y[i+1]-Y[i])*(X[j]-X[j-1])/64.0;
+        dx *= (Y[i+1]-Y[i])*(X[j]-X[j-1])/64.0;
+        
+        a0[k] += dx;
+        b0[k] += dy;
+
+        dA = 9.*((label[    i*Width  +  j]==k)?1.0:0.0)+
+             3.*((label[(i+1)*Width  +  j]==k)?1.0:0.0)+
+             3.*((label[    i*Width+(j-1)]==k)?1.0:0.0)+
+             1.*((label[(i+1)*Width+(j-1)]==k)?1.0:0.0);
+
+        A[k] += dA*(Y[i+1]-Y[i])*(X[j]-X[j-1])/64.0;
+        
+        /*************************************************/
+        
+        // -- quadrant
+
+        dgradU[0][1] = 9.*gField[4*(    i*Width     +j  )+1]+
+                       3.*gField[4*((i-1)*Width     +j  )+1]+
+                       3.*gField[4*(    i*Width   +(j-1))+1]+
+                       1.*gField[4*((i-1)*Width   +(j-1))+1];
+
+        dgradU[1][0] = 9.*gField[4*(    i*Width     +j  )+2]+
+                       3.*gField[4*((i-1)*Width     +j  )+2]+
+                       3.*gField[4*(    i*Width   +(j-1))+2]+
+                       1.*gField[4*((i-1)*Width   +(j-1))+2];
+
+        dgradU[0][1] *= (Y[i]-Y[i-1])*(X[j]-X[j-1])/64.0;
+        dgradU[1][0] *= (Y[i]-Y[i-1])*(X[j]-X[j-1])/64.0;
+
+        w[k] += dgradU[1][0]-dgradU[0][1];
+        
+        dy = 9.*gField[4*(    i*Width  +j  )+1]*Y[i]  +
+             3.*gField[4*((i-1)*Width  +j  )+1]*Y[i-1]+
+             3.*gField[4*(    i*Width+(j-1))+1]*Y[i]  +
+             1.*gField[4*((i-1)*Width+(j-1))+1]*Y[i-1];
+
+        dy-= 9.*gField[4*(    i*Width  +j  )+2]*Y[i]  +
+             3.*gField[4*((i-1)*Width  +j  )+2]*Y[i-1]+
+             3.*gField[4*(    i*Width+(j-1))+2]*Y[i]  +
+             1.*gField[4*((i-1)*Width+(j-1))+2]*Y[i-1];
+        
+        dx = 9.*gField[4*(    i*Width  +j  )+1]*X[j]  +
+             3.*gField[4*((i-1)*Width  +j  )+1]*X[j]  +
+             3.*gField[4*(    i*Width+(j-1))+1]*X[j-1]+
+             1.*gField[4*((i-1)*Width+(j-1))+1]*X[j-1];
+
+        dx-= 9.*gField[4*(    i*Width  +j  )+2]*X[j]  +
+             3.*gField[4*((i-1)*Width  +j  )+2]*X[j]  +
+             3.*gField[4*(    i*Width+(j-1))+2]*X[j-1]+
+             1.*gField[4*((i-1)*Width+(j-1))+2]*X[j-1];
+        
+        dy *= (Y[i]-Y[i-1])*(X[j]-X[j-1])/64.0;
+        dx *= (Y[i]-Y[i-1])*(X[j]-X[j-1])/64.0;
+        
+        a0[k] += dx;
+        b0[k] += dy;
+
+        dA = 9.*((label[    i*Width  +  j]==k)?1.0:0.0)+
+             3.*((label[(i-1)*Width  +  j]==k)?1.0:0.0)+
+             3.*((label[    i*Width+(j-1)]==k)?1.0:0.0)+
+             1.*((label[(i-1)*Width+(j-1)]==k)?1.0:0.0);
+
+        A[k] += dA*(Y[i+1]-Y[i])*(X[j]-X[j-1])/64.0;
+        
+        /*************************************************/
       }
     }
 
