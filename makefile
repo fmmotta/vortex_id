@@ -48,6 +48,9 @@ test_lambOseenShear3: floodFill.o test_lambOseenShear3.o lambdaInit.o
 test_lambOseenNSecGrad: floodFill.o test_lambOseenNSecGrad.o lambdaInit.o stencilExtended.o
 	$(CC) -o bin/test_lambOseenNSecGrad obj/test_lambOseenNSecGrad.o obj/floodFill.o obj/lambdaInit.o obj/stencilExtended.o $(LIBS)
 
+test_oseenNSecGradExtract: floodFill.o test_oseenNSecGradExtract.o lambdaInit.o stencilExtended.o vortexExtractionExtend.o
+	$(CC) -o bin/test_oseenNSecGradExtract obj/test_oseenNSecGradExtract.o obj/floodFill.o obj/lambdaInit.o obj/stencilExtended.o obj/vortexExtractionExtend.o $(LIBS)
+
 test_splitNsecGrad3: floodFill.o test_splitNsecGrad3.o lambdaInit.o stencilExtended.o vortexExtraction.o
 	$(CC) -o bin/test_splitNsecGrad3 obj/test_splitNsecGrad3.o obj/floodFill.o obj/lambdaInit.o obj/stencilExtended.o obj/vortexExtraction.o $(LIBS)
 
@@ -174,6 +177,9 @@ vortexExtraction.o: src/vortexExtraction.c
 vortexWeightedExtraction.o: src/vortexWeightedExtraction.c
 	$(CC) $(CFLAGS) src/vortexWeightedExtraction.c -o obj/vortexWeightedExtraction.o
 
+vortexExtractionExtend.o: src/vortexExtractionExtend.c
+	$(CC) $(CFLAGS) src/vortexExtractionExtend.c -o obj/vortexExtractionExtend.o
+
 mt64.o: src/mt19937-64.c src/mt64.h
 	$(CC) $(CFLAGS) src/mt19937-64.c -o obj/mt64.o
 
@@ -209,6 +215,9 @@ test_lambOseenShear3.o: src/tests/test_lambOseenShear3.c src/floodFill.h src/lam
 
 test_lambOseenNSecGrad.o: src/tests/test_lambOseenNSecGrad.c src/floodFill.h src/lambdaInit.h
 	$(CC) $(CFLAGS) src/tests/test_lambOseenNSecGrad.c -o obj/test_lambOseenNSecGrad.o
+
+test_oseenNSecGradExtract.o: src/tests/test_oseenNSecGradExtract.c src/floodFill.h src/lambdaInit.h
+	$(CC) $(CFLAGS) src/tests/test_oseenNSecGradExtract.c -o obj/test_oseenNSecGradExtract.o
 
 test_splitNsecGrad3.o: src/tests/test_splitNsecGrad3.c src/floodFill.h src/lambdaInit.h
 	$(CC) $(CFLAGS) src/tests/test_splitNsecGrad3.c -o obj/test_splitNsecGrad3.o

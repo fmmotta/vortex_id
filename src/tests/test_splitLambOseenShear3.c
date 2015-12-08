@@ -5,10 +5,11 @@
 #include "floodFill.h"
 #include "lambdaInit.h"
 #include "stencilExtended.h"
+#include "vortexExtractionExtend.h"
 
 int main(int argc,char **argv){
   const int Width = 100, Height = 100, Pop=10,nVortex=3;
-  int i,j,err,ngbr,found, padWidth=2;
+  int i,j,err,ngbr,found, padWidth=2,nMax=50;
   int nbList[8],label[Width*Height],eqList[Pop],**eqClass;
   double parVortex[4*nVortex],x0[2],dx[2],xf[2],*sField=NULL;
   double *gField=NULL,*uField=NULL,X[Width],Y[Height];
@@ -24,6 +25,13 @@ int main(int argc,char **argv){
     if(eqClass[i]==NULL)
       return(i+2);
   }
+
+  vCatalog = (double*)malloc(4*nMax*sizeof(double));
+  if(vCatalog==NULL){
+    printf("memory not allocked\n");
+    return 3;
+  }
+
   
   x0[0]=-5.; xf[0]= 5.; dx[0] = (xf[0]-x0[0])/Height;
   x0[1]=-5.; xf[1]= 5.; dx[1] = (xf[1]-x0[1])/Width;
@@ -203,7 +211,14 @@ int main(int argc,char **argv){
     }
     fclose(dadosout);
   }
-  
+
+  err=vortexExtractionExtend(Height,Width,nCnect,X,Y,sField,
+                             gField,label,&vCatalog);
+  for(i=0;i<nCnect;i+=1)
+    printf("component %d: %f %f %f %f\n",i,vCatalog[4*i+0]
+                                          ,vCatalog[4*i+1]
+                                          ,vCatalog[4*i+2]
+                                          ,vCatalog[4*i+3]);
   if(sField!=NULL)
     free(sField);
 
