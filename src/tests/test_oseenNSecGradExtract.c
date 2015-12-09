@@ -22,7 +22,7 @@ int oseenUxxy(int nVortex,double *parVortex, double *x0, double *dx,
               int Height,int Width, double **sRefOut);
 
 int main(int argc,char **argv){
-  const int Width = 100, Height = 100, Pop=10,nVortex=3;
+  const int Width = 200, Height = 200, Pop=10,nVortex=3;
   int i,j,err,ngbr,found, padWidth=2,nCnect,nMax=50;
   int nbList[8],label[Width*Height],eqList[Pop],**eqClass;
   double parVortex[4*nVortex],x0[2],dx[2],xf[2],*sField=NULL;

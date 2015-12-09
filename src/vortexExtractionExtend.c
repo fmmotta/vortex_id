@@ -141,8 +141,8 @@ int vortexExtractionExtend(int Height,int Width, int nCnect,double *X,double *Y,
                        3.*gField[4*(    i*Width   +(j-1))+1]+
                        1.*gField[4*((i+1)*Width   +(j-1))+1];
 
-        dgradU[1][0] = 9.*gField[4*(    i*Width     +j  )+2]+
-                       3.*gField[4*((i+1)*Width     +j  )+2]+
+        dgradU[1][0] = 9.*gField[4*(    i*Width   +  j  )+2]+
+                       3.*gField[4*((i+1)*Width   +  j  )+2]+
                        3.*gField[4*(    i*Width   +(j-1))+2]+
                        1.*gField[4*((i+1)*Width   +(j-1))+2];
 
@@ -151,23 +151,23 @@ int vortexExtractionExtend(int Height,int Width, int nCnect,double *X,double *Y,
 
         w[k] += dgradU[1][0]-dgradU[0][1];
         
-        dy = 9.*gField[4*(    i*Width  +j  )+2]*Y[i]  +
-             3.*gField[4*((i+1)*Width  +j  )+2]*Y[i+1]+
+        dy = 9.*gField[4*(    i*Width  + j )+2]*Y[i]  +
+             3.*gField[4*((i+1)*Width  + j )+2]*Y[i+1]+
              3.*gField[4*(    i*Width+(j-1))+2]*Y[i]  +
              1.*gField[4*((i+1)*Width+(j-1))+2]*Y[i+1];
 
-        dy-= 9.*gField[4*(    i*Width  +j  )+1]*Y[i]  +
-             3.*gField[4*((i+1)*Width  +j  )+1]*Y[i+1]+
+        dy-= 9.*gField[4*(    i*Width  + j )+1]*Y[i]  +
+             3.*gField[4*((i+1)*Width  + j )+1]*Y[i+1]+
              3.*gField[4*(    i*Width+(j-1))+1]*Y[i]  +
              1.*gField[4*((i+1)*Width+(j-1))+1]*Y[i+1];
         
-        dx = 9.*gField[4*(    i*Width  +j  )+2]*X[j]  +
-             3.*gField[4*((i+1)*Width  +j  )+2]*X[j]  +
+        dx = 9.*gField[4*(    i*Width  + j  )+2]*X[j]  +
+             3.*gField[4*((i+1)*Width  + j  )+2]*X[j]  +
              3.*gField[4*(    i*Width+(j-1))+2]*X[j-1]+
              1.*gField[4*((i+1)*Width+(j-1))+2]*X[j-1];
 
-        dx-= 9.*gField[4*(    i*Width  +j  )+1]*X[j]  +
-             3.*gField[4*((i+1)*Width  +j  )+1]*X[j]  +
+        dx-= 9.*gField[4*(    i*Width  +j )+1]*X[j]  +
+             3.*gField[4*((i+1)*Width  +j )+1]*X[j]  +
              3.*gField[4*(    i*Width+(j-1))+1]*X[j-1]+
              1.*gField[4*((i+1)*Width+(j-1))+1]*X[j-1];
         
@@ -188,13 +188,13 @@ int vortexExtractionExtend(int Height,int Width, int nCnect,double *X,double *Y,
         
         // -- quadrant
 
-        dgradU[0][1] = 9.*gField[4*(    i*Width     +j  )+1]+
-                       3.*gField[4*((i-1)*Width     +j  )+1]+
+        dgradU[0][1] = 9.*gField[4*(    i*Width   +  j  )+1]+
+                       3.*gField[4*((i-1)*Width   +  j  )+1]+
                        3.*gField[4*(    i*Width   +(j-1))+1]+
                        1.*gField[4*((i-1)*Width   +(j-1))+1];
 
-        dgradU[1][0] = 9.*gField[4*(    i*Width     +j  )+2]+
-                       3.*gField[4*((i-1)*Width     +j  )+2]+
+        dgradU[1][0] = 9.*gField[4*(    i*Width   +  j  )+2]+
+                       3.*gField[4*((i-1)*Width   +  j  )+2]+
                        3.*gField[4*(    i*Width   +(j-1))+2]+
                        1.*gField[4*((i-1)*Width   +(j-1))+2];
 
@@ -203,23 +203,23 @@ int vortexExtractionExtend(int Height,int Width, int nCnect,double *X,double *Y,
 
         w[k] += dgradU[1][0]-dgradU[0][1];
         
-        dy = 9.*gField[4*(    i*Width  +j  )+2]*Y[i]  +
-             3.*gField[4*((i-1)*Width  +j  )+2]*Y[i-1]+
+        dy = 9.*gField[4*(    i*Width  + j )+2]*Y[i]  +
+             3.*gField[4*((i-1)*Width  + j )+2]*Y[i-1]+
              3.*gField[4*(    i*Width+(j-1))+2]*Y[i]  +
              1.*gField[4*((i-1)*Width+(j-1))+2]*Y[i-1];
 
-        dy-= 9.*gField[4*(    i*Width  +j  )+1]*Y[i]  +
-             3.*gField[4*((i-1)*Width  +j  )+1]*Y[i-1]+
+        dy-= 9.*gField[4*(    i*Width  + j )+1]*Y[i]  +
+             3.*gField[4*((i-1)*Width  + j )+1]*Y[i-1]+
              3.*gField[4*(    i*Width+(j-1))+1]*Y[i]  +
              1.*gField[4*((i-1)*Width+(j-1))+1]*Y[i-1];
         
-        dx = 9.*gField[4*(    i*Width  +j  )+2]*X[j]  +
-             3.*gField[4*((i-1)*Width  +j  )+2]*X[j]  +
+        dx = 9.*gField[4*(    i*Width  + j )+2]*X[j]  +
+             3.*gField[4*((i-1)*Width  + j )+2]*X[j]  +
              3.*gField[4*(    i*Width+(j-1))+2]*X[j-1]+
              1.*gField[4*((i-1)*Width+(j-1))+2]*X[j-1];
 
-        dx-= 9.*gField[4*(    i*Width  +j  )+1]*X[j]  +
-             3.*gField[4*((i-1)*Width  +j  )+1]*X[j]  +
+        dx-= 9.*gField[4*(    i*Width  + j )+1]*X[j]  +
+             3.*gField[4*((i-1)*Width  + j )+1]*X[j]  +
              3.*gField[4*(    i*Width+(j-1))+1]*X[j-1]+
              1.*gField[4*((i-1)*Width+(j-1))+1]*X[j-1];
         
@@ -241,7 +241,8 @@ int vortexExtractionExtend(int Height,int Width, int nCnect,double *X,double *Y,
     }
 
   for(k=0;k<nCnect;k+=1){
-    rc= sqrt(A[k]/M_PI)*sqrtf(2.); // Constant comming from lamb-oseen vortex;
+    // 0.977816 corrects for gridsize
+    rc= sqrt(A[k]/M_PI)*(sqrtf(2.));//0.977816); // Constant comming from lamb-oseen vortex;
     if(w[k]>0.){
       a=a0[k]/w[k]; 
       b=b0[k]/w[k];
@@ -249,8 +250,11 @@ int vortexExtractionExtend(int Height,int Width, int nCnect,double *X,double *Y,
     else{
       a=0.;
       b=0.;
-    } 
-    G = 0.8243606353500641*rc*rc*w[k]; // Constant comming from lamb-oseen 
+    }
+    // 2.541494083 = 1/(1-1/sqrt(e)) ... should correct for finite grid size?
+    //G = 2.55399076*rc*rc*w[k];
+    G = 2.541494083*rc*rc*w[k];
+    //G = 0.8243606353500641*rc*rc*w[k]; // Constant comming from lamb-oseen 
                                        // vortex; Based on laplacian of omega
                                        // equals to sqrt(e)/2
     vCatalog[4*k+0] = G;
