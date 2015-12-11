@@ -254,9 +254,7 @@ int vortexExtractionExtend(int Height,int Width, int nCnect,double *X,double *Y,
     // 2.541494083 = 1/(1-1/sqrt(e)) ... should correct for finite grid size?
     //G = 2.55399076*rc*rc*w[k];
     G = 2.541494083*rc*rc*w[k];
-    //G = 0.8243606353500641*rc*rc*w[k]; // Constant comming from lamb-oseen 
-                                       // vortex; Based on laplacian of omega
-                                       // equals to sqrt(e)/2
+    
     vCatalog[4*k+0] = G;
     vCatalog[4*k+1] = rc;
     vCatalog[4*k+2] = a;

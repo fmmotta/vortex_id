@@ -138,8 +138,8 @@ test_loadFields: test_loadFields.o preprocessing.o
 test_FOAMsw: test_FOAMsw.o floodFill.o lambdaInit.o stencilExtended.o vortexExtraction.o preprocessing.o
 	$(CC) -o bin/test_FOAMsw obj/test_FOAMsw.o obj/floodFill.o obj/lambdaInit.o obj/stencilExtended.o obj/vortexExtraction.o obj/preprocessing.o $(LIBS)
 
-test_FOAMvc: test_FOAMvc.o floodFill.o lambdaInit.o stencilExtended.o vortexExtraction.o preprocessing.o
-	$(CC) -o bin/test_FOAMvc obj/test_FOAMvc.o obj/floodFill.o obj/lambdaInit.o obj/stencilExtended.o obj/vortexExtraction.o obj/preprocessing.o $(LIBS)
+test_FOAMvc: test_FOAMvc.o floodFill.o lambdaInit.o stencilExtended.o vortexExtraction.o preprocessing.o vortexExtractionExtend.o
+	$(CC) -o bin/test_FOAMvc obj/test_FOAMvc.o obj/floodFill.o obj/lambdaInit.o obj/stencilExtended.o obj/vortexExtraction.o obj/preprocessing.o obj/vortexExtractionExtend.o $(LIBS)
 
 main.o: src/main.c 
 	$(CC) $(CFLAGS) src/main.c -o obj/main.o

@@ -8,6 +8,7 @@
 #include "lambdaInit.h"
 #include "stencilExtended.h"
 #include "vortexExtraction.h"
+#include "vortexExtractionExtend.h"
 
 #define fieldAlloc(ptr,size,type) ptr=(type*)malloc(size*sizeof(type)); \
                                   if(ptr==NULL){                        \
@@ -33,13 +34,13 @@ int main(int argc,char** argv){
   long int N=6;
   int Height, Width,Depth;
   int i,j,k,l,Npre,Nu,Np,Nx,Ny,Nz,Nn,err,auHeight,auWidth;
-  int nbList[8],eqList[Pop],**eqClass,*label;//,*label;
+  int nbList[8],eqList[Pop],**eqClass,*label,nCnect,nMax=1024;//,*label;
   char buffer[1024],filename[100];
   double *sField=NULL,x,y,x0[2],dx[2];
   double Z[1000],X2[1000],Y2[1000],Z2[1000];
   double *gField=NULL,*g2Field=NULL,*uField=NULL,X[1000],Y[1000];
   double *uBuff=NULL,Xbuff[1000+4],Ybuff[1000+4];
-  double *ux,*uy,*uxxy,*uxyy,*uxxx,*uyyy,*w,ua,ub;
+  double *ux,*uy,*uxxy,*uxyy,*uxxx,*uyyy,*w,ua,ub,*vCatalog=NULL;
   FILE *uFile,*pFile,*nFile,*ouFile;
   FILE *zFile,*yFile,*wFile,*vFile,*xFile,*uRFile;
   openFoamIcoData v[N],*node=NULL;
@@ -83,6 +84,12 @@ int main(int argc,char** argv){
     eqClass[i]=(int*)malloc(NumCls*sizeof(int));
     if(eqClass[i]==NULL)
       return(i+2);
+  }
+
+  vCatalog = (double*)malloc(4*nMax*sizeof(double));
+  if(vCatalog==NULL){
+    printf("memory not allocked\n");
+    return 3;
   }
   
   dbgPrint(1);
@@ -248,9 +255,21 @@ int main(int argc,char** argv){
 
   err = renameLabels(Height,Width,label);
   if(err>0)
-    printf("%d connected component(s)\n",err);
+    nCnect=err;
   else
     printf("problems with renameLabels - %d\n",err);
+
+  printf("there are %d componentes \n",nCnect);
+  
+  err=vortexExtractionExtend(Height,Width,nCnect,X,Y,sField,
+                             gField,label,&vCatalog);
+
+  ouFile = fopen("data/vortices.dat","w");
+  for(i=0;i<nCnect;i+=1)
+    fprintf(ouFile,"%.12f %.12f %.8f %.8f %.8f\n",vCatalog[4*i+0],vCatalog[4*i+1]
+                                        ,vCatalog[4*i+2],vCatalog[4*i+3],
+                                        (vCatalog[4*i+0])/(vCatalog[4*i+1]*vCatalog[4*i+1]));
+  fclose(ouFile);
 
   dbgPrint(15);
   
