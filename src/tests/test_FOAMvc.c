@@ -268,9 +268,9 @@ int main(int argc,char** argv){
   for(i=0;i<nCnect;i+=1)
     fprintf(ouFile,"%.12f %.12f %.8f %.8f %.8f\n",vCatalog[4*i+0],vCatalog[4*i+1]
                                         ,vCatalog[4*i+2],vCatalog[4*i+3],
-                                        (vCatalog[4*i+0])/(vCatalog[4*i+1]*vCatalog[4*i+1]));
+                                        (vCatalog[4*i+0])/(vCatalog[4*i+1]*vCatalog[4*i+1)]);
   fclose(ouFile);
-
+  
   dbgPrint(15);
   
   {
