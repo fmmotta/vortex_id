@@ -233,13 +233,13 @@ int vortexExtractionExtend(int Height,int Width, int nCnect,double *X,double *Y,
     // 0.977816 corrects for gridsize
     rc= sqrt(A[k]/M_PI)*(sqrtf(2.));//0.977816); // Constant comming from 
                                                  //  lamb-oseen vortex;
-    if(w[k]>0.){
+    if(fabs(w[k])>0.){
       a=a0[k]/w[k]; 
       b=b0[k]/w[k];
     }
     else{
-      a=0.;
-      b=0.;
+      a=X[0]-1.;
+      b=Y[0]-1.;
     }
     
     G = 2.541494083*rc*rc*w[k]; // 2.541494083 = 1/(1-1/sqrt(e)) 
