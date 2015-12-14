@@ -9,22 +9,38 @@ inline int add_dgradU(int Height,int Width, int i,int j,int ik,int jk,
                       double *gField,double dgradU[][2],double X[],double Y[])
 {
   if((i+ik<0) || (i+ik)>=Height){
-    dgradU[0][1] = 9.*gField[4*(     i*Width     +  j )+1]+
-                   3.*gField[4*(     i*Width   +(j+jk))+1];
+    if( (j+jk<0) || (j+jk)>=Width ){
+      dgradU[0][1] = 9.*gField[4*(     i*Width +  j  )+1];
 
-    dgradU[1][0] = 9.*gField[4*(     i*Width +   j  )+2]+
-                   3.*gField[4*(     i*Width +(j+jk))+2];
+      dgradU[1][0] = 9.*gField[4*(     i*Width +  j  )+2];
+    }
+    else{
+      dgradU[0][1] = 9.*gField[4*(     i*Width   +   j  )+1]+
+                     3.*gField[4*(     i*Width   +(j+jk))+1];
+
+      dgradU[1][0] = 9.*gField[4*(     i*Width +   j  )+2]+
+                     3.*gField[4*(     i*Width +(j+jk))+2];
+    }
   }
   else{
-    dgradU[0][1] = 9.*gField[4*(     i*Width     +  j )+1]+
-                   3.*gField[4*((i+ik)*Width     +  j )+1]+
-                   3.*gField[4*(     i*Width   +(j+jk))+1]+
-                  1.*gField[4*((i+ik)*Width   +(j+jk))+1];
+    if( (j+jk<0) || (j+jk)>=Width ){
+      dgradU[0][1] = 9.*gField[4*(     i*Width     +  j )+1]+
+                     3.*gField[4*((i+ik)*Width     +  j )+1];
 
-    dgradU[1][0] = 9.*gField[4*(     i*Width +   j  )+2]+
-                   3.*gField[4*((i+ik)*Width +   j  )+2]+
-                   3.*gField[4*(     i*Width +(j+jk))+2]+
-                   1.*gField[4*((i+ik)*Width +(j+jk))+2];  
+      dgradU[1][0] = 9.*gField[4*(     i*Width +   j  )+2]+
+                     3.*gField[4*((i+ik)*Width +   j  )+2];
+    }
+    else{
+      dgradU[0][1] = 9.*gField[4*(     i*Width     +  j )+1]+
+                     3.*gField[4*((i+ik)*Width     +  j )+1]+
+                     3.*gField[4*(     i*Width   +(j+jk))+1]+
+                     1.*gField[4*((i+ik)*Width   +(j+jk))+1];
+
+      dgradU[1][0] = 9.*gField[4*(     i*Width +   j  )+2]+
+                     3.*gField[4*((i+ik)*Width +   j  )+2]+
+                     3.*gField[4*(     i*Width +(j+jk))+2]+
+                     1.*gField[4*((i+ik)*Width +(j+jk))+2];  
+    }
   }
 
   dgradU[0][1] *= fabs( (Y[i+ik]-Y[i])*(X[j+jk]-X[j]) )/64.0;
@@ -37,38 +53,64 @@ inline int add_dxdy(int Height,int Width, int i,int j,int ik,int jk,
                     double *gField,double *dx,double *dy,double X[],double Y[])
 {
   if((i+ik<0) || (i+ik)>=Height){
-    *dy = 9.*gField[4*(     i*Width  + j  )+2]*Y[i]+
-          3.*gField[4*(     i*Width+(j+jk))+2]*Y[i];
+    if( (j+jk<0) || (j+jk)>=Width ){
+      *dy = 9.*gField[4*(     i*Width  + j  )+2]*Y[i];
 
-    *dy-= 9.*gField[4*(     i*Width  + j  )+1]*Y[i]+
-          3.*gField[4*(     i*Width+(j+jk))+1]*Y[i];
+      *dy-= 9.*gField[4*(     i*Width  + j  )+1]*Y[i];
         
-    *dx = 9.*gField[4*(     i*Width  + j  )+2]*X[j]+
-          3.*gField[4*(     i*Width+(j+jk))+2]*X[j+jk];
+      *dx = 9.*gField[4*(     i*Width  + j  )+2]*X[j];
 
-    *dx-= 9.*gField[4*(     i*Width  + j  )+1]*X[j]+
-          3.*gField[4*(     i*Width+(j+jk))+1]*X[j+jk];
+      *dx-= 9.*gField[4*(     i*Width  + j  )+1]*X[j];
+    }
+    else{
+      *dy = 9.*gField[4*(     i*Width  + j  )+2]*Y[i]+
+            3.*gField[4*(     i*Width+(j+jk))+2]*Y[i];
+
+      *dy-= 9.*gField[4*(     i*Width  + j  )+1]*Y[i]+
+            3.*gField[4*(     i*Width+(j+jk))+1]*Y[i];
+        
+      *dx = 9.*gField[4*(     i*Width  + j  )+2]*X[j]+
+            3.*gField[4*(     i*Width+(j+jk))+2]*X[j+jk];
+
+      *dx-= 9.*gField[4*(     i*Width  + j  )+1]*X[j]+
+            3.*gField[4*(     i*Width+(j+jk))+1]*X[j+jk];
+    }
   }
   else{
-    *dy = 9.*gField[4*(     i*Width  + j  )+2]*Y[i]   +
-          3.*gField[4*((i+ik)*Width  + j  )+2]*Y[i+ik]+
-          3.*gField[4*(     i*Width+(j+jk))+2]*Y[i]   +
-          1.*gField[4*((i+ik)*Width+(j+jk))+2]*Y[i+ik];
+    if( (j+jk<0) || (j+jk)>=Width ){
+      *dy = 9.*gField[4*(     i*Width  + j  )+2]*Y[i]   +
+            3.*gField[4*((i+ik)*Width  + j  )+2]*Y[i+ik];
 
-    *dy-= 9.*gField[4*(     i*Width  + j  )+1]*Y[i]   +
-          3.*gField[4*((i+ik)*Width  + j  )+1]*Y[i+ik]+
-          3.*gField[4*(     i*Width+(j+jk))+1]*Y[i]   +
-          1.*gField[4*((i+ik)*Width+(j+jk))+1]*Y[i+ik];
+      *dy-= 9.*gField[4*(     i*Width  + j  )+1]*Y[i]   +
+            3.*gField[4*((i+ik)*Width  + j  )+1]*Y[i+ik];
         
-    *dx = 9.*gField[4*(     i*Width  + j  )+2]*X[j]   +
-          3.*gField[4*((i+ik)*Width  + j  )+2]*X[j]   +
-          3.*gField[4*(     i*Width+(j+jk))+2]*X[j+jk]+
-          1.*gField[4*((i+ik)*Width+(j+jk))+2]*X[j+jk];
+      *dx = 9.*gField[4*(     i*Width  + j  )+2]*X[j]+
+            3.*gField[4*((i+ik)*Width  + j  )+2]*X[j];
 
-    *dx-= 9.*gField[4*(     i*Width  + j  )+1]*X[j]   +
-          3.*gField[4*((i+ik)*Width  + j  )+1]*X[j]   +
-          3.*gField[4*(     i*Width+(j+jk))+1]*X[j+jk]+
-          1.*gField[4*((i+ik)*Width+(j+jk))+1]*X[j+jk];
+      *dx-= 9.*gField[4*(     i*Width  + j  )+1]*X[j]+
+            3.*gField[4*((i+ik)*Width  + j  )+1]*X[j];
+    }
+    else{
+      *dy = 9.*gField[4*(     i*Width  + j  )+2]*Y[i]   +
+            3.*gField[4*((i+ik)*Width  + j  )+2]*Y[i+ik]+
+            3.*gField[4*(     i*Width+(j+jk))+2]*Y[i]   +
+            1.*gField[4*((i+ik)*Width+(j+jk))+2]*Y[i+ik];
+
+      *dy-= 9.*gField[4*(     i*Width  + j  )+1]*Y[i]   +
+            3.*gField[4*((i+ik)*Width  + j  )+1]*Y[i+ik]+
+            3.*gField[4*(     i*Width+(j+jk))+1]*Y[i]   +
+            1.*gField[4*((i+ik)*Width+(j+jk))+1]*Y[i+ik];
+        
+      *dx = 9.*gField[4*(     i*Width  + j  )+2]*X[j]   +
+            3.*gField[4*((i+ik)*Width  + j  )+2]*X[j]   +
+            3.*gField[4*(     i*Width+(j+jk))+2]*X[j+jk]+
+            1.*gField[4*((i+ik)*Width+(j+jk))+2]*X[j+jk];
+
+      *dx-= 9.*gField[4*(     i*Width  + j  )+1]*X[j]   +
+            3.*gField[4*((i+ik)*Width  + j  )+1]*X[j]   +
+            3.*gField[4*(     i*Width+(j+jk))+1]*X[j+jk]+
+            1.*gField[4*((i+ik)*Width+(j+jk))+1]*X[j+jk];
+    }
   }
 
   *dy *= fabs( (Y[i+ik]-Y[i])*(X[j+jk]-X[j]) )/64.0;
@@ -81,14 +123,25 @@ inline int add_dA(int Height,int Width, int i,int j,int k,int ik,int jk,
                   double *gField,int *label,double *dA,double X[],double Y[])
 {
   if((i+ik<0) || (i+ik)>=Height){
-    *dA = 9.*((label[     i*Width  +  j ]==k)?1.0:0.0)+
-          3.*((label[     i*Width+(j+jk)]==k)?1.0:0.0);
+    if( (j+jk<0) || (j+jk)>=Width ){
+      *dA = 9.*((label[     i*Width  +  j ]==k)?1.0:0.0);
+    }
+    else{
+      *dA = 9.*((label[     i*Width  +  j ]==k)?1.0:0.0)+
+            3.*((label[     i*Width+(j+jk)]==k)?1.0:0.0);
+    }
   }
   else{
-    *dA = 9.*((label[     i*Width  +  j ]==k)?1.0:0.0)+
-          3.*((label[(i+ik)*Width  +  j ]==k)?1.0:0.0)+
-          3.*((label[     i*Width+(j+jk)]==k)?1.0:0.0)+
-          1.*((label[(i+ik)*Width+(j+jk)]==k)?1.0:0.0);
+    if( (j+jk<0) || (j+jk)>=Width ){
+      *dA = 9.*((label[     i*Width  +  j ]==k)?1.0:0.0)+
+            3.*((label[(i+ik)*Width  +  j ]==k)?1.0:0.0);
+    }
+    else{
+      *dA = 9.*((label[     i*Width  +  j ]==k)?1.0:0.0)+
+            3.*((label[(i+ik)*Width  +  j ]==k)?1.0:0.0)+
+            3.*((label[     i*Width+(j+jk)]==k)?1.0:0.0)+
+            1.*((label[(i+ik)*Width+(j+jk)]==k)?1.0:0.0);
+    }
   }
     
        
@@ -118,7 +171,7 @@ int vortexExtractionExtend(int Height,int Width, int nCnect,double *X,double *Y,
   }
 
   for(i=0;i<Height;i+=1)
-    for(j=1;j<Width-1;j+=1){
+    for(j=0;j<Width;j+=1){
       k=label[i*Width+j];
 
       if((k>=0)&&(k<nCnect)){
