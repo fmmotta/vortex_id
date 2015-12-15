@@ -180,6 +180,10 @@ int main(int argc,char **argv){
   err=s2ndGradUtoLamb(nVortex,parVortex,x0,dx,Height,Width,g2Ref,sRef2);
   if(err!=0)
     printf("Problems in gradU2UtoLambda\n");
+
+  err=vortexExtFromVortCurv(Height,Width,nCnect,X,Y,sField,
+                            gField,label,&vCatalog);
+
   {
     FILE *dadosout;
     dadosout=fopen("data/initUSplit-3.txt","w");
@@ -188,8 +192,7 @@ int main(int argc,char **argv){
         y = x0[0] + i*dx[0];
         x = x0[1] + j*dx[1];
         
-        fprintf(dadosout,"%f %f %.12f %.12f\n",x,y,sField[i*Width+j]
-                                              ,sRef2[i*Width+j]);
+        fprintf(dadosout,"%f %f %.12f \n",x,y,sField[i*Width+j]);
       }
 
     fclose(dadosout);dadosout=NULL;
@@ -324,18 +327,16 @@ int main(int argc,char **argv){
       }
     }
     fclose(dadosout);
+
+    dadosout=fopen("data/vortices.dat","w");
+    for(i=0;i<nCnect;i+=1)
+      fprintf(dadosout,"%f %f %f %f\n",vCatalog[4*i+0]
+                                      ,vCatalog[4*i+1]
+                                      ,vCatalog[4*i+2]
+                                      ,vCatalog[4*i+3]);
+    fclose(dadosout);
   }
 
-  printf("hello-dolly\n");
-
-  err=vortexExtractionExtend(Height,Width,nCnect,X,Y,sField,
-                             gField,label,&vCatalog);
-
-  for(i=0;i<nCnect;i+=1)
-    printf("component %d: %f %f %f %f\n",i,vCatalog[4*i+0]
-                                          ,vCatalog[4*i+1]
-                                          ,vCatalog[4*i+2]
-                                          ,vCatalog[4*i+3]);
   if(sField!=NULL)
     free(sField);
 

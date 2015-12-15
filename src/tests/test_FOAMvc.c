@@ -156,6 +156,12 @@ int main(int argc,char** argv){
   fclose(ouFile);ouFile=NULL;
 
   dbgPrint(3);
+  
+  for(i=0;i<Height;i+=1)
+    Y[i] = (Y[i]+Y[i+1])/2.;
+
+  for(j=0;j<Width;j+=1)
+    Y[i] = (Y[i]+Y[i+1])/2.;
 
   err = XtoXbuff(Width,X,Xbuff,padWidth);
   if(err!=0)
@@ -263,8 +269,8 @@ int main(int argc,char** argv){
 
   printf("there are %d componentes \n",nCnect);
   
-  err=vortexExtractionExtend(Height,Width,nCnect,X,Y,sField,
-                             gField,label,&vCatalog);
+  err=vortexExtFromVortCurv(Height,Width,nCnect,X,Y,sField,
+                            gField,label,&vCatalog);
 
   ouFile = fopen("data/vortices.dat","w");
   for(i=0;i<nCnect;i+=1)
