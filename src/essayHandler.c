@@ -17,6 +17,8 @@
 #include "inputManager.h"
 #include "essayHandler.h"
 
+#define filtered true
+
 int fprintfRunParamSigned(FILE *dadosgen,long long int seed,double x0[],
                          double xf[],double dx[],double Gmin, double Gmax,
                          double rmin, double rmax, double xmin[], double xmax[], 
@@ -212,9 +214,11 @@ int calcScalarField(int runType,int Height,int Width,double x0[],double dx[],
 }
 
 
-int calcUScalarField(int runType,int Height,int Width,double x0[],double dx[],
-                     int nVortex,double *parVortex,double *gField,double v0y0,
-                     double *sField)
+int calcUScalarField(int runType,int Height,int Width,int padWidth, double x0[],double dx[],
+                     double *X,double *Y, double *Xbuff,double *Ybuff,int nVortex,
+                     double *parVortex, double *uField, double *uBuff,double *ux,double *uy,
+                     double *uxxx,double *uyyy,double *uxxy, double *uxyy,double *gField,
+                     double g2Field,double v0y0,double *sField)
 {
   int err;
 
@@ -249,7 +253,6 @@ int calcUScalarField(int runType,int Height,int Width,double x0[],double dx[],
       return -5;
   }
   else if(runType==1){
-    //err = addSingleOseen(nVortex,parVortex,x0,dx,Height,Width,&gField);
     err = addUSingleOseen(nVortex,parVortex,x0,dx,Height,Width,&uField);
     if(err!=0)
       return -1;
@@ -311,47 +314,18 @@ int calcUScalarField(int runType,int Height,int Width,double x0[],double dx[],
         g2Field[4*(i*Width+j)+3] = uxyy[2*(i*Width+j)+0]-uxxy[2*(i*Width+j)+1];
       }
     
-    //err = gradUtoLamb(Height,Width,gField,&sField);
-    //err = gradUtoLamb(Height,Width,g2Field,&sField);
-    err=gradU2UtoLambda(Height,Width,gField,g2Field,&sField);
+    if(filtered)
+      err=gradU2UtoLambda(Height,Width,gField,g2Field,&sField);
+    else
+      err=gradUtoLamb(Height,Width,g2Field,&sField);
     if(err!=0)
       return -11;
   }
-
-  else if(runType==1){
-    err = addOseen2ndGrad(nVortex,parVortex,x0,dx,Height,Width,&gField);
-    if(err!=0){
-      printf("Problems in addSingleOseen\n");
-      return err;
-    }
-
-    err = s2ndGradUtoLamb(nVortex,parVortex,x0,dx,Height,Width,gField,sField);
-    if(err!=0){
-      printf("Problems in gradUtoLamb\n");
-      return err;
-    }
-  }
-  else if(runType==2){
-    err = addSingleOseen(nVortex,parVortex,x0,dx,Height,Width,&gField);
-    if(err!=0){
-      printf("Problems in addSingleOseen\n");
-      return err;
-    }
-
-    err=addConstXYShear(x0,dx,Height,Width,v0y0,&gField);
-    if(err!=0)
-      printf("Problems in addConstXYShear\n");
-
-    err = gradUtoLamb(Height,Width,gField,&sField);
-    if(err!=0){
-      printf("Problems in gradUtoLamb\n");
-      return err;
-    }
-  }
   else{
     printf("Non-Identified run-type - %d\n",runType);
-    return -2;
+    return -20;
   }
+
   return 0;
 }
 
