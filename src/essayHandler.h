@@ -28,3 +28,6 @@ int calcScalarField(int runType,int Height,int Width,double x0[],double dx[],
 int vortexReconstruction(int runType,int Height, int Width, int nCnect, 
                          double x0[],double dx[],double *sField, 
                          double *gField,int *label,double **vCatalog);
+
+int writeGnuplotScript(char *filename,char *folder,char *tag,
+                       int nRuns,int nVortex);
