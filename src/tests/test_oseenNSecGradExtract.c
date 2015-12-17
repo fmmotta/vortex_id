@@ -22,7 +22,7 @@ int oseenUxxy(int nVortex,double *parVortex, double *x0, double *dx,
               int Height,int Width, double **sRefOut);
 
 int main(int argc,char **argv){
-  const int Width = 200, Height = 200, Pop=10,nVortex=3;
+  const int Width = 200, Height = 200, Pop=10,nVortex=5,vCase=6;
   int i,j,err,ngbr,found, padWidth=2,nCnect,nMax=50;
   int *label,**eqClass;
   double parVortex[4*nVortex],x0[2],dx[2],xf[2],*sField=NULL;
@@ -49,15 +49,66 @@ int main(int argc,char **argv){
   x0[0]=-5.; xf[0]= 5.; dx[0] = (xf[0]-x0[0])/Height;
   x0[1]=-5.; xf[1]= 5.; dx[1] = (xf[1]-x0[1])/Width;
 
-  //parVortex[0]=1.; parVortex[1]=1.; parVortex[2]=0.; parVortex[3]=0.;
-  //parVortex[0]=1.; parVortex[1]=1.; parVortex[2]=-3.; parVortex[3]=-3.;
-  //parVortex[4+0]=1.; parVortex[4+1]=1.; parVortex[4+2]=3.; parVortex[4+3]=-3.;
-  //parVortex[8+0]=1.; parVortex[8+1]=1.; parVortex[8+2]=-3.; parVortex[8+3]=3.;
-  //parVortex[12+0]=1.; parVortex[12+1]=1.; parVortex[12+2]=3; parVortex[12+3]=3.;
-  parVortex[0]=1.; parVortex[1]=1.; parVortex[2]=-2.; parVortex[3]=0.;
-  parVortex[4+0]=1.; parVortex[4+1]=1.; parVortex[4+2]=2.; parVortex[4+3]=0.;
-  parVortex[8+0]=1.; parVortex[8+1]=1.; parVortex[8+2]=0.; parVortex[8+3]=4.;
-
+  if(nVortex==3 && vCase==0){ 
+    parVortex[0]=1.; parVortex[1]=1.; parVortex[2]=-2.; parVortex[3]=0.;
+    parVortex[4+0]=1.; parVortex[4+1]=1.; parVortex[4+2]=2.; parVortex[4+3]=0.;
+    parVortex[8+0]=1.; parVortex[8+1]=1.; parVortex[8+2]=0.; parVortex[8+3]=4.;
+  }
+  else if(nVortex==3 && vCase==1){
+    parVortex[0]=1.; parVortex[1]=1.; parVortex[2]=-0.8; parVortex[3]=0.;
+    parVortex[4+0]=1.; parVortex[4+1]=1.; parVortex[4+2]=0.8; parVortex[4+3]=0.;
+    parVortex[8+0]=1.; parVortex[8+1]=1.; parVortex[8+2]=0.; parVortex[8+3]=4.;	
+  }
+  else if(nVortex==5 && vCase==0){
+    parVortex[0]=1.; parVortex[1]=1.; parVortex[2]=-2.; parVortex[3]=3.;
+    parVortex[4+0]=1.; parVortex[4+1]=1.; parVortex[4+2]=2.; parVortex[4+3]=3.;
+    parVortex[8+0]=1.; parVortex[8+1]=1.; parVortex[8+2]=0.; parVortex[8+3]=0.;
+    parVortex[12+0]=1.; parVortex[12+1]=1.; parVortex[12+2]=-2.; parVortex[12+3]=-3.;
+    parVortex[16+0]=1.; parVortex[16+1]=1.; parVortex[16+2]=2.; parVortex[16+3]=-3.;
+  }
+  else if(nVortex==5 && vCase==1){
+    parVortex[0]=1.; parVortex[1]=1.; parVortex[2]=-1.; parVortex[3]=3.;
+    parVortex[4+0]=1.; parVortex[4+1]=1.; parVortex[4+2]=1.; parVortex[4+3]=3.;
+    parVortex[8+0]=1.; parVortex[8+1]=1.; parVortex[8+2]=0.; parVortex[8+3]=0.;
+    parVortex[12+0]=1.; parVortex[12+1]=1.; parVortex[12+2]=-2.; parVortex[12+3]=-3.;
+    parVortex[16+0]=1.; parVortex[16+1]=1.; parVortex[16+2]=2.; parVortex[16+3]=-3.;
+  }
+  else if(nVortex==5 && vCase==2){
+    parVortex[0]=1.; parVortex[1]=1.; parVortex[2]=-0.75; parVortex[3]=3.;
+    parVortex[4+0]=1.; parVortex[4+1]=1.; parVortex[4+2]=.75; parVortex[4+3]=3.;
+    parVortex[8+0]=1.; parVortex[8+1]=1.; parVortex[8+2]=0.; parVortex[8+3]=0.;
+    parVortex[12+0]=1.; parVortex[12+1]=1.; parVortex[12+2]=-2.; parVortex[12+3]=-3.;
+    parVortex[16+0]=1.; parVortex[16+1]=1.; parVortex[16+2]=2.; parVortex[16+3]=-3.;
+  }
+  else if(nVortex==5 && vCase==3){
+    parVortex[0]=1.; parVortex[1]=1.; parVortex[2]=-0.7; parVortex[3]=3.;
+    parVortex[4+0]=1.; parVortex[4+1]=1.; parVortex[4+2]=.7; parVortex[4+3]=3.;
+    parVortex[8+0]=1.; parVortex[8+1]=1.; parVortex[8+2]=0.; parVortex[8+3]=0.;
+    parVortex[12+0]=1.; parVortex[12+1]=1.; parVortex[12+2]=-2.; parVortex[12+3]=-3.;
+    parVortex[16+0]=1.; parVortex[16+1]=1.; parVortex[16+2]=2.; parVortex[16+3]=-3.;
+  }
+  else if(nVortex==5 && vCase==4){
+    parVortex[0]=1.; parVortex[1]=1.; parVortex[2]=-0.71; parVortex[3]=3.;
+    parVortex[4+0]=1.; parVortex[4+1]=1.; parVortex[4+2]=.71; parVortex[4+3]=3.;
+    parVortex[8+0]=1.; parVortex[8+1]=1.; parVortex[8+2]=0.; parVortex[8+3]=0.;
+    parVortex[12+0]=1.; parVortex[12+1]=1.; parVortex[12+2]=-2.; parVortex[12+3]=-3.;
+    parVortex[16+0]=1.; parVortex[16+1]=1.; parVortex[16+2]=2.; parVortex[16+3]=-3.;
+  }
+  else if(nVortex==5 && vCase==5){
+    parVortex[0]=1.; parVortex[1]=1.; parVortex[2]=-0.71; parVortex[3]=3.;
+    parVortex[4+0]=1.; parVortex[4+1]=1.; parVortex[4+2]=.71; parVortex[4+3]=3.;
+    parVortex[8+0]=1.; parVortex[8+1]=1.; parVortex[8+2]=0.; parVortex[8+3]=1.;
+    parVortex[12+0]=1.; parVortex[12+1]=1.; parVortex[12+2]=-2.; parVortex[12+3]=-3.;
+    parVortex[16+0]=1.; parVortex[16+1]=1.; parVortex[16+2]=2.; parVortex[16+3]=-3.;
+  }
+  else if(nVortex==5 && vCase==6){
+    parVortex[0]=1.; parVortex[1]=.5; parVortex[2]=-0.85; parVortex[3]=3.;
+    parVortex[4+0]=1.; parVortex[4+1]=1.; parVortex[4+2]=0.85; parVortex[4+3]=3.;
+    parVortex[8+0]=1.; parVortex[8+1]=1.; parVortex[8+2]=0.; parVortex[8+3]=0.;
+    parVortex[12+0]=1.; parVortex[12+1]=1.; parVortex[12+2]=-2.; parVortex[12+3]=-3.;
+    parVortex[16+0]=1.; parVortex[16+1]=1.; parVortex[16+2]=2.; parVortex[16+3]=-3.;
+  }
+  
   fieldAlloc(sField ,Height*Width,double);
   fieldAlloc(sRef1 ,Height*Width,double);
   fieldAlloc(sRef2 ,Height*Width,double);
@@ -331,7 +382,7 @@ int main(int argc,char **argv){
 
     dadosout=fopen("data/vortices.dat","w");
     for(i=0;i<nCnect;i+=1)
-      fprintf(dadosout,"%f %f %f %f\n",vCatalog[4*i+0]
+      fprintf(dadosout,"%.15f %.15f %f %f\n",vCatalog[4*i+0]
                                       ,vCatalog[4*i+1]
                                       ,vCatalog[4*i+2]
                                       ,vCatalog[4*i+3]);

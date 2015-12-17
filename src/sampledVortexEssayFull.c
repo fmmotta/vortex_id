@@ -34,14 +34,14 @@ int main(int argc,char **argv){
   int runType=0,genType=0,numG=3,numRc=3,*label=NULL,**eqClass=NULL;
   long long int seed=98755;
   int hNG=50,hNRc=53,hNa=40,hNb=40,hNN=10;
-  int i,j,err,nCnect,rCnect=0,n,it,nMax=500,pass=0;
+  int i,j,err,nCnect,rCnect=0,n,it,nMax=500,pass=0,padWidth=2;
   double Gmin=1.,Gmax=20.,rmin=0.5,rmax=1.0,threshold=0.5;
   double xmin[2]={-9.,-9.},xmax[2]={9.,9.};
   double *parVortex=NULL,*Glist,*Rclist,cutoff=0.;
   
   double *sField=NULL,*gField=NULL,*g2Field=NULL,*uField=NULL,X[Width],Y[Height];
   double *uBuff=NULL,Xbuff[Width+4],Ybuff[Height+4];
-  double *ux,*uy,*uxxy,*uxyy,*uxxx,*uyyy,*w;
+  double *ux,*uy,*uxxy,*uxyy,*uxxx,*uyyy;
 
   double x,y,v0y0 = 0.00,*vCatalog=NULL,*rCatalog=NULL,*majorVortex=NULL;
   double hGmin=0.,hGmax=0.,hRcMin=0.,hRcMax=0.;
@@ -51,6 +51,8 @@ int main(int argc,char **argv){
   gsl_histogram *iG,*iRc,*ia,*ib;
   configVar cfg;
   
+  /*********************************/
+
   if(argc!=2){
     printf("Incorrect Number of Arguments - Need exactly "
            "the configuration file\n");
@@ -107,6 +109,8 @@ int main(int argc,char **argv){
   for(i=0;i<numRc;i+=1)
     Rclist[i]=cfg.Rclist[i];
 
+  /************************************/
+
   x0[0]   = cfg.x0[0]; x0[1]   = cfg.x0[1]; 
   xmin[0] = x0[0]+1; xmin[1] = x0[1]+1;
   
@@ -116,6 +120,23 @@ int main(int argc,char **argv){
   dx[0] = (xf[0]-x0[0])/Height;
   dx[1] = (xf[1]-x0[1])/Width;
   
+  /***********************************/
+
+  for(j=0;j<Width;j+=1)
+    X[j] = x0[0] + ((double)j)*dx[0];
+  for(i=0;i<Height;i+=1)
+    Y[i] = x0[1] + ((double)i)*dx[1];
+  
+  err = XtoXbuff(Width,X,Xbuff,padWidth);
+  if(err!=0)
+    printf("problem in XtoXbuff - X\n");
+
+  err = XtoXbuff(Height,Y,Ybuff,padWidth);
+  if(err!=0)
+    printf("problem in XtoXbuff - Y\n");
+
+  /**********************************/
+
   Gmin    = cfg.Gmin;
   Gmax    = cfg.Gmax;
   rmin    = cfg.RcMin;
@@ -180,25 +201,16 @@ int main(int argc,char **argv){
   fieldAlloc(uBuff ,2*(Height+2*padWidth)*(Width+2*padWidth),double);
 
   /* histogram preparation - begin */
-  hG = gsl_histogram_alloc(hNG); 
-  gsl_histogram_set_ranges_uniform(hG,hGmin,hGmax);
-  hRc = gsl_histogram_alloc(hNRc); 
-  gsl_histogram_set_ranges_uniform(hRc,hRcMin,hRcMax);
-  ha = gsl_histogram_alloc(hNa); 
-  gsl_histogram_set_ranges_uniform(ha,xmin[0],xmax[0]);
-  hb = gsl_histogram_alloc(hNb); 
-  gsl_histogram_set_ranges_uniform(hb,xmin[1],xmax[1]);
-  hN = gsl_histogram_alloc(hNN);
-  gsl_histogram_set_ranges_uniform(hN,0,2*nVortex);
+  hG = gsl_histogram_alloc(hNG);   gsl_histogram_set_ranges_uniform(hG,hGmin,hGmax);
+  hRc = gsl_histogram_alloc(hNRc); gsl_histogram_set_ranges_uniform(hRc,hRcMin,hRcMax);
+  ha = gsl_histogram_alloc(hNa);   gsl_histogram_set_ranges_uniform(ha,xmin[0],xmax[0]);
+  hb = gsl_histogram_alloc(hNb);   gsl_histogram_set_ranges_uniform(hb,xmin[1],xmax[1]);
+  hN = gsl_histogram_alloc(hNN);   gsl_histogram_set_ranges_uniform(hN,0,2*nVortex);
 
-  iG = gsl_histogram_alloc(hNG); 
-  gsl_histogram_set_ranges_uniform(iG,hGmin,hGmax);
-  iRc = gsl_histogram_alloc(hNRc); 
-  gsl_histogram_set_ranges_uniform(iRc,hRcMin,hRcMax);
-  ia = gsl_histogram_alloc(hNa); 
-  gsl_histogram_set_ranges_uniform(ia,xmin[0],xmax[0]);
-  ib = gsl_histogram_alloc(hNb); 
-  gsl_histogram_set_ranges_uniform(ib,xmin[1],xmax[1]);
+  iG = gsl_histogram_alloc(hNG);   gsl_histogram_set_ranges_uniform(iG,hGmin,hGmax);
+  iRc = gsl_histogram_alloc(hNRc); gsl_histogram_set_ranges_uniform(iRc,hRcMin,hRcMax);
+  ia = gsl_histogram_alloc(hNa);   gsl_histogram_set_ranges_uniform(ia,xmin[0],xmax[0]);
+  ib = gsl_histogram_alloc(hNb);   gsl_histogram_set_ranges_uniform(ib,xmin[1],xmax[1]);
   /* histogram preparation - end*/
 
   sprintf(genFile,"%s/genfile-%s.dat",folder,tag);
@@ -239,9 +251,9 @@ int main(int argc,char **argv){
 
     for(i=0;i<Height*Width;i+=1)
       label[i]=-1;
-  
-    err=calcScalarField(runType,Height,Width,x0,dx,nVortex,
-                        parVortex,gField,v0y0,sField);
+    
+    // change here
+    err=calcScalarField(runType,Height,Width,x0,dx,nVortex,parVortex,gField,v0y0,sField);
     if(err!=0){
       printf("Error in calcScalarField\n");
       return err;
@@ -281,6 +293,7 @@ int main(int argc,char **argv){
       fclose(dadosField);
     }
 
+    // change here
     err=vortexReconstruction(runType,Height,Width,nCnect,x0,dx,sField,
                              gField,label,&vCatalog);
     if(err!=0){

@@ -3,6 +3,7 @@
 #include <math.h>
 #include <string.h>
 #include "lambdaInit.h"
+#include "stencilExtended.h"
 
 /*
   moving to x -> j , y -> j
@@ -173,7 +174,7 @@ int addUSingleOseen(int nVortex,double *parVortex, double *x0, double *dx,
            v =  fa*(x-a);
         }
         else{
-          fa = (1.-exp(-r2/(R*R)))/(2.*M_PI*r2);
+          fa = G*(1.-exp(-r2/(R*R)))/(2.*M_PI*r2);
            u = -fa*(y-b);
            v =  fa*(x-a);
         }

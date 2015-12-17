@@ -614,6 +614,7 @@ int gradU2UtoLambda(int Height,int Width, double *gField,double *g2Field,
 
       // \Delta = (tr gU)^2-4.*det gU; \Delta<0 ==> Imaginary eigenvalue
       // (lamb)^2 = - 4.*\Delta;
+      // verificar esta conta de fatores de 4
       lamb =  (grad2U[0][0]*grad2U[1][1]-grad2U[0][1]*grad2U[1][0]);
       lamb-= ((grad2U[0][0]+grad2U[1][1])*(grad2U[0][0]+grad2U[1][1]))/4.;
       

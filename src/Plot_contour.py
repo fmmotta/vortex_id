@@ -61,7 +61,7 @@ ax = fig.add_subplot(1,1,1)
 RawData =np.loadtxt("data/vortices.dat")
 W,R,X,Y =np.transpose(RawData)
 
-plt.scatter(X,Y,s=5, lw = 0,color='cyan')
+plt.scatter(X,Y,s=5, lw = 0,color='green')
 
 plt.savefig('data/initFOAMsw.pdf',bbox_inches='tight',transparent=True)#,dpi=600)#,bbox_inches='tight')
 
