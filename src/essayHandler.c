@@ -69,10 +69,10 @@ int fprintVortex(FILE *dadosout, int run,int nVortex, double *vCatalog)
     return 1;
 
   for(i=0;i<nVortex;i+=1)
-    fprintf(dadosout,"%d %d : %f %f %f %f\n",run,i,vCatalog[4*i+0]
-                                                  ,vCatalog[4*i+1]
-                                                  ,vCatalog[4*i+2]
-                                                  ,vCatalog[4*i+3]);
+    fprintf(dadosout,"%f %f %f %f\n",vCatalog[4*i+0]
+                                    ,vCatalog[4*i+1]
+                                    ,vCatalog[4*i+2]
+                                    ,vCatalog[4*i+3]);
 
   fprintf(dadosout,"\n");
 
