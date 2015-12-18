@@ -25,8 +25,19 @@ int calcScalarField(int runType,int Height,int Width,double x0[],double dx[],
                     int nVortex,double *parVortex,double *gField,double v0y0,
                     double *sField);
 
+int calcUScalarField(int runType,int Height,int Width,int padWidth, 
+                     double x0[],double dx[],double *X,double *Y, double *Xbuff,
+                     double *Ybuff,int nVortex,double *parVortex, 
+                     double *uField, double *uBuff,double *ux,double *uy,
+                     double *uxxx, double *uyyy,double *uxxy, double *uxyy,
+                     double *gField,double *g2Field,double v0y0,double *sField);
+
 int vortexReconstruction(int runType,int Height, int Width, int nCnect, 
                          double x0[],double dx[],double *sField, 
+                         double *gField,int *label,double **vCatalog);
+
+int vortexUReconstruction(int runType,int Height, int Width, int nCnect, 
+                         double *X,double *Y,double *sField, 
                          double *gField,int *label,double **vCatalog);
 
 int writeGnuplotScript(char *filename,char *folder,char *tag,

@@ -14,6 +14,8 @@
 #include "floodFill.h"
 #include "lambdaInit.h"
 #include "vortexExtraction.h"
+#include "stencilExtended.h"
+#include "vortexExtractionExtend.h"
 #include "inputManager.h"
 #include "essayHandler.h"
 
@@ -45,7 +47,8 @@ int fprintfRunParamSigned(FILE *dadosgen,long long int seed,double x0[],
 
 int histoIncVortex(int nVortex, double *parVortex,
                    gsl_histogram *iG, gsl_histogram *iRc,
-                   gsl_histogram *ia, gsl_histogram *ib){
+                   gsl_histogram *ia, gsl_histogram *ib)
+{
   int i;
 
   for(i=0;i<nVortex;i+=1){
@@ -58,7 +61,8 @@ int histoIncVortex(int nVortex, double *parVortex,
   return 0;
 }
 
-int fprintVortex(FILE *dadosout, int run,int nVortex, double *vCatalog){
+int fprintVortex(FILE *dadosout, int run,int nVortex, double *vCatalog)
+{
   int i;
 
   if(dadosout==NULL || run<0 || nVortex<=0 || vCatalog==NULL)
@@ -76,7 +80,8 @@ int fprintVortex(FILE *dadosout, int run,int nVortex, double *vCatalog){
 }
 
 int fprintsField(FILE *dadosout,double *x0,double *dx,
-                 int Width, int Height, double *sField){
+                 int Width, int Height, double *sField)
+{
   int i,j;
   double x,y;
 
@@ -89,7 +94,7 @@ int fprintsField(FILE *dadosout,double *x0,double *dx,
       x = x0[1] + j*dx[1];
 
       fprintf(dadosout,"%f %f %f\n",x,y,sField[i*Width+j]);
-    }  
+    }
 
   return 0;
 }
@@ -156,7 +161,6 @@ int genVortices(int genType,long long int seed, double xmin[],double xmax[],
   return 0;
 }
 
-
 int calcScalarField(int runType,int Height,int Width,double x0[],double dx[],
                     int nVortex,double *parVortex,double *gField,double v0y0,
                     double *sField)
@@ -213,14 +217,14 @@ int calcScalarField(int runType,int Height,int Width,double x0[],double dx[],
   return 0;
 }
 
-
-int calcUScalarField(int runType,int Height,int Width,int padWidth, double x0[],double dx[],
-                     double *X,double *Y, double *Xbuff,double *Ybuff,int nVortex,
-                     double *parVortex, double *uField, double *uBuff,double *ux,double *uy,
-                     double *uxxx,double *uyyy,double *uxxy, double *uxyy,double *gField,
-                     double g2Field,double v0y0,double *sField)
+int calcUScalarField(int runType,int Height,int Width,int padWidth, 
+                     double x0[],double dx[],double *X,double *Y, double *Xbuff,
+                     double *Ybuff,int nVortex,double *parVortex, 
+                     double *uField, double *uBuff,double *ux,double *uy,
+                     double *uxxx, double *uyyy,double *uxxy, double *uxyy,
+                     double *gField,double *g2Field,double v0y0,double *sField)
 {
-  int err;
+  int i,j,err;
 
   if(runType==0){
 
@@ -329,10 +333,9 @@ int calcUScalarField(int runType,int Height,int Width,int padWidth, double x0[],
   return 0;
 }
 
-
 int vortexReconstruction(int runType,int Height, int Width, int nCnect, 
-                         double x0[],double dx[],double *sField, 
-                         double *gField,int *label,double **vCatalog)
+                          double x0[],double dx[],double *sField, 
+                          double *gField,int *label,double **vCatalog)
 {
   int err;
 
@@ -360,6 +363,35 @@ int vortexReconstruction(int runType,int Height, int Width, int nCnect,
   return 0;
 }
 
+int vortexUReconstruction(int runType,int Height, int Width, int nCnect, 
+                         double *X,double *Y,double *sField, 
+                         double *gField,int *label,double **vCatalog)
+{
+  int err;
+
+  if(runType==0 || runType==2){
+    err=vortexExtFromSwirlStr(Height,Width,nCnect,X,Y,sField,
+                              gField,label,vCatalog);
+    if(err!=0){
+      printf("error on vortexExtraction - %d\n",err);
+      return err; 
+    }
+  }
+  else if(runType==1){
+    err=vortexExtFromVortCurv(Height,Width,nCnect,X,Y,sField,
+                              gField,label,vCatalog);
+    if(err!=0){
+      printf("error on vortexExtraction - %d\n",err);
+      return err; 
+    }
+  } 
+  else{
+    printf("Non-Identified run-type\n");
+    return -2;
+  }
+
+  return 0;
+}
 
 int writeGnuplotScript(char *filename,char *folder,char *tag,
                        int nRuns,int nVortex){

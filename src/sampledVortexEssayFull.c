@@ -12,22 +12,26 @@
 #include "mt64.h"
 #include "vortexGen.h"
 #include "floodFill.h"
+#include "stencilExtended.h"
 #include "lambdaInit.h"
 #include "vortexExtraction.h"
 #include "inputManager.h"
 #include "essayHandler.h"
 
 #define DEBUG_MODE false
+#define DEBUG_PRINT true
 
-#define fieldAlloc(ptr,size,type) ptr=(type*)malloc(size*sizeof(type)); \
-                                  if(ptr==NULL){                        \
-                                    printf("memory not allocked\n");    \
-                                    return 1;                           \
-                                  }                                     \
-                                  else{                                 \
-                                    for(i=0;i<size;i+=1)                \
-                                      ptr[i]=(type) 0;                  \
-                                  }                                     \
+#define dbgPrint(num,num2) if(DEBUG_PRINT) printf("check point - %d-%d\n",(num),(num2))
+
+#define fieldAlloc(ptr,size,type) ptr=(type*)malloc((size)*sizeof(type));\
+                                  if(ptr==NULL){                         \
+                                    printf("memory not allocked\n");     \
+                                    return 1;                            \
+                                  }                                      \
+                                  else{                                  \
+                                    for(i=0;i<(size);i+=1)               \
+                                      ptr[i]=(type) 0;                   \
+                                  }                                      \
 
 int main(int argc,char **argv){
   int Width = 100, Height = 100,nVortex=5,nFixVortex=5,nRuns=1000;
@@ -36,13 +40,11 @@ int main(int argc,char **argv){
   int hNG=50,hNRc=53,hNa=40,hNb=40,hNN=10;
   int i,j,err,nCnect,rCnect=0,n,it,nMax=500,pass=0,padWidth=2;
   double Gmin=1.,Gmax=20.,rmin=0.5,rmax=1.0,threshold=0.5;
-  double xmin[2]={-9.,-9.},xmax[2]={9.,9.};
+  double xmin[2]={-9.,-9.},xmax[2]={9.,9.},x0[2],dx[2],xf[2];
   double *parVortex=NULL,*Glist,*Rclist,cutoff=0.;
-  
-  double *sField=NULL,*gField=NULL,*g2Field=NULL,*uField=NULL,X[Width],Y[Height];
-  double *uBuff=NULL,Xbuff[Width+4],Ybuff[Height+4];
+  double *sField=NULL,*gField=NULL,*g2Field=NULL,*uField=NULL;
+  double *uBuff=NULL,*Xbuff,*Ybuff,*X,*Y;
   double *ux,*uy,*uxxy,*uxyy,*uxxx,*uyyy;
-
   double x,y,v0y0 = 0.00,*vCatalog=NULL,*rCatalog=NULL,*majorVortex=NULL;
   double hGmin=0.,hGmax=0.,hRcMin=0.,hRcMax=0.;
   char genFile[300+1],folder[100+1],tag[100+1],filename[400+1];
@@ -53,11 +55,15 @@ int main(int argc,char **argv){
   
   /*********************************/
 
+  dbgPrint(0,0);
+
   if(argc!=2){
     printf("Incorrect Number of Arguments - Need exactly "
            "the configuration file\n");
     return -1;
   }
+
+  dbgPrint(1,0);
 
   /* Loading Configuration -- I need something more concise */
 
@@ -68,6 +74,8 @@ int main(int argc,char **argv){
     return 1;
   }
   
+  dbgPrint(2,0);
+
   if(DEBUG_MODE==true){
     err=printConfig(&cfg);
     if(err!=0)
@@ -78,6 +86,8 @@ int main(int argc,char **argv){
     printf("Dimension is not 2 - Can't Follow\n");
     return 2;
   }
+  
+  dbgPrint(2,0);
 
   strcpy(folder,cfg.folder);
   strcpy(tag,cfg.tag);
@@ -87,6 +97,8 @@ int main(int argc,char **argv){
     printf("error creating directory - %d\n",err);
     return err;
   }
+  
+  dbgPrint(3,0);
 
   seed    = cfg.seed;
   Width   = cfg.Width;
@@ -98,6 +110,8 @@ int main(int argc,char **argv){
 
   numG    = cfg.numG;
   numRc   = cfg.numRc;
+  
+  dbgPrint(4,0);
 
   Glist   = (double*)malloc(numG*sizeof(double));
   if(Glist==NULL){printf("Can't allocate Glist\n"); return 3;}
@@ -108,6 +122,15 @@ int main(int argc,char **argv){
   if(Rclist==NULL){printf("Can't allocate Glist\n"); return 3;}
   for(i=0;i<numRc;i+=1)
     Rclist[i]=cfg.Rclist[i];
+  
+  dbgPrint(4,1);
+
+  fieldAlloc(X,Width,double);
+  fieldAlloc(Xbuff,Width+2*padWidth,double);
+  fieldAlloc(Y,Height,double);
+  fieldAlloc(Ybuff,Height+2*padWidth,double);
+
+  dbgPrint(5,0);
 
   /************************************/
 
@@ -121,21 +144,29 @@ int main(int argc,char **argv){
   dx[1] = (xf[1]-x0[1])/Width;
   
   /***********************************/
+  
+  dbgPrint(6,0);
 
   for(j=0;j<Width;j+=1)
     X[j] = x0[0] + ((double)j)*dx[0];
   for(i=0;i<Height;i+=1)
     Y[i] = x0[1] + ((double)i)*dx[1];
   
+  dbgPrint(6,1);
+
   err = XtoXbuff(Width,X,Xbuff,padWidth);
   if(err!=0)
     printf("problem in XtoXbuff - X\n");
+
+  dbgPrint(6,2);
 
   err = XtoXbuff(Height,Y,Ybuff,padWidth);
   if(err!=0)
     printf("problem in XtoXbuff - Y\n");
 
   /**********************************/
+
+  dbgPrint(7,0);
 
   Gmin    = cfg.Gmin;
   Gmax    = cfg.Gmax;
@@ -161,10 +192,14 @@ int main(int argc,char **argv){
   hRcMin  = cfg.hRcMin;
   hRcMax  = cfg.hRcMax;
   
+  dbgPrint(8,0);
+
   err=freeConfig(&cfg);if(err!=0) return err;
 
   /* End Loading Configuration */
   /* Memory Allocation */
+
+  dbgPrint(9,0);
 
   eqClass=(int**)malloc(NumCls*sizeof(int*));
   if(eqClass==NULL)
@@ -187,6 +222,8 @@ int main(int argc,char **argv){
     return 4;
   }
 
+  dbgPrint(10,0);
+
   fieldAlloc(sField ,Height*Width,double);
   fieldAlloc(gField ,4*Height*Width,double);
   fieldAlloc(g2Field,4*Height*Width,double);
@@ -199,6 +236,8 @@ int main(int argc,char **argv){
   fieldAlloc( uxxx ,2*Height*Width,double);
   fieldAlloc( uyyy ,2*Height*Width,double);
   fieldAlloc(uBuff ,2*(Height+2*padWidth)*(Width+2*padWidth),double);
+
+  dbgPrint(11,0);
 
   /* histogram preparation - begin */
   hG = gsl_histogram_alloc(hNG);   gsl_histogram_set_ranges_uniform(hG,hGmin,hGmax);
@@ -213,6 +252,8 @@ int main(int argc,char **argv){
   ib = gsl_histogram_alloc(hNb);   gsl_histogram_set_ranges_uniform(ib,xmin[1],xmax[1]);
   /* histogram preparation - end*/
 
+  dbgPrint(12,0);
+
   sprintf(genFile,"%s/genfile-%s.dat",folder,tag);
   dadosgen=fopen(genFile,"w");
   err=fprintfRunParamSigned(dadosgen,seed,x0,xf,dx,Gmin,Gmax,rmin,
@@ -224,6 +265,8 @@ int main(int argc,char **argv){
   sprintf(filename,"%s/outputVortexes.txt",folder);
   dadosVout = fopen(filename,"w");
 
+  dbgPrint(13,0);
+
   if(DEBUG_MODE==true){
     printf("%d %d %d \n",Height,Width,nFixVortex);
     printf("%f %f %f %f %f %f\n",x0[0],x0[1],xf[0],xf[1],dx[0],dx[1]);
@@ -231,7 +274,10 @@ int main(int argc,char **argv){
     printf("%f %f %f %f\n",Gmin,Gmax,rmin,rmax);
   }
 
+  dbgPrint(14,0);
+
   for(n=0;n<nRuns;n+=1){
+
     if(n%1000 == 0){
       printf("%d runs have passed\n",n);
       fflush(dadosVin);
