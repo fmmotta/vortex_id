@@ -260,10 +260,10 @@ int main(int argc,char **argv){
                             rmax,xmin,xmax,v0y0);
   fclose(dadosgen);
 
-  sprintf(filename,"%s/inputVortexes.txt",folder);
-  dadosVin = fopen(filename,"w");
-  sprintf(filename,"%s/outputVortexes.txt",folder);
-  dadosVout = fopen(filename,"w");
+  //sprintf(filename,"%s/inputVortexes.txt",folder);
+  //dadosVin = fopen(filename,"w");
+  //sprintf(filename,"%s/outputVortexes.txt",folder);
+  //dadosVout = fopen(filename,"w");
 
   dbgPrint(13,0);
 
@@ -280,8 +280,8 @@ int main(int argc,char **argv){
 
     if(n%1000 == 0){
       printf("%d runs have passed\n",n);
-      fflush(dadosVin);
-      fflush(dadosVout);
+      //fflush(dadosVin);
+      //fflush(dadosVout);
     }
     
     nVortex = nFixVortex;
@@ -292,14 +292,17 @@ int main(int argc,char **argv){
     else if((err>0) && (err<nVortex))
       nVortex = err;
     
-    for(i=0;i<4*Height*Width;i+=1)
-      gField[i]=0.;
+    for(i=0;i<2*Height*Width;i+=1)
+      uField[i]=0.;
 
     for(i=0;i<Height*Width;i+=1)
       label[i]=-1;
     
     // change here
-    err=calcScalarField(runType,Height,Width,x0,dx,nVortex,parVortex,gField,v0y0,sField);
+    //err=calcScalarField(runType,Height,Width,x0,dx,nVortex,parVortex,gField,v0y0,sField);
+    err=calcUScalarField(runType,Height,Width,padWidth,x0,dx,X,Y,Xbuff,Ybuff,
+                         nVortex,parVortex,uField,uBuff,ux,uy,uxxx,uyyy,uxxy,
+                         uxyy,gField,g2Field,v0y0,sField);
     if(err!=0){
       printf("Error in calcScalarField\n");
       return err;
@@ -326,7 +329,7 @@ int main(int argc,char **argv){
       fprintLabels(dadosField,x0,dx,Width,Height,label);
       fclose(dadosField);
     }
-
+    /*
     if(n%1000==0){
       sprintf(filename,"%s/sField-%s-%d.txt",folder,tag,n);
       dadosField = fopen(filename,"w");
@@ -337,11 +340,13 @@ int main(int argc,char **argv){
       dadosField = fopen(filename,"w");
       fprintLabels(dadosField,x0,dx,Width,Height,label);
       fclose(dadosField);
-    }
+    }*/
 
     // change here
-    err=vortexReconstruction(runType,Height,Width,nCnect,x0,dx,sField,
-                             gField,label,&vCatalog);
+    //err=vortexReconstruction(runType,Height,Width,nCnect,x0,dx,sField,
+    //                         gField,label,&vCatalog);
+    err=vortexUReconstruction(runType,Height,Width,nCnect,X,Y,sField, 
+                              gField,label,&vCatalog);
     if(err!=0){
       printf("problems in vortexReconstruction\n");
       return err;
@@ -371,16 +376,25 @@ int main(int argc,char **argv){
     if(err!=0){printf("problems\n"); return -5;}
 
     /* Preparing for printing */
-
-    err=fprintVortex(dadosVin,n,nVortex,parVortex);
-    if(err!=0){printf("problems\n"); return -6;}
-
-    err=fprintVortex(dadosVout,n,rCnect,rCatalog);
-    if(err!=0){printf("problems\n"); return -6;}
+    if(n%1000==0){
+      sprintf(filename,"%s/vortexesIn-%d.txt",folder,n);
+      dadosVin = fopen(filename,"w");
+      sprintf(filename,"%s/vortexesOu-%d.txt",folder,n);
+      dadosVout = fopen(filename,"w");
+      
+      err=fprintVortex(dadosVin,n,nVortex,parVortex);
+      if(err!=0){printf("problems\n"); return -6;}
+  
+      err=fprintVortex(dadosVout,n,rCnect,rCatalog);
+      if(err!=0){printf("problems\n"); return -6;}
+    
+      fclose(dadosVin);
+      fclose(dadosVout);
+    }
   }
 
-  fclose(dadosVin);
-  fclose(dadosVout);
+  //fclose(dadosVin);
+  //fclose(dadosVout);
 
   sprintf(filename,"%s/histoOuG-%s.txt",folder,tag); 
   dadosout=fopen(filename,"w");
