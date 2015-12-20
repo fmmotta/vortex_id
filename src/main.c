@@ -368,6 +368,18 @@ int main(int argc,char **argv){
     free(vCatalog);
   if(rCatalog!=NULL)
     free(rCatalog);
+  if(ux!=NULL)
+    free(ux);
+  if(uy!=NULL)
+    free(uy);
+  if(uxxx!=NULL)
+    free(uxxx);
+  if(uyyy!=NULL)
+    free(uy);
+  if(uxxy!=NULL)
+    free(uxxy);
+  if(uxyy!=NULL)
+    free(uxyy);
   if(majorVortex!=NULL)
     free(majorVortex);
   if(Glist!=NULL)
