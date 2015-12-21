@@ -250,6 +250,7 @@ int main(int argc,char **argv){
     else
       printf("problems with renameLabels - %d\n",err);
     
+    /*
     if(n%1000==0){
       sprintf(filename,"%s/sField-%d.txt",folder,n);
       dadosField = fopen(filename,"w");
@@ -260,7 +261,7 @@ int main(int argc,char **argv){
       dadosField = fopen(filename,"w");
       fprintLabels(dadosField,x0,dx,Width,Height,label);
       fclose(dadosField);
-    }
+    }*/
 
     if(n%1000==0){
       sprintf(filename,"%s/sField-%s-%d.txt",folder,tag,n);
