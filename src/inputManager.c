@@ -9,6 +9,8 @@ int initConfig(configVar *cfg){
   cfg->numG =0; cfg->numRc =0; cfg->hNmax=0; cfg->genType=0;
   cfg->Gmin=0.; cfg->Gmax =0.; cfg->RcMin=0.; cfg->RcMax=0.;
   cfg->hNG=0; cfg->hNRc=0; cfg->hNa=0; cfg->hNb=0; cfg->hNN=0;
+  cfg->Nx=0;cfg->Ny=0;cfg->Nz=0;cfg->pType=0;cfg->pIndex=0;
+  cfg->FOAMfolder=NULL;
   cfg->Glist=NULL; cfg->Rclist=NULL; 
   cfg->swThresh=0.; cfg->sndSwThresh=0.; cfg->cutoff=0.;
   cfg->genFile=NULL; cfg->tag=NULL;
@@ -24,6 +26,8 @@ int freeConfig(configVar *cfg){
   cfg->Gmin=0.; cfg->Gmax =0.; cfg->RcMin=0.; cfg->RcMax=0.;
   cfg->swThresh=0.; cfg->sndSwThresh=0.; cfg->cutoff=0.;
   cfg->hNG=0; cfg->hNRc=0; cfg->hNa=0; cfg->hNb=0; cfg->hNN=0;
+  cfg->Nx=0;cfg->Ny=0;cfg->Nz=0;cfg->pType=0;cfg->pIndex=0;
+  
 
   if(cfg->Glist!=NULL)
     free(cfg->Glist);
@@ -35,10 +39,12 @@ int freeConfig(configVar *cfg){
     free(cfg->tag);
   if(cfg->folder!=NULL)
     free(cfg->folder);
+  if(cfg->FOAMfolder!=NULL)
+    free(cfg->FOAMfolder);
 
   cfg->Glist=NULL; cfg->Rclist=NULL; 
   cfg->genFile=NULL; cfg->tag=NULL;
-  cfg->folder=NULL;
+  cfg->folder=NULL;cfg->FOAMfolder=NULL;
 
   return 0;  
 }
@@ -142,6 +148,18 @@ int vortexIdHandler(void* user, const char* section,
       p = strtok(NULL," ");
     }
   }
+  else if(MATCH("openFOAM","folder"))
+    vConfig->FOAMfolder = strdup(value);
+  else if(MATCH("openFOAM","Nx"))
+    vConfig->Nx=atoi(value);
+  else if(MATCH("openFOAM","Ny"))
+    vConfig->Ny=atoi(value);
+  else if(MATCH("openFOAM","Nz"))
+    vConfig->Nz=atoi(value);
+  else if(MATCH("openFOAM","Plane-Type"))
+    vConfig->pType=atoi(value);
+  else if(MATCH("openFOAM","Plane-Index"))
+    vConfig->pIndex=atoi(value);
   else 
     return 0;  /* unknown section/name, error */
 
