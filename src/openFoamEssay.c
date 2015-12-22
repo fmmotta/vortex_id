@@ -34,11 +34,12 @@
                                   }                                      \
 
 int main(int argc,char **argv){
+  const int Npre=20; // preamble size
   int Width = 100, Height = 100,nVortex=5,nFixVortex=5,nRuns=1000;
   int runType=0,genType=0,numG=3,numRc=3,*label=NULL,**eqClass=NULL;
   long long int seed=98755;
   int hNG=50,hNRc=53,hNa=40,hNb=40,hNN=10;
-  int Npre,Nu,Np,Nx,Ny,Nz,Nn,err,auHeight,auWidth;
+  int Nu,Np,Nx,Ny,Nz,Nn,err,auHeight,auWidth;
   int i,j,err,nCnect,rCnect=0,n,it,nMax=500,pass=0,padWidth=2;
   double Gmin=1.,Gmax=20.,rmin=0.5,rmax=1.0,threshold=0.5;
   double xmin[2]={-9.,-9.},xmax[2]={9.,9.},x0[2],dx[2],xf[2];
@@ -48,7 +49,7 @@ int main(int argc,char **argv){
   double x,y,v0y0 = 0.00,*vCatalog=NULL,*rCatalog=NULL,*majorVortex=NULL;
   double hGmin=0.,hGmax=0.,hRcMin=0.,hRcMax=0.;
   char genFile[300+1],folder[100+1],tag[100+1],filename[400+1];
-  FILE *dadosgen,*dadosin,*dadosout,*dadosVin,*dadosVout,*dadosField;
+  FILE *dadosgen,*dadosin,*dadosout,*dadosVin,*dadosVout,*uFile,*pFile;
   gsl_histogram *hG,*hRc,*ha,*hb,*hN;
   gsl_histogram *iG,*iRc,*ia,*ib;
   configVar cfg;
@@ -77,8 +78,7 @@ int main(int argc,char **argv){
   if(cfg.dim!=2){
     printf("Dimension is not 2 - Can't Follow\n");
     return 2;
-  }
-  
+  }  
   
   /*********************************/
 
@@ -99,6 +99,19 @@ int main(int argc,char **argv){
   }
   else{
     printf("error, non-recognized plane type\n");
+    return -15;
+  }
+
+  if(cfg->Nx == 0 || cfg->Ny == 0 || cfg->Nz == 0){
+    printf("error, non-compatible dimensions\n");
+    return -16;
+  }
+
+  N = Nx*Ny*Nz;
+  node = (openFoamIcoData*)malloc(Nx*Ny*Nz*sizeof(openFoamIcoData));
+  if(node==NULL){
+    printf("not enough memory for openFoamIcoData\n");
+    return 1;
   }
   
   sprintf(filename,"%d/constant/polyMesh/points");
@@ -107,24 +120,7 @@ int main(int argc,char **argv){
   if(err!=0)
     return err;
   fclose(dadosin);
-  
-  err=loadFields(Nx,Ny,Nz,uFile,pFile,node);
-  if(err!=0)
-    printf("Problems with loadFields\n");
 
-  ouFile = fopen("data/mathematicaRefU.dat","w");
-
-  k=64;
-  for(j=0;j<Height;j+=1)
-    for(i=0;i<Width;i+=1){
-      uField[2*(j*Width+i)+0] = node[id(i,j,k)].u;
-      uField[2*(j*Width+i)+1] = node[id(i,j,k)].v;
-      fprintf(ouFile,"%lf %lf\n",node[id(i,j,k)].u,node[id(i,j,k)].v);
-    }
-
-  fclose(ouFile);ouFile=NULL;
-
-  
   for(i=0;i<Height;i+=1)
     Y[i] = (Y[i]+Y[i+1])/2.;
 
@@ -138,31 +134,19 @@ int main(int argc,char **argv){
   err = XtoXbuff(Height,Y,Ybuff,padWidth);
   if(err!=0)
     printf("problem in XtoXbuff - Y\n");
-  
-  N = Nx*Ny*Nz;
-  node = (openFoamIcoData*)malloc(Nx*Ny*Nz*sizeof(openFoamIcoData));
-  if(node==NULL){
-    printf("not enough memory for openFoamIcoData\n");
-    return 1;
-  }
 
-  Npre=20; // preamble size
+  err=loadFields(Nx,Ny,Nz,uFile,pFile,node);
+  if(err!=0)
+    printf("Problems with loadFields\n");
 
-  if(argc==4){
-    uFile = fopen(argv[1],"r"); // velocity file
-    pFile = fopen(argv[2],"r"); // pressure file
-    nFile = fopen(argv[3],"r"); // nodes positions file
-  }
-  else if(argc==1){
-    uFile = fopen("data/DNS_OPEN_FOAM/10.0075/U","r");
-    pFile = fopen("data/DNS_OPEN_FOAM/10.0075/p","r");
-    nFile = fopen("data/DNS_OPEN_FOAM/constant/polyMesh/points","r");
-  }
+  ouFile = fopen("data/mathematicaRefU.dat","w");
 
-  if(uFile==NULL || pFile==NULL || nFile==NULL){
-    printf("problems opening the files\n"); 
-    return 1;
-  }
+  k=64;
+  for(j=0;j<Height;j+=1)
+    for(i=0;i<Width;i+=1){
+      uField[2*(j*Width+i)+0] = node[id(i,j,k)].u;
+      uField[2*(j*Width+i)+1] = node[id(i,j,k)].v;
+    }
 
   /* Loading Configuration -- I need something more concise */
 
@@ -399,27 +383,15 @@ int main(int argc,char **argv){
     
     if(n%1000==0){
       sprintf(filename,"%s/sField-%d.txt",folder,n);
-      dadosField = fopen(filename,"w");
-      fprintsField(dadosField,x0,dx,Height,Width,sField);
-      fclose(dadosField);
+      dadosout = fopen(filename,"w");
+      fprintsField(dadosout,x0,dx,Height,Width,sField);
+      fclose(dadosout);
 
       sprintf(filename,"%s/labels-%d.txt",folder,n);
-      dadosField = fopen(filename,"w");
-      fprintLabels(dadosField,x0,dx,Width,Height,label);
-      fclose(dadosField);
+      dadosout = fopen(filename,"w");
+      fprintLabels(dadosout,x0,dx,Width,Height,label);
+      fclose(dadosout);
     }
-    /*
-    if(n%1000==0){
-      sprintf(filename,"%s/sField-%s-%d.txt",folder,tag,n);
-      dadosField = fopen(filename,"w");
-      fprintsField(dadosField,x0,dx,Height,Width,sField);
-      fclose(dadosField);
-
-      sprintf(filename,"%s/labels-%s-%d.txt",folder,tag,n);
-      dadosField = fopen(filename,"w");
-      fprintLabels(dadosField,x0,dx,Width,Height,label);
-      fclose(dadosField);
-    }*/
 
     // change here
     //err=vortexReconstruction(runType,Height,Width,nCnect,x0,dx,sField,
