@@ -125,7 +125,7 @@ int main(int argc,char **argv){
     Y[i] = (Y[i]+Y[i+1])/2.;
 
   for(j=0;j<Width;j+=1)
-    Y[i] = (Y[i]+Y[i+1])/2.;
+    X[j] = (X[j]+X[j+1])/2.;
 
   err = XtoXbuff(Width,X,Xbuff,padWidth);
   if(err!=0)
@@ -194,38 +194,6 @@ int main(int argc,char **argv){
   fieldAlloc(Ybuff,Height+2*padWidth,double);
 
   dbgPrint(5,0);
-
-  /************************************/
-
-  x0[0]   = cfg.x0[0]; x0[1]   = cfg.x0[1]; 
-  xmin[0] = x0[0]+1; xmin[1] = x0[1]+1;
-  
-  xf[0]   = cfg.xf[0]; xf[1]   = cfg.xf[1]; 
-  xmax[0] = xf[0]-1; xmax[1] = xf[1]-1;
-  
-  dx[0] = (xf[0]-x0[0])/Height;
-  dx[1] = (xf[1]-x0[1])/Width;
-  
-  /***********************************/
-  
-  dbgPrint(6,0);
-
-  for(j=0;j<Width;j+=1)
-    X[j] = x0[0] + ((double)j)*dx[0];
-  for(i=0;i<Height;i+=1)
-    Y[i] = x0[1] + ((double)i)*dx[1];
-  
-  dbgPrint(6,1);
-
-  err = XtoXbuff(Width,X,Xbuff,padWidth);
-  if(err!=0)
-    printf("problem in XtoXbuff - X\n");
-
-  dbgPrint(6,2);
-
-  err = XtoXbuff(Height,Y,Ybuff,padWidth);
-  if(err!=0)
-    printf("problem in XtoXbuff - Y\n");
 
   /**********************************/
 

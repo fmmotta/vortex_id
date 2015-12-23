@@ -145,6 +145,7 @@ int main(int argc,char** argv){
       uField[2*(j*Width+i)+1] = node[id(i,j,k)].v;
       fprintf(ouFile,"%lf %lf\n",node[id(i,j,k)].u,node[id(i,j,k)].v);
     }
+    
   /*
   i=64;
   for(j=0;j<Height;j+=1)
@@ -153,6 +154,7 @@ int main(int argc,char** argv){
       uField[2*(j*Width+k)+1] = node[id(i,j,k)].v;
       fprintf(ouFile,"%lf %lf\n",node[id(i,j,k)].w,node[id(i,j,k)].v);
     }*/
+
   fclose(ouFile);ouFile=NULL;
 
   dbgPrint(3);
@@ -161,7 +163,7 @@ int main(int argc,char** argv){
     Y[i] = (Y[i]+Y[i+1])/2.;
 
   for(j=0;j<Width;j+=1)
-    Y[i] = (Y[i]+Y[i+1])/2.;
+    X[j] = (X[j]+X[j+1])/2.;
 
   err = XtoXbuff(Width,X,Xbuff,padWidth);
   if(err!=0)

@@ -27,6 +27,7 @@ int freeConfig(configVar *cfg){
   cfg->swThresh=0.; cfg->sndSwThresh=0.; cfg->cutoff=0.;
   cfg->hNG=0; cfg->hNRc=0; cfg->hNa=0; cfg->hNb=0; cfg->hNN=0;
   cfg->Nx=0;cfg->Ny=0;cfg->Nz=0;cfg->pType=0;cfg->pIndex=0;
+  cfg->Nsnapshots=0; cfg->t0 = 0.; cfg->dt=0.;
   
 
   if(cfg->Glist!=NULL)
@@ -160,6 +161,12 @@ int vortexIdHandler(void* user, const char* section,
     vConfig->pType=atoi(value);
   else if(MATCH("openFOAM","Plane-Index"))
     vConfig->pIndex=atoi(value);
+  else if(MATCH("openFOAM","Nsnapshots"))
+    vConfig->Nsnapshots=atoi(value);
+  else if(MATCH("openFOAM","t0"))
+    vConfig->t0=atof(value);
+  else if(MATCH("openFOAM","dt"))
+    vConfig->dt=atof(value);
   else 
     return 0;  /* unknown section/name, error */
 

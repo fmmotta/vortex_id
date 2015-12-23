@@ -4,11 +4,11 @@ typedef struct configVar {
   int Width,Height,nVortex,nRuns;
   int runType,genType,dim,adaptive;
   int numG,numRc,hNG,hNRc,hNa,hNb,hNN,hNmax;
-  int Nx,Ny,Nz,pType,pIndex;
+  int Nx,Ny,Nz,pType,pIndex,Nsnapshots;
   double Gmin,Gmax,RcMin,RcMax;
   double *Glist,*Rclist,x0[2],xf[2];
   double swThresh, sndSwThresh,cutoff,v0y0;
-  double hGmin,hGmax,hRcMin,hRcMax;
+  double hGmin,hGmax,hRcMin,hRcMax,t0,dt;
   char *genFile,*tag,*folder,*FOAMfolder;
 } configVar;
 
