@@ -38,12 +38,12 @@ int main(int argc,char **argv){
   int Width = 100, Height = 100,nVortex=5,nFixVortex=5,nRuns=1000;
   int runType=0,genType=0,numG=3,numRc=3,*label=NULL,**eqClass=NULL;
   long long int seed=98755;
-  int hNG=50,hNRc=53,hNa=40,hNb=40,hNN=10;
-  int Nu,Np,Nx,Ny,Nz,Nn,err,auHeight,auWidth;
+  int hNG=50,hNRc=53,hNa=40,hNb=40,hNN=10,Nsnapshots;
+  int Nu,Np,Nx,Ny,Nz,Nn,err,auHeight,auWidth,planeIndex;
   int i,j,err,nCnect,rCnect=0,n,it,nMax=500,pass=0,padWidth=2;
   double Gmin=1.,Gmax=20.,rmin=0.5,rmax=1.0,threshold=0.5;
   double xmin[2]={-9.,-9.},xmax[2]={9.,9.},x0[2],dx[2],xf[2];
-  double *parVortex=NULL,*Glist,*Rclist,cutoff=0.;
+  double *parVortex=NULL,*Glist,*Rclist,cutoff=0.,t0,dt;
   double *sField=NULL,*gField=NULL,*g2Field=NULL,*uField=NULL;
   double *uBuff=NULL,*Xbuff,*Ybuff,*X,*Y,*ux,*uy,*uxxy,*uxyy,*uxxx,*uyyy;
   double x,y,v0y0 = 0.00,*vCatalog=NULL,*rCatalog=NULL,*majorVortex=NULL;
@@ -78,7 +78,7 @@ int main(int argc,char **argv){
   if(cfg.dim!=2){
     printf("Dimension is not 2 - Can't Follow\n");
     return 2;
-  }  
+  }
   
   /*********************************/
 
@@ -103,50 +103,9 @@ int main(int argc,char **argv){
   }
 
   if(cfg->Nx == 0 || cfg->Ny == 0 || cfg->Nz == 0){
-    printf("error, non-compatible dimensions\n");
+    printf("error, incompatible dimension sizes\n");
     return -16;
   }
-
-  N = Nx*Ny*Nz;
-  node = (openFoamIcoData*)malloc(Nx*Ny*Nz*sizeof(openFoamIcoData));
-  if(node==NULL){
-    printf("not enough memory for openFoamIcoData\n");
-    return 1;
-  }
-  
-  sprintf(filename,"%d/constant/polyMesh/points");
-  dadosin = fopen(filename,"r");
-  err=loadAxis(dadosin,Nx,Ny,Nz,X,Y,Z);
-  if(err!=0)
-    return err;
-  fclose(dadosin);
-
-  for(i=0;i<Height;i+=1)
-    Y[i] = (Y[i]+Y[i+1])/2.;
-
-  for(j=0;j<Width;j+=1)
-    X[j] = (X[j]+X[j+1])/2.;
-
-  err = XtoXbuff(Width,X,Xbuff,padWidth);
-  if(err!=0)
-    printf("problem in XtoXbuff - X\n");
-
-  err = XtoXbuff(Height,Y,Ybuff,padWidth);
-  if(err!=0)
-    printf("problem in XtoXbuff - Y\n");
-
-  err=loadFields(Nx,Ny,Nz,uFile,pFile,node);
-  if(err!=0)
-    printf("Problems with loadFields\n");
-
-  ouFile = fopen("data/mathematicaRefU.dat","w");
-
-  k=64;
-  for(j=0;j<Height;j+=1)
-    for(i=0;i<Width;i+=1){
-      uField[2*(j*Width+i)+0] = node[id(i,j,k)].u;
-      uField[2*(j*Width+i)+1] = node[id(i,j,k)].v;
-    }
 
   /* Loading Configuration -- I need something more concise */
 
@@ -173,9 +132,13 @@ int main(int argc,char **argv){
 
   numG    = cfg.numG;
   numRc   = cfg.numRc;
+
+  t0 = cfg.t0;
+  dt = cfg.dt;
+  Nsnapshots = cfg.Nsnapshots;
   
   dbgPrint(4,0);
-
+  
   Glist   = (double*)malloc(numG*sizeof(double));
   if(Glist==NULL){printf("Can't allocate Glist\n"); return 3;}
   for(i=0;i<numG;i+=1)
@@ -188,11 +151,43 @@ int main(int argc,char **argv){
   
   dbgPrint(4,1);
 
+  /**********************************/
+
   fieldAlloc(X,Width,double);
   fieldAlloc(Xbuff,Width+2*padWidth,double);
   fieldAlloc(Y,Height,double);
   fieldAlloc(Ybuff,Height+2*padWidth,double);
 
+  sprintf(filename,"%d/constant/polyMesh/points");
+  dadosin = fopen(filename,"r");
+  err=loadAxis(dadosin,Nx,Ny,Nz,X,Y,Z);
+  if(err!=0)
+    return err;
+  fclose(dadosin);
+
+  for(i=0;i<Height;i+=1)
+    Y[i] = (Y[i]+Y[i+1])/2.;
+
+  for(j=0;j<Width;j+=1)
+    X[j] = (X[j]+X[j+1])/2.;
+
+  err = XtoXbuff(Width,X,Xbuff,padWidth);
+  if(err!=0)
+    printf("problem in XtoXbuff - X\n");
+
+  err = XtoXbuff(Height,Y,Ybuff,padWidth);
+  if(err!=0)
+    printf("problem in XtoXbuff - Y\n");
+ 
+  N = Nx*Ny*Nz;
+  node = (openFoamIcoData*)malloc(Nx*Ny*Nz*sizeof(openFoamIcoData));
+  if(node==NULL){
+    printf("not enough memory for openFoamIcoData\n");
+    return 1;
+  }
+
+  planeIndex = cfg.pIndex;
+  
   dbgPrint(5,0);
 
   /**********************************/
@@ -307,14 +302,14 @@ int main(int argc,char **argv){
 
   dbgPrint(14,0);
 
-  for(n=0;n<nRuns;n+=1){
+  for(n=0;n<Nsnapshots;n+=1){
 
     if(n%1000 == 0){
       printf("%d runs have passed\n",n);
       //fflush(dadosVin);
       //fflush(dadosVout);
     }
-    
+    /*
     nVortex = nFixVortex;
     err=genVortices(genType,seed,xmin,xmax,nFixVortex,&parVortex,Gmin,Gmax,
                     rmin,rmax,numG,numRc,Glist,Rclist);
@@ -322,18 +317,32 @@ int main(int argc,char **argv){
       return err;
     else if((err>0) && (err<nVortex))
       nVortex = err;
+    */
     
+    // open uFile and pFile
+
     for(i=0;i<2*Height*Width;i+=1)
       uField[i]=0.;
 
     for(i=0;i<Height*Width;i+=1)
       label[i]=-1;
+  
+    err=loadFields(Nx,Ny,Nz,uFile,pFile,node);
+    if(err!=0)
+      printf("Problems with loadFields\n");
+
+    k=planeIndex;
+    for(j=0;j<Height;j+=1)
+      for(i=0;i<Width;i+=1){
+        uField[2*(j*Width+i)+0] = node[id(i,j,k)].u;
+        uField[2*(j*Width+i)+1] = node[id(i,j,k)].v;
+      }
     
     // change here
     //err=calcScalarField(runType,Height,Width,x0,dx,nVortex,parVortex,gField,v0y0,sField);
-    err=calcUScalarField(runType,Height,Width,padWidth,x0,dx,X,Y,Xbuff,Ybuff,
-                         nVortex,parVortex,uField,uBuff,ux,uy,uxxx,uyyy,uxxy,
-                         uxyy,gField,g2Field,v0y0,sField);
+    err=foamScalarField(runType,Height,Width,padWidth,X,Y,Xbuff,Ybuff,
+                        uField,uBuff,ux,uy,uxxx,uyyy,uxxy,
+                        uxyy,gField,g2Field,v0y0,sField);
     if(err!=0){
       printf("Error in calcScalarField\n");
       return err;
@@ -507,3 +516,10 @@ int main(int argc,char **argv){
 
   return 0;
 }
+
+/***********************/
+
+
+
+
+/***********************/

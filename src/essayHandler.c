@@ -515,3 +515,112 @@ int writeGnuplotScript(char *filename,char *folder,char *tag,
 
   return 0;
 }
+
+
+int foamScalarField(int runType,int Height,int Width,int padWidth, 
+                    double *X,double *Y, double *Xbuff,double *Ybuff, 
+                    double *uField, double *uBuff,double *ux,double *uy,
+                    double *uxxx, double *uyyy,double *uxxy, double *uxyy,
+                    double *gField,double *g2Field,double v0y0,double *sField)
+{
+  int i,j,err;
+
+  if(runType==0){
+  
+    err = uFieldTouBuff(Height,Width,uField,uBuff,padWidth);
+    if(err!=0)
+      return -2;
+  
+    err = UtoUx5point(Height,Width,ux,uBuff,Xbuff,Ybuff);
+    if(err!=0)
+      return -3;
+
+    err = UtoUy5point(Height,Width,uy,uBuff,Xbuff,Ybuff);
+    if(err!=0)
+      return -4;
+
+    for(i=0;i<Height;i+=1)
+      for(j=0;j<Width;j+=1){
+        gField[4*(i*Width+j)+0] = ux[2*(i*Width+j)+0];
+        gField[4*(i*Width+j)+1] = uy[2*(i*Width+j)+0];
+        gField[4*(i*Width+j)+2] = ux[2*(i*Width+j)+1];
+        gField[4*(i*Width+j)+3] = uy[2*(i*Width+j)+1];
+      }
+
+    err = gradUtoLamb(Height,Width,gField,&sField);
+    if(err!=0)
+      return -5;
+  }
+  else if(runType==1){    
+    err = uFieldTouBuff(Height,Width,uField,uBuff,padWidth);
+    if(err!=0)
+      return -2;
+  
+    // \partial_x \vec u
+    err = UtoUx5point(Height,Width,ux,uBuff,Xbuff,Ybuff);
+    if(err!=0)
+      return -3;
+
+    // \partial_y \vec u
+    err = UtoUy5point(Height,Width,uy,uBuff,Xbuff,Ybuff);
+    if(err!=0)
+      return -4;
+
+    // \partial_xxx \vec u
+    err = UtoUxxx5point(Height,Width,uxxx,uBuff,Xbuff,Ybuff);
+    if(err!=0)    err = addUSingleOseen(nVortex,parVortex,x0,dx,Height,Width,&uField);
+    if(err!=0)
+      return -1;
+      return -5;
+
+    // \partial_yyy \vec u
+    err = UtoUyyy5point(Height,Width,uyyy,uBuff,Xbuff,Ybuff);
+    if(err!=0)
+      return -6;
+  
+    // \partial_xxy \vec u
+    err = uFieldTouBuff(Height,Width,uy,uBuff,padWidth);
+    if(err!=0)
+      return -7;
+    err = UtoUxx5point(Height,Width,uxxy,uBuff,Xbuff,Ybuff);
+    if(err!=0)
+      return -8;
+
+    // \partial_yyx \vec u
+    err = uFieldTouBuff(Height,Width,ux,uBuff,padWidth);
+    if(err!=0)
+      return -9;
+    err = UtoUyy5point(Height,Width,uxyy,uBuff,Xbuff,Ybuff);
+    if(err!=0)
+      return -10;
+
+    for(i=0;i<Height;i+=1)
+      for(j=0;j<Width;j+=1){
+        gField[4*(i*Width+j)+0] = ux[2*(i*Width+j)+0];
+        gField[4*(i*Width+j)+1] = uy[2*(i*Width+j)+0];
+        gField[4*(i*Width+j)+2] = ux[2*(i*Width+j)+1];
+        gField[4*(i*Width+j)+3] = uy[2*(i*Width+j)+1];
+      }
+    for(i=0;i<Height;i+=1)
+      for(j=0;j<Width;j+=1){
+        g2Field[4*(i*Width+j)+0] = uxxy[2*(i*Width+j)+1]-uxyy[2*(i*Width+j)+0];
+        g2Field[4*(i*Width+j)+1] = uxyy[2*(i*Width+j)+1]-uyyy[2*(i*Width+j)+0];
+        g2Field[4*(i*Width+j)+2] = uxxy[2*(i*Width+j)+0]-uxxx[2*(i*Width+j)+1];
+        g2Field[4*(i*Width+j)+3] = uxyy[2*(i*Width+j)+0]-uxxy[2*(i*Width+j)+1];
+      }
+    
+    if(filtered)
+      err=gradU2UtoLambda(Height,Width,gField,g2Field,&sField);
+    else
+      err=gradUtoLamb(Height,Width,g2Field,&sField);
+    
+    if(err!=0)
+      return -11;
+  }
+  else{
+    printf("Non-Identified run-type - %d\n",runType);
+    return -20;
+  }
+
+  return 0;
+}
