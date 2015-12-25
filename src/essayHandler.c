@@ -120,7 +120,26 @@ int fprintUsfield(FILE *dadosout,double *X,double *Y,
   return 0;
 }
 
-int fprintUlabels(FILE *dadosout,double *x0,double *dx,
+int fprintLabels(FILE *dadosout,double *x0,double *dx,
+                 int Width, int Height, int *label){
+  int i,j;
+  double x,y;
+
+  if(dadosout==NULL || Width<0 || Height<=0 || label==NULL)
+    return 1;
+
+  for(i=0;i<Height;i+=1)
+    for(j=0;j<Width;j+=1){
+      y = x0[0] + i*dx[0];
+      x = x0[1] + j*dx[1];
+
+      fprintf(dadosout,"%f %f %d\n",x,y,label[i*Width+j]);
+    }  
+
+  return 0;
+}
+
+int fprintUlabels(FILE *dadosout,double *X,double *Y,
                   int Width, int Height, int *label){
   int i,j;
   double x,y;
