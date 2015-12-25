@@ -99,8 +99,29 @@ int fprintsField(FILE *dadosout,double *x0,double *dx,
   return 0;
 }
 
-int fprintLabels(FILE *dadosout,double *x0,double *dx,
-                 int Width, int Height, int *label){
+
+int fprintUsfield(FILE *dadosout,double *X,double *Y,
+                  int Width, int Height, double *sField)
+{
+  int i,j;
+  double x,y;
+
+  if(dadosout==NULL || Width<0 || Height<=0 || sField==NULL)
+    return 1;
+
+  for(i=0;i<Height;i+=1)
+    for(j=0;j<Width;j+=1){
+      y = Y[i];
+      x = X[j];
+
+      fprintf(dadosout,"%f %f %f\n",x,y,sField[i*Width+j]);
+    }
+
+  return 0;
+}
+
+int fprintUlabels(FILE *dadosout,double *x0,double *dx,
+                  int Width, int Height, int *label){
   int i,j;
   double x,y;
 
@@ -109,8 +130,8 @@ int fprintLabels(FILE *dadosout,double *x0,double *dx,
 
   for(i=0;i<Height;i+=1)
     for(j=0;j<Width;j+=1){
-      y = x0[0] + i*dx[0];
-      x = x0[1] + j*dx[1];
+      y = Y[i];
+      x = X[j];
 
       fprintf(dadosout,"%f %f %d\n",x,y,label[i*Width+j]);
     }  
@@ -568,9 +589,7 @@ int foamScalarField(int runType,int Height,int Width,int padWidth,
 
     // \partial_xxx \vec u
     err = UtoUxxx5point(Height,Width,uxxx,uBuff,Xbuff,Ybuff);
-    if(err!=0)    err = addUSingleOseen(nVortex,parVortex,x0,dx,Height,Width,&uField);
-    if(err!=0)
-      return -1;
+    if(err!=0)    
       return -5;
 
     // \partial_yyy \vec u

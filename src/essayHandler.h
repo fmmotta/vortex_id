@@ -13,8 +13,14 @@ int fprintVortex(FILE *dadosout, int run,int nVortex, double *vCatalog);
 int fprintsField(FILE *dadosout,double *x0,double *dx,
                  int Width, int Height, double *sField);
 
+int fprintUsfield(FILE *dadosout,double *X,double *Y,
+                  int Width, int Height, double *sField);
+
 int fprintLabels(FILE *dadosout,double *x0,double *dx,
                  int Width, int Height, int *label);
+
+int fprintUlabels(FILE *dadosout,double *X,double *Y,
+                  int Width, int Height, int *label);
 
 int genVortices(int genType,long long int seed, double xmin[],double xmax[], 
                 int nFixVortex, double **parVortex,
