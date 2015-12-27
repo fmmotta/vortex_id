@@ -18,6 +18,9 @@ main: main.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o ini.
 sampledVortexEssayFull: sampledVortexEssayFull.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o ini.o inputManager.o essayHandler.o stencilExtended.o vortexExtractionExtend.o
 	$(CC) -o bin/sampledVortexEssayFull obj/sampledVortexEssayFull.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/vortexExtraction.o obj/mt64.o obj/ini.o obj/inputManager.o obj/essayHandler.o obj/stencilExtended.o obj/vortexExtractionExtend.o $(LIBS)
 
+openFoamEssay: openFoamEssay.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o ini.o inputManager.o essayHandler.o stencilExtended.o vortexExtractionExtend.o preprocessing.o
+	$(CC) -o bin/openFoamEssay obj/openFoamEssay.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/vortexExtraction.o obj/mt64.o obj/ini.o obj/inputManager.o obj/essayHandler.o obj/stencilExtended.o obj/vortexExtractionExtend.o obj/preprocessing.o $(LIBS)
+
 mainMultiRunHistogram: mainMultiRunHistogram.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o
 	$(CC) -o bin/mainMultiRunHistogram obj/mainMultiRunHistogram.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/vortexExtraction.o obj/mt64.o $(LIBS)
 
@@ -149,6 +152,9 @@ main.o: src/main.c
 
 sampledVortexEssayFull.o: src/sampledVortexEssayFull.c
 	$(CC) $(CFLAGS) src/sampledVortexEssayFull.c -o obj/sampledVortexEssayFull.o
+
+openFoamEssay.o: src/openFoamEssay.c
+	$(CC) $(CFLAGS) src/openFoamEssay.c -o obj/openFoamEssay.o
 
 essayHandler.o: src/essayHandler.c 
 	$(CC) $(CFLAGS) src/essayHandler.c -o obj/essayHandler.o
