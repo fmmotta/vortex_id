@@ -137,13 +137,16 @@ int main(int argc,char** argv){
   dbgPrint(2.6);
 
   ouFile = fopen("data/mathematicaRefU.dat","w");
+  
+  printf("%d %d\n",Height,Width);
 
   k=64;
   for(j=0;j<Height;j+=1)
     for(i=0;i<Width;i+=1){
       uField[2*(j*Width+i)+0] = node[id(i,j,k)].u;
       uField[2*(j*Width+i)+1] = node[id(i,j,k)].v;
-      fprintf(ouFile,"%lf %lf\n",node[id(i,j,k)].u,node[id(i,j,k)].v);
+      fprintf(ouFile,"%lf %lf\n",uField[2*(j*Width+i)+0]
+                                ,uField[2*(j*Width+i)+1]);
     }
     
   /*

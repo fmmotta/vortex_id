@@ -38,6 +38,13 @@ int calcUScalarField(int runType,int Height,int Width,int padWidth,
                      double *uxxx, double *uyyy,double *uxxy, double *uxyy,
                      double *gField,double *g2Field,double v0y0,double *sField);
 
+
+int foamScalarField(int runType,int Height,int Width,int padWidth, 
+                    double *X,double *Y, double *Xbuff,double *Ybuff, 
+                    double *uField, double *uBuff,double *ux,double *uy,
+                    double *uxxx, double *uyyy,double *uxxy, double *uxyy,
+                    double *gField,double *g2Field,double v0y0,double *sField);
+
 int vortexReconstruction(int runType,int Height, int Width, int nCnect, 
                          double x0[],double dx[],double *sField, 
                          double *gField,int *label,double **vCatalog);

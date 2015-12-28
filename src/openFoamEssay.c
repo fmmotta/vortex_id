@@ -43,9 +43,10 @@ int main(int argc,char **argv){
   int i,j,k,err,nCnect,rCnect=0,n,it,nMax=500,pass=0,padWidth=2;
   double Gmin=1.,Gmax=20.,rmin=0.5,rmax=1.0,threshold=0.5;
   double xmin[2]={-9.,-9.},xmax[2]={9.,9.},x0[2],dx[2],xf[2];
-  double *parVortex=NULL,*Glist,*Rclist,cutoff=0.,t,t0,dt;
+  double *parVortex=NULL,*Glist=NULL,*Rclist=NULL,cutoff=0.,t,t0,dt;
   double *sField=NULL,*gField=NULL,*g2Field=NULL,*uField=NULL;
-  double *uBuff=NULL,*Xbuff,*Ybuff,*X,*Y,*Z,*ux,*uy,*uxxy,*uxyy,*uxxx,*uyyy;
+  double *uBuff=NULL,*Xbuff=NULL,*Ybuff=NULL,*X=NULL,*Y=NULL,*Z=NULL,*ux=NULL;
+  double *uy=NULL,*uxxy=NULL,*uxyy=NULL,*uxxx=NULL,*uyyy=NULL;
   double x,y,v0y0 = 0.00,*vCatalog=NULL,*rCatalog=NULL,*majorVortex=NULL;
   double hGmin=0.,hGmax=0.,hRcMin=0.,hRcMax=0.;
   char genFile[300+1],folder[100+1],tag[100+1],filename[400+1],foamFolder[200+1];
@@ -92,10 +93,10 @@ int main(int argc,char **argv){
   planeType  = cfg.pType;
   Nsnapshots = cfg.Nsnapshots;
   strcpy(foamFolder,cfg.FOAMfolder);
-
+  
+  /*
   printf("%d %d %d %f %f %d %d %d\n",cfg.Nx,cfg.Ny,cfg.Nz,cfg.t0,cfg.dt
-                                    ,cfg.pIndex,cfg.pType,cfg.Nsnapshots);
-  printf("k=%d\n",k);
+                                    ,cfg.pIndex,cfg.pType,cfg.Nsnapshots);*/
 
   if(cfg.pType==0){
     Height = Ny;
@@ -139,19 +140,19 @@ int main(int argc,char **argv){
   
   dbgPrint(3,0);
 
-  seed    = cfg.seed;
-  Width   = cfg.Width;
-  Height  = cfg.Height;
-  nRuns   = cfg.nRuns;
-  runType = cfg.runType;
-  genType = cfg.genType;
-  nFixVortex = cfg.nVortex;
+  //seed    = cfg.seed;
+  //Width   = cfg.Width;
+  //Height  = cfg.Height;
+  //nRuns   = cfg.nRuns;
+  //runType = cfg.runType;
+  //genType = cfg.genType;
+  //nFixVortex = cfg.nVortex;
 
-  numG    = cfg.numG;
-  numRc   = cfg.numRc;
+  //numG    = cfg.numG;
+  //numRc   = cfg.numRc;
   
   dbgPrint(4,0);
-  
+  /*
   Glist   = (double*)malloc(numG*sizeof(double));
   if(Glist==NULL){printf("Can't allocate Glist\n"); return 3;}
   for(i=0;i<numG;i+=1)
@@ -161,17 +162,18 @@ int main(int argc,char **argv){
   if(Rclist==NULL){printf("Can't allocate Glist\n"); return 3;}
   for(i=0;i<numRc;i+=1)
     Rclist[i]=cfg.Rclist[i];
-  
+  */
+
   dbgPrint(4,1);
 
   /**********************************/
 
   dbgPrint(7,0);
-
+  /*
   Gmin    = cfg.Gmin;
   Gmax    = cfg.Gmax;
   rmin    = cfg.RcMin;
-  rmax    = cfg.RcMax;
+  rmax    = cfg.RcMax;*/
   v0y0    = cfg.v0y0;
   cutoff  = cfg.cutoff;
 
@@ -248,7 +250,7 @@ int main(int argc,char **argv){
   for(i=0;i<4*nMax;i+=1)
     rCatalog[i]=-1.;
   
-  N = Nx*Ny*Nz;
+  printf("%d %d %d %d\n",Nx,Ny,Nz,Nx*Ny*Nz);
   node = (openFoamIcoData*)malloc(Nx*Ny*Nz*sizeof(openFoamIcoData));
   if(node==NULL){
     printf("not enough memory for openFoamIcoData\n");
@@ -328,30 +330,49 @@ int main(int argc,char **argv){
       //fflush(dadosVout);
     }
 
-    sprintf(filename,"%s/%.4f/U",foamFolder,t);
-    printf("%s\n",filename);
-    uFile = fopen(filename,"r");
-
-    sprintf(filename,"%s/%.4f/p",foamFolder,t);
-    printf("%s\n",filename);
-    pFile = fopen(filename,"r");
-
     for(i=0;i<2*Height*Width;i+=1)
       uField[i]=0.;
 
     for(i=0;i<Height*Width;i+=1)
       label[i]=-1;
-  
+    
+    dbgPrint(15,0);
+    
+    sprintf(filename,"%s/%.4f/U",foamFolder,t);
+    uFile = fopen(filename,"r");
+    printf("uFile=%s\n",filename); 
+    if(uFile==NULL)
+      printf("problems opening uFile");
+
+    sprintf(filename,"%s/%.4f/p",foamFolder,t);
+    pFile = fopen(filename,"r");
+    printf("pFile=%s\n",filename);
+    if(pFile==NULL)
+      printf("problems opening pFile");
+    
+    dbgPrint(15,1);
+    
     err=loadFields(Nx,Ny,Nz,uFile,pFile,node);
     if(err!=0)
       printf("Problems with loadFields\n");
+    
+    //fclose(pFile); fclose(uFile);
+    
+    dbgPrint(15,2);
 
+    printf("%d %d\n",Height,Width);
+    dadosout=fopen("data/refU.dat","w");
     for(j=0;j<Height;j+=1)
       for(i=0;i<Width;i+=1){
         uField[2*(j*Width+i)+0] = node[id(i,j,k)].u;
         uField[2*(j*Width+i)+1] = node[id(i,j,k)].v;
+        fprintf(dadosout,"%lf %lf\n",uField[2*(j*Width+i)+0]
+                                  ,uField[2*(j*Width+i)+1]);
       }
+    fclose(dadosout);
     
+    dbgPrint(15,3);
+
     // change here
     //err=calcScalarField(runType,Height,Width,x0,dx,nVortex,parVortex,gField,v0y0,sField);
     err=foamScalarField(runType,Height,Width,padWidth,X,Y,Xbuff,Ybuff,
@@ -361,6 +382,8 @@ int main(int argc,char **argv){
       printf("Error in calcScalarField\n");
       return err;
     }
+
+    dbgPrint(15,4);
 
     err = floodFill(sField,Width,Height,eqClass,label);
     if(err!=0)
@@ -372,6 +395,8 @@ int main(int argc,char **argv){
     else
       printf("problems with renameLabels - %d\n",err);
     
+    dbgPrint(15,4);
+
     if(n%1000==0){
       sprintf(filename,"%s/sField-%d.txt",folder,n);
       dadosout = fopen(filename,"w");
@@ -523,7 +548,7 @@ int main(int argc,char **argv){
   if(uxxx!=NULL)
     free(uxxx);
   if(uyyy!=NULL)
-    free(uy);
+    free(uyyy);
   if(uxxy!=NULL)
     free(uxxy);
   if(uxyy!=NULL)
