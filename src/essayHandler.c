@@ -114,7 +114,8 @@ int fprintUsfield(FILE *dadosout,double *X,double *Y,
       y = Y[i];
       x = X[j];
 
-      fprintf(dadosout,"%f %f %.12f\n",x,y,sField[i*Width+j]);
+      //fprintf(dadosout,"%f %f %.12f\n",x,y,sField[i*Width+j]);
+      fprintf(dadosout,"%f %f %.12f\n",x,y,log(1.+sField[i*Width+j]));
     }
 
   return 0;

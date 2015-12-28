@@ -408,6 +408,13 @@ int main(int argc,char **argv){
       printf("problems in vortexReconstruction\n");
       return err;
     }
+    
+    sprintf(filename,"%s/vortices.dat",folder);
+    dadosout=fopen(filename,"w");
+    for(i=0;i<nCnect;i+=1)
+      fprintf(dadosout,"%.12f %.12f %.8f %.8f\n",vCatalog[4*i+0],vCatalog[4*i+1]
+                                            ,vCatalog[4*i+2],vCatalog[4*i+3]);
+    fclose(dadosout);
 
     //vortexQuickSort(parVortex,nVortex,&greaterAbsCirculation);
     vortexQuickSort(vCatalog,nCnect,&greaterAbsCirculation);
