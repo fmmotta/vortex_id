@@ -20,7 +20,7 @@
 #include "essayHandler.h"
 
 #define DEBUG_MODE false
-#define DEBUG_PRINT true
+#define DEBUG_PRINT false
 
 #define dbgPrint(num,num2) if(DEBUG_PRINT) printf("check point - %d-%d\n",(num),(num2))
 
@@ -40,7 +40,7 @@ int main(int argc,char **argv){
   long long int seed=98755;
   int hNG=50,hNRc=53,hNa=40,hNb=40,hNN=10,Nsnapshots,N;
   int Nu,Np,Nx,Ny,Nz,Nn,auHeight,auWidth,planeIndex,planeType;
-  int i,j,k,err,nCnect,rCnect=0,n,it,nMax=500,pass=0,padWidth=2;
+  int i,j,k,err,nCnect,rCnect=0,n,it,nMax=1024,pass=0,padWidth=2;
   double Gmin=1.,Gmax=20.,rmin=0.5,rmax=1.0,threshold=0.5;
   double xmin[2]={-9.,-9.},xmax[2]={9.,9.},x0[2],dx[2],xf[2];
   double *parVortex=NULL,*Glist=NULL,*Rclist=NULL,cutoff=0.,t,t0,dt;
@@ -118,8 +118,6 @@ int main(int argc,char **argv){
     return -15;
   }
 
-  printf("%d %d\n",Height,Width);
-
   if(cfg.Nx == 0 || cfg.Ny == 0 || cfg.Nz == 0){
     printf("error, incompatible dimension sizes\n");
     return -16;
@@ -144,7 +142,7 @@ int main(int argc,char **argv){
   //Width   = cfg.Width;
   //Height  = cfg.Height;
   //nRuns   = cfg.nRuns;
-  //runType = cfg.runType;
+  runType = cfg.runType;
   //genType = cfg.genType;
   //nFixVortex = cfg.nVortex;
 
@@ -203,8 +201,6 @@ int main(int argc,char **argv){
 
   dbgPrint(10,0);
 
-  printf("%d %d %d\n",Nx,Ny,Nz);
-
   fieldAlloc(label,Height*Width,int);
   fieldAlloc(sField ,Height*Width,double);
   fieldAlloc(gField ,4*Height*Width,double);
@@ -250,7 +246,6 @@ int main(int argc,char **argv){
   for(i=0;i<4*nMax;i+=1)
     rCatalog[i]=-1.;
   
-  printf("%d %d %d %d\n",Nx,Ny,Nz,Nx*Ny*Nz);
   node = (openFoamIcoData*)malloc(Nx*Ny*Nz*sizeof(openFoamIcoData));
   if(node==NULL){
     printf("not enough memory for openFoamIcoData\n");
@@ -318,8 +313,6 @@ int main(int argc,char **argv){
   if(err!=0)
     printf("problem in XtoXbuff - Y\n");
 
-  printf("k=%d\n",k);
-
   for(n=0;n<Nsnapshots;n+=1){
     
     t=t0+((double)n)*dt;
@@ -340,15 +333,13 @@ int main(int argc,char **argv){
     
     sprintf(filename,"%s/%.4f/U",foamFolder,t);
     uFile = fopen(filename,"r");
-    printf("uFile=%s\n",filename); 
     if(uFile==NULL)
-      printf("problems opening uFile");
+      printf("problems opening uFile - %d\n",n);
 
     sprintf(filename,"%s/%.4f/p",foamFolder,t);
     pFile = fopen(filename,"r");
-    printf("pFile=%s\n",filename);
     if(pFile==NULL)
-      printf("problems opening pFile");
+      printf("problems opening pFile - %d\n",n);
     
     dbgPrint(15,1);
     
@@ -360,7 +351,6 @@ int main(int argc,char **argv){
     
     dbgPrint(15,2);
 
-    printf("%d %d\n",Height,Width);
     dadosout=fopen("data/refU.dat","w");
     for(j=0;j<Height;j+=1)
       for(i=0;i<Width;i+=1){
@@ -394,7 +384,7 @@ int main(int argc,char **argv){
       nCnect=err;
     else
       printf("problems with renameLabels - %d\n",err);
-    
+
     dbgPrint(15,4);
 
     if(n%1000==0){
@@ -405,7 +395,7 @@ int main(int argc,char **argv){
 
       sprintf(filename,"%s/labels-%d.txt",folder,n);
       dadosout = fopen(filename,"w");
-      fprintUlabels(dadosout,X,Y,Width,Height,label);
+      fprintUlabels(dadosout,X,Y,Height,Width,label);
       fclose(dadosout);
     }
 
@@ -533,26 +523,36 @@ int main(int argc,char **argv){
 
   if(sField!=NULL)
     free(sField);
+  dbgPrint(22,1);
   if(gField!=NULL)
     free(gField);
+  dbgPrint(22,2);
   if(label!=NULL)
     free(label);
+  dbgPrint(22,3);
   if(vCatalog!=NULL)
     free(vCatalog);
+  dbgPrint(22,4);
   //if(rCatalog!=NULL)
   //  free(rCatalog);
   if(ux!=NULL)
     free(ux);
+  dbgPrint(22,5);
   if(uy!=NULL)
     free(uy);
+  dbgPrint(22,6);
   if(uxxx!=NULL)
     free(uxxx);
+  dbgPrint(22,7);
   if(uyyy!=NULL)
     free(uyyy);
+  dbgPrint(22,8);
   if(uxxy!=NULL)
     free(uxxy);
+  dbgPrint(22,9);
   if(uxyy!=NULL)
     free(uxyy);
+  dbgPrint(22,10);
   //if(majorVortex!=NULL)
   //  free(majorVortex);
   //if(Glist!=NULL)

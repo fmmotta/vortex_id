@@ -100,8 +100,8 @@ int fprintsField(FILE *dadosout,double *x0,double *dx,
 }
 
 
-int fprintUsfield(FILE *dadosout,double *X,double *Y,
-                  int Width, int Height, double *sField)
+int fprintUsfield(FILE *dadosout,double *X,double *Y, 
+                  int Height,int Width, double *sField)
 {
   int i,j;
   double x,y;
@@ -140,7 +140,8 @@ int fprintLabels(FILE *dadosout,double *x0,double *dx,
 }
 
 int fprintUlabels(FILE *dadosout,double *X,double *Y,
-                  int Width, int Height, int *label){
+                  int Height, int Width,int *label)
+{
   int i,j;
   double x,y;
 

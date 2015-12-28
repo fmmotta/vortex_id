@@ -137,8 +137,6 @@ int main(int argc,char** argv){
   dbgPrint(2.6);
 
   ouFile = fopen("data/mathematicaRefU.dat","w");
-  
-  printf("%d %d\n",Height,Width);
 
   k=64;
   for(j=0;j<Height;j+=1)
