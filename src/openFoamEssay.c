@@ -325,6 +325,7 @@ int main(int argc,char **argv){
     dbgPrint(15,2);
     
     k=planeIndex;
+    /*
     dadosout=fopen("data/refU.dat","w");
     for(j=0;j<Height;j+=1)
       for(i=0;i<Width;i+=1){
@@ -332,9 +333,17 @@ int main(int argc,char **argv){
         uField[2*(j*Width+i)+1] = node[id(i,j,k)].v;
         fprintf(dadosout,"%lf %lf\n",uField[2*(j*Width+i)+0]
                                   ,uField[2*(j*Width+i)+1]);
-      }
+      }*/
+    dadosout=fopen("data/luca_final/t20.0755_z000.dat","r");
+    if(dadosout==NULL)
+      printf("problemas");
+
+    for(i=0;i<Height;i+=1)
+      for(j=0;j<Width;j+=1)
+        fscanf(dadosout,"%lf %lf",&(uField[2*(i*Width+j)+0])
+                                 ,&(uField[2*(i*Width+j)+1]));
     fclose(dadosout);
-    
+
     dbgPrint(15,3);
 
     err=foamScalarField(runType,Height,Width,padWidth,X,Y,Xbuff,Ybuff,
@@ -368,6 +377,11 @@ int main(int argc,char **argv){
       sprintf(filename,"%s/labels-%d.txt",folder,n);
       dadosout = fopen(filename,"w");
       fprintUlabels(dadosout,X,Y,Height,Width,label);
+      fclose(dadosout);
+
+      sprintf(filename,"%s/presence-%d.txt",folder,n);
+      dadosout = fopen(filename,"w");
+      fprintUpresence(dadosout,X,Y,Height,Width,label);
       fclose(dadosout);
     }
 

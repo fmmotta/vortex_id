@@ -158,6 +158,30 @@ int fprintUlabels(FILE *dadosout,double *X,double *Y,
   return 0;
 }
 
+int fprintUpresence(FILE *dadosout,double *X,double *Y,
+                  int Height, int Width,int *label)
+{
+  int i,j,p;
+  double x,y;
+
+  if(dadosout==NULL || Width<0 || Height<=0 || label==NULL)
+    return 1;
+
+  for(i=0;i<Height;i+=1)
+    for(j=0;j<Width;j+=1){
+      y = Y[i];
+      x = X[j];
+      
+      if(label[i*Width+j]>=0)
+        p=1;
+      else
+        p=0;
+      fprintf(dadosout,"%f %f %d\n",x,y,p);
+    }  
+
+  return 0;
+}
+
 int genVortices(int genType,long long int seed, double xmin[],double xmax[], 
                 int nFixVortex, double **parVortex,
                 double Gmin,double Gmax,double rmin,double rmax,

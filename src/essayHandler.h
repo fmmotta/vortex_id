@@ -19,6 +19,9 @@ int fprintUsfield(FILE *dadosout,double *X,double *Y,
 int fprintLabels(FILE *dadosout,double *x0,double *dx,
                  int Width, int Height, int *label);
 
+int fprintUpresence(FILE *dadosout,double *X,double *Y,
+                  int Height, int Width,int *label);
+
 int fprintUlabels(FILE *dadosout,double *X,double *Y,
                   int Width, int Height, int *label);
 
