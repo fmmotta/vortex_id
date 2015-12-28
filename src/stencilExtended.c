@@ -132,10 +132,7 @@ int XtoXbuff(int Width,double *X,double *Xbuff,int padWidth){
 
 int uFieldTouBuff(int Height,int Width,double *uField,double *uBuff,int padWidth)
 {
-  int i,j,ip,jp;
-  double um,u0,up,vm,v0,vp;
-  double ax,ay,bx,by;
-  double cp,c0,cm;
+  int i,j;
   
   if(Width<0 || Height<0)
     return -1;
@@ -206,7 +203,7 @@ int UtoUx5point(int Height,int Width,double *uDel,double *uBuff,
                 double *Xbuff,double *Ybuff)
 {
   const int MaskWidth=5,padWidth=2;
-  int i,j,ip,jp,ii,jj;
+  int i,j;
   double a1,a2,a3,a4,c[MaskWidth]; // x positions and weights
   
   if(Width<0 || Height<0)
@@ -269,7 +266,7 @@ int UtoUy5point(int Height,int Width,double *uDel,double *uBuff,
                 double *Xbuff,double *Ybuff)
 {
   const int MaskWidth=5,padWidth=2;
-  int i,j,ip,jp,ii,jj;
+  int i,j;
   double b1,b2,b3,b4,d[MaskWidth]; // y positions and weights
   
   if(Width<0 || Height<0)
@@ -332,7 +329,7 @@ int UtoUxx5point(int Height,int Width,double *uDel,double *uBuff,
                  double *Xbuff,double *Ybuff)
 {
   const int MaskWidth=5,padWidth=2;
-  int i,j,ip,jp,ii,jj;
+  int i,j;
   double a1,a2,a3,a4,c[MaskWidth]; // x positions and weights
   
   if(Width<0 || Height<0)
@@ -395,7 +392,7 @@ int UtoUyy5point(int Height,int Width,double *uDel,double *uBuff,
                 double *Xbuff,double *Ybuff)
 {
   const int MaskWidth=5,padWidth=2;
-  int i,j,ip,jp,ii,jj;
+  int i,j;
   double b1,b2,b3,b4,d[MaskWidth]; // y positions and weights
   
   if(Width<0 || Height<0)
@@ -465,7 +462,7 @@ int UtoUxxx5point(int Height,int Width,double *uDel,double *uBuff,
                   double *Xbuff,double *Ybuff)
 {
   const int MaskWidth=5,padWidth=2;
-  int i,j,ip,jp,ii,jj;
+  int i,j;
   double a1,a2,a3,a4,c[MaskWidth]; // x positions and weights
   
   if(Width<0 || Height<0)
@@ -528,7 +525,7 @@ int UtoUyyy5point(int Height,int Width,double *uDel,double *uBuff,
                   double *Xbuff,double *Ybuff)
 {
   const int MaskWidth=5,padWidth=2;
-  int i,j,ip,jp,ii,jj;
+  int i,j;
   double b1,b2,b3,b4,d[MaskWidth]; // y positions and weights
   
   if(Width<0 || Height<0)
@@ -587,9 +584,8 @@ int UtoUyyy5point(int Height,int Width,double *uDel,double *uBuff,
 int gradU2UtoLambda(int Height,int Width, double *gField,double *g2Field,
                     double **sFieldOut)
 {
-  int i,j,k;
-  double gradU[2][2],grad2U[2][2],*sField,w,D2w;
-  double a,b,G,R,x,y,fa,fb,r2,r,lamb,cutoff=0.001;
+  int i,j;
+  double gradU[2][2],grad2U[2][2],*sField,w,D2w,lamb;
   
   if((*sFieldOut) == NULL) 
     return -10;

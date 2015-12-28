@@ -36,21 +36,20 @@
 
 int main(int argc,char **argv){
   int Width = 100, Height = 100, Depth, nVortex=5,nFixVortex=5,nRuns=1000;
-  int runType=0,genType=0,numG=3,numRc=3,*label=NULL,**eqClass=NULL;
-  long long int seed=98755;
-  int hNG=50,hNRc=53,hNa=40,hNb=40,hNN=10,Nsnapshots,N;
-  int Nu,Np,Nx,Ny,Nz,Nn,auHeight,auWidth,planeIndex,planeType;
-  int i,j,k,err,nCnect,rCnect=0,n,it,nMax=1024,pass=0,padWidth=2;
+  int runType=0,*label=NULL,**eqClass=NULL;
+  int hNG=50,hNRc=53,hNa=40,hNb=40,hNN=10,Nsnapshots;
+  int Nx,Ny,Nz,planeIndex,planeType;
+  int i,j,k,err,nCnect=0,rCnect=0,n,nMax=1024,padWidth=2;
   double Gmin=1.,Gmax=20.,rmin=0.5,rmax=1.0,threshold=0.5;
   double xmin[2]={-9.,-9.},xmax[2]={9.,9.},x0[2],dx[2],xf[2];
-  double *parVortex=NULL,*Glist=NULL,*Rclist=NULL,cutoff=0.,t,t0,dt;
+  double *parVortex=NULL,cutoff=0.,t,t0,dt;
   double *sField=NULL,*gField=NULL,*g2Field=NULL,*uField=NULL;
   double *uBuff=NULL,*Xbuff=NULL,*Ybuff=NULL,*X=NULL,*Y=NULL,*Z=NULL,*ux=NULL;
   double *uy=NULL,*uxxy=NULL,*uxyy=NULL,*uxxx=NULL,*uyyy=NULL;
-  double x,y,v0y0 = 0.00,*vCatalog=NULL,*rCatalog=NULL,*majorVortex=NULL;
+  double v0y0 = 0.00,*vCatalog=NULL,*rCatalog=NULL;
   double hGmin=0.,hGmax=0.,hRcMin=0.,hRcMax=0.;
-  char genFile[300+1],folder[100+1],tag[100+1],filename[400+1],foamFolder[200+1];
-  FILE *dadosgen,*dadosin,*dadosout,*dadosVin,*dadosVout,*uFile,*pFile,*nFile;
+  char folder[100+1],tag[100+1],filename[400+1],foamFolder[200+1];
+  FILE *dadosout,*dadosVout,*uFile,*pFile,*nFile;
   gsl_histogram *hG,*hRc,*ha,*hb,*hN;
   gsl_histogram *iG,*iRc,*ia,*ib;
   configVar cfg;
@@ -89,26 +88,22 @@ int main(int argc,char **argv){
   Nz = cfg.Nz;
   t0 = cfg.t0;
   dt = cfg.dt;
-  k = cfg.pIndex;
+  planeIndex = cfg.pIndex;
   planeType  = cfg.pType;
   Nsnapshots = cfg.Nsnapshots;
   strcpy(foamFolder,cfg.FOAMfolder);
   
-  /*
-  printf("%d %d %d %f %f %d %d %d\n",cfg.Nx,cfg.Ny,cfg.Nz,cfg.t0,cfg.dt
-                                    ,cfg.pIndex,cfg.pType,cfg.Nsnapshots);*/
-
-  if(cfg.pType==0){
+  if(planeType==0){
     Height = Ny;
     Width  = Nx;
     Depth  = Nz;
   }
-  else if(cfg.pType==1){
+  else if(planeType==1){
     Height = Ny;
     Width  = Nz;
     Depth  = Nx; 
   }
-  else if(cfg.pType==2){
+  else if(planeType==2){
     Height = Nz;
     Width  = Nx;
     Depth  = Ny; 
@@ -117,6 +112,9 @@ int main(int argc,char **argv){
     printf("error, non-recognized plane type\n");
     return -15;
   }
+
+  if(planeIndex<0 || planeIndex>=Depth)
+    printf("Out of bounds plane\n");
 
   if(cfg.Nx == 0 || cfg.Ny == 0 || cfg.Nz == 0){
     printf("error, incompatible dimension sizes\n");
@@ -136,42 +134,14 @@ int main(int argc,char **argv){
     return err;
   }
   
-  dbgPrint(3,0);
-
-  //seed    = cfg.seed;
-  //Width   = cfg.Width;
-  //Height  = cfg.Height;
-  //nRuns   = cfg.nRuns;
   runType = cfg.runType;
-  //genType = cfg.genType;
-  //nFixVortex = cfg.nVortex;
-
-  //numG    = cfg.numG;
-  //numRc   = cfg.numRc;
   
-  dbgPrint(4,0);
-  /*
-  Glist   = (double*)malloc(numG*sizeof(double));
-  if(Glist==NULL){printf("Can't allocate Glist\n"); return 3;}
-  for(i=0;i<numG;i+=1)
-    Glist[i] = cfg.Glist[i];
-
-  Rclist   = (double*)malloc(numRc*sizeof(double));
-  if(Rclist==NULL){printf("Can't allocate Glist\n"); return 3;}
-  for(i=0;i<numRc;i+=1)
-    Rclist[i]=cfg.Rclist[i];
-  */
-
   dbgPrint(4,1);
 
   /**********************************/
 
   dbgPrint(7,0);
-  /*
-  Gmin    = cfg.Gmin;
-  Gmax    = cfg.Gmax;
-  rmin    = cfg.RcMin;
-  rmax    = cfg.RcMax;*/
+  
   v0y0    = cfg.v0y0;
   cutoff  = cfg.cutoff;
 
@@ -181,6 +151,9 @@ int main(int argc,char **argv){
     threshold = cfg.sndSwThresh;
   else
     threshold = -1.;
+
+  if(DEBUG_MODE)
+    printf("threshold is %f\n",threshold);
 
   hNG     = cfg.hNG;
   hNRc    = cfg.hNRc;
@@ -350,7 +323,8 @@ int main(int argc,char **argv){
     //fclose(pFile); fclose(uFile);
     
     dbgPrint(15,2);
-
+    
+    k=planeIndex;
     dadosout=fopen("data/refU.dat","w");
     for(j=0;j<Height;j+=1)
       for(i=0;i<Width;i+=1){
@@ -363,8 +337,6 @@ int main(int argc,char **argv){
     
     dbgPrint(15,3);
 
-    // change here
-    //err=calcScalarField(runType,Height,Width,x0,dx,nVortex,parVortex,gField,v0y0,sField);
     err=foamScalarField(runType,Height,Width,padWidth,X,Y,Xbuff,Ybuff,
                         uField,uBuff,ux,uy,uxxx,uyyy,uxxy,
                         uxyy,gField,g2Field,v0y0,sField);
@@ -399,9 +371,6 @@ int main(int argc,char **argv){
       fclose(dadosout);
     }
 
-    // change here
-    //err=vortexReconstruction(runType,Height,Width,nCnect,x0,dx,sField,
-    //                         gField,label,&vCatalog);
     err=vortexUReconstruction(runType,Height,Width,nCnect,X,Y,sField, 
                               gField,label,&vCatalog);
     if(err!=0){
@@ -416,11 +385,10 @@ int main(int argc,char **argv){
                                             ,vCatalog[4*i+2],vCatalog[4*i+3]);
     fclose(dadosout);
 
-    //vortexQuickSort(parVortex,nVortex,&greaterAbsCirculation);
     vortexQuickSort(vCatalog,nCnect,&greaterAbsCirculation);
     
     /* filtering by cutoff */
-    /*
+    
     rCnect=0;
     for(i=0;i<nCnect;i+=1){
       if(fabs(vCatalog[4*i+0])>cutoff){
@@ -430,15 +398,8 @@ int main(int argc,char **argv){
         rCatalog[4*i+2]=vCatalog[4*i+2];
         rCatalog[4*i+3]=vCatalog[4*i+3];
       }
-    }*/
+    }
 
-    //err=histoIncVortex(nVortex,parVortex,iG,iRc,ia,ib);
-    //if(err!=0){printf("problems\n"); return -5;}
-
-    //gsl_histogram_increment(hN,nCnect);
-
-    //err=histoIncVortex(rCnect,rCatalog,hG,hRc,ha,hb);
-    //if(err!=0){printf("problems\n"); return -5;}
     dbgPrint(17,0);
 
     err=histoIncVortex(nCnect,vCatalog,hG,hRc,ha,hb);
@@ -450,16 +411,8 @@ int main(int argc,char **argv){
     if(n%1000==0){
       dbgPrint(18,1);
 
-      //sprintf(filename,"%s/vortexesIn-%.4f.txt",folder,t);
-      //dadosVin = fopen(filename,"w");
       sprintf(filename,"%s/vortexesOu-%.4f.txt",folder,t);
       dadosVout = fopen(filename,"w");
-      
-      //err=fprintVortex(dadosVin,n,nVortex,parVortex);
-      //if(err!=0){printf("problems fprintVortex\n"); return -6;}
-  
-      //err=fprintVortex(dadosVout,n,rCnect,rCatalog);
-      //if(err!=0){printf("problems\n"); return -6;}
       
       dbgPrint(18,2);
 
@@ -468,15 +421,11 @@ int main(int argc,char **argv){
       
       dbgPrint(18,3);
 
-      //fclose(dadosVin);
       fclose(dadosVout);
     }
   }
   
   dbgPrint(19,0);
-
-  //fclose(dadosVin);
-  //fclose(dadosVout);
 
   sprintf(filename,"%s/histoOuG-%s.txt",folder,tag); 
   dadosout=fopen(filename,"w");
@@ -501,80 +450,31 @@ int main(int argc,char **argv){
   
   dbgPrint(20,0);
 
-  /*
-  sprintf(filename,"%s/histoInG-%s.txt",folder,tag); 
-  dadosout=fopen(filename,"w");
-  gsl_histogram_fprintf(dadosout,iG,"%f","%f");
-  fclose(dadosout);  
-  sprintf(filename,"%s/histoInRc-%s.txt",folder,tag); 
-  dadosout=fopen(filename,"w");
-  gsl_histogram_fprintf(dadosout,iRc,"%f","%f");
-  fclose(dadosout);  
-  sprintf(filename,"%s/histoIna-%s.txt",folder,tag); 
-  dadosout=fopen(filename,"w");
-  gsl_histogram_fprintf(dadosout,ia,"%f","%f");
-  fclose(dadosout);  
-  sprintf(filename,"%s/histoInb-%s.txt",folder,tag); 
-  dadosout=fopen(filename,"w");
-  gsl_histogram_fprintf(dadosout,ib,"%f","%f");
-  fclose(dadosout);
-  */
-
-  dbgPrint(21,0);
-
   sprintf(filename,"gnuplot_script.gnu");
   err=writeGnuplotScript(filename,folder,tag,nRuns,nVortex);
   if(err!=0){printf("Error printing gnuplot script\n");return err;}
 
   dbgPrint(22,0);
 
-  if(sField!=NULL)
-    free(sField);
-  dbgPrint(22,1);
-  if(gField!=NULL)
-    free(gField);
-  dbgPrint(22,2);
-  if(label!=NULL)
-    free(label);
-  dbgPrint(22,3);
-  if(vCatalog!=NULL)
-    free(vCatalog);
-  dbgPrint(22,4);
-  //if(rCatalog!=NULL)
-  //  free(rCatalog);
-  if(ux!=NULL)
-    free(ux);
-  dbgPrint(22,5);
-  if(uy!=NULL)
-    free(uy);
-  dbgPrint(22,6);
-  if(uxxx!=NULL)
-    free(uxxx);
-  dbgPrint(22,7);
-  if(uyyy!=NULL)
-    free(uyyy);
-  dbgPrint(22,8);
-  if(uxxy!=NULL)
-    free(uxxy);
-  dbgPrint(22,9);
-  if(uxyy!=NULL)
-    free(uxyy);
-  dbgPrint(22,10);
-  //if(majorVortex!=NULL)
-  //  free(majorVortex);
-  //if(Glist!=NULL)
-  //  free(Glist);
-  //if(Rclist!=NULL)
-  //  free(Rclist);
-  
-  dbgPrint(23,0);
+  if(X!=NULL) free(X);
+  if(Y!=NULL) free(Y);
+  if(Xbuff!=NULL) free(Xbuff);
+  if(Ybuff!=NULL) free(Ybuff);
+  if(sField!=NULL) free(sField); 
+  if(gField!=NULL)  free(gField);
+  if(label!=NULL) free(label);
+  if(vCatalog!=NULL) free(vCatalog);
+  if(ux!=NULL) free(ux);
+  if(uy!=NULL) free(uy);
+  if(uxxx!=NULL) free(uxxx);
+  if(uyyy!=NULL) free(uyyy);
+  if(uxxy!=NULL) free(uxxy);
+  if(uxyy!=NULL) free(uxyy);
+  if(parVortex!=0) free(parVortex);
 
   for(i=0;i<NumCls;i+=1)
     free(eqClass[i]);
   free(eqClass);
-  
-  if(parVortex!=0)
-    free(parVortex);
 
   dbgPrint(24,0);
 
@@ -594,10 +494,3 @@ int main(int argc,char **argv){
 
   return 0;
 }
-
-/***********************/
-
-
-
-
-/***********************/

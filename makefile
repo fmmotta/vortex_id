@@ -5,7 +5,7 @@
 # optional CFLAGS: -Wconversion -Wall
 CC = gcc
 INC_DIR = -Isrc -Isrc/inih
-CFLAGS = -c  -O3 $(INC_DIR) 
+CFLAGS = -c -Wall -O3 $(INC_DIR) 
 LIBS = -lm -lgsl -lgslcblas
 
 default: main

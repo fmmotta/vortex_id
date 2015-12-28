@@ -105,8 +105,8 @@ int vortexExtSimple(int Height,int Width,double *x0, double *dx,
                     int **eqClass,double *sField,double *gField,int *label,
                     double threshold,int *nCnectOut,double **vCatalogOut){
   
-  int i=0,err=0,pass=0,nCnect=0,nCnect0=0,it=0;
-  double *vCatalog=NULL,majorVortex[4];
+  int i,err=0,nCnect=0;
+  double *vCatalog=NULL;
   vCatalog = *vCatalogOut;
   
   for(i=0;i<Height*Width;i+=1)
@@ -233,8 +233,7 @@ int greaterRadius(const double *v,const double *p){
 int vortexExtRecursive(int Height,int Width,double *x0, double *dx,int **eqClass,
                        double *sField,double *gField,int *label, double threshold, 
                        double *vCatalog, int *rCnectOut,double **rCatalogOut){
-  int maxIt;
-  int i=0,err=0,pass=0,rCnect=0,nCnect=0,nCnect0=0,it=0;
+  int i=0,err=0,pass=0,rCnect=0,nCnect=0,it=0;
   double *rCatalog=NULL,majorVortex[4];
 
   if(Height<=0 || Width<=0)

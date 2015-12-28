@@ -64,7 +64,6 @@ int printAxis(FILE *nFile,int Nx,int Ny,int Nz,
               double *X2,double *Y2,double *Z2,
               const char *folder)
 {
-  const int Npre=20;
   int i,j,k,err;
   char filename[100+1];
   FILE *ouFile;
@@ -241,13 +240,12 @@ int printXYsplitPlanes(int Nx,int Ny, int Nz,openFoamIcoData *node,
 int printYZcoordinates(int Nx,int Ny,int Nz,double *X,
                        double *Y,double *Z,const char *folder)
 {
-  int i,j,k;
+  int j,k;
   char filename[100+1];
   FILE *ouFile;
 
   sprintf(filename,"%s/coordinates.dat",folder);
   ouFile = fopen(filename,"w");
-  i=0;
   for(k=0;k<Nz;k+=1)
     for(j=0;j<Ny;j+=1)
       fprintf(ouFile,"%.12f %.12f\n",(Z[k]+Z[k+1])/2.0,(Y[j]+Y[j+1])/2.0);

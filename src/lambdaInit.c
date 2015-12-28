@@ -20,7 +20,7 @@
 */
 
 int initZero(int Height,int Width, double **gFieldOut){
-  int i,j,k;
+  int i,j;
   double *gField;
 
   if((*gFieldOut) == NULL){
@@ -44,9 +44,9 @@ int initZero(int Height,int Width, double **gFieldOut){
 }
 
 int gradUtoLamb(int Height,int Width, double *gField,double **sFieldOut){
-  int i,j,k;
+  int i,j;
   double gradU[2][2],*sField;
-  double a,b,G,R,x,y,fa,fb,r2,r,lamb,cutoff=0.001;
+  double lamb;
   
   if((*sFieldOut) == NULL){ // Remove this later, plz
     sField = (double*)malloc(Height*Width*sizeof(double));
@@ -83,7 +83,7 @@ int addSingleOseen(int nVortex,double *parVortex, double *x0, double *dx,
                    int Height,int Width, double **gFieldOut){
   int i,j,k;
   double gradU[2][2],*gField;
-  double a,b,G,R,x,y,fa,fb,r2,r,lamb,cutoff=0.001;
+  double a,b,G,R,x,y,fa,fb,r2,r,cutoff=0.001;
 
   if(*gFieldOut==NULL)
     return 1;
@@ -144,7 +144,7 @@ int addUSingleOseen(int nVortex,double *parVortex, double *x0, double *dx,
                     int Height,int Width, double **uFieldOut)
 {
   int i,j,k;
-  double u,v,*uField,a,b,G,R,x,y,fa,fb,r2,r,cutoff=0.001;
+  double u,v,*uField,a,b,G,R,x,y,fa,r2,r,cutoff=0.001;
 
   if(*uFieldOut==NULL)
     return 1;
@@ -189,9 +189,9 @@ int addUSingleOseen(int nVortex,double *parVortex, double *x0, double *dx,
 
 int addOseen2ndGrad(int nVortex,double *parVortex, double *x0, double *dx, 
                     int Height,int Width, double **gFieldOut){
-  int i,j,k,err;
+  int i,j,k;
   double gradU[2][2],*gField;
-  double a,b,G,R,x,y,fa,fb,r2,r,lamb,bulk=0.,w,Dw;
+  double a,b,G,R,x,y,r2,bulk=0.;
 
   if(*gFieldOut==NULL)
     return 1;
@@ -208,7 +208,6 @@ int addOseen2ndGrad(int nVortex,double *parVortex, double *x0, double *dx,
         a = parVortex[4*k+2]; b = parVortex[4*k+3];
 
         r2 = (x-a)*(x-a)+(y-b)*(y-b);
-        r = sqrt(r2);
         
         bulk = ((2.0*G)/(M_PI*R*R*R*R))*exp(-r2/(R*R));
         gradU[0][0] +=   2.*(((x-a)*(y-b))/(R*R))*bulk;
@@ -232,7 +231,7 @@ int s2ndGradUtoLamb(int nVortex,double *parVortex, double *x0, double *dx,
                     int Height,int Width, double *gField,double *sField){
   int i,j,k;
   double gradU[2][2];
-  double a,b,G,R,x,y,fa,fb,r2,r,lamb,bulk=0.,w,Dw,norm;
+  double a,b,G,R,x,y,r2,lamb,w,Dw;
 
   if(gField==NULL)
     return 1;
@@ -254,24 +253,20 @@ int s2ndGradUtoLamb(int nVortex,double *parVortex, double *x0, double *dx,
       lamb =  (gradU[0][0]*gradU[1][1]-gradU[0][1]*gradU[1][0]);
       lamb-= ((gradU[0][0]+gradU[1][1])*(gradU[0][0]+gradU[1][1]))/4.;
       
-      y = x0[0] + i*dx[0]; // future : change x and y
-      x = x0[1] + j*dx[1]; // future : change x and y
+      y = x0[0] + i*dx[0]; 
+      x = x0[1] + j*dx[1]; 
       w=0.;
       for(k=0;k<nVortex;k+=1){
         G = parVortex[4*k+0]; R = parVortex[4*k+1];
         a = parVortex[4*k+2]; b = parVortex[4*k+3];
         
         r2 = (x-a)*(x-a)+(y-b)*(y-b);
-        r = sqrt(r2);
         
         w += (G/(M_PI*R*R))*exp(-r2/(R*R));
       }
-            
-      // Dw = gField[4*(i*Width+j)+1]-gField[4*(i*Width+j)+2];
-      
+                  
       Dw = gradU[0][1] - gradU[1][0];
 
-      // if(lamb>0.)
       if(lamb>0. && (w*Dw<0.))
         sField[i*Width+j] = sqrt(lamb);
       else
@@ -287,7 +282,7 @@ int s2ndGradUtoLambNaive(int nVortex,double *parVortex, double *x0, double *dx,
                          int Height,int Width, double *gField,double *sField){
   int i,j,k;
   double gradU[2][2];
-  double a,b,G,R,x,y,fa,fb,r2,r,lamb,bulk=0.,w,Dw,norm;
+  double a,b,G,R,x,y,r2,lamb,w;
 
   if(gField==NULL)
     return 1;
@@ -317,17 +312,13 @@ int s2ndGradUtoLambNaive(int nVortex,double *parVortex, double *x0, double *dx,
         a = parVortex[4*k+2]; b = parVortex[4*k+3];
         
         r2 = (x-a)*(x-a)+(y-b)*(y-b);
-        r = sqrt(r2);
         
         w += (G/(M_PI*R*R))*exp(-r2/(R*R));
       }
             
       // Dw = gField[4*(i*Width+j)+1]-gField[4*(i*Width+j)+2];
       
-      // future : revise gradU positions
-      Dw = gradU[0][1] - gradU[1][0];
 
-      //if(lamb>0. && (w*Dw<0.))
       if(lamb>0.)
         sField[i*Width+j] = sqrt(lamb);
       else
@@ -382,9 +373,8 @@ int sndGradUwFieldToLamb(int Height,int Width,double *gField,double *wField,
 
 int addConstXYShear(double *x0, double *dx,int Height,
                     int Width, double v0y0,double **gFieldOut){
-  int i,j,k;
+  int i,j;
   double gradU[2][2],*gField;
-  double a,b,G,R,x,y,fa,fb,r2,r,lamb,cutoff=0.001;
 
   if(*gFieldOut==NULL)
     return 1;
@@ -395,9 +385,6 @@ int addConstXYShear(double *x0, double *dx,int Height,
       // future : revise gradU positions
       gradU[0][0] = gradU[0][1] = gradU[1][0] = gradU[1][1] = 0.;
       
-      y = x0[0] + i*dx[0]; // future: change x and y
-      x = x0[1] + j*dx[1]; // future: change x and y
-
       gradU[0][1] += v0y0; // got to improve this later
       
       gField[4*(i*Width+j)+0]+=gradU[0][0];
@@ -561,7 +548,7 @@ int initOseenShear2D(int nVortex,double *parVortex,
 }
 
 int iniUZero(int Height,int Width, double **uFieldOut){
-  int i,j,k;
+  int i,j;
   double *uField;
 
   if((*uFieldOut) == NULL){

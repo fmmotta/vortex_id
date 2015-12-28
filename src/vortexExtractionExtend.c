@@ -157,7 +157,7 @@ int vortexExtFromVortCurv(int Height,int Width, int nCnect,double *X,double *Y,
   int i,j,k,err;
   double G,a,b,rc,dx,dy,dA,dgradU[2][2]; // vorticity
   double w[nCnect],A[nCnect],a0[nCnect],b0[nCnect];
-  double *vCatalog=NULL,cutoff=0.001;
+  double *vCatalog=NULL;
 
   if((Height<=0)||(Width<=0))
     return -1;
@@ -177,52 +177,64 @@ int vortexExtFromVortCurv(int Height,int Width, int nCnect,double *X,double *Y,
       if((k>=0)&&(k<nCnect)){
         // ++ quadrant        
         err=add_dgradU(Height,Width,i,j,1,1,gField,dgradU,X,Y);
+        if(err!=0) return err;
         w[k] += dgradU[1][0]-dgradU[0][1];
         
         err=add_dxdy(Height,Width,i,j,1,1,gField,&dx,&dy,X,Y);
+        if(err!=0) return err;
         a0[k] += dx;
         b0[k] += dy;
 
         err=add_dA(Height,Width,i,j,k,1,1,gField,label,&dA,X,Y);
+        if(err!=0) return err;
         A[k] += dA;
         
         /*************************************************/
         
         // -+ quadrant
         err=add_dgradU(Height,Width,i,j,-1,1,gField,dgradU,X,Y);
+        if(err!=0) return err;
         w[k] += dgradU[1][0]-dgradU[0][1];
         
         err=add_dxdy(Height,Width,i,j,-1,1,gField,&dx,&dy,X,Y);
+        if(err!=0) return err;
         a0[k] += dx;
         b0[k] += dy;
 
         err=add_dA(Height,Width,i,j,k,-1,1,gField,label,&dA,X,Y);
+        if(err!=0) return err;
         A[k] += dA;
         
         /*************************************************/
 
         // +- quadrant
         err=add_dgradU(Height,Width,i,j,1,-1,gField,dgradU,X,Y);
+        if(err!=0) return err;
         w[k] += dgradU[1][0]-dgradU[0][1];
         
         err=add_dxdy(Height,Width,i,j,1,-1,gField,&dx,&dy,X,Y);
+        if(err!=0) return err;
         a0[k] += dx;
         b0[k] += dy;
 
         err=add_dA(Height,Width,i,j,k,1,-1,gField,label,&dA,X,Y);
+        if(err!=0) return err;
         A[k] += dA;
         
         /*************************************************/
         
         // -- quadrant
         err=add_dgradU(Height,Width,i,j,-1,-1,gField,dgradU,X,Y);
+        if(err!=0) return err;
         w[k] += dgradU[1][0]-dgradU[0][1];
         
         err=add_dxdy(Height,Width,i,j,-1,-1,gField,&dx,&dy,X,Y);
+        if(err!=0) return err;
         a0[k] += dx;
         b0[k] += dy;
 
         err=add_dA(Height,Width,i,j,k,1,-1,gField,label,&dA,X,Y);
+        if(err!=0) return err;
         A[k] += dA;
         
         /*************************************************/
@@ -283,52 +295,64 @@ int vortexExtFromSwirlStr(int Height,int Width, int nCnect,double *X,double *Y,
       if((k>=0)&&(k<nCnect)){
         // ++ quadrant        
         err=add_dgradU(Height,Width,i,j,1,1,gField,dgradU,X,Y);
+        if(err!=0) return err;
         w[k] += dgradU[1][0]-dgradU[0][1];
         
         err=add_dxdy(Height,Width,i,j,1,1,gField,&dx,&dy,X,Y);
+        if(err!=0) return err;
         a0[k] += dx;
         b0[k] += dy;
 
         err=add_dA(Height,Width,i,j,k,1,1,gField,label,&dA,X,Y);
+        if(err!=0) return err;
         A[k] += dA;
         
         /*************************************************/
         
         // -+ quadrant
         err=add_dgradU(Height,Width,i,j,-1,1,gField,dgradU,X,Y);
+        if(err!=0) return err;
         w[k] += dgradU[1][0]-dgradU[0][1];
         
         err=add_dxdy(Height,Width,i,j,-1,1,gField,&dx,&dy,X,Y);
+        if(err!=0) return err;
         a0[k] += dx;
         b0[k] += dy;
 
         err=add_dA(Height,Width,i,j,k,-1,1,gField,label,&dA,X,Y);
+        if(err!=0) return err;
         A[k] += dA;
         
         /*************************************************/
 
         // +- quadrant
         err=add_dgradU(Height,Width,i,j,1,-1,gField,dgradU,X,Y);
+        if(err!=0) return err;
         w[k] += dgradU[1][0]-dgradU[0][1];
         
         err=add_dxdy(Height,Width,i,j,1,-1,gField,&dx,&dy,X,Y);
+        if(err!=0) return err;
         a0[k] += dx;
         b0[k] += dy;
 
         err=add_dA(Height,Width,i,j,k,1,-1,gField,label,&dA,X,Y);
+        if(err!=0) return err;
         A[k] += dA;
         
         /*************************************************/
         
         // -- quadrant
         err=add_dgradU(Height,Width,i,j,-1,-1,gField,dgradU,X,Y);
+        if(err!=0) return err;
         w[k] += dgradU[1][0]-dgradU[0][1];
         
         err=add_dxdy(Height,Width,i,j,-1,-1,gField,&dx,&dy,X,Y);
+        if(err!=0) return err;
         a0[k] += dx;
         b0[k] += dy;
 
         err=add_dA(Height,Width,i,j,k,1,-1,gField,label,&dA,X,Y);
+        if(err!=0) return err;
         A[k] += dA;
         
         /*************************************************/

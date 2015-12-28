@@ -26,8 +26,6 @@ int fprintfRunParamSigned(FILE *dadosgen,long long int seed,double x0[],
                          double rmin, double rmax, double xmin[], double xmax[], 
                          double v0y0)
 {
-  int i;
-
   if(dadosgen==NULL)
     return 1;
 
@@ -177,6 +175,7 @@ int genVortices(int genType,long long int seed, double xmin[],double xmax[],
       nVortex = err;
   }
   else if(genType==1){
+    nVortex = nFixVortex;
     err=genLOseenNaryList(numG,Glist,numRc,Rclist,xmin,xmax,
                           seed,nVortex,parVortex);
     if(err<0)

@@ -54,7 +54,7 @@ int vortexIdHandler(void* user, const char* section,
                     const char* name,const char* value)
 {
   int i;
-  char keyname[100+1],Gvalue[100+1],Rcvalue[100+1],*p;
+  char *p;
   configVar *vConfig = (configVar*)user;
   
   #define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
