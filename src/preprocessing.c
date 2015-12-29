@@ -129,19 +129,6 @@ int loadFields(int Nx,int Ny,int Nz,FILE *uFile,FILE *pFile,
 
   fgets(buffer,1024,uFile);
   fgets(buffer,1024,pFile);
-
-  // Nx*Ny*k+Nx*j+i
-  /*
-  for(i=0;i<Nx;i+=1){
-    for(k=0;k<Nz;k+=1){
-      for(j=0;j<Ny;j+=1){
-        fscanf(pFile,"%lf",&(node[id(i,j,k)].p));
-        fscanf(uFile," (%lf%lf%lf)",&(node[id(i,j,k)].u),
-                                    &(node[id(i,j,k)].v),
-                                    &(node[id(i,j,k)].w));
-      }
-    }
-  }*/
   
   for(k=0;k<Nz;k+=1){
     for(j=0;j<Ny;j+=1){
@@ -153,8 +140,6 @@ int loadFields(int Nx,int Ny,int Nz,FILE *uFile,FILE *pFile,
       }
     }
   }
-
-  fclose(uFile); fclose(pFile);
 
   return 0;
 }

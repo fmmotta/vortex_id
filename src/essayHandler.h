@@ -10,6 +10,10 @@ int histoIncVortex(int nVortex, double *parVortex,
 
 int fprintVortex(FILE *dadosout, int run,int nVortex, double *vCatalog);
 
+int fprintSafeVortex(FILE *dadosout, int run,int nVortex, 
+                     double *vCatalog,int Height,int Width,
+                     double *X,double *Y);
+
 int fprintsField(FILE *dadosout,double *x0,double *dx,
                  int Width, int Height, double *sField);
 

@@ -49,7 +49,7 @@ int main(int argc,char **argv){
   double v0y0 = 0.00,*vCatalog=NULL,*rCatalog=NULL;
   double hGmin=0.,hGmax=0.,hRcMin=0.,hRcMax=0.;
   char folder[100+1],tag[100+1],filename[400+1],foamFolder[200+1];
-  FILE *dadosout,*dadosVout,*uFile,*pFile,*nFile;
+  FILE *dadosout,*dadosVout,*uFile,*pFile,*nFile,*vortexFile;
   gsl_histogram *hG,*hRc,*ha,*hb,*hN;
   gsl_histogram *iG,*iRc,*ia,*ib;
   configVar cfg;
@@ -240,20 +240,6 @@ int main(int argc,char **argv){
   ib = gsl_histogram_alloc(hNb);   gsl_histogram_set_ranges_uniform(ib,xmin[1],xmax[1]);
   /* histogram preparation - end*/
 
-  dbgPrint(12,0);
-  /*
-  sprintf(genFile,"%s/genfile-%s.dat",folder,tag);
-  dadosgen=fopen(genFile,"w");
-  err=fprintfRunParamSigned(dadosgen,seed,x0,xf,dx,Gmin,Gmax,rmin,
-                            rmax,xmin,xmax,v0y0);
-  fclose(dadosgen);
-  */
-
-  //sprintf(filename,"%s/inputVortexes.txt",folder);
-  //dadosVin = fopen(filename,"w");
-  //sprintf(filename,"%s/outputVortexes.txt",folder);
-  //dadosVout = fopen(filename,"w");
-
   dbgPrint(13,0);
 
   if(DEBUG_MODE==true){
@@ -285,15 +271,17 @@ int main(int argc,char **argv){
   err = XtoXbuff(Height,Y,Ybuff,padWidth);
   if(err!=0)
     printf("problem in XtoXbuff - Y\n");
-
+  
+  sprintf(filename,"%s/vortices.dat",folder);
+  vortexFile = fopen(filename,"w");
+  
   for(n=0;n<Nsnapshots;n+=1){
     
     t=t0+((double)n)*dt;
 
-    if(n%1000 == 0){
+    if(n%10 == 0){
       printf("%d runs have passed\n",n);
-      //fflush(dadosVin);
-      //fflush(dadosVout);
+      fflush(vortexFile);
     }
 
     for(i=0;i<2*Height*Width;i+=1)
@@ -320,12 +308,11 @@ int main(int argc,char **argv){
     if(err!=0)
       printf("Problems with loadFields\n");
     
-    //fclose(pFile); fclose(uFile);
+    fclose(pFile); fclose(uFile);
     
     dbgPrint(15,2);
     
     k=planeIndex;
-    /*
     dadosout=fopen("data/refU.dat","w");
     for(j=0;j<Height;j+=1)
       for(i=0;i<Width;i+=1){
@@ -333,15 +320,8 @@ int main(int argc,char **argv){
         uField[2*(j*Width+i)+1] = node[id(i,j,k)].v;
         fprintf(dadosout,"%lf %lf\n",uField[2*(j*Width+i)+0]
                                   ,uField[2*(j*Width+i)+1]);
-      }*/
-    dadosout=fopen("data/luca_final/t20.0755_z000.dat","r");
-    if(dadosout==NULL)
-      printf("problemas");
+      }
 
-    for(i=0;i<Height;i+=1)
-      for(j=0;j<Width;j+=1)
-        fscanf(dadosout,"%lf %lf",&(uField[2*(i*Width+j)+0])
-                                 ,&(uField[2*(i*Width+j)+1]));
     fclose(dadosout);
 
     dbgPrint(15,3);
@@ -350,7 +330,7 @@ int main(int argc,char **argv){
                         uField,uBuff,ux,uy,uxxx,uyyy,uxxy,
                         uxyy,gField,g2Field,v0y0,sField);
     if(err!=0){
-      printf("Error in calcScalarField\n");
+      printf("Error in calcScalarField - %d\n",err);
       return err;
     }
 
@@ -368,7 +348,7 @@ int main(int argc,char **argv){
 
     dbgPrint(15,4);
 
-    if(n%1000==0){
+    if(n%10==0){
       sprintf(filename,"%s/sField-%d.txt",folder,n);
       dadosout = fopen(filename,"w");
       fprintUsfield(dadosout,X,Y,Height,Width,sField);
@@ -391,13 +371,13 @@ int main(int argc,char **argv){
       printf("problems in vortexReconstruction\n");
       return err;
     }
-    
-    sprintf(filename,"%s/vortices.dat",folder);
+    /*
+    sprintf(filename,"%s/vortices-%d.dat",folder,n);
     dadosout=fopen(filename,"w");
     for(i=0;i<nCnect;i+=1)
       fprintf(dadosout,"%.12f %.12f %.8f %.8f\n",vCatalog[4*i+0],vCatalog[4*i+1]
                                             ,vCatalog[4*i+2],vCatalog[4*i+3]);
-    fclose(dadosout);
+    fclose(dadosout);*/
 
     vortexQuickSort(vCatalog,nCnect,&greaterAbsCirculation);
     
@@ -422,22 +402,28 @@ int main(int argc,char **argv){
     dbgPrint(18,0);
 
     /* Preparing for printing */
-    if(n%1000==0){
-      dbgPrint(18,1);
+    if(n%10==0){
 
-      sprintf(filename,"%s/vortexesOu-%.4f.txt",folder,t);
-      dadosVout = fopen(filename,"w");
-      
-      dbgPrint(18,2);
-
+      sprintf(filename,"%s/vortices-%.4f.txt",folder,t);
+      dadosVout = fopen(filename,"w");   
       err=fprintVortex(dadosVout,n,nCnect,vCatalog);
       if(err!=0){printf("problems\n"); return -6;}
-      
-      dbgPrint(18,3);
-
       fclose(dadosVout);
+
+      
+      sprintf(filename,"%s/vorticesSafe-%.4f.txt",folder,t);
+      dadosVout = fopen(filename,"w");
+      err=fprintSafeVortex(dadosVout,n,nCnect,vCatalog,Height,Width,X,Y);
+      if(err!=0){printf("problems\n"); return -6;}
+      fclose(dadosVout);
+
     }
+
+    err=fprintSafeVortex(vortexFile,n,nCnect,vCatalog,Height,Width,X,Y);
+    if(err!=0){printf("problems in printing vortexfile\n"); return -6;}
   }
+
+  fclose(vortexFile);
   
   dbgPrint(19,0);
 

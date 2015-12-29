@@ -77,6 +77,29 @@ int fprintVortex(FILE *dadosout, int run,int nVortex, double *vCatalog)
   return 0;
 }
 
+int fprintSafeVortex(FILE *dadosout, int run,int nVortex, 
+                     double *vCatalog,int Height,int Width,
+                     double *X,double *Y)
+{
+  int i;
+
+  if(dadosout==NULL || run<0 || nVortex<=0 || vCatalog==NULL)
+    return 1;
+
+  for(i=0;i<nVortex;i+=1){
+    if(vCatalog[4*i+2] < X[0] || vCatalog[4*i+2] > X[Width-1] ||
+       vCatalog[4*i+3] < Y[0] || vCatalog[4*i+3] > Y[Height-1])
+      continue;
+    fprintf(dadosout,"%f %f %f %f\n",vCatalog[4*i+0]
+                                    ,vCatalog[4*i+1]
+                                    ,vCatalog[4*i+2]
+                                    ,vCatalog[4*i+3]);
+  }
+  fprintf(dadosout,"\n");
+
+  return 0;
+}
+
 int fprintsField(FILE *dadosout,double *x0,double *dx,
                  int Width, int Height, double *sField)
 {
