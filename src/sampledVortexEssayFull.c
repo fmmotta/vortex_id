@@ -38,14 +38,14 @@ int main(int argc,char **argv){
   int runType=0,genType=0,numG=3,numRc=3,*label=NULL,**eqClass=NULL;
   long long int seed=98755;
   int hNG=50,hNRc=53,hNa=40,hNb=40,hNN=10;
-  int i,j,err,nCnect,rCnect=0,n,it,nMax=500,pass=0,padWidth=2;
+  int i,j,err,nCnect=0,rCnect=0,n,nMax=500,padWidth=2;
   double Gmin=1.,Gmax=20.,rmin=0.5,rmax=1.0,threshold=0.5;
   double xmin[2]={-9.,-9.},xmax[2]={9.,9.},x0[2],dx[2],xf[2];
   double *parVortex=NULL,*Glist,*Rclist,cutoff=0.;
   double *sField=NULL,*gField=NULL,*g2Field=NULL,*uField=NULL;
   double *uBuff=NULL,*Xbuff,*Ybuff,*X,*Y;
   double *ux,*uy,*uxxy,*uxyy,*uxxx,*uyyy;
-  double x,y,v0y0 = 0.00,*vCatalog=NULL,*rCatalog=NULL,*majorVortex=NULL;
+  double v0y0 = 0.00,*vCatalog=NULL,*rCatalog=NULL,*majorVortex=NULL;
   double hGmin=0.,hGmax=0.,hRcMin=0.,hRcMax=0.;
   char genFile[300+1],folder[100+1],tag[100+1],filename[400+1];
   FILE *dadosgen,*dadosout,*dadosVin,*dadosVout,*dadosField;
@@ -276,6 +276,8 @@ int main(int argc,char **argv){
 
   dbgPrint(14,0);
 
+  printf("v0y0=%lf\n",v0y0);
+
   for(n=0;n<nRuns;n+=1){
 
     if(n%1000 == 0){
@@ -311,7 +313,7 @@ int main(int argc,char **argv){
     err = floodFill(sField,Width,Height,eqClass,label);
     if(err!=0)
       printf("Problems in floodFill\n");
-
+    
     err = renameLabels(Height,Width,label);
     if(err>0)
       nCnect=err;

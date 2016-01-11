@@ -22,14 +22,14 @@ int oseenUxxy(int nVortex,double *parVortex, double *x0, double *dx,
               int Height,int Width, double **sRefOut);
 
 int main(int argc,char **argv){
-  const int Width = 200, Height = 200, Pop=10,nVortex=5,vCase=6;
+  const int Width = 200, Height = 200, Pop=10,nVortex=2,vCase=0;
   int i,j,err,ngbr,found, padWidth=2,nCnect,nMax=50;
   int *label,**eqClass;
   double parVortex[4*nVortex],x0[2],dx[2],xf[2],*sField=NULL;
   double *gField=NULL,*g2Field=NULL,*uField=NULL,X[Width],Y[Height];
   double *uBuff=NULL,Xbuff[Width+4],Ybuff[Height+4],*g2Ref,*gRef;
   double *ux,*uy,*uxxy,*uxyy,*uxxx,*uyyy,*w,*sRef1,*sRef2;
-  double x,y,v0y0 = 0.0,theta,*vCatalog=NULL;
+  double x,y,v0y0 = 0.05,theta,*vCatalog=NULL;
 
   eqClass=(int**)malloc(NumCls*sizeof(int*));
   if(eqClass==NULL)
@@ -108,6 +108,11 @@ int main(int argc,char **argv){
     parVortex[12+0]=1.; parVortex[12+1]=1.; parVortex[12+2]=-2.; parVortex[12+3]=-3.;
     parVortex[16+0]=1.; parVortex[16+1]=1.; parVortex[16+2]=2.; parVortex[16+3]=-3.;
   }
+  if(nVortex==2 && vCase==0){ 
+    parVortex[0]=1.; parVortex[1]=1.; parVortex[2]=-2.; parVortex[3]=0.;
+    parVortex[4+0]=1.; parVortex[4+1]=1.; parVortex[4+2]=2.; parVortex[4+3]=0.;
+    //parVortex[8+0]=1.; parVortex[8+1]=1.; parVortex[8+2]=0.; parVortex[8+3]=4.;
+  }
   
   fieldAlloc(sField ,Height*Width,double);
   fieldAlloc(sRef1 ,Height*Width,double);
@@ -142,7 +147,12 @@ int main(int argc,char **argv){
   err = addUSingleOseen(nVortex,parVortex,x0,dx,Height,Width,&uField);
   if(err!=0)
     printf("Problems in addUSingleOseen\n");
-  
+    
+  for(i=0;i<Height;i+=1)
+    for(j=0;j<Width;j+=1){
+      uField[2*(i*Width+j)+0] += v0y0*Y[i];
+    }
+
   err = uFieldTouBuff(Height,Width,uField,uBuff,padWidth);
   if(err!=0)
     printf("Problems in uFieldTouBuff\n");

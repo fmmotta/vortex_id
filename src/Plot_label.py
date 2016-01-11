@@ -6,7 +6,7 @@ import matplotlib.cm as cm
 from scipy.interpolate import griddata
 from scipy.spatial import Voronoi, voronoi_plot_2d
 
-RawData =np.loadtxt("data/labelFOAMsw.txt")
+RawData =np.loadtxt("data/labelUSplit-3.txt")
 X,Y,Z	=np.transpose(RawData)
 
 xmax = np.max(X); xmin = np.min(X); Dx = xmax-xmin; xmed=(xmax+xmin)/2;
@@ -31,7 +31,7 @@ fig = plt.figure()
 
 
 #plt.contourf(xi, yi, zi ,Nsample)                             
-plt.imshow(zi, extent=(0,2*math.pi,0,1), origin='lower')                   
+plt.imshow(zi, extent=(-5,5,-5,5), origin='lower')                   
 #plt.pcolormesh(xi,yi,zi)
 #plt.imshow(zi, extent = (xmin, xmax, ymin, ymax))
 #plt.clim(0,zmax)
@@ -46,6 +46,6 @@ plt.clim(zmin,zmax)
 
 #plt.tight_layout()
 plt.axes().set_aspect('equal')
-plt.savefig('data/labelFOAMsw.pdf',bbox_inches='tight')#,dpi=600)#,bbox_inches='tight')
+plt.savefig('data/labelUSplit-3.pdf',bbox_inches='tight')#,dpi=600)#,bbox_inches='tight')
 
 #plt.show()

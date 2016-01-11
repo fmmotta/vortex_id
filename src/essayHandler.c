@@ -315,10 +315,14 @@ int calcUScalarField(int runType,int Height,int Width,int padWidth,
   int i,j,err;
 
   if(runType==0){
-
     err = addUSingleOseen(nVortex,parVortex,x0,dx,Height,Width,&uField);
     if(err!=0)
       return -1;
+    
+    /* WARNING: come back here latter*/
+    for(i=0;i<Height;i+=1)
+      for(j=0;j<Width;j+=1)
+        uField[2*(i*Width+j)+0] += v0y0*Y[i];
   
     err = uFieldTouBuff(Height,Width,uField,uBuff,padWidth);
     if(err!=0)
@@ -349,6 +353,11 @@ int calcUScalarField(int runType,int Height,int Width,int padWidth,
     if(err!=0)
       return -1;
     
+    /* WARNING: come back here latter*/
+    for(i=0;i<Height;i+=1)
+      for(j=0;j<Width;j+=1)
+        uField[2*(i*Width+j)+0] += v0y0*Y[i];
+      
     err = uFieldTouBuff(Height,Width,uField,uBuff,padWidth);
     if(err!=0)
       return -2;
