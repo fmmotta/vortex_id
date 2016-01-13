@@ -278,6 +278,62 @@ int s2ndGradUtoLamb(int nVortex,double *parVortex, double *x0, double *dx,
   return 0;
 }
 
+
+int s2ndGradUtoLambShear(int nVortex,double *parVortex, double *x0, 
+                         double *dx,int Height,int Width, double *gField,
+                         double *sField,double v0y0)
+{
+  int i,j,k;
+  double gradU[2][2];
+  double a,b,G,R,x,y,r2,lamb,w,Dw;
+
+  if(gField==NULL)
+    return 1;
+  if(sField==NULL)
+    return 2;
+  if((Height<=0)||(Width<=0))
+    return -1;
+
+  for(i=0;i<Height;i+=1)
+    for(j=0;j<Width;j+=1){
+      // future : revise gradU positions
+      gradU[0][0] = gField[4*(i*Width+j)+0];
+      gradU[0][1] = gField[4*(i*Width+j)+1];
+      gradU[1][0] = gField[4*(i*Width+j)+2];
+      gradU[1][1] = gField[4*(i*Width+j)+3];
+      
+      // \Delta = (tr gU)^2-4.*det gU; \Delta<0 ==> Imaginary eigenvalue
+      // (lamb)^2 = - 4.*\Delta;
+      lamb =  (gradU[0][0]*gradU[1][1]-gradU[0][1]*gradU[1][0]);
+      lamb-= ((gradU[0][0]+gradU[1][1])*(gradU[0][0]+gradU[1][1]))/4.;
+      
+      y = x0[0] + i*dx[0]; 
+      x = x0[1] + j*dx[1]; 
+      w=0.;
+      for(k=0;k<nVortex;k+=1){
+        G = parVortex[4*k+0]; R = parVortex[4*k+1];
+        a = parVortex[4*k+2]; b = parVortex[4*k+3];
+        
+        r2 = (x-a)*(x-a)+(y-b)*(y-b);
+        
+        w += (G/(M_PI*R*R))*exp(-r2/(R*R));
+      }
+      
+      w -= v0y0; // Effect of background shear on filtering
+
+      Dw = gradU[0][1] - gradU[1][0];
+
+      if(lamb>0. && (w*Dw<0.))
+        sField[i*Width+j] = sqrt(lamb);
+      else
+        sField[i*Width+j] = 0.;
+    }  
+  
+  return 0;
+
+  return 0;
+}
+
 int s2ndGradUtoLambNaive(int nVortex,double *parVortex, double *x0, double *dx,
                          int Height,int Width, double *gField,double *sField){
   int i,j,k;

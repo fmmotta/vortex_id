@@ -34,10 +34,10 @@
                                   }                                      \
 
 int main(int argc,char **argv){
+  long long int seed=98755;
   int Width = 100, Height = 100,nVortex=5,nFixVortex=5,nRuns=1000;
   int runType=0,genType=0,numG=3,numRc=3,*label=NULL,**eqClass=NULL;
-  long long int seed=98755;
-  int hNG=50,hNRc=53,hNa=40,hNb=40,hNN=10;
+  int hNG=50,hNRc=53,hNa=40,hNb=40,hNN=10, calcScalarMode=0;
   int i,j,err,nCnect=0,rCnect=0,n,nMax=500,padWidth=2;
   double Gmin=1.,Gmax=20.,rmin=0.5,rmax=1.0,threshold=0.5;
   double xmin[2]={-9.,-9.},xmax[2]={9.,9.},x0[2],dx[2],xf[2];
@@ -105,6 +105,7 @@ int main(int argc,char **argv){
   Height  = cfg.Height;
   nRuns   = cfg.nRuns;
   runType = cfg.runType;
+  calcScalarMode = cfg.calcMode;
   genType = cfg.genType;
   nFixVortex = cfg.nVortex;
 
@@ -134,10 +135,10 @@ int main(int argc,char **argv){
 
   /************************************/
 
-  x0[0]   = cfg.x0[0]; x0[1]   = cfg.x0[1]; 
+  x0[0]   = cfg.x0[0]; x0[1] = cfg.x0[1]; 
   xmin[0] = x0[0]+1; xmin[1] = x0[1]+1;
   
-  xf[0]   = cfg.xf[0]; xf[1]   = cfg.xf[1]; 
+  xf[0]   = cfg.xf[0]; xf[1] = cfg.xf[1]; 
   xmax[0] = xf[0]-1; xmax[1] = xf[1]-1;
   
   dx[0] = (xf[0]-x0[0])/Height;
@@ -240,16 +241,16 @@ int main(int argc,char **argv){
   dbgPrint(11,0);
 
   /* histogram preparation - begin */
-  hG = gsl_histogram_alloc(hNG);   gsl_histogram_set_ranges_uniform(hG,hGmin,hGmax);
+  hG  = gsl_histogram_alloc(hNG);  gsl_histogram_set_ranges_uniform(hG,hGmin,hGmax);
   hRc = gsl_histogram_alloc(hNRc); gsl_histogram_set_ranges_uniform(hRc,hRcMin,hRcMax);
-  ha = gsl_histogram_alloc(hNa);   gsl_histogram_set_ranges_uniform(ha,xmin[0],xmax[0]);
-  hb = gsl_histogram_alloc(hNb);   gsl_histogram_set_ranges_uniform(hb,xmin[1],xmax[1]);
-  hN = gsl_histogram_alloc(hNN);   gsl_histogram_set_ranges_uniform(hN,0,2*nVortex);
+  ha  = gsl_histogram_alloc(hNa);  gsl_histogram_set_ranges_uniform(ha,xmin[0],xmax[0]);
+  hb  = gsl_histogram_alloc(hNb);  gsl_histogram_set_ranges_uniform(hb,xmin[1],xmax[1]);
+  hN  = gsl_histogram_alloc(hNN);  gsl_histogram_set_ranges_uniform(hN,0,2*nVortex);
 
-  iG = gsl_histogram_alloc(hNG);   gsl_histogram_set_ranges_uniform(iG,hGmin,hGmax);
+  iG  = gsl_histogram_alloc(hNG);  gsl_histogram_set_ranges_uniform(iG,hGmin,hGmax);
   iRc = gsl_histogram_alloc(hNRc); gsl_histogram_set_ranges_uniform(iRc,hRcMin,hRcMax);
-  ia = gsl_histogram_alloc(hNa);   gsl_histogram_set_ranges_uniform(ia,xmin[0],xmax[0]);
-  ib = gsl_histogram_alloc(hNb);   gsl_histogram_set_ranges_uniform(ib,xmin[1],xmax[1]);
+  ia  = gsl_histogram_alloc(hNa);  gsl_histogram_set_ranges_uniform(ia,xmin[0],xmax[0]);
+  ib  = gsl_histogram_alloc(hNb);  gsl_histogram_set_ranges_uniform(ib,xmin[1],xmax[1]);
   /* histogram preparation - end*/
 
   dbgPrint(12,0);
@@ -276,7 +277,10 @@ int main(int argc,char **argv){
 
   dbgPrint(14,0);
 
-  printf("v0y0=%lf\n",v0y0);
+  if(DEBUG_MODE){
+    printf("v0y0=%lf\n",v0y0);
+    printf("calcMode=%d\n",calcScalarMode);
+  }
 
   for(n=0;n<nRuns;n+=1){
 
@@ -302,9 +306,19 @@ int main(int argc,char **argv){
     
     // change here
     //err=calcScalarField(runType,Height,Width,x0,dx,nVortex,parVortex,gField,v0y0,sField);
-    err=calcUScalarField(runType,Height,Width,padWidth,x0,dx,X,Y,Xbuff,Ybuff,
-                         nVortex,parVortex,uField,uBuff,ux,uy,uxxx,uyyy,uxxy,
-                         uxyy,gField,g2Field,v0y0,sField);
+    if(calcScalarMode==0)
+      err=calcUScalarField(runType,Height,Width,padWidth,x0,dx,X,Y,Xbuff,
+                           Ybuff,nVortex,parVortex,uField,uBuff,ux,uy,
+                           uxxx,uyyy,uxxy,uxyy,gField,g2Field,
+                           v0y0,sField);
+    else if(calcScalarMode==1)
+      err=calcScalarField(runType,Height,Width,x0,dx,nVortex,parVortex,
+                          gField,v0y0,sField);
+    else{
+      printf("Not identified operation mode \n");
+      return -18;
+    }
+
     if(err!=0){
       printf("Error in calcScalarField\n");
       return err;
@@ -331,6 +345,7 @@ int main(int argc,char **argv){
       fprintLabels(dadosField,x0,dx,Width,Height,label);
       fclose(dadosField);
     }
+    
     /*
     if(n%1000==0){
       sprintf(filename,"%s/sField-%s-%d.txt",folder,tag,n);
@@ -372,7 +387,7 @@ int main(int argc,char **argv){
     err=histoIncVortex(nVortex,parVortex,iG,iRc,ia,ib);
     if(err!=0){printf("problems\n"); return -5;}
 
-    gsl_histogram_increment(hN,nCnect);
+    gsl_histogram_increment(hN,rCnect);
 
     err=histoIncVortex(rCnect,rCatalog,hG,hRc,ha,hb);
     if(err!=0){printf("problems\n"); return -5;}

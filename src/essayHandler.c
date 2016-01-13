@@ -255,12 +255,42 @@ int calcScalarField(int runType,int Height,int Width,double x0[],double dx[],
 {
   int err;
 
-  if(runType==0){
+  if(runType==2){
     err = addSingleOseen(nVortex,parVortex,x0,dx,Height,Width,&gField);
     if(err!=0){
       printf("Problems in addSingleOseen\n");
       return err;
     }
+
+    err = gradUtoLamb(Height,Width,gField,&sField);
+    if(err!=0){
+      printf("Problems in gradUtoLamb\n");
+      return err;
+    }
+  }
+  else if(runType==3){
+    err = addOseen2ndGrad(nVortex,parVortex,x0,dx,Height,Width,&gField);
+    if(err!=0){
+      printf("Problems in addSingleOseen\n");
+      return err;
+    }
+
+    err = s2ndGradUtoLamb(nVortex,parVortex,x0,dx,Height,Width,gField,sField);
+    if(err!=0){
+      printf("Problems in gradUtoLamb\n");
+      return err;
+    }
+  }
+  else if(runType==0){
+    err = addSingleOseen(nVortex,parVortex,x0,dx,Height,Width,&gField);
+    if(err!=0){
+      printf("Problems in addSingleOseen\n");
+      return err;
+    }
+
+    err=addConstXYShear(x0,dx,Height,Width,v0y0,&gField);
+    if(err!=0)
+      printf("Problems in addConstXYShear\n");
 
     err = gradUtoLamb(Height,Width,gField,&sField);
     if(err!=0){
@@ -275,24 +305,8 @@ int calcScalarField(int runType,int Height,int Width,double x0[],double dx[],
       return err;
     }
 
-    err = s2ndGradUtoLamb(nVortex,parVortex,x0,dx,Height,Width,gField,sField);
-    if(err!=0){
-      printf("Problems in gradUtoLamb\n");
-      return err;
-    }
-  }
-  else if(runType==2){
-    err = addSingleOseen(nVortex,parVortex,x0,dx,Height,Width,&gField);
-    if(err!=0){
-      printf("Problems in addSingleOseen\n");
-      return err;
-    }
-
-    err=addConstXYShear(x0,dx,Height,Width,v0y0,&gField);
-    if(err!=0)
-      printf("Problems in addConstXYShear\n");
-
-    err = gradUtoLamb(Height,Width,gField,&sField);
+    err = s2ndGradUtoLambShear(nVortex,parVortex,x0,dx,Height,Width,
+                               gField,sField,v0y0);
     if(err!=0){
       printf("Problems in gradUtoLamb\n");
       return err;

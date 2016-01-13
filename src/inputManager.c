@@ -10,7 +10,7 @@ int initConfig(configVar *cfg){
   cfg->Gmin=0.; cfg->Gmax =0.; cfg->RcMin=0.; cfg->RcMax=0.;
   cfg->hNG=0; cfg->hNRc=0; cfg->hNa=0; cfg->hNb=0; cfg->hNN=0;
   cfg->Nx=0;cfg->Ny=0;cfg->Nz=0;cfg->pType=0;cfg->pIndex=0;
-  cfg->FOAMfolder=NULL;
+  cfg->calcMode=-1; cfg->FOAMfolder=NULL;
   cfg->Glist=NULL; cfg->Rclist=NULL; 
   cfg->swThresh=0.; cfg->sndSwThresh=0.; cfg->cutoff=0.;
   cfg->genFile=NULL; cfg->tag=NULL;
@@ -27,7 +27,7 @@ int freeConfig(configVar *cfg){
   cfg->swThresh=0.; cfg->sndSwThresh=0.; cfg->cutoff=0.;
   cfg->hNG=0; cfg->hNRc=0; cfg->hNa=0; cfg->hNb=0; cfg->hNN=0;
   cfg->Nx=0;cfg->Ny=0;cfg->Nz=0;cfg->pType=0;cfg->pIndex=0;
-  cfg->Nsnapshots=0; cfg->t0 = 0.; cfg->dt=0.;
+  cfg->Nsnapshots=0; cfg->t0 = 0.; cfg->dt=0.; cfg->calcMode-=-1;
   
 
   if(cfg->Glist!=NULL)
@@ -94,6 +94,8 @@ int vortexIdHandler(void* user, const char* section,
     vConfig->genFile = strdup(value);
   else if (MATCH("Runtime-Info", "Runs"))
     vConfig->nRuns = atoi(value);
+  else if (MATCH("Runtime-Info", "Mode"))
+    vConfig->calcMode = atoi(value);
   else if (MATCH("Runtime-Info", "Dimension"))
     vConfig->dim = atoi(value);
   else if (MATCH("Runtime-Info", "Folder"))
@@ -204,6 +206,7 @@ int printConfig(configVar *cfg){
 
   printf("\nRuntime Info: \n");
   printf("type: %d\n",cfg->runType);
+  printf("mode: %d\n",cfg->calcMode);
   printf("tag: %s\n",cfg->tag);
   printf("genFile: %s\n",cfg->genFile);
   printf("number of Runs: %d\n",cfg->nRuns);
