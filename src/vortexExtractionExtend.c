@@ -384,3 +384,197 @@ int vortexExtFromSwirlStr(int Height,int Width, int nCnect,double *X,double *Y,
 
   return 0;
 }
+
+inline int add_w2_dxdy(int Height,int Width, int i,int j,int ik,int jk,
+                       double *gField,double *dx,double *dy,double X[],
+                       double Y[])
+{
+  double w2;
+
+  if((i+ik<0) || (i+ik)>=Height){
+    if( (j+jk<0) || (j+jk)>=Width ){
+      w2 = (gField[4*(i*Width+j)+2]-gField[4*(i*Width+j)+1])
+          *(gField[4*(i*Width+j)+2]-gField[4*(i*Width+j)+1]);
+
+      *dy = 9.*w2*Y[i];
+      *dx = 9.*w2*X[j];
+    }
+    else{
+      w2 = (gField[4*(i*Width+j)+2]-gField[4*(i*Width+j)+1])
+          *(gField[4*(i*Width+j)+2]-gField[4*(i*Width+j)+1]);
+          
+      *dy  = 9.*w2*Y[i];
+      *dx  = 9.*w2*X[j];
+
+      w2 = (gField[4*(i*Width+(j+jk))+2]-gField[4*(i*Width+(j+jk))+1])
+          *(gField[4*(i*Width+(j+jk))+2]-gField[4*(i*Width+(j+jk))+1]);
+      
+      *dy += 3.*w2*Y[i];
+      *dx += 3.*w2*X[j+jk];
+    }
+  }
+  else{
+    if( (j+jk<0) || (j+jk)>=Width ){
+      w2 = (gField[4*(i*Width+j)+2]-gField[4*(i*Width+j)+1])
+          *(gField[4*(i*Width+j)+2]-gField[4*(i*Width+j)+1]);
+          
+      *dy  = 9.*w2*Y[i];
+      *dx  = 9.*w2*X[j];
+
+      w2 = (gField[4*((i+ik)*Width+j)+2]-gField[4*((i+ik)*Width+j)+1])
+          *(gField[4*((i+ik)*Width+j)+2]-gField[4*((i+ik)*Width+j)+1]);
+      
+      *dy += 3.*w2*Y[i+ik];
+      *dx += 3.*w2*X[j];
+    }
+    else{
+      w2 = (gField[4*(i*Width+j)+2]-gField[4*(i*Width+j)+1])
+          *(gField[4*(i*Width+j)+2]-gField[4*(i*Width+j)+1]);
+          
+      *dy  = 9.*w2*Y[i];
+      *dx  = 9.*w2*X[j];
+
+      w2 = (gField[4*((i+ik)*Width+j)+2]-gField[4*((i+ik)*Width+j)+1])
+          *(gField[4*((i+ik)*Width+j)+2]-gField[4*((i+ik)*Width+j)+1]);
+      
+      *dy += 3.*w2*Y[i+ik];
+      *dx += 3.*w2*X[j];
+
+      w2 = (gField[4*(i*Width+(j+jk))+2]-gField[4*(i*Width+(j+jk))+1])
+          *(gField[4*(i*Width+(j+jk))+2]-gField[4*(i*Width+(j+jk))+1]);
+      
+      *dy += 3.*w2*Y[i];
+      *dx += 3.*w2*X[j+jk];
+
+
+      w2 = (gField[4*((i+ik)*Width+(j+jk))+2]-gField[4*((i+ik)*Width+(j+jk))+1])
+          *(gField[4*((i+ik)*Width+(j+jk))+2]-gField[4*((i+ik)*Width+(j+jk))+1]);
+      
+      *dy += 1.*w2*Y[i];
+      *dx += 1.*w2*X[j+jk];
+    }
+  }
+
+  *dy *= fabs( (Y[i+ik]-Y[i])*(X[j+jk]-X[j]) )/64.0;
+  *dx *= fabs( (Y[i+ik]-Y[i])*(X[j+jk]-X[j]) )/64.0;
+
+  return 0;
+}
+
+int vortexExtw2wFromVC(int Height,int Width, int nCnect,double *X,
+                       double *Y,double *sField,double *gField,
+                       int *label,double **vCatalogOut)
+{
+  int i,j,k,err;
+  double G,a,b,rc,dx,dy,dA,dgradU[2][2]; // vorticity
+  double w[nCnect],A[nCnect],a0[nCnect],b0[nCnect];
+  double *vCatalog=NULL;
+
+  if((Height<=0)||(Width<=0))
+    return -1;
+  if(vCatalogOut==NULL)
+    return -2;
+  
+  vCatalog = *vCatalogOut;
+  
+  for(k=0;k<nCnect;k+=1){
+    w[k]=0.;A[k]=0.;a0[k]=0.;b0[k]=0.;
+  }
+
+  for(i=0;i<Height;i+=1)
+    for(j=0;j<Width;j+=1){
+      k=label[i*Width+j];
+
+      if((k>=0)&&(k<nCnect)){
+        // ++ quadrant        
+        err=add_dgradU(Height,Width,i,j,1,1,gField,dgradU,X,Y);
+        if(err!=0) return err;
+        w[k] += dgradU[1][0]-dgradU[0][1];
+        
+        err=add_w2_dxdy(Height,Width,i,j,1,1,gField,&dx,&dy,X,Y);
+        if(err!=0) return err;
+        a0[k] += dx;
+        b0[k] += dy;
+
+        err=add_dA(Height,Width,i,j,k,1,1,gField,label,&dA,X,Y);
+        if(err!=0) return err;
+        A[k] += dA;
+        
+        /*************************************************/
+        
+        // -+ quadrant
+        err=add_dgradU(Height,Width,i,j,-1,1,gField,dgradU,X,Y);
+        if(err!=0) return err;
+        w[k] += dgradU[1][0]-dgradU[0][1];
+        
+        err=add_w2_dxdy(Height,Width,i,j,-1,1,gField,&dx,&dy,X,Y);
+        if(err!=0) return err;
+        a0[k] += dx;
+        b0[k] += dy;
+
+        err=add_dA(Height,Width,i,j,k,-1,1,gField,label,&dA,X,Y);
+        if(err!=0) return err;
+        A[k] += dA;
+        
+        /*************************************************/
+
+        // +- quadrant
+        err=add_dgradU(Height,Width,i,j,1,-1,gField,dgradU,X,Y);
+        if(err!=0) return err;
+        w[k] += dgradU[1][0]-dgradU[0][1];
+        
+        err=add_w2_dxdy(Height,Width,i,j,1,-1,gField,&dx,&dy,X,Y);
+        if(err!=0) return err;
+        a0[k] += dx;
+        b0[k] += dy;
+
+        err=add_dA(Height,Width,i,j,k,1,-1,gField,label,&dA,X,Y);
+        if(err!=0) return err;
+        A[k] += dA;
+        
+        /*************************************************/
+        
+        // -- quadrant
+        err=add_dgradU(Height,Width,i,j,-1,-1,gField,dgradU,X,Y);
+        if(err!=0) return err;
+        w[k] += dgradU[1][0]-dgradU[0][1];
+        
+        err=add_w2_dxdy(Height,Width,i,j,-1,-1,gField,&dx,&dy,X,Y);
+        if(err!=0) return err;
+        a0[k] += dx;
+        b0[k] += dy;
+
+        err=add_dA(Height,Width,i,j,k,1,-1,gField,label,&dA,X,Y);
+        if(err!=0) return err;
+        A[k] += dA;
+        
+        /*************************************************/
+      }
+    }
+
+  for(k=0;k<nCnect;k+=1){
+    // 0.977816 corrects for gridsize
+    rc= sqrt(A[k]/M_PI)*(sqrtf(2.));//0.977816); // Constant comming from 
+                                                 //  lamb-oseen vortex;
+    if(fabs(w[k])>0.){
+      a=a0[k]/w[k]; 
+      b=b0[k]/w[k];
+    }
+    else{
+      a=X[0];
+      b=Y[0];
+    }
+    
+    G = 2.541494083*w[k]; // 2.541494083 = 1/(1-1/sqrt(e)) 
+                          // ... should correct for finite grid size?
+    
+    vCatalog[4*k+0] = G;
+    vCatalog[4*k+1] = rc;
+    vCatalog[4*k+2] = a;
+    vCatalog[4*k+3] = b;
+  }
+
+  *vCatalogOut=vCatalog;
+
+  return 0;
+}

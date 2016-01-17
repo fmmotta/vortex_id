@@ -43,8 +43,9 @@ int main(int argc,char **argv){
   double Gmin=1.,Gmax=20.,rmin=0.5,rmax=1.0,threshold=0.5;
   double xmin[2]={-9.,-9.},xmax[2]={9.,9.},x0[2],dx[2],xf[2];
   double *parVortex=NULL,cutoff=0.,t,t0,dt;
-  double *sField=NULL,*gField=NULL,*g2Field=NULL,*uField=NULL;
-  double *uBuff=NULL,*Xbuff=NULL,*Ybuff=NULL,*X=NULL,*Y=NULL,*Z=NULL,*ux=NULL;
+  double *sField=NULL,*gField=NULL,*g2Field=NULL,*uField=NULL,*X,*Y;
+  double *uBuff=NULL,*Xbuff=NULL,*Ybuff=NULL,*Xload=NULL,*Yload=NULL;
+  double *Zload=NULL,*ux=NULL;
   double *uy=NULL,*uxxy=NULL,*uxyy=NULL,*uxxx=NULL,*uyyy=NULL;
   double v0y0 = 0.00,*vCatalog=NULL,*rCatalog=NULL;
   double hGmin=0.,hGmax=0.,hRcMin=0.,hRcMax=0.;
@@ -187,10 +188,12 @@ int main(int argc,char **argv){
   fieldAlloc( uyyy ,2*Height*Width,double);
   fieldAlloc(uBuff ,2*(Height+2*padWidth)*(Width+2*padWidth),double);
   fieldAlloc(X,Nx+1,double);
-  fieldAlloc(Xbuff,Width+2*padWidth,double);
   fieldAlloc(Y,Ny+1,double);
+  fieldAlloc(Xbuff,Width+2*padWidth,double);
   fieldAlloc(Ybuff,Height+2*padWidth,double);
-  fieldAlloc(Z,Nz+1,double);
+  fieldAlloc(Xload,Nx+1,double);
+  fieldAlloc(Yload,Ny+1,double);
+  fieldAlloc(Zload,Nz+1,double);
 
   dbgPrint(5,0);
 
@@ -253,16 +256,31 @@ int main(int argc,char **argv){
 
   sprintf(filename,"%s/constant/polyMesh/points",foamFolder);
   nFile = fopen(filename,"r");
-  err=loadAxis(nFile,Nx,Ny,Nz,X,Y,Z);
+  err=loadAxis(nFile,Nx,Ny,Nz,Xload,Yload,Zload);
   if(err!=0)
     return err;
   fclose(nFile);
 
-  for(i=0;i<Height;i+=1)
-    Y[i] = (Y[i]+Y[i+1])/2.;
-
-  for(j=0;j<Width;j+=1)
-    X[j] = (X[j]+X[j+1])/2.;
+  if(planeType==0){
+    for(i=0;i<Height;i+=1)
+      Y[i] = (Yload[i]+Yload[i+1])/2.;
+    for(j=0;j<Width;j+=1)
+      X[j] = (Xload[j]+Xload[j+1])/2.;
+  }
+  else if(planeType==1){
+    for(i=0;i<Height;i+=1)
+      Y[i] = (Yload[i]+Yload[i+1])/2.;
+    for(j=0;j<Width;j+=1)
+      X[j] = (Zload[j]+Zload[j+1])/2.; 
+  }
+  else if(planeType==2){
+    for(i=0;i<Height;i+=1)
+      Y[i] = (Zload[i]+Zload[i+1])/2.;
+    for(j=0;j<Width;j+=1)
+      X[j] = (Xload[j]+Xload[j+1])/2.; 
+  }
+  else 
+    printf("non-identified plane type\n");
 
   err = XtoXbuff(Width,X,Xbuff,padWidth);
   if(err!=0)
@@ -279,10 +297,10 @@ int main(int argc,char **argv){
     
     t=t0+((double)n)*dt;
 
-    if(n%10 == 0){
+    //if(n%10 == 0){
       printf("%d runs have passed\n",n);
       fflush(vortexFile);
-    }
+    //}
 
     for(i=0;i<2*Height*Width;i+=1)
       uField[i]=0.;
@@ -312,17 +330,44 @@ int main(int argc,char **argv){
     
     dbgPrint(15,2);
     
-    k=planeIndex;
-    dadosout=fopen("data/refU.dat","w");
-    for(j=0;j<Height;j+=1)
-      for(i=0;i<Width;i+=1){
-        uField[2*(j*Width+i)+0] = node[id(i,j,k)].u;
-        uField[2*(j*Width+i)+1] = node[id(i,j,k)].v;
-        fprintf(dadosout,"%lf %lf\n",uField[2*(j*Width+i)+0]
-                                  ,uField[2*(j*Width+i)+1]);
-      }
-
-    fclose(dadosout);
+    sprintf(filename,"%s/refU-%.4f.dat",folder,t);
+    dadosout=NULL;
+    if(planeType==0){
+      k=planeIndex;
+      dadosout=fopen(folder,"w");
+      for(j=0;j<Height;j+=1)
+        for(i=0;i<Width;i+=1){
+          uField[2*(j*Width+i)+0] = node[id(i,j,k)].u;
+          uField[2*(j*Width+i)+1] = node[id(i,j,k)].v;
+          fprintf(dadosout,"%lf %lf\n",uField[2*(j*Width+i)+0]
+                                      ,uField[2*(j*Width+i)+1]);
+        }
+    }
+    else if(planeType==1){
+      i=planeIndex;
+      dadosout=fopen(folder,"w");
+      for(j=0;j<Height;j+=1)
+        for(k=0;k<Width;k+=1){
+          uField[2*(j*Width+k)+0] = node[id(i,j,k)].w;
+          uField[2*(j*Width+k)+1] = node[id(i,j,k)].v;
+          fprintf(dadosout,"%lf %lf\n",uField[2*(j*Width+i)+0]
+                                      ,uField[2*(j*Width+i)+1]);
+        }
+    }
+    else if(planeType==2){
+      j=planeIndex;
+      dadosout=fopen(folder,"w");
+      for(k=0;k<Height;k+=1)
+        for(i=0;i<Width;i+=1){
+          uField[2*(k*Width+i)+0] = node[id(i,j,k)].w;
+          uField[2*(k*Width+i)+1] = node[id(i,j,k)].v;
+          fprintf(dadosout,"%lf %lf\n",uField[2*(j*Width+i)+0]
+                                      ,uField[2*(j*Width+i)+1]);
+        }
+    }
+    
+    if(dadosout!=NULL)
+     fclose(dadosout);
 
     dbgPrint(15,3);
 
@@ -471,6 +516,9 @@ int main(int argc,char **argv){
   if(uxxy!=NULL) free(uxxy);
   if(uxyy!=NULL) free(uxyy);
   if(parVortex!=0) free(parVortex);
+  if(Xload!=NULL) free(Xload);
+  if(Yload!=NULL) free(Yload);
+  if(Zload!=NULL) free(Zload);
 
   for(i=0;i<NumCls;i+=1)
     free(eqClass[i]);
