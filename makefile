@@ -8,8 +8,7 @@ INC_DIR = -Isrc -Isrc/inih
 CFLAGS = -c -Wall -O3 $(INC_DIR) 
 LIBS = -lm -lgsl -lgslcblas
 
-include src/tests/tests.mk
-
+#include src/tests/tests.mk
 
 default: main
 all: main othermain tests
@@ -30,12 +29,6 @@ openFoamEssay: openFoamEssay.o lambdaInit.o floodFill.o vortexGen.o mt64.o vorte
 
 obj/%.o: src/%.c
 	$(CC) $(CFLAGS) $^ -o $@
-
-obj/lambdaInit.o: src/lambdaInit.c src/lambdaInit.h
-	$(CC) $(CFLAGS) src/lambdaInit.c -o $@
-
-obj/floodFill.o: src/floodFill.c src/floodFill.h
-	$(CC) $(CFLAGS) src/floodFill.c -o $@
 
 obj/mt64.o: src/mt19937-64.c src/mt64.h
 	$(CC) $(CFLAGS) src/mt19937-64.c -o $@
