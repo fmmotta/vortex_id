@@ -9,6 +9,7 @@ CFLAGS = -c -Wall -O3 $(INC_DIR)
 LIBS = -lm -lgsl -lgslcblas
 
 #include src/tests/tests.mk
+#just adding a test to git
 
 default: main
 all: main othermain tests
