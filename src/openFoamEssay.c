@@ -19,8 +19,8 @@
 #include "inputManager.h"
 #include "essayHandler.h"
 
-#define DEBUG_MODE false
-#define DEBUG_PRINT false
+#define DEBUG_MODE true
+#define DEBUG_PRINT true
 
 #define dbgPrint(num,num2) if(DEBUG_PRINT) printf("check point - %d-%d\n",(num),(num2))
 
@@ -330,11 +330,21 @@ int main(int argc,char **argv){
     
     dbgPrint(15,2);
     
+    if(DEBUG_PRINT)
+      printf("folder = %s\n",folder);
     sprintf(filename,"%s/refU-%.4f.dat",folder,t);
     dadosout=NULL;
+    dadosout=fopen(filename,"w");
+    if(dadosout==NULL){
+      printf("Could not open Folder\n");
+      perror("Error opening reference file\n");
+      exit(EXIT_FAILURE);
+    }
+
     if(planeType==0){
+      if(DEBUG_PRINT)
+        printf("XY plane\n");
       k=planeIndex;
-      dadosout=fopen(folder,"w");
       for(j=0;j<Height;j+=1)
         for(i=0;i<Width;i+=1){
           uField[2*(j*Width+i)+0] = node[id(i,j,k)].u;
@@ -344,8 +354,9 @@ int main(int argc,char **argv){
         }
     }
     else if(planeType==1){
+      if(DEBUG_PRINT)
+        printf("YZ plane\n");
       i=planeIndex;
-      dadosout=fopen(folder,"w");
       for(j=0;j<Height;j+=1)
         for(k=0;k<Width;k+=1){
           uField[2*(j*Width+k)+0] = node[id(i,j,k)].w;
@@ -355,8 +366,9 @@ int main(int argc,char **argv){
         }
     }
     else if(planeType==2){
+      if(DEBUG_PRINT)
+        printf("XZ plane\n");
       j=planeIndex;
-      dadosout=fopen(folder,"w");
       for(k=0;k<Height;k+=1)
         for(i=0;i<Width;i+=1){
           uField[2*(k*Width+i)+0] = node[id(i,j,k)].w;

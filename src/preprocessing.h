@@ -1,5 +1,5 @@
 
-#define DEBUG_MODE false
+//#define DEBUG_MODE false
 
 #define id(i,j,k) (Nx*Ny*(k)+Nx*(j)+(i))
 

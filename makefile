@@ -22,10 +22,10 @@ main: obj/main.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/mt64.o obj
 main%: obj/main%.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/mt64.o obj/vortexExtraction.o src/lambdaInit.h src/floodFill.h src/vortexGen.h src/vortexExtraction.h src/mt64.h
 	$(CC) -o bin/$@ $^ $(LIBS)
 
-sampledVortexEssayFull: sampledVortexEssayFull.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o ini.o inputManager.o essayHandler.o stencilExtended.o vortexExtractionExtend.o
+sampledVortexEssayFull: obj/sampledVortexEssayFull.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/mt64.o obj/vortexExtraction.o obj/ini.o obj/inputManager.o obj/essayHandler.o obj/stencilExtended.o obj/vortexExtractionExtend.o
 	$(CC) -o bin/sampledVortexEssayFull $^ $(LIBS)
 
-openFoamEssay: openFoamEssay.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o ini.o inputManager.o essayHandler.o stencilExtended.o vortexExtractionExtend.o preprocessing.o
+openFoamEssay: obj/openFoamEssay.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/mt64.o obj/vortexExtraction.o obj/ini.o obj/inputManager.o obj/essayHandler.o obj/stencilExtended.o obj/vortexExtractionExtend.o obj/preprocessing.o
 	$(CC) -o bin/openFoamEssay $^ $(LIBS)
 
 obj/%.o: src/%.c
@@ -37,7 +37,13 @@ obj/%.o: src/%.c
 obj/mt64.o: src/mt19937-64.c src/mt64.h
 	$(CC) $(CFLAGS) src/mt19937-64.c -o $@
 
+mt64.o: src/mt19937-64.c src/mt64.h
+	$(CC) $(CFLAGS) src/mt19937-64.c -o $@
+
 obj/ini.o: src/inih/ini.c
+	$(CC) $(CFLAGS) $< -o $@
+
+ini.o: src/inih/ini.c
 	$(CC) $(CFLAGS) $< -o $@
 
 clean:
