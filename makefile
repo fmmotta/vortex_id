@@ -31,6 +31,9 @@ openFoamEssay: openFoamEssay.o lambdaInit.o floodFill.o vortexGen.o mt64.o vorte
 obj/%.o: src/%.c
 	$(CC) $(CFLAGS) $^ -o $@
 
+%.o: src/%.c
+	$(CC) $(CFLAGS) $^ -o obj/$@
+
 obj/mt64.o: src/mt19937-64.c src/mt64.h
 	$(CC) $(CFLAGS) src/mt19937-64.c -o $@
 
