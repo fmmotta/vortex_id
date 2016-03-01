@@ -129,6 +129,9 @@ int main(int argc,char **argv){
   /* End Loading Configuration */
   
   fieldAlloc(uField,2*Height*Width,double);
+  fieldAlloc(X,Nx,double);
+  fieldAlloc(Y,Ny,double);
+  fieldAlloc(Z,Nz,double);  
   fieldAlloc(Xload,Nx+1,double);
   fieldAlloc(Yload,Ny+1,double);
   fieldAlloc(Zload,Nz+1,double);
@@ -178,26 +181,26 @@ int main(int argc,char **argv){
   for(n=0;n<Nsnapshots;n+=1){
     
     printf("%d runs have passed\n",n);
-
+    
     t=t0+((double)n)*dt;
         
     for(i=0;i<2*Height*Width;i+=1)
       uField[i]=0.;
     
     dbgPrint(5,0);
-
+    
     sprintf(filename,"%s/%.4f/U",foamFolder,t);
     uFile = fopen(filename,"r");
     if(uFile==NULL)
       printf("problems opening uFile - %d\n",n);
-
+    
     sprintf(filename,"%s/%.4f/p",foamFolder,t);
     pFile = fopen(filename,"r");
     if(pFile==NULL)
       printf("problems opening pFile - %d\n",n);
     
     dbgPrint(5,1);
-
+    
     err=loadFields(Nx,Ny,Nz,uFile,pFile,node);
     if(err!=0)
       printf("Problems with loadFields\n");
@@ -209,21 +212,7 @@ int main(int argc,char **argv){
     if(DEBUG_PRINT)
       printf("folder = %s\n",folder);
     
-    if(planeType==0)
-      sprintf(filename,"%s/plane-z%3d-%.4f.dat",folder,planeIndex,t);
-    else if (planeType==1)
-      sprintf(filename,"%s/plane-x%3d-%.4f.dat",folder,planeIndex,t);
-    else if(planeType==2)
-      sprintf(filename,"%s/plane-y%3d-%.4f.dat",folder,planeIndex,t);
-    else
-      printf("Plane type not non-recognized\n");
-
     dadosout=NULL;
-    dadosout=fopen(filename,"w");
-    if(dadosout==NULL){
-      printf("Could not open file\n");
-      exit(EXIT_FAILURE);
-    }
     
     if(planeType==0){
       if(DEBUG_PRINT)
@@ -231,6 +220,14 @@ int main(int argc,char **argv){
       
       if(planeIndex>=0){
         k=planeIndex;
+
+      	sprintf(filename,"%s/plane-z%3d-%.4f.dat",folder,k,t);
+      	dadosout=fopen(filename,"w");
+        if(dadosout==NULL){
+          printf("Could not open file\n");
+          exit(EXIT_FAILURE);
+        }
+
         for(j=0;j<Height;j+=1)
           for(i=0;i<Width;i+=1){
             uField[2*(j*Width+i)+0] = node[id(i,j,k)].u;
@@ -238,10 +235,20 @@ int main(int argc,char **argv){
             fprintf(dadosout,"%lf %lf\n",uField[2*(j*Width+i)+0]
                                         ,uField[2*(j*Width+i)+1]);
           }
+        
+        if(dadosout!=NULL){fclose(dadosout);dadosout=NULL;}
       }
       else{
       	for(pn=0;pn<planeNum;pn+=1){
       	  k=pln[pn];
+      	  
+      	  sprintf(filename,"%s/plane-z%3d-%.4f.dat",folder,k,t);
+      	  dadosout=fopen(filename,"w");
+          if(dadosout==NULL){
+            printf("Could not open file\n");
+            exit(EXIT_FAILURE);
+          }
+
           for(j=0;j<Height;j+=1)
             for(i=0;i<Width;i+=1){
               uField[2*(j*Width+i)+0] = node[id(i,j,k)].u;
@@ -249,6 +256,8 @@ int main(int argc,char **argv){
               fprintf(dadosout,"%lf %lf\n",uField[2*(j*Width+i)+0]
                                           ,uField[2*(j*Width+i)+1]);
             }
+          
+          if(dadosout!=NULL){fclose(dadosout);dadosout=NULL;}
         }
       }
     }
@@ -258,6 +267,14 @@ int main(int argc,char **argv){
       
       if(planeIndex>=0){
         i=planeIndex;
+        
+        sprintf(filename,"%s/plane-x%3d-%.4f.dat",folder,planeIndex,t);
+      	dadosout=fopen(filename,"w");
+        if(dadosout==NULL){
+          printf("Could not open file\n");
+          exit(EXIT_FAILURE);
+        }
+
         for(j=0;j<Height;j+=1)
           for(k=0;k<Width;k+=1){
             uField[2*(j*Width+k)+0] = node[id(i,j,k)].w;
@@ -265,10 +282,20 @@ int main(int argc,char **argv){
             fprintf(dadosout,"%lf %lf\n",uField[2*(j*Width+k)+0]
                                         ,uField[2*(j*Width+k)+1]);
           }
+        
+        if(dadosout!=NULL){fclose(dadosout);dadosout=NULL;}
       }
       else{
       	for(pn=0;pn<planeNum;pn+=1){
           i=pln[pn];
+      	  
+      	  sprintf(filename,"%s/plane-x%3d-%.4f.dat",folder,i,t);
+      	  dadosout=fopen(filename,"w");
+          if(dadosout==NULL){
+            printf("Could not open file\n");
+            exit(EXIT_FAILURE);
+          }
+
           for(j=0;j<Height;j+=1)
             for(k=0;k<Width;k+=1){
               uField[2*(j*Width+k)+0] = node[id(i,j,k)].w;
@@ -276,27 +303,71 @@ int main(int argc,char **argv){
               fprintf(dadosout,"%lf %lf\n",uField[2*(j*Width+k)+0]
                                           ,uField[2*(j*Width+k)+1]);
             }
+          
+          if(dadosout!=NULL){fclose(dadosout);dadosout=NULL;}
         }
       }
     }
     else if(planeType==2){
       if(DEBUG_PRINT)
         printf("XZ plane\n");
-      j=planeIndex;
-      for(k=0;k<Height;k+=1)
-        for(i=0;i<Width;i+=1){
-          uField[2*(k*Width+i)+0] = node[id(i,j,k)].w;
-          uField[2*(k*Width+i)+1] = node[id(i,j,k)].v;
-          fprintf(dadosout,"%lf %lf\n",uField[2*(k*Width+i)+0]
-                                      ,uField[2*(k*Width+i)+1]);
+      
+      
+      if(planeIndex>=0){
+        j=planeIndex;
+     
+        sprintf(filename,"%s/plane-y%3d-%.4f.dat",folder,planeIndex,t);
+        dadosout=fopen(filename,"w");
+        if(dadosout==NULL){
+          printf("Could not open file\n");
+          exit(EXIT_FAILURE);
         }
+
+        for(k=0;k<Height;k+=1)
+          for(i=0;i<Width;i+=1){
+            uField[2*(k*Width+i)+0] = node[id(i,j,k)].w;
+            uField[2*(k*Width+i)+1] = node[id(i,j,k)].v;
+            fprintf(dadosout,"%lf %lf\n",uField[2*(k*Width+i)+0]
+                                        ,uField[2*(k*Width+i)+1]);
+          }
+        
+        if(dadosout!=NULL){fclose(dadosout);dadosout=NULL;}
+      }
+      else{
+      	for(pn=0;pn<planeNum;pn+=1){
+          j=pln[pn];
+      	  
+      	  sprintf(filename,"%s/plane-y%3d-%.4f.dat",folder,j,t);
+      	  dadosout=fopen(filename,"w");
+          if(dadosout==NULL){
+            printf("Could not open file\n");
+            exit(EXIT_FAILURE);
+          }
+
+          for(k=0;k<Height;k+=1)
+            for(i=0;i<Width;i+=1){
+              uField[2*(k*Width+i)+0] = node[id(i,j,k)].w;
+              uField[2*(k*Width+i)+1] = node[id(i,j,k)].v;
+              fprintf(dadosout,"%lf %lf\n",uField[2*(k*Width+i)+0]
+                                          ,uField[2*(k*Width+i)+1]);
+            }
+          
+          if(dadosout!=NULL){fclose(dadosout);dadosout=NULL;}
+        }
+      }
     }
     
-    if(dadosout!=NULL)
-     fclose(dadosout);
-
     dbgPrint(5,3);
   }
+
+  free(uField);
+  free(X);
+  free(Y);
+  free(Z);
+  free(Xload);
+  free(Yload);
+  free(Zload);
+  free(node);
 
   return 0;
 }
