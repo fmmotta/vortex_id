@@ -361,8 +361,8 @@ int main(int argc,char **argv){
         for(k=0;k<Width;k+=1){
           uField[2*(j*Width+k)+0] = node[id(i,j,k)].w;
           uField[2*(j*Width+k)+1] = node[id(i,j,k)].v;
-          fprintf(dadosout,"%lf %lf\n",uField[2*(j*Width+i)+0]
-                                      ,uField[2*(j*Width+i)+1]);
+          fprintf(dadosout,"%lf %lf\n",uField[2*(j*Width+k)+0]
+                                      ,uField[2*(j*Width+k)+1]);
         }
     }
     else if(planeType==2){
@@ -373,13 +373,13 @@ int main(int argc,char **argv){
         for(i=0;i<Width;i+=1){
           uField[2*(k*Width+i)+0] = node[id(i,j,k)].w;
           uField[2*(k*Width+i)+1] = node[id(i,j,k)].v;
-          fprintf(dadosout,"%lf %lf\n",uField[2*(j*Width+i)+0]
-                                      ,uField[2*(j*Width+i)+1]);
+          fprintf(dadosout,"%lf %lf\n",uField[2*(k*Width+i)+0]
+                                      ,uField[2*(k*Width+i)+1]);
         }
     }
     
     if(dadosout!=NULL)
-     fclose(dadosout);
+      fclose(dadosout);
 
     dbgPrint(15,3);
 

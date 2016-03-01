@@ -30,7 +30,7 @@
 int main(int argc,char **argv){
   int Height=100,Width=100,Depth;
   int Nx,Ny,Nz,planeIndex,planeType,planeNum;
-  int i,j,k,err,pln[256];
+  int i,j,k,err,pln[256],pn;
   double *uField,*Xload,*Yload,*Zload,*X,*Y,*Z;
   char folder[100+1],tag[100+1],filename[400+1],foamFolder[200+1];
   FILE *dadosin,*dadosout,*uFile,*pFile,*nFile;
@@ -210,7 +210,14 @@ int main(int argc,char **argv){
       printf("folder = %s\n",folder);
     
     if(planeType==0)
-      sprintf(filename,"%s/plane-z%3d-%.4f.dat",folder,pln[0],t);
+      sprintf(filename,"%s/plane-z%3d-%.4f.dat",folder,planeIndex,t);
+    else if (planeType==1)
+      sprintf(filename,"%s/plane-x%3d-%.4f.dat",folder,planeIndex,t);
+    else if(planeType==2)
+      sprintf(filename,"%s/plane-y%3d-%.4f.dat",folder,planeIndex,t);
+    else
+      printf("Plane type not non-recognized\n");
+
     dadosout=NULL;
     dadosout=fopen(filename,"w");
     if(dadosout==NULL){
@@ -221,26 +228,56 @@ int main(int argc,char **argv){
     if(planeType==0){
       if(DEBUG_PRINT)
         printf("XY plane\n");
-      k=planeIndex;
-      for(j=0;j<Height;j+=1)
-        for(i=0;i<Width;i+=1){
-          uField[2*(j*Width+i)+0] = node[id(i,j,k)].u;
-          uField[2*(j*Width+i)+1] = node[id(i,j,k)].v;
-          fprintf(dadosout,"%lf %lf\n",uField[2*(j*Width+i)+0]
-                                      ,uField[2*(j*Width+i)+1]);
+      
+      if(planeIndex>=0){
+        k=planeIndex;
+        for(j=0;j<Height;j+=1)
+          for(i=0;i<Width;i+=1){
+            uField[2*(j*Width+i)+0] = node[id(i,j,k)].u;
+            uField[2*(j*Width+i)+1] = node[id(i,j,k)].v;
+            fprintf(dadosout,"%lf %lf\n",uField[2*(j*Width+i)+0]
+                                        ,uField[2*(j*Width+i)+1]);
+          }
+      }
+      else{
+      	for(pn=0;pn<planeNum;pn+=1){
+      	  k=pln[pn];
+          for(j=0;j<Height;j+=1)
+            for(i=0;i<Width;i+=1){
+              uField[2*(j*Width+i)+0] = node[id(i,j,k)].u;
+              uField[2*(j*Width+i)+1] = node[id(i,j,k)].v;
+              fprintf(dadosout,"%lf %lf\n",uField[2*(j*Width+i)+0]
+                                          ,uField[2*(j*Width+i)+1]);
+            }
         }
+      }
     }
     else if(planeType==1){
       if(DEBUG_PRINT)
         printf("YZ plane\n");
-      i=planeIndex;
-      for(j=0;j<Height;j+=1)
-        for(k=0;k<Width;k+=1){
-          uField[2*(j*Width+k)+0] = node[id(i,j,k)].w;
-          uField[2*(j*Width+k)+1] = node[id(i,j,k)].v;
-          fprintf(dadosout,"%lf %lf\n",uField[2*(j*Width+i)+0]
-                                      ,uField[2*(j*Width+i)+1]);
+      
+      if(planeIndex>=0){
+        i=planeIndex;
+        for(j=0;j<Height;j+=1)
+          for(k=0;k<Width;k+=1){
+            uField[2*(j*Width+k)+0] = node[id(i,j,k)].w;
+            uField[2*(j*Width+k)+1] = node[id(i,j,k)].v;
+            fprintf(dadosout,"%lf %lf\n",uField[2*(j*Width+k)+0]
+                                        ,uField[2*(j*Width+k)+1]);
+          }
+      }
+      else{
+      	for(pn=0;pn<planeNum;pn+=1){
+          i=pln[pn];
+          for(j=0;j<Height;j+=1)
+            for(k=0;k<Width;k+=1){
+              uField[2*(j*Width+k)+0] = node[id(i,j,k)].w;
+              uField[2*(j*Width+k)+1] = node[id(i,j,k)].v;
+              fprintf(dadosout,"%lf %lf\n",uField[2*(j*Width+k)+0]
+                                          ,uField[2*(j*Width+k)+1]);
+            }
         }
+      }
     }
     else if(planeType==2){
       if(DEBUG_PRINT)
@@ -250,8 +287,8 @@ int main(int argc,char **argv){
         for(i=0;i<Width;i+=1){
           uField[2*(k*Width+i)+0] = node[id(i,j,k)].w;
           uField[2*(k*Width+i)+1] = node[id(i,j,k)].v;
-          fprintf(dadosout,"%lf %lf\n",uField[2*(j*Width+i)+0]
-                                      ,uField[2*(j*Width+i)+1]);
+          fprintf(dadosout,"%lf %lf\n",uField[2*(k*Width+i)+0]
+                                      ,uField[2*(k*Width+i)+1]);
         }
     }
     
