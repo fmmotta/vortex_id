@@ -10,11 +10,12 @@ int initConfig(configVar *cfg){
   cfg->Gmin=0.; cfg->Gmax =0.; cfg->RcMin=0.; cfg->RcMax=0.;
   cfg->hNG=0; cfg->hNRc=0; cfg->hNa=0; cfg->hNb=0; cfg->hNN=0;
   cfg->Nx=0;cfg->Ny=0;cfg->Nz=0;cfg->pType=0;cfg->pIndex=0;
+  cfg->planeNum=0; 
   cfg->calcMode=-1; cfg->FOAMfolder=NULL;
   cfg->Glist=NULL; cfg->Rclist=NULL; 
   cfg->swThresh=0.; cfg->sndSwThresh=0.; cfg->cutoff=0.;
-  cfg->genFile=NULL; cfg->tag=NULL;
-  cfg->folder=NULL;
+  cfg->genFile=NULL; cfg->tag=NULL; cfg->pln=NULL;
+  cfg->folder=NULL;  
 
   return 0;
 }
@@ -28,6 +29,7 @@ int freeConfig(configVar *cfg){
   cfg->hNG=0; cfg->hNRc=0; cfg->hNa=0; cfg->hNb=0; cfg->hNN=0;
   cfg->Nx=0;cfg->Ny=0;cfg->Nz=0;cfg->pType=0;cfg->pIndex=0;
   cfg->Nsnapshots=0; cfg->t0 = 0.; cfg->dt=0.; cfg->calcMode-=-1;
+  cfg->planeNum=0; 
   
 
   if(cfg->Glist!=NULL)
@@ -40,12 +42,15 @@ int freeConfig(configVar *cfg){
     free(cfg->tag);
   if(cfg->folder!=NULL)
     free(cfg->folder);
+  if(cfg->pln!=0)
+    free(cfg->pln);
   if(cfg->FOAMfolder!=NULL)
     free(cfg->FOAMfolder);
 
   cfg->Glist=NULL; cfg->Rclist=NULL; 
   cfg->genFile=NULL; cfg->tag=NULL;
   cfg->folder=NULL;cfg->FOAMfolder=NULL;
+  cfg->pln=NULL;
 
   return 0;  
 }
@@ -163,6 +168,20 @@ int vortexIdHandler(void* user, const char* section,
     vConfig->pType=atoi(value);
   else if(MATCH("openFOAM","Plane-Index"))
     vConfig->pIndex=atoi(value);
+  else if(MATCH("openFOAM","Plane-Number"))
+    vConfig->planeNum=atoi(value);
+  else if(MATCH("openFOAM","Plane-List")){
+    if(vConfig->pln==NULL)
+      vConfig->pln=(int*)malloc((vConfig->planeNum)*sizeof(int));
+    
+    p=strtok(value," ");
+    i=0;
+    while(p!=NULL){
+      vConfig->pln[i] = atof(p);
+      i=i+1;
+      p = strtok(NULL," ");
+    }
+  }
   else if(MATCH("openFOAM","Nsnapshots"))
     vConfig->Nsnapshots=atoi(value);
   else if(MATCH("openFOAM","t0"))
@@ -228,6 +247,22 @@ int printConfig(configVar *cfg){
   printf("G Interval: [%.f , %f)\n",cfg->hGmin,cfg->hGmax);
   printf("Rc Interval: [%.f , %f)\n",cfg->hRcMin,cfg->hRcMax);
   printf("N max value: %d\n",cfg->hNmax);
+
+  printf("\nOpenFOAM parameters\n");
+  printf("OpenFOAM folder: %s\n",cfg->FOAMfolder);
+  printf("OpenFOAM Nx : %d\n",cfg->Nx);
+  printf("OpenFOAM Ny : %d\n",cfg->Ny);
+  printf("OpenFOAM Nz : %d\n",cfg->Nz);
+  printf("Plane-Type  : %d\n",cfg->pType);
+  printf("Plane-Index : %d\n",cfg->pIndex);
+  printf("Plane-Number: %d\n",cfg->planeNum);
+  printf("Plane-List: ");
+  for(k=0;k<cfg->planeNum;k+=1)
+    printf(" %d,",cfg->pln[k]);
+  printf("\n");
+  printf("Number of Snapshots: %d\n",cfg->Nsnapshots);
+  printf("Initial Time: %f\n",cfg->t0);
+  printf("Time step: %f\n",cfg->dt);
 
   return 0;
 }

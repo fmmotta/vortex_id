@@ -4,7 +4,7 @@ typedef struct configVar {
   int Width,Height,nVortex,nRuns;
   int runType,genType,dim,adaptive,calcMode;
   int numG,numRc,hNG,hNRc,hNa,hNb,hNN,hNmax;
-  int Nx,Ny,Nz,pType,pIndex,Nsnapshots;
+  int Nx,Ny,Nz,pType,pIndex,Nsnapshots,planeNum,*pln;
   double Gmin,Gmax,RcMin,RcMax;
   double *Glist,*Rclist,x0[2],xf[2];
   double swThresh, sndSwThresh,cutoff,v0y0;
