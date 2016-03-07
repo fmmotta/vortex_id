@@ -70,13 +70,16 @@ int fprintSafeVortexMoments(FILE *dadosout, int run,int size,int nVortex,
   int i;
   double Xcm,Ycm,rg;
   double L1,L2,trM2,detM;
+  
+  if(DEBUG_PRINT)
+    printf("nVortex=%d\n",nVortex);
 
-  if(dadosout==NULL || run<0 || nVortex<=0 || rCatalog==NULL || size <=8)
+  if(dadosout==NULL || run<0 || nVortex<=0 || rCatalog==NULL || size !=8)
     return 1;
 
   for(i=0;i<nVortex;i+=1){
-    if(rCatalog[size*i+2] < X[0] || rCatalog[size*i+2] > X[Width-1] ||
-       rCatalog[size*i+3] < Y[0] || rCatalog[size*i+3] > Y[Height-1])
+    if(rCatalog[8*i+2] < X[0] || rCatalog[8*i+2] > X[Width-1] ||
+       rCatalog[8*i+3] < Y[0] || rCatalog[8*i+3] > Y[Height-1])
       continue;
     Xcm = rCatalog[size*i+2];
     Ycm = rCatalog[size*i+3];
@@ -119,9 +122,8 @@ int fprintSafeVortexMoments(FILE *dadosout, int run,int size,int nVortex,
       fprintf(dadosout,"%f ", 0.);
     }
 
-    printf("\n");
+    fprintf(dadosout,"\n");
   }
-  fprintf(dadosout,"\n");
 
   return 0;
 }
@@ -618,7 +620,7 @@ int main(int argc,char **argv){
 
     vortexQuickSort(vCatalog,nCnect,&greaterAbsCirculation);
     
-    vortexAdaptiveQuickSort(rCatalog,nCnect,8,&greaterAbsCirculation);
+    //vortexAdaptiveQuickSort(rCatalog,nCnect,8,&greaterAbsCirculation);
 
     dbgPrint(17,0);
 
@@ -633,20 +635,20 @@ int main(int argc,char **argv){
       sprintf(filename,"%s/vortices-%.4f.txt",folder,t);
       dadosVout = fopen(filename,"w");   
       err=fprintVortex(dadosVout,n,nCnect,vCatalog);
-      if(err!=0){printf("problems\n"); return -6;}
+      if(err!=0){printf("problems vortices\n"); return -6;}
       fclose(dadosVout);
 
       
       sprintf(filename,"%s/vorticesSafe-%.4f.txt",folder,t);
       dadosVout = fopen(filename,"w");
       err=fprintSafeVortex(dadosVout,n,nCnect,vCatalog,Height,Width,X,Y);
-      if(err!=0){printf("problems\n"); return -6;}
+      if(err!=0){printf("problems vorticesSafe\n"); return -6;}
       fclose(dadosVout);
       
       sprintf(filename,"%s/vortexSafeMoments-%.4f.txt",folder,t);
       dadosVout = fopen(filename,"w");
       err=fprintSafeVortexMoments(dadosout,n,8,nVortex,rCatalog,Height,Width,X,Y);
-      if(err!=0){printf("problems\n"); return -6;}
+      if(err!=0){printf("problems vortexSafeMoments\n"); return -6;}
       fclose(dadosVout);
     }
 
