@@ -342,8 +342,8 @@ int main(int argc,char **argv){
 
         for(k=0;k<Height;k+=1)
           for(i=0;i<Width;i+=1){
-            uField[2*(k*Width+i)+0] = node[id(i,j,k)].u;
-            uField[2*(k*Width+i)+1] = node[id(i,j,k)].w;
+            uField[2*(k*Width+i)+0] = node[id(i,j,k)].w;
+            uField[2*(k*Width+i)+1] = node[id(i,j,k)].u;
             fprintf(dadosout,"%lf %lf\n",uField[2*(k*Width+i)+0]
                                         ,uField[2*(k*Width+i)+1]);
           }
@@ -363,8 +363,8 @@ int main(int argc,char **argv){
 
           for(k=0;k<Height;k+=1)
             for(i=0;i<Width;i+=1){
-              uField[2*(k*Width+i)+0] = node[id(i,j,k)].u;
-              uField[2*(k*Width+i)+1] = node[id(i,j,k)].w;
+              uField[2*(k*Width+i)+0] = node[id(i,j,k)].w;
+              uField[2*(k*Width+i)+1] = node[id(i,j,k)].u;
               fprintf(dadosout,"%lf %lf\n",uField[2*(k*Width+i)+0]
                                           ,uField[2*(k*Width+i)+1]);
             }

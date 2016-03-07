@@ -325,9 +325,9 @@ inline int add_dx2dy2(int Height,int Width, int i,int j,int ik,int jk,
       *YX-= 9.*gField[4*(     i*Width  + j  )+1]*Y[i   ]*X[j   ]+
             3.*gField[4*((i+ik)*Width  + j  )+1]*Y[i+ik]*X[j   ];
 
-      *YY = 9.*gField[4*(     i*Width  + j  )+2]*Y[i+ik]*Y[i+ik]+
+      *YY = 9.*gField[4*(     i*Width  + j  )+2]*Y[i   ]*Y[i   ]+
             3.*gField[4*((i+ik)*Width  + j  )+2]*Y[i+ik]*Y[i+ik];
-      *YY-= 9.*gField[4*(     i*Width  + j  )+1]*Y[i+ik]*Y[i+ik]+
+      *YY-= 9.*gField[4*(     i*Width  + j  )+1]*Y[i   ]*Y[i   ]+
             3.*gField[4*((i+ik)*Width  + j  )+1]*Y[i+ik]*Y[i+ik];
     }
     else{
@@ -348,15 +348,6 @@ inline int add_dx2dy2(int Height,int Width, int i,int j,int ik,int jk,
             3.*gField[4*(     i*Width+(j+jk))+1]*X[j+jk]*Y[i   ]+
             3.*gField[4*((i+ik)*Width  + j  )+1]*X[j   ]*Y[i+ik]+
             1.*gField[4*((i+ik)*Width+(j+jk))+1]*X[j+jk]*Y[i+ik];
-
-      *YX = 9.*gField[4*(     i*Width  + j  )+2]*Y[i   ]*X[i   ]+
-            3.*gField[4*(     i*Width+(j+jk))+2]*Y[i   ]*X[i+jk]+
-            3.*gField[4*((i+ik)*Width  + j  )+2]*Y[i+ik]*X[i   ]+
-            1.*gField[4*((i+ik)*Width+(j+jk))+2]*Y[i+ik]*X[i+jk];
-      *YX-= 9.*gField[4*(     i*Width  + j  )+1]*Y[i   ]*X[j   ]+
-            3.*gField[4*(     i*Width+(j+jk))+1]*Y[i   ]*X[j+jk]+
-            3.*gField[4*((i+ik)*Width  + j  )+1]*Y[i+ik]*X[j   ]+
-            1.*gField[4*((i+ik)*Width+(j+jk))+1]*Y[i+ik]*X[j+jk];
 
       *YX = 9.*gField[4*(     i*Width  + j  )+2]*Y[i   ]*X[i   ]+
             3.*gField[4*(     i*Width+(j+jk))+2]*Y[i   ]*X[i+jk]+
@@ -388,11 +379,11 @@ inline int add_dx2dy2(int Height,int Width, int i,int j,int ik,int jk,
 
 int secondMomentFromVortCurv(int Height,int Width, int nCnect,double *X,double *Y,
                              double *sField,double *gField,int *label,
-                             double *vCatalog, double *gyreRadiusOut)
+                             double *vCatalog, double *vortSndMomMatrix)
 {
   int i,j,k,err;
-  double G,a,b,rc,dx,dy,dA,dgradU[2][2]; // vorticity
-  double w[nCnect],A[nCnect],a0[nCnect],b0[nCnect];
+  double dgradU[2][2]; // vorticity
+  double w[nCnect],SndMom[4*nCnect],XX,XY,YX,YY;
   
   if((Height<=0)||(Width<=0))
     return -1;
@@ -400,7 +391,8 @@ int secondMomentFromVortCurv(int Height,int Width, int nCnect,double *X,double *
     return -2;
   
   for(k=0;k<nCnect;k+=1){
-    w[k]=0.;A[k]=0.;a0[k]=0.;b0[k]=0.;
+    w[k]=0.;A[k]=0.;SndMom[4*k+0]=0;
+    SndMom[4*k+1]=0;SndMom[4*k+2]=0;SndMom[4*k+3]=0;
   }
 
   for(i=0;i<Height;i+=1)
@@ -413,14 +405,11 @@ int secondMomentFromVortCurv(int Height,int Width, int nCnect,double *X,double *
         if(err!=0) return err;
         w[k] += dgradU[1][0]-dgradU[0][1];
         
-        err=add_dxdy(Height,Width,i,j,1,1,gField,&dx,&dy,X,Y);
+        XX = XY = YX = YY = 0.;
+        err=add_dx2dy2(Height,Width,i,j,1,1,gField,&XX,&XY,&YX,&YY,X,Y);
         if(err!=0) return err;
-        a0[k] += dx;
-        b0[k] += dy;
-
-        err=add_dA(Height,Width,i,j,k,1,1,gField,label,&dA,X,Y);
-        if(err!=0) return err;
-        A[k] += dA;
+        SndMom[4*k+0] += XX; SndMom[4*k+1] += XY;
+        SndMom[4*k+2] += YX; SndMom[4*k+3] += YY; 
         
         /*************************************************/
         
@@ -428,15 +417,12 @@ int secondMomentFromVortCurv(int Height,int Width, int nCnect,double *X,double *
         err=add_dgradU(Height,Width,i,j,-1,1,gField,dgradU,X,Y);
         if(err!=0) return err;
         w[k] += dgradU[1][0]-dgradU[0][1];
-        
-        err=add_dxdy(Height,Width,i,j,-1,1,gField,&dx,&dy,X,Y);
-        if(err!=0) return err;
-        a0[k] += dx;
-        b0[k] += dy;
 
-        err=add_dA(Height,Width,i,j,k,-1,1,gField,label,&dA,X,Y);
+        XX = XY = YX = YY = 0.;
+        err=add_dx2dy2(Height,Width,i,j,-1,1,gField,&XX,&XY,&YX,&YY,X,Y);
         if(err!=0) return err;
-        A[k] += dA;
+        SndMom[4*k+0] += XX; SndMom[4*k+1] += XY;
+        SndMom[4*k+2] += YX; SndMom[4*k+3] += YY; 
         
         /*************************************************/
 
@@ -445,14 +431,11 @@ int secondMomentFromVortCurv(int Height,int Width, int nCnect,double *X,double *
         if(err!=0) return err;
         w[k] += dgradU[1][0]-dgradU[0][1];
         
-        err=add_dxdy(Height,Width,i,j,1,-1,gField,&dx,&dy,X,Y);
+        XX = XY = YX = YY = 0.;
+        err=add_dx2dy2(Height,Width,i,j,1,-1,gField,&XX,&XY,&YX,&YY,X,Y);
         if(err!=0) return err;
-        a0[k] += dx;
-        b0[k] += dy;
-
-        err=add_dA(Height,Width,i,j,k,1,-1,gField,label,&dA,X,Y);
-        if(err!=0) return err;
-        A[k] += dA;
+        SndMom[4*k+0] += XX; SndMom[4*k+1] += XY;
+        SndMom[4*k+2] += YX; SndMom[4*k+3] += YY; 
         
         /*************************************************/
         
@@ -461,39 +444,35 @@ int secondMomentFromVortCurv(int Height,int Width, int nCnect,double *X,double *
         if(err!=0) return err;
         w[k] += dgradU[1][0]-dgradU[0][1];
         
-        err=add_dxdy(Height,Width,i,j,-1,-1,gField,&dx,&dy,X,Y);
+        XX = XY = YX = YY = 0.;
+        err=add_dx2dy2(Height,Width,i,j,-1,-1,gField,&XX,&XY,&YX,&YY,X,Y);
         if(err!=0) return err;
-        a0[k] += dx;
-        b0[k] += dy;
-
-        err=add_dA(Height,Width,i,j,k,1,-1,gField,label,&dA,X,Y);
-        if(err!=0) return err;
-        A[k] += dA;
+        SndMom[4*k+0] += XX; SndMom[4*k+1] += XY;
+        SndMom[4*k+2] += YX; SndMom[4*k+3] += YY; 
         
         /*************************************************/
       }
     }
 
   for(k=0;k<nCnect;k+=1){
-    // 0.977816 corrects for gridsize
-    rc= sqrt(A[k]/M_PI)*(sqrtf(2.));//0.977816); // Constant comming from 
-                                                 //  lamb-oseen vortex;
+    
     if(fabs(w[k])>0.){
-      a=a0[k]/w[k]; 
-      b=b0[k]/w[k];
+      XX = SndMom[4*k+0]/w[k];
+      XY = SndMom[4*k+1]/w[k];
+      YX = SndMom[4*k+2]/w[k];
+      YY = SndMom[4*k+3]/w[k];
     }
     else{
-      a=X[0];
-      b=Y[0];
+      XX = -1.;
+      XY =  0.;
+      YX =  0.;
+      YY = -1.;
     }
     
-    G = 2.541494083*w[k]; // 2.541494083 = 1/(1-1/sqrt(e)) 
-                          // ... should correct for finite grid size?
-    
-    vCatalog[4*k+0] = G;
-    vCatalog[4*k+1] = rc;
-    vCatalog[4*k+2] = a;
-    vCatalog[4*k+3] = b;
+    vortSndMomMatrix[4*k+0] = XX;
+    vortSndMomMatrix[4*k+1] = XY;
+    vortSndMomMatrix[4*k+2] = YX;
+    vortSndMomMatrix[4*k+3] = YY;
   }
 
   return 0;

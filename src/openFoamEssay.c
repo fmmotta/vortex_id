@@ -40,7 +40,7 @@ int main(int argc,char **argv){
   int runType=0,*label=NULL,**eqClass=NULL;
   int hNG=50,hNRc=53,hNa=40,hNb=40,hNN=10,Nsnapshots;
   int Nx,Ny,Nz,planeIndex,planeType,planeNum,pln[8128];
-  int i,j,k,err,nCnect=0,rCnect=0,n,nMax=1024,padWidth=2;
+  int i,j,k,l,err,nCnect=0,rCnect=0,n,nMax=1024,padWidth=2;
   double Gmin=1.,Gmax=20.,rmin=0.5,rmax=1.0,threshold=0.5;
   double xmin[2]={-9.,-9.},xmax[2]={9.,9.},x0[2],dx[2],xf[2];
   double *parVortex=NULL,cutoff=0.,t,t0,dt;
@@ -423,12 +423,12 @@ int main(int argc,char **argv){
       }
       else if(planeType==2){
         if(DEBUG_PRINT)
-          printf("XZ plane\n");
+          printf("ZX plane\n");
         j=planeIndex;
         for(k=0;k<Height;k+=1)
           for(i=0;i<Width;i+=1){
             uField[2*(k*Width+i)+0] = node[id(i,j,k)].w;
-            uField[2*(k*Width+i)+1] = node[id(i,j,k)].v;
+            uField[2*(k*Width+i)+1] = node[id(i,j,k)].u;
             fprintf(dadosout,"%lf %lf\n",uField[2*(k*Width+i)+0]
                                         ,uField[2*(k*Width+i)+1]);
           }
@@ -439,7 +439,16 @@ int main(int argc,char **argv){
     
     }
     else{
-      printf("yet to be done\n");
+      // WARNING - This section is not ready to use!!!
+      if(planeType==0){
+        if(DEBUG_PRINT)
+          printf("XY plane\n");
+        for(l=0;l<planeNum;l+=1){
+          k=pln[l];
+          sprintf(filename,"%s/plane-z%3d-%.4f.dat",folder,k,t);
+
+        }
+      }
     }
 
     dbgPrint(15,3);
@@ -539,7 +548,7 @@ int main(int argc,char **argv){
 
     err=fprintSafeVortex(vortexFile,n,nCnect,vCatalog,Height,Width,X,Y);
     if(err!=0){printf("problems in printing vortexfile\n"); return -6;}
-  }
+  } // End of Main loop
 
   fclose(vortexFile);
   
