@@ -377,9 +377,8 @@ inline int add_dx2dy2(int Height,int Width, int i,int j,int ik,int jk,
   return 0;
 }
 
-int secondMomentFromVortCurv(int Height,int Width, int nCnect,double *X,double *Y,
-                             double *sField,double *gField,int *label,
-                             double *vCatalog, double *vortSndMomMatrix)
+int extractSecondMoment(int Height,int Width, int nCnect,double *X,double *Y,
+                        double *sField,double *gField,int *label,double *vortSndMomMatrix)
 {
   int i,j,k,err;
   double dgradU[2][2]; // vorticity
@@ -387,12 +386,10 @@ int secondMomentFromVortCurv(int Height,int Width, int nCnect,double *X,double *
   
   if((Height<=0)||(Width<=0))
     return -1;
-  if(vCatalog==NULL)
-    return -2;
   
   for(k=0;k<nCnect;k+=1){
-    w[k]=0.;A[k]=0.;SndMom[4*k+0]=0;
-    SndMom[4*k+1]=0;SndMom[4*k+2]=0;SndMom[4*k+3]=0;
+    w[k]=0.;SndMom[4*k+0]=0;SndMom[4*k+1]=0;
+    SndMom[4*k+2]=0;SndMom[4*k+3]=0;
   }
 
   for(i=0;i<Height;i+=1)
