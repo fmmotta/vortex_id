@@ -253,34 +253,77 @@ int main(int argc,char **argv){
   }
 
   dbgPrint(14,0);
+  
+  if(planeIndex>=0){
+    sprintf(filename,"%s/constant/polyMesh/points",foamFolder);
+    nFile = fopen(filename,"r");
+    err=loadAxis(nFile,Nx,Ny,Nz,Xload,Yload,Zload);
+    if(err!=0)
+      return err;
+    fclose(nFile);
 
-  sprintf(filename,"%s/constant/polyMesh/points",foamFolder);
-  nFile = fopen(filename,"r");
-  err=loadAxis(nFile,Nx,Ny,Nz,Xload,Yload,Zload);
-  if(err!=0)
-    return err;
-  fclose(nFile);
+    if(planeType==0){
+      for(i=0;i<Height;i+=1)
+        Y[i] = (Yload[i]+Yload[i+1])/2.;
+      for(j=0;j<Width;j+=1)
+        X[j] = (Xload[j]+Xload[j+1])/2.;
+    }
+    else if(planeType==1){
+      for(i=0;i<Height;i+=1)
+        Y[i] = (Yload[i]+Yload[i+1])/2.;
+      for(j=0;j<Width;j+=1)
+        X[j] = (Zload[j]+Zload[j+1])/2.; 
+    }
+    else if(planeType==2){
+      for(i=0;i<Height;i+=1)
+        Y[i] = (Zload[i]+Zload[i+1])/2.;
+      for(j=0;j<Width;j+=1)
+        X[j] = (Xload[j]+Xload[j+1])/2.; 
+    }
+    else 
+      printf("non-identified plane type\n");
+  }
+  else{
+    if(planeType==0){
+      sprintf(filename,"%s/Xaxis.dat",folder);
+      nFile=fopen(filename,"r");
+      for(i=0;i<Nx;i+=1)
+        fscanf(nFile,"%lf",&(X[i]));
+      fclose(nFile); nFile=NULL;
 
-  if(planeType==0){
-    for(i=0;i<Height;i+=1)
-      Y[i] = (Yload[i]+Yload[i+1])/2.;
-    for(j=0;j<Width;j+=1)
-      X[j] = (Xload[j]+Xload[j+1])/2.;
+      sprintf(filename,"%s/Yaxis.dat",folder);
+      nFile=fopen(filename,"r");
+      for(i=0;i<Ny;i+=1)
+        fscanf(nFile,"%lf",&(Y[i]));
+      fclose(nFile); nFile=NULL;
+    }
+    else if(planeType==1){
+      sprintf(filename,"%s/Yaxis.dat",folder);
+      nFile=fopen(filename,"r");
+      for(i=0;i<Nx;i+=1)
+        fscanf(nFile,"%lf",&(X[i]));
+      fclose(nFile); nFile=NULL;
+
+      sprintf(filename,"%s/Zaxis.dat",folder);
+      nFile=fopen(filename,"r");
+      for(i=0;i<Ny;i+=1)
+        fscanf(nFile,"%lf",&(Y[i]));
+      fclose(nFile); nFile=NULL;
+    }
+    else if(planeType==2){
+      sprintf(filename,"%s/Zaxis.dat",folder);
+      nFile=fopen(filename,"r");
+      for(i=0;i<Nx;i+=1)
+        fscanf(nFile,"%lf",&(X[i]));
+      fclose(nFile); nFile=NULL;
+
+      sprintf(filename,"%s/Xaxis.dat",folder);
+      nFile=fopen(filename,"r");
+      for(i=0;i<Ny;i+=1)
+        fscanf(nFile,"%lf",&(Y[i]));
+      fclose(nFile); nFile=NULL;
+    }
   }
-  else if(planeType==1){
-    for(i=0;i<Height;i+=1)
-      Y[i] = (Yload[i]+Yload[i+1])/2.;
-    for(j=0;j<Width;j+=1)
-      X[j] = (Zload[j]+Zload[j+1])/2.; 
-  }
-  else if(planeType==2){
-    for(i=0;i<Height;i+=1)
-      Y[i] = (Zload[i]+Zload[i+1])/2.;
-    for(j=0;j<Width;j+=1)
-      X[j] = (Xload[j]+Xload[j+1])/2.; 
-  }
-  else 
-    printf("non-identified plane type\n");
 
   err = XtoXbuff(Width,X,Xbuff,padWidth);
   if(err!=0)
@@ -309,77 +352,82 @@ int main(int argc,char **argv){
       label[i]=-1;
     
     dbgPrint(15,0);
-    
-    sprintf(filename,"%s/%.4f/U",foamFolder,t);
-    uFile = fopen(filename,"r");
-    if(uFile==NULL)
-      printf("problems opening uFile - %d\n",n);
+    if(planeIndex>=0){
+      sprintf(filename,"%s/%.4f/U",foamFolder,t);
+      uFile = fopen(filename,"r");
+      if(uFile==NULL)
+        printf("problems opening uFile - %d\n",n);
 
-    sprintf(filename,"%s/%.4f/p",foamFolder,t);
-    pFile = fopen(filename,"r");
-    if(pFile==NULL)
-      printf("problems opening pFile - %d\n",n);
+      sprintf(filename,"%s/%.4f/p",foamFolder,t);
+      pFile = fopen(filename,"r");
+      if(pFile==NULL)
+        printf("problems opening pFile - %d\n",n);
     
-    dbgPrint(15,1);
+      dbgPrint(15,1);
     
-    err=loadFields(Nx,Ny,Nz,uFile,pFile,node);
-    if(err!=0)
-      printf("Problems with loadFields\n");
+      err=loadFields(Nx,Ny,Nz,uFile,pFile,node);
+      if(err!=0)
+        printf("Problems with loadFields\n");
     
-    fclose(pFile); fclose(uFile);
+      fclose(pFile); fclose(uFile);
     
-    dbgPrint(15,2);
+      dbgPrint(15,2);
     
-    if(DEBUG_PRINT)
-      printf("folder = %s\n",folder);
-    sprintf(filename,"%s/refU-%.4f.dat",folder,t);
-    dadosout=NULL;
-    dadosout=fopen(filename,"w");
-    if(dadosout==NULL){
-      printf("Could not open Folder\n");
-      perror("Error opening reference file\n");
-      exit(EXIT_FAILURE);
-    }
+      if(DEBUG_PRINT)
+        printf("folder = %s\n",folder);
+      sprintf(filename,"%s/refU-%.4f.dat",folder,t);
+      dadosout=NULL;
+      dadosout=fopen(filename,"w");
+      if(dadosout==NULL){
+        printf("Could not open Folder\n");
+        perror("Error opening reference file\n");
+        exit(EXIT_FAILURE);
+      }
 
-    if(planeType==0){
-      if(DEBUG_PRINT)
-        printf("XY plane\n");
-      k=planeIndex;
-      for(j=0;j<Height;j+=1)
-        for(i=0;i<Width;i+=1){
-          uField[2*(j*Width+i)+0] = node[id(i,j,k)].u;
-          uField[2*(j*Width+i)+1] = node[id(i,j,k)].v;
-          fprintf(dadosout,"%lf %lf\n",uField[2*(j*Width+i)+0]
-                                      ,uField[2*(j*Width+i)+1]);
-        }
-    }
-    else if(planeType==1){
-      if(DEBUG_PRINT)
-        printf("YZ plane\n");
-      i=planeIndex;
-      for(j=0;j<Height;j+=1)
-        for(k=0;k<Width;k+=1){
-          uField[2*(j*Width+k)+0] = node[id(i,j,k)].w;
-          uField[2*(j*Width+k)+1] = node[id(i,j,k)].v;
-          fprintf(dadosout,"%lf %lf\n",uField[2*(j*Width+k)+0]
-                                      ,uField[2*(j*Width+k)+1]);
-        }
-    }
-    else if(planeType==2){
-      if(DEBUG_PRINT)
-        printf("XZ plane\n");
-      j=planeIndex;
-      for(k=0;k<Height;k+=1)
-        for(i=0;i<Width;i+=1){
-          uField[2*(k*Width+i)+0] = node[id(i,j,k)].w;
-          uField[2*(k*Width+i)+1] = node[id(i,j,k)].v;
-          fprintf(dadosout,"%lf %lf\n",uField[2*(k*Width+i)+0]
-                                      ,uField[2*(k*Width+i)+1]);
-        }
-    }
+      if(planeType==0){
+        if(DEBUG_PRINT)
+          printf("XY plane\n");
+        k=planeIndex;
+        for(j=0;j<Height;j+=1)
+          for(i=0;i<Width;i+=1){
+            uField[2*(j*Width+i)+0] = node[id(i,j,k)].u;
+            uField[2*(j*Width+i)+1] = node[id(i,j,k)].v;
+            fprintf(dadosout,"%lf %lf\n",uField[2*(j*Width+i)+0]
+                                        ,uField[2*(j*Width+i)+1]);
+          }
+      }
+      else if(planeType==1){
+        if(DEBUG_PRINT)
+          printf("YZ plane\n");
+        i=planeIndex;
+        for(j=0;j<Height;j+=1)
+          for(k=0;k<Width;k+=1){
+            uField[2*(j*Width+k)+0] = node[id(i,j,k)].w;
+            uField[2*(j*Width+k)+1] = node[id(i,j,k)].v;
+            fprintf(dadosout,"%lf %lf\n",uField[2*(j*Width+k)+0]
+                                        ,uField[2*(j*Width+k)+1]);
+          }
+      }
+      else if(planeType==2){
+        if(DEBUG_PRINT)
+          printf("XZ plane\n");
+        j=planeIndex;
+        for(k=0;k<Height;k+=1)
+          for(i=0;i<Width;i+=1){
+            uField[2*(k*Width+i)+0] = node[id(i,j,k)].w;
+            uField[2*(k*Width+i)+1] = node[id(i,j,k)].v;
+            fprintf(dadosout,"%lf %lf\n",uField[2*(k*Width+i)+0]
+                                        ,uField[2*(k*Width+i)+1]);
+          }
+      }
     
-    if(dadosout!=NULL)
-      fclose(dadosout);
+      if(dadosout!=NULL)
+        fclose(dadosout);
+    
+    }
+    else{
+      printf("yet to be done\n");
+    }
 
     dbgPrint(15,3);
 

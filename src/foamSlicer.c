@@ -7,6 +7,7 @@
 #include <stdbool.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <gsl/gsl_histogram.h>
 #include "ini.h"
 #include "preprocessing.h"
 #include "inputManager.h"
@@ -29,15 +30,14 @@
 
 int main(int argc,char **argv){
   int Height=100,Width=100,Depth;
-  int Nx,Ny,Nz,planeIndex,planeType,planeNum;
+  int Nx,Ny,Nz,planeIndex,planeType,planeNum,n,Nsnapshots,runType;
   int i,j,k,err,pln[256],pn;
   double *uField,*Xload,*Yload,*Zload,*X,*Y,*Z;
+  double t0,t,dt;
   char folder[100+1],tag[100+1],filename[400+1],foamFolder[200+1];
   FILE *dadosin,*dadosout,*uFile,*pFile,*nFile;
   openFoamIcoData *node=NULL;
-  
-  planeNum=3;
-  pln[0]=0; pln[1]=64; pln[2]=128;
+  configVar cfg;
 
   if(argc!=3){
     printf("Incorrect Number of Arguments - Need exactly "
@@ -72,6 +72,9 @@ int main(int argc,char **argv){
   Nz = cfg.Nz;
   t0 = cfg.t0;
   dt = cfg.dt;
+  planeNum = cfg.planeNum;
+  for(i=0;i<planeNum;i+=1)
+    pln[i] = cfg.pln[i];
   planeIndex = cfg.pIndex;
   planeType  = cfg.pType;
   Nsnapshots = cfg.Nsnapshots;
@@ -325,8 +328,8 @@ int main(int argc,char **argv){
 
         for(k=0;k<Height;k+=1)
           for(i=0;i<Width;i+=1){
-            uField[2*(k*Width+i)+0] = node[id(i,j,k)].w;
-            uField[2*(k*Width+i)+1] = node[id(i,j,k)].v;
+            uField[2*(k*Width+i)+0] = node[id(i,j,k)].u;
+            uField[2*(k*Width+i)+1] = node[id(i,j,k)].w;
             fprintf(dadosout,"%lf %lf\n",uField[2*(k*Width+i)+0]
                                         ,uField[2*(k*Width+i)+1]);
           }
@@ -346,8 +349,8 @@ int main(int argc,char **argv){
 
           for(k=0;k<Height;k+=1)
             for(i=0;i<Width;i+=1){
-              uField[2*(k*Width+i)+0] = node[id(i,j,k)].w;
-              uField[2*(k*Width+i)+1] = node[id(i,j,k)].v;
+              uField[2*(k*Width+i)+0] = node[id(i,j,k)].u;
+              uField[2*(k*Width+i)+1] = node[id(i,j,k)].w;
               fprintf(dadosout,"%lf %lf\n",uField[2*(k*Width+i)+0]
                                           ,uField[2*(k*Width+i)+1]);
             }
