@@ -16,6 +16,7 @@
 #include "preprocessing.h"
 #include "lambdaInit.h"
 #include "vortexExtraction.h"
+#include "vortexExtractionExtend.h"
 #include "inputManager.h"
 #include "essayHandler.h"
 
@@ -38,7 +39,7 @@ int main(int argc,char **argv){
   int Width = 100, Height = 100, Depth, nVortex=5,nFixVortex=5,nRuns=1000;
   int runType=0,*label=NULL,**eqClass=NULL;
   int hNG=50,hNRc=53,hNa=40,hNb=40,hNN=10,Nsnapshots;
-  int Nx,Ny,Nz,planeIndex,planeType;
+  int Nx,Ny,Nz,planeIndex,planeType,planeNum,pln[8128];
   int i,j,k,err,nCnect=0,rCnect=0,n,nMax=1024,padWidth=2;
   double Gmin=1.,Gmax=20.,rmin=0.5,rmax=1.0,threshold=0.5;
   double xmin[2]={-9.,-9.},xmax[2]={9.,9.},x0[2],dx[2],xf[2];
@@ -94,6 +95,18 @@ int main(int argc,char **argv){
   Nsnapshots = cfg.Nsnapshots;
   strcpy(foamFolder,cfg.FOAMfolder);
   
+  if(planeIndex<0){
+    if(cfg.planeNum>0){
+      planeNum=cfg.planeNum;
+      for(i=0;i<planeNum;i+=1)
+        pln[i]=cfg.pln[i];
+    }
+    else{
+      printf("Wrongly written configuration file, specify number of slices\n");
+      return 1;
+    }
+  }
+
   if(planeType==0){
     Height = Ny;
     Width  = Nx;

@@ -8,9 +8,6 @@ INC_DIR = -Isrc -Isrc/inih
 CFLAGS = -c -Wall -O3 $(INC_DIR) 
 LIBS = -lm -lgsl -lgslcblas
 
-#include src/tests/tests.mk
-#just adding a test to git
-
 default: main
 all: main othermain tests
 
@@ -27,6 +24,9 @@ sampledVortexEssayFull: obj/sampledVortexEssayFull.o obj/lambdaInit.o obj/floodF
 
 openFoamEssay: obj/openFoamEssay.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/mt64.o obj/vortexExtraction.o obj/ini.o obj/inputManager.o obj/essayHandler.o obj/stencilExtended.o obj/vortexExtractionExtend.o obj/preprocessing.o
 	$(CC) -o bin/openFoamEssay $^ $(LIBS)
+
+foamSlicer: obj/foamSlicer.o obj/ini.o obj/preprocessing.o obj/inputManager.o obj/floodFill.o obj/essayHandler.o obj/stencilExtended.o obj/lambdaInit.o obj/vortexGen.o obj/mt64.o obj/vortexExtraction.o obj/vortexExtractionExtend.o
+	$(CC) -o bin/foamSlicer $^ $(LIBS)
 
 obj/%.o: src/%.c
 	$(CC) $(CFLAGS) $^ -o $@

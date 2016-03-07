@@ -8,9 +8,14 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <gsl/gsl_histogram.h>
+#include "mt64.h"
 #include "ini.h"
+#include "stencilExtended.h"
+#include "lambdaInit.h"
+#include "vortexGen.h"
 #include "preprocessing.h"
 #include "inputManager.h"
+#include "vortexExtraction.h"		
 #include "essayHandler.h"
 
 #define DEBUG_MODE true
@@ -30,16 +35,18 @@
 
 int main(int argc,char **argv){
   int Height=100,Width=100,Depth;
-  int Nx,Ny,Nz,planeIndex,planeType,planeNum,n,Nsnapshots,runType;
-  int i,j,k,err,pln[256],pn;
-  double *uField,*Xload,*Yload,*Zload,*X,*Y,*Z;
-  double t0,t,dt;
+  int Nx,Ny,Nz,planeIndex,planeType,planeNum,Nsnapshots;
+  int i,j,k,err,pln[8128],pn,n;
+  double *uField,*Xload,*Yload,*Zload,*X,*Y,*Z,t0,dt,t;
   char folder[100+1],tag[100+1],filename[400+1],foamFolder[200+1];
-  FILE *dadosin,*dadosout,*uFile,*pFile,*nFile;
+  FILE *dadosout,*uFile,*pFile,*nFile;
   openFoamIcoData *node=NULL;
   configVar cfg;
+  
+  planeNum=3;
+  pln[0]=0; pln[1]=64; pln[2]=128;
 
-  if(argc!=3){
+  if(argc!=2){
     printf("Incorrect Number of Arguments - Need exactly "
            "the configuration file\n");
     return -1;
@@ -72,13 +79,22 @@ int main(int argc,char **argv){
   Nz = cfg.Nz;
   t0 = cfg.t0;
   dt = cfg.dt;
-  planeNum = cfg.planeNum;
-  for(i=0;i<planeNum;i+=1)
-    pln[i] = cfg.pln[i];
   planeIndex = cfg.pIndex;
   planeType  = cfg.pType;
   Nsnapshots = cfg.Nsnapshots;
   strcpy(foamFolder,cfg.FOAMfolder);
+
+  if(planeIndex<0){
+  	if(cfg.planeNum>0){
+      planeNum=cfg.planeNum;
+      for(i=0;i<planeNum;i+=1)
+      	pln[i]=cfg.pln[i];
+  	}
+  	else{
+      printf("Wrongly written configuration file, specify number of slices\n");
+      return 1;
+    }
+  }
   
   if(planeType==0){
     Height = Ny;
@@ -120,8 +136,6 @@ int main(int argc,char **argv){
     printf("error creating directory - %d\n",err);
     return err;
   }
-  
-  runType = cfg.runType;
   
   dbgPrint(2,0);
 
@@ -183,7 +197,7 @@ int main(int argc,char **argv){
 
   for(n=0;n<Nsnapshots;n+=1){
     
-    printf("%d runs have passed\n",n);
+    printf("%d timesteps processed\n",n);
     
     t=t0+((double)n)*dt;
         
@@ -362,6 +376,8 @@ int main(int argc,char **argv){
     
     dbgPrint(5,3);
   }
+
+  dbgPrint(6,1);
 
   free(uField);
   free(X);
