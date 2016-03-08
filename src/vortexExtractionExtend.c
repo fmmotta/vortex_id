@@ -377,8 +377,113 @@ inline int add_dx2dy2(int Height,int Width, int i,int j,int ik,int jk,
   return 0;
 }
 
+inline int add_dx2dy2w2(int Height,int Width, int i,int j,int ik,int jk,
+                        double *gField,double *XX,double *XY,double *YX,
+                        double *YY,double X[],double Y[])
+{
+  double w2=0.;
+
+  if((i+ik<0) || (i+ik)>=Height){
+    if( (j+jk<0) || (j+jk)>=Width ){
+      w2 = gField[4*(     i*Width  + j  )+2] 
+         - gField[4*(     i*Width  + j  )+1];
+      w2 = w2*w2;
+
+      *XX  += 9.*w2*X[j   ]*X[j   ];
+      *XY  += 9.*w2*X[j   ]*Y[i   ];
+      *YX  += 9.*w2*Y[i   ]*X[j   ];
+      *YY  += 9.*w2*Y[i   ]*Y[i   ];
+    }
+    else{
+      w2 = gField[4*(     i*Width  + j  )+2] 
+         - gField[4*(     i*Width  + j  )+1];
+      w2 = w2*w2;
+
+      *XX  += 9.*w2*X[j   ]*X[j   ];
+      *XY  += 9.*w2*X[j   ]*Y[i   ];
+      *YX  = 9.*w2*Y[i   ]*X[j   ];
+      *YY  = 9.*w2*Y[i   ]*Y[i   ];
+      
+      w2 = gField[4*(     i*Width+(j+jk))+2] 
+         - gField[4*(     i*Width+(j+jk))+1];
+      w2 = w2*w2;
+
+      *XX += 3.*w2*X[j+jk]*X[j+jk];
+      *XY += 3.*w2*X[j+jk]*Y[i   ];
+      *YX += 3.*w2*Y[i   ]*X[j+jk];
+      *YY += 3.*w2*Y[i   ]*Y[i   ];
+    }
+  }
+  else{
+    if( (j+jk<0) || (j+jk)>=Width ){
+      w2 = gField[4*(     i*Width  + j  )+2] 
+         - gField[4*(     i*Width  + j  )+1];
+      w2 = w2*w2;
+
+      *XX  += 9.*w2*X[j   ]*X[j   ];
+      *XY  += 9.*w2*X[j   ]*Y[i   ];
+      *YX  += 9.*w2*Y[i   ]*X[j   ];
+      *YY  += 9.*w2*Y[i   ]*Y[i   ];
+      
+      w2 = gField[4*((i+ik)*Width  + j  )+2] 
+         - gField[4*((i+ik)*Width  + j  )+1];
+      w2 = w2*w2;
+
+      *XX += 3.*w2*X[j   ]*X[j   ];
+      *XY += 3.*w2*X[j   ]*Y[i+ik];
+      *YX += 3.*w2*Y[i+ik]*X[j   ];
+      *YY += 3.*w2*Y[i+ik]*Y[i+ik];
+    }
+    else{
+      w2 = gField[4*(     i*Width  + j  )+2] 
+         - gField[4*(     i*Width  + j  )+1];
+      w2 = w2*w2;
+
+      *XX  += 9.*w2*X[j   ]*X[j   ];
+      *XY  += 9.*w2*X[j   ]*Y[i   ];
+      *YX  += 9.*w2*Y[i   ]*X[j   ];
+      *YY  += 9.*w2*Y[i   ]*Y[i   ];
+
+      w2 = gField[4*(     i*Width+(j+jk))+2] 
+         - gField[4*(     i*Width+(j+jk))+1];
+      w2 = w2*w2;
+
+      *XX += 3.*w2*X[j+jk]*X[j+jk];
+      *XY += 3.*w2*X[j+jk]*Y[i   ];
+      *YX += 3.*w2*Y[i   ]*X[j+jk];
+      *YY += 3.*w2*Y[i   ]*Y[i   ];
+      
+      w2 = gField[4*((i+ik)*Width  + j  )+2] 
+         - gField[4*((i+ik)*Width  + j  )+1];
+      w2 = w2*w2;
+
+      *XX += 3.*w2*X[j   ]*X[j   ];
+      *XY += 3.*w2*X[j   ]*Y[i+ik];
+      *YX += 3.*w2*Y[i+ik]*X[j   ];
+      *YY += 3.*w2*Y[i+ik]*Y[i+ik];
+
+      w2 = gField[4*((i+ik)*Width+(j+jk))+2] 
+         - gField[4*((i+ik)*Width+(j+jk))+1];
+      w2 = w2*w2;
+
+      *XX += 1.*w2*X[j+jk]*X[j+jk];
+      *XY += 1.*w2*X[j+jk]*Y[i+ik];
+      *YX += 1.*w2*Y[i+ik]*X[j+jk];
+      *YY += 1.*w2*Y[i+ik]*Y[i+ik];
+    }
+  }
+
+  *XX *= fabs( (Y[i+ik]-Y[i])*(X[j+jk]-X[j]) )/64.0;
+  *XY *= fabs( (Y[i+ik]-Y[i])*(X[j+jk]-X[j]) )/64.0;
+  *YX *= fabs( (Y[i+ik]-Y[i])*(X[j+jk]-X[j]) )/64.0;
+  *YY *= fabs( (Y[i+ik]-Y[i])*(X[j+jk]-X[j]) )/64.0;
+
+  return 0;
+}
+
 int extractSecondMoment(int Height,int Width, int nCnect,double *X,double *Y,
-                        double *sField,double *gField,int *label,double *vortSndMomMatrix)
+                        double *sField,double *gField,int *label,double *vCatalog,
+                        double *vortSndMomMatrix)
 {
   int i,j,k,err;
   double dgradU[2][2]; // vorticity
@@ -400,10 +505,12 @@ int extractSecondMoment(int Height,int Width, int nCnect,double *X,double *Y,
         // ++ quadrant        
         err=add_dgradU(Height,Width,i,j,1,1,gField,dgradU,X,Y);
         if(err!=0) return err;
-        w[k] += dgradU[1][0]-dgradU[0][1];
+        //w[k] += dgradU[1][0]-dgradU[0][1];
+        w[k] += (dgradU[1][0]-dgradU[0][1])*(dgradU[1][0]-dgradU[0][1]);
         
         XX = XY = YX = YY = 0.;
-        err=add_dx2dy2(Height,Width,i,j,1,1,gField,&XX,&XY,&YX,&YY,X,Y);
+        //err=add_dx2dy2(Height,Width,i,j,1,1,gField,&XX,&XY,&YX,&YY,X,Y);
+        err=add_dx2dy2w2(Height,Width,i,j,1,1,gField,&XX,&XY,&YX,&YY,X,Y);
         if(err!=0) return err;
         SndMom[4*k+0] += XX; SndMom[4*k+1] += XY;
         SndMom[4*k+2] += YX; SndMom[4*k+3] += YY; 
@@ -413,10 +520,12 @@ int extractSecondMoment(int Height,int Width, int nCnect,double *X,double *Y,
         // -+ quadrant
         err=add_dgradU(Height,Width,i,j,-1,1,gField,dgradU,X,Y);
         if(err!=0) return err;
-        w[k] += dgradU[1][0]-dgradU[0][1];
+        //w[k] += dgradU[1][0]-dgradU[0][1];
+        w[k] += (dgradU[1][0]-dgradU[0][1])*(dgradU[1][0]-dgradU[0][1]);
 
         XX = XY = YX = YY = 0.;
-        err=add_dx2dy2(Height,Width,i,j,-1,1,gField,&XX,&XY,&YX,&YY,X,Y);
+        //err=add_dx2dy2(Height,Width,i,j,-1,1,gField,&XX,&XY,&YX,&YY,X,Y);
+        err=add_dx2dy2w2(Height,Width,i,j,-1,1,gField,&XX,&XY,&YX,&YY,X,Y);
         if(err!=0) return err;
         SndMom[4*k+0] += XX; SndMom[4*k+1] += XY;
         SndMom[4*k+2] += YX; SndMom[4*k+3] += YY; 
@@ -426,10 +535,12 @@ int extractSecondMoment(int Height,int Width, int nCnect,double *X,double *Y,
         // +- quadrant
         err=add_dgradU(Height,Width,i,j,1,-1,gField,dgradU,X,Y);
         if(err!=0) return err;
-        w[k] += dgradU[1][0]-dgradU[0][1];
+        //w[k] += dgradU[1][0]-dgradU[0][1];
+        w[k] += (dgradU[1][0]-dgradU[0][1])*(dgradU[1][0]-dgradU[0][1]);
         
         XX = XY = YX = YY = 0.;
-        err=add_dx2dy2(Height,Width,i,j,1,-1,gField,&XX,&XY,&YX,&YY,X,Y);
+        //err=add_dx2dy2(Height,Width,i,j,1,-1,gField,&XX,&XY,&YX,&YY,X,Y);
+        err=add_dx2dy2w2(Height,Width,i,j,1,-1,gField,&XX,&XY,&YX,&YY,X,Y);
         if(err!=0) return err;
         SndMom[4*k+0] += XX; SndMom[4*k+1] += XY;
         SndMom[4*k+2] += YX; SndMom[4*k+3] += YY; 
@@ -439,10 +550,12 @@ int extractSecondMoment(int Height,int Width, int nCnect,double *X,double *Y,
         // -- quadrant
         err=add_dgradU(Height,Width,i,j,-1,-1,gField,dgradU,X,Y);
         if(err!=0) return err;
-        w[k] += dgradU[1][0]-dgradU[0][1];
+        //w[k] += dgradU[1][0]-dgradU[0][1];
+        w[k] += (dgradU[1][0]-dgradU[0][1])*(dgradU[1][0]-dgradU[0][1]);
         
         XX = XY = YX = YY = 0.;
-        err=add_dx2dy2(Height,Width,i,j,-1,-1,gField,&XX,&XY,&YX,&YY,X,Y);
+        //err=add_dx2dy2(Height,Width,i,j,-1,-1,gField,&XX,&XY,&YX,&YY,X,Y);
+        err=add_dx2dy2w2(Height,Width,i,j,-1,-1,gField,&XX,&XY,&YX,&YY,X,Y);
         if(err!=0) return err;
         SndMom[4*k+0] += XX; SndMom[4*k+1] += XY;
         SndMom[4*k+2] += YX; SndMom[4*k+3] += YY; 

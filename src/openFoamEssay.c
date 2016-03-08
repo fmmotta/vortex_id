@@ -68,7 +68,7 @@ int fprintSafeVortexMoments(FILE *dadosout, int run,int size,int nVortex,
                             double *X,double *Y)
 {
   int i;
-  double Xcm,Ycm,rg;
+  double Xcm,Ycm,rg2;
   double L1,L2,trM2,detM;
   
   if(DEBUG_PRINT)
@@ -81,40 +81,40 @@ int fprintSafeVortexMoments(FILE *dadosout, int run,int size,int nVortex,
     if(rCatalog[8*i+2] < X[0] || rCatalog[8*i+2] > X[Width-1] ||
        rCatalog[8*i+3] < Y[0] || rCatalog[8*i+3] > Y[Height-1])
       continue;
-    Xcm = rCatalog[size*i+2];
-    Ycm = rCatalog[size*i+3];
-    fprintf(dadosout,"%f %f %f %f ",rCatalog[4*i+0]
-                                   ,rCatalog[4*i+1]
-                                   ,rCatalog[4*i+2]
-                                   ,rCatalog[4*i+3]);
+    Xcm = rCatalog[8*i+2];
+    Ycm = rCatalog[8*i+3];
+    fprintf(dadosout,"%f %f %f %f ",rCatalog[8*i+0]
+                                   ,rCatalog[8*i+1]
+                                   ,rCatalog[8*i+2]
+                                   ,rCatalog[8*i+3]);
 
-    fprintf(dadosout,"%f %f %f %f ",rCatalog[4*i+0] - Xcm*Xcm
-                                   ,rCatalog[4*i+1] - Xcm*Ycm
-                                   ,rCatalog[4*i+2] - Ycm*Xcm
-                                   ,rCatalog[4*i+3] - Ycm*Ycm);
+    fprintf(dadosout,"%f %f %f %f ",rCatalog[8*i+4] - Xcm*Xcm
+                                   ,rCatalog[8*i+5] - Xcm*Ycm
+                                   ,rCatalog[8*i+6] - Ycm*Xcm
+                                   ,rCatalog[8*i+7] - Ycm*Ycm);
     
-    rg = sqrt( rCatalog[4*i+0]+rCatalog[4*i+3] -(Xcm*Xcm+Ycm*Ycm) );
-    fprintf(dadosout,"%f ", rg);
+    rg2 = rCatalog[8*i+4]+rCatalog[8*i+7] -(Xcm*Xcm+Ycm*Ycm) ;
+    fprintf(dadosout,"%f ", rg2);
     
-    trM2  = ((rCatalog[4*i+0] - Xcm*Xcm)+(rCatalog[4*i+3] - Ycm*Ycm))/2.;
-    detM  = (rCatalog[4*i+0] - Xcm*Xcm)*(rCatalog[4*i+3] - Ycm*Ycm);
-    detM -= (rCatalog[4*i+1] - Xcm*Ycm)*(rCatalog[4*i+2] - Ycm*Xcm);
+    trM2  = ((rCatalog[8*i+4] - Xcm*Xcm)+(rCatalog[8*i+7] - Ycm*Ycm))/2.;
+    detM  = (rCatalog[8*i+4] - Xcm*Xcm)*(rCatalog[8*i+7] - Ycm*Ycm);
+    detM -= (rCatalog[8*i+5] - Xcm*Ycm)*(rCatalog[8*i+6] - Ycm*Xcm);
 
     L1 = -trM2+sqrt(trM2*trM2-detM);
     L2 = -trM2-sqrt(trM2*trM2-detM);
     
     fprintf(dadosout,"%f %f ",L1,L2);
 
-    if(fabs(rCatalog[4*i+1] - Xcm*Ycm)>0.){
-      if((rCatalog[4*i+1] - Xcm*Ycm)>0){
-        fprintf(dadosout,"%f %f ",rCatalog[4*i+1] - Xcm*Ycm,L1-(rCatalog[4*i+0] - Xcm*Xcm) );
-        fprintf(dadosout,"%f %f ",rCatalog[4*i+1] - Xcm*Ycm,L2-(rCatalog[4*i+0] - Xcm*Xcm) );
+    if(fabs(rCatalog[8*i+1] - Xcm*Ycm)>0.){
+      if((rCatalog[8*i+1] - Xcm*Ycm)>0){
+        fprintf(dadosout,"%f %f ",rCatalog[8*i+5] - Xcm*Ycm,L1-(rCatalog[8*i+4] - Xcm*Xcm) );
+        fprintf(dadosout,"%f %f ",rCatalog[8*i+5] - Xcm*Ycm,L2-(rCatalog[8*i+4] - Xcm*Xcm) );
       }
-      else if((rCatalog[4*i+1] - Xcm*Ycm)<0.){
-        fprintf(dadosout,"%f %f ",-rCatalog[4*i+1]+Xcm*Ycm,-L1+(rCatalog[4*i+0] - Xcm*Xcm) );
-        fprintf(dadosout,"%f %f ",-rCatalog[4*i+1]+Xcm*Ycm,-L2+(rCatalog[4*i+0] - Xcm*Xcm) ); 
+      else if((rCatalog[8*i+1] - Xcm*Ycm)<0.){
+        fprintf(dadosout,"%f %f ",-rCatalog[8*i+5]+Xcm*Ycm,-L1+(rCatalog[8*i+4] - Xcm*Xcm) );
+        fprintf(dadosout,"%f %f ",-rCatalog[8*i+5]+Xcm*Ycm,-L2+(rCatalog[8*i+4] - Xcm*Xcm) ); 
       }
-      fprintf(dadosout,"%f ", (L2-(rCatalog[4*i+0]-Xcm*Xcm))/(rCatalog[4*i+1]-Xcm*Ycm));
+      fprintf(dadosout,"%f ", (L2-(rCatalog[8*i+4]-Xcm*Xcm))/(rCatalog[8*i+5]-Xcm*Ycm));
     }
     else{
       fprintf(dadosout,"%f %f ",1.,0.);
@@ -601,7 +601,7 @@ int main(int argc,char **argv){
       return err;
     }
 
-    err=extractSecondMoment(Height,Width,nCnect,X,Y,sField,gField,label,vortSndMomMatrix);
+    err=extractSecondMoment(Height,Width,nCnect,X,Y,sField,gField,label,vCatalog,vortSndMomMatrix);
     if(err!=0){
       printf("problems in extractSecondMoment\n");
       return err;
@@ -647,7 +647,7 @@ int main(int argc,char **argv){
       
       sprintf(filename,"%s/vortexSafeMoments-%.4f.txt",folder,t);
       dadosVout = fopen(filename,"w");
-      err=fprintSafeVortexMoments(dadosout,n,8,nVortex,rCatalog,Height,Width,X,Y);
+      err=fprintSafeVortexMoments(dadosVout,n,8,nCnect,rCatalog,Height,Width,X,Y);
       if(err!=0){printf("problems vortexSafeMoments\n"); return -6;}
       fclose(dadosVout);
     }
