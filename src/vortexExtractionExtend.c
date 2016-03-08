@@ -5,6 +5,34 @@
 #include "floodFill.h"
 #include "vortexExtraction.h"
 
+void vortexAdaptiveQuickSort(double *v,int nCnect,int size,
+                             int (*cmp)(const double*,const double*)){
+  int i,j,k;
+  double p[size],t[size];
+  if(nCnect<2)
+    return;
+
+  for(k=0;k<size;k+=1)
+    p[k] = v[size*(nCnect/2)+k];
+
+  for(i=0,j=nCnect-1;;i++,j--){
+    while( cmp(v+size*i,p) )
+      i++;
+    while( cmp(p,v+size*j) )
+      j--;
+    if(i >= j)
+      break;
+    
+    for(k=0;k<size;k+=1){
+      t[k] = v[size*i+k];
+      v[size*i+k] = v[size*j+k];
+      v[size*j+k] = t[k];
+    }
+  }
+  vortexAdaptiveQuickSort(v,i,size,cmp);
+  vortexAdaptiveQuickSort(v+size*i,nCnect-i,size,cmp);
+}
+
 inline int add_dgradU(int Height,int Width, int i,int j,int ik,int jk,
                       double *gField,double dgradU[][2],double X[],double Y[])
 {
@@ -871,8 +899,8 @@ int extract012Momentsw2(int Height,int Width, int nCnect,double *X,double *Y,
 
   for(k=0;k<nCnect;k+=1){
     
-    rc= sqrt(A[k]/M_PI)*(sqrtf(2.));// Constant comming from 
-                                    //  lamb-oseen vortex;
+    rc= sqrt(A[k]/M_PI);//*(sqrtf(2.));// Constant comming from 
+                                       //  lamb-oseen vortex;
 
     if(fabs(w2[k])>0.){
       XX = SndMom[4*k+0]/w2[k];
@@ -891,7 +919,7 @@ int extract012Momentsw2(int Height,int Width, int nCnect,double *X,double *Y,
       b=Y[0];
     }
     
-    G = 2.541494083*w[k]; // 2.541494083 = 1/(1-1/sqrt(e)) 
+    G = w[k]; //2.541494083*w[k]; // 2.541494083 = 1/(1-1/sqrt(e)) 
 
     vCatalog[4*k+0] = G;
     vCatalog[4*k+1] = rc;

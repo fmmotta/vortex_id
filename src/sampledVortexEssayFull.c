@@ -38,12 +38,12 @@ int main(int argc,char **argv){
   int Width = 100, Height = 100,nVortex=5,nFixVortex=5,nRuns=1000;
   int runType=0,genType=0,numG=3,numRc=3,*label=NULL,**eqClass=NULL;
   int hNG=50,hNRc=53,hNa=40,hNb=40,hNN=10, calcScalarMode=0;
-  int i,j,err,nCnect=0,rCnect=0,n,nMax=500,padWidth=2;
+  int i,j,err,nCnect=0,rCnect=0,n,nMax=500,padWidth=2,mCnect=0.;
   double Gmin=1.,Gmax=20.,rmin=0.5,rmax=1.0,threshold=0.5;
   double xmin[2]={-9.,-9.},xmax[2]={9.,9.},x0[2],dx[2],xf[2];
   double *parVortex=NULL,*Glist,*Rclist,cutoff=0.;
   double *sField=NULL,*gField=NULL,*g2Field=NULL,*uField=NULL;
-  double *uBuff=NULL,*Xbuff,*Ybuff,*X,*Y;
+  double *uBuff=NULL,*Xbuff,*Ybuff,*X,*Y,*mCatalog;
   double *ux,*uy,*uxxy,*uxyy,*uxxx,*uyyy,*vortSndMomMatrix=NULL;
   double v0y0 = 0.00,*vCatalog=NULL,*rCatalog=NULL,*majorVortex=NULL;
   double hGmin=0.,hGmax=0.,hRcMin=0.,hRcMax=0.;
@@ -222,6 +222,12 @@ int main(int argc,char **argv){
     printf("memory not allocked\n");
     return 4;
   }
+  
+  mCatalog = (double*)malloc(8*nMax*sizeof(double));
+  if(mCatalog==NULL){
+    printf("memory not allocked\n");
+    return 4;
+  }
 
   vortSndMomMatrix = (double*)malloc(4*nMax*sizeof(double));
   if(vortSndMomMatrix==NULL){
@@ -353,52 +359,54 @@ int main(int argc,char **argv){
       fprintLabels(dadosField,x0,dx,Width,Height,label);
       fclose(dadosField);
 
-
-      err= extract012Momentsw2(Height,Width,nCnect,X,Y,sField,gField,label,vCatalog,vortSndMomMatrix);
-      if(err!=0){
-        printf("problems in extract012Momentsw2\n");
-        return err;
-      }
-
-      for(i=0;i<nCnect;i+=1){
-        rCatalog[8*i+0]=vCatalog[4*i+0];
-        rCatalog[8*i+1]=vCatalog[4*i+1];
-        rCatalog[8*i+2]=vCatalog[4*i+2];
-        rCatalog[8*i+3]=vCatalog[4*i+3];
-        rCatalog[8*i+4]=vortSndMomMatrix[4*i+0];
-        rCatalog[8*i+5]=vortSndMomMatrix[4*i+1];
-        rCatalog[8*i+6]=vortSndMomMatrix[4*i+2];
-        rCatalog[8*i+7]=vortSndMomMatrix[4*i+3];
-      }
     }
-    
-    /*
-    if(n%1000==0){
-      sprintf(filename,"%s/sField-%s-%d.txt",folder,tag,n);
-      dadosField = fopen(filename,"w");
-      fprintsField(dadosField,x0,dx,Height,Width,sField);
-      fclose(dadosField);
 
-      sprintf(filename,"%s/labels-%s-%d.txt",folder,tag,n);
-      dadosField = fopen(filename,"w");
-      fprintLabels(dadosField,x0,dx,Width,Height,label);
-      fclose(dadosField);
-    }*/
-
-    // change here
+    // WARNING : Change Here
     //err=vortexReconstruction(runType,Height,Width,nCnect,x0,dx,sField,
     //                         gField,label,&vCatalog);
+    
+    /*
     err=vortexUReconstruction(runType,Height,Width,nCnect,X,Y,sField, 
                               gField,label,&vCatalog);
     if(err!=0){
       printf("problems in vortexReconstruction\n");
       return err;
+    }*/
+
+    err= extract012Momentsw2(Height,Width,nCnect,X,Y,sField,gField,label,vCatalog,vortSndMomMatrix);
+    if(err!=0){
+      printf("problems in extract012Momentsw2\n");
+      return err;
+    }
+    
+    for(i=0;i<nCnect;i+=1){
+      if(runType==0){
+        vCatalog[4*i+0]=(1./1.12091)*vCatalog[4*i+0];
+        vCatalog[4*i+1]= 1.397948086*vCatalog[4*i+1];
+      }
+      else if(runType==1){
+        vCatalog[4*i+0]=  (sqrt(2.))*vCatalog[4*i+0];
+        vCatalog[4*i+1]= 2.541494083*vCatalog[4*i+1]; 
+      }
+    }
+
+    for(i=0;i<nCnect;i+=1){
+      mCatalog[8*i+0]=vCatalog[4*i+0];
+      mCatalog[8*i+1]=vCatalog[4*i+1];
+      mCatalog[8*i+2]=vCatalog[4*i+2];
+      mCatalog[8*i+3]=vCatalog[4*i+3];
+      mCatalog[8*i+4]=vortSndMomMatrix[4*i+0];
+      mCatalog[8*i+5]=vortSndMomMatrix[4*i+1];
+      mCatalog[8*i+6]=vortSndMomMatrix[4*i+2];
+      mCatalog[8*i+7]=vortSndMomMatrix[4*i+3];
     }
 
     vortexQuickSort(parVortex,nVortex,&greaterAbsCirculation);
     vortexQuickSort(vCatalog,nCnect,&greaterAbsCirculation);
-    
+    vortexAdaptiveQuickSort(mCatalog,nCnect,8,&greaterAbsCirculation);
+
     /* filtering by cutoff */
+
     rCnect=0;
     for(i=0;i<nCnect;i+=1){
       if(fabs(vCatalog[4*i+0])>cutoff){
@@ -409,6 +417,13 @@ int main(int argc,char **argv){
         rCatalog[4*i+3]=vCatalog[4*i+3];
       }
     }
+
+    mCnect=0;
+    for(i=0;i<nCnect;i+=1)
+      if(fabs(mCatalog[4*i+0])>cutoff)
+        mCnect += 1;
+
+    /* printing to histogram */
 
     err=histoIncVortex(nVortex,parVortex,iG,iRc,ia,ib);
     if(err!=0){printf("problems\n"); return -5;}
@@ -430,8 +445,14 @@ int main(int argc,char **argv){
   
       err=fprintVortex(dadosVout,n,rCnect,rCatalog);
       if(err!=0){printf("problems\n"); return -6;}
-    
+
       fclose(dadosVin);
+      fclose(dadosVout);
+
+      sprintf(filename,"%s/vortexMoments-%.4f.txt",folder,t);
+      dadosVout = fopen(filename,"w");
+      err=fprintSafeVortexMoments(dadosVout,n,8,mCnect,mCatalog,Height,Width,X,Y);
+      if(err!=0){printf("problems vortexSafeMoments\n"); return -6;}
       fclose(dadosVout);
     }
   }
@@ -491,6 +512,8 @@ int main(int argc,char **argv){
     free(vCatalog);
   if(rCatalog!=NULL)
     free(rCatalog);
+  if(mCatalog!=NULL)
+    free(mCatalog);
   if(majorVortex!=NULL)
     free(majorVortex);
   if(Glist!=NULL)

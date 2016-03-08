@@ -35,34 +35,6 @@
                                       ptr[i]=(type) 0;                   \
                                   }                                      \
 
-void vortexAdaptiveQuickSort(double *v,int nCnect,int size,
-                             int (*cmp)(const double*,const double*)){
-  int i,j,k;
-  double p[size],t[size];
-  if(nCnect<2)
-    return;
-
-  for(k=0;k<size;k+=1)
-    p[k] = v[size*(nCnect/2)+k];
-
-  for(i=0,j=nCnect-1;;i++,j--){
-    while( cmp(v+size*i,p) )
-      i++;
-    while( cmp(p,v+size*j) )
-      j--;
-    if(i >= j)
-      break;
-    
-    for(k=0;k<size;k+=1){
-      t[k] = v[size*i+k];
-      v[size*i+k] = v[size*j+k];
-      v[size*j+k] = t[k];
-    }
-  }
-  vortexQuickSort(v,i,cmp);
-  vortexQuickSort(v+size*i,nCnect-i,cmp);
-}
-
 int main(int argc,char **argv){
   int Width = 100, Height = 100, Depth, nVortex=5,nFixVortex=5,nRuns=1000;
   int runType=0,*label=NULL,**eqClass=NULL;
@@ -556,6 +528,17 @@ int main(int argc,char **argv){
     }
 
     for(i=0;i<nCnect;i+=1){
+      if(runType==0){
+        vCatalog[4*i+0]=1.397948086*vCatalog[4*i+0];
+        vCatalog[4*i+1]= (1./1.12091)*vCatalog[4*i+1];
+      }
+      else if(runType==1){
+        vCatalog[4*i+0]= 2.541494083*vCatalog[4*i+0];
+        vCatalog[4*i+1]= (sqrt(2.))*vCatalog[4*i+1]; 
+      }
+    }
+
+    for(i=0;i<nCnect;i+=1){
       rCatalog[8*i+0]=vCatalog[4*i+0];
       rCatalog[8*i+1]=vCatalog[4*i+1];
       rCatalog[8*i+2]=vCatalog[4*i+2];
@@ -566,6 +549,8 @@ int main(int argc,char **argv){
       rCatalog[8*i+7]=vortSndMomMatrix[4*i+3];
     }
   
+    vortexAdaptiveQuickSort(rCatalog,nCnect,8,&greaterAbsCirculation);
+
     dbgPrint(17,0);
 
     err=histoIncVortex(nCnect,vCatalog,hG,hRc,ha,hb);
@@ -640,6 +625,7 @@ int main(int argc,char **argv){
   if(gField!=NULL)  free(gField);
   if(label!=NULL) free(label);
   if(vCatalog!=NULL) free(vCatalog);
+  if(rCatalog!=NULL) free(rCatalog);
   if(ux!=NULL) free(ux);
   if(uy!=NULL) free(uy);
   if(uxxx!=NULL) free(uxxx);
