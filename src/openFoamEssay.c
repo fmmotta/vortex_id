@@ -20,8 +20,8 @@
 #include "inputManager.h"
 #include "essayHandler.h"
 
-#define DEBUG_MODE true
-#define DEBUG_PRINT true
+#define DEBUG_MODE false
+#define DEBUG_PRINT false
 
 #define dbgPrint(num,num2) if(DEBUG_PRINT) printf("check point - %d-%d\n",(num),(num2))
 
@@ -51,7 +51,7 @@ int main(int argc,char **argv){
   double v0y0 = 0.00,*vCatalog=NULL,*rCatalog=NULL,*vortSndMomMatrix=NULL;
   double hGmin=0.,hGmax=0.,hRcMin=0.,hRcMax=0.;
   char folder[100+1],tag[100+1],filename[400+1],foamFolder[200+1];
-  FILE *dadosout,*dadosVout,*uFile,*pFile,*nFile,*vortexFile;
+  FILE *dadosout,*dadosVout,*uFile,*pFile,*nFile,*vortexFile,*totalVortices;
   gsl_histogram *hG,*hRc,*ha,*hb,*hN;
   gsl_histogram *iG,*iRc,*ia,*ib;
   configVar cfg;
@@ -274,7 +274,7 @@ int main(int argc,char **argv){
   }
 
   dbgPrint(14,0);
-  
+
   if(planeIndex>=0){
     sprintf(filename,"%s/constant/polyMesh/points",foamFolder);
     nFile = fopen(filename,"r");
@@ -357,13 +357,17 @@ int main(int argc,char **argv){
   sprintf(filename,"%s/vortices.dat",folder);
   vortexFile = fopen(filename,"w");
   
+  sprintf(filename,"%s/totalVortices.dat",folder);
+  totalVortices = fopen(filename,"w");
+
   for(n=0;n<Nsnapshots;n+=1){
     
     t=t0+((double)n)*dt;
 
     //if(n%10 == 0){
-      printf("%d runs have passed\n",n);
+      printf("%d timesteps processed\n",n);
       fflush(vortexFile);
+      fflush(totalVortices);
     //}
 
     for(i=0;i<2*Height*Width;i+=1)
@@ -374,16 +378,19 @@ int main(int argc,char **argv){
     
     dbgPrint(15,0);
     if(planeIndex>=0){
-      sprintf(filename,"%s/%.4f/U",foamFolder,t);
+      sprintf(filename,"%s/%g/U",foamFolder,t);
       uFile = fopen(filename,"r");
       if(uFile==NULL)
         printf("problems opening uFile - %d\n",n);
 
-      sprintf(filename,"%s/%.4f/p",foamFolder,t);
+      sprintf(filename,"%s/%g/p",foamFolder,t);
       pFile = fopen(filename,"r");
       if(pFile==NULL)
         printf("problems opening pFile - %d\n",n);
-    
+
+      if(uFile == NULL || pFile == NULL)
+        printf("Failed time = %g\n",t);
+
       dbgPrint(15,1);
     
       err=loadFields(Nx,Ny,Nz,uFile,pFile,node);
@@ -559,7 +566,7 @@ int main(int argc,char **argv){
     dbgPrint(18,0);
 
     /* Preparing for printing */
-    if(n%1==0){
+    if(n%10==0){
 
       sprintf(filename,"%s/vortices-%.4f.txt",folder,t);
       dadosVout = fopen(filename,"w");   
@@ -580,11 +587,18 @@ int main(int argc,char **argv){
       fclose(dadosVout);
     }
 
+    err=fprintSafeVortexMoments(totalVortices,n,8,nCnect,rCatalog,Height,Width,X,Y);
+    if(err!=0){printf("problems vortexSafeMoments Total\n"); return -6;}
+    
     err=fprintSafeVortex(vortexFile,n,nCnect,vCatalog,Height,Width,X,Y);
     if(err!=0){printf("problems in printing vortexfile\n"); return -6;}
   } // End of Main loop
 
+    
+  printf("%d timesteps processed\n",n);
+
   fclose(vortexFile);
+  fclose(totalVortices);
   
   dbgPrint(19,0);
 
