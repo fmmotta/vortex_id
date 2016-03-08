@@ -100,6 +100,83 @@ int fprintSafeVortex(FILE *dadosout, int run,int nVortex,
   return 0;
 }
 
+int fprintSafeVortexMoments(FILE *dadosout, int run,int size,int nVortex, 
+                            double *rCatalog,int Height,int Width,
+                            double *X,double *Y)
+{
+  int i;
+  double Xcm,Ycm,rg2,a,b,c,d,norm;
+  double L1,L2,trM2,detM;
+
+  if(dadosout==NULL || run<0 || nVortex<=0 || rCatalog==NULL || size !=8)
+    return 1;
+
+  for(i=0;i<nVortex;i+=1){
+    if(rCatalog[8*i+2] < X[0] || rCatalog[8*i+2] > X[Width-1] ||
+       rCatalog[8*i+3] < Y[0] || rCatalog[8*i+3] > Y[Height-1])
+      continue;
+    Xcm = rCatalog[8*i+2];
+    Ycm = rCatalog[8*i+3];
+
+    // http://www.math.harvard.edu/archive/21b_fall_04/exhibits/2dmatrices/index.html
+
+    a = rCatalog[8*i+4] - Xcm*Xcm;
+    b = rCatalog[8*i+5] - Xcm*Ycm;
+    c = rCatalog[8*i+6] - Ycm*Xcm;
+    d = rCatalog[8*i+7] - Ycm*Ycm;
+
+    fprintf(dadosout,"%f %f %f %f ",rCatalog[8*i+0]
+                                   ,rCatalog[8*i+1]
+                                   ,rCatalog[8*i+2]
+                                   ,rCatalog[8*i+3]);
+
+    fprintf(dadosout,"%.8f %.8f %.8f %.8f ",a,b,c,d);
+
+    rg2 = a+d;
+    fprintf(dadosout,"%f ", sqrt(rg2));
+    
+    trM2  = (a+d)/2.;
+    detM  = a*d-b*c;
+
+    L1 = trM2+sqrt(trM2*trM2-detM);
+    L2 = trM2-sqrt(trM2*trM2-detM);
+    
+    fprintf(dadosout,"%f %f ",L1,L2);
+
+    if(a>0.){
+      
+      if(b>0){
+        norm = sqrt(b*b+(L1-a)*(L1-a));
+        fprintf(dadosout,"%f %f ",b/norm,(L1-a)/norm);
+       
+        norm = sqrt(b*b+(L2-a)*(L2-a));
+        fprintf(dadosout,"%f %f ",b/norm,(L2-a)/norm);
+      }
+      else{
+        norm = sqrt(b*b+(L1-a)*(L1-a));
+        fprintf(dadosout,"%f %f ",-b/norm,-(L1-a)/norm);
+       
+        norm = sqrt(b*b+(L2-a)*(L2-a));
+        fprintf(dadosout,"%f %f ",-b/norm,-(L2-a)/norm); 
+      }
+    }
+    else{
+      fprintf(dadosout,"%f %f ",1.,0.);
+      fprintf(dadosout,"%f %f ",0.,1.);
+    }
+    
+    norm = sqrt(b*b+(L1-a)*(L1-a));
+    if(b>0)
+      fprintf(dadosout,"%f ",(L1-a)/norm);
+    else
+      fprintf(dadosout,"%f ",-(L1-a)/norm);
+    
+    fprintf(dadosout,"\n");
+  }
+
+  return 0;
+}
+
 int fprintsField(FILE *dadosout,double *x0,double *dx,
                  int Width, int Height, double *sField)
 {

@@ -749,7 +749,7 @@ int extract012Momentsw2(int Height,int Width, int nCnect,double *X,double *Y,
                         double *vortSndMomMatrix)
 {
   int i,j,k,err;
-  double rc,rg,a,b,G;
+  double rc,a,b,G,dx,dy,dA;
   double dgradU[2][2],A[nCnect],a0[nCnect],b0[nCnect]; // vorticity
   double w[nCnect],SndMom[4*nCnect],XX,XY,YX,YY,dw2,w2[nCnect];
   
@@ -871,6 +871,9 @@ int extract012Momentsw2(int Height,int Width, int nCnect,double *X,double *Y,
 
   for(k=0;k<nCnect;k+=1){
     
+    rc= sqrt(A[k]/M_PI)*(sqrtf(2.));// Constant comming from 
+                                    //  lamb-oseen vortex;
+
     if(fabs(w2[k])>0.){
       XX = SndMom[4*k+0]/w2[k];
       XY = SndMom[4*k+1]/w2[k];
@@ -889,7 +892,6 @@ int extract012Momentsw2(int Height,int Width, int nCnect,double *X,double *Y,
     }
     
     G = 2.541494083*w[k]; // 2.541494083 = 1/(1-1/sqrt(e)) 
-                          // ... should correct for finite grid size?
 
     vCatalog[4*k+0] = G;
     vCatalog[4*k+1] = rc;

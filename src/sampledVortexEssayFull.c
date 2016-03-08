@@ -44,7 +44,7 @@ int main(int argc,char **argv){
   double *parVortex=NULL,*Glist,*Rclist,cutoff=0.;
   double *sField=NULL,*gField=NULL,*g2Field=NULL,*uField=NULL;
   double *uBuff=NULL,*Xbuff,*Ybuff,*X,*Y;
-  double *ux,*uy,*uxxy,*uxyy,*uxxx,*uyyy;
+  double *ux,*uy,*uxxy,*uxyy,*uxxx,*uyyy,*vortSndMomMatrix=NULL;
   double v0y0 = 0.00,*vCatalog=NULL,*rCatalog=NULL,*majorVortex=NULL;
   double hGmin=0.,hGmax=0.,hRcMin=0.,hRcMax=0.;
   char genFile[300+1],folder[100+1],tag[100+1],filename[400+1];
@@ -223,6 +223,14 @@ int main(int argc,char **argv){
     return 4;
   }
 
+  vortSndMomMatrix = (double*)malloc(4*nMax*sizeof(double));
+  if(vortSndMomMatrix==NULL){
+    printf("memory not allocked\n");
+    return 3;
+  }
+  for(i=0;i<4*nMax;i+=1)
+    vortSndMomMatrix[i]=-1.;
+
   dbgPrint(10,0);
 
   fieldAlloc(sField ,Height*Width,double);
@@ -344,6 +352,24 @@ int main(int argc,char **argv){
       dadosField = fopen(filename,"w");
       fprintLabels(dadosField,x0,dx,Width,Height,label);
       fclose(dadosField);
+
+
+      err= extract012Momentsw2(Height,Width,nCnect,X,Y,sField,gField,label,vCatalog,vortSndMomMatrix);
+      if(err!=0){
+        printf("problems in extract012Momentsw2\n");
+        return err;
+      }
+
+      for(i=0;i<nCnect;i+=1){
+        rCatalog[8*i+0]=vCatalog[4*i+0];
+        rCatalog[8*i+1]=vCatalog[4*i+1];
+        rCatalog[8*i+2]=vCatalog[4*i+2];
+        rCatalog[8*i+3]=vCatalog[4*i+3];
+        rCatalog[8*i+4]=vortSndMomMatrix[4*i+0];
+        rCatalog[8*i+5]=vortSndMomMatrix[4*i+1];
+        rCatalog[8*i+6]=vortSndMomMatrix[4*i+2];
+        rCatalog[8*i+7]=vortSndMomMatrix[4*i+3];
+      }
     }
     
     /*

@@ -14,6 +14,10 @@ int fprintSafeVortex(FILE *dadosout, int run,int nVortex,
                      double *vCatalog,int Height,int Width,
                      double *X,double *Y);
 
+int fprintSafeVortexMoments(FILE *dadosout, int run,int size,int nVortex, 
+                            double *rCatalog,int Height,int Width,
+                            double *X,double *Y);
+
 int fprintsField(FILE *dadosout,double *x0,double *dx,
                  int Width, int Height, double *sField);
 

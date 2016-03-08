@@ -63,71 +63,6 @@ void vortexAdaptiveQuickSort(double *v,int nCnect,int size,
   vortexQuickSort(v+size*i,nCnect-i,cmp);
 }
 
-int fprintSafeVortexMoments(FILE *dadosout, int run,int size,int nVortex, 
-                            double *rCatalog,int Height,int Width,
-                            double *X,double *Y)
-{
-  int i;
-  double Xcm,Ycm,rg2;
-  double L1,L2,trM2,detM;
-  
-  if(DEBUG_PRINT)
-    printf("nVortex=%d\n",nVortex);
-
-  if(dadosout==NULL || run<0 || nVortex<=0 || rCatalog==NULL || size !=8)
-    return 1;
-
-  for(i=0;i<nVortex;i+=1){
-    if(rCatalog[8*i+2] < X[0] || rCatalog[8*i+2] > X[Width-1] ||
-       rCatalog[8*i+3] < Y[0] || rCatalog[8*i+3] > Y[Height-1])
-      continue;
-    Xcm = rCatalog[8*i+2];
-    Ycm = rCatalog[8*i+3];
-    fprintf(dadosout,"%f %f %f %f ",rCatalog[8*i+0]
-                                   ,rCatalog[8*i+1]
-                                   ,rCatalog[8*i+2]
-                                   ,rCatalog[8*i+3]);
-
-    fprintf(dadosout,"%f %f %f %f ",rCatalog[8*i+4] - Xcm*Xcm
-                                   ,rCatalog[8*i+5] - Xcm*Ycm
-                                   ,rCatalog[8*i+6] - Ycm*Xcm
-                                   ,rCatalog[8*i+7] - Ycm*Ycm);
-    
-    rg2 = rCatalog[8*i+4]+rCatalog[8*i+7] -(Xcm*Xcm+Ycm*Ycm) ;
-    fprintf(dadosout,"%f ", rg2);
-    
-    trM2  = ((rCatalog[8*i+4] - Xcm*Xcm)+(rCatalog[8*i+7] - Ycm*Ycm))/2.;
-    detM  = (rCatalog[8*i+4] - Xcm*Xcm)*(rCatalog[8*i+7] - Ycm*Ycm);
-    detM -= (rCatalog[8*i+5] - Xcm*Ycm)*(rCatalog[8*i+6] - Ycm*Xcm);
-
-    L1 = -trM2+sqrt(trM2*trM2-detM);
-    L2 = -trM2-sqrt(trM2*trM2-detM);
-    
-    fprintf(dadosout,"%f %f ",L1,L2);
-
-    if(fabs(rCatalog[8*i+1] - Xcm*Ycm)>0.){
-      if((rCatalog[8*i+1] - Xcm*Ycm)>0){
-        fprintf(dadosout,"%f %f ",rCatalog[8*i+5] - Xcm*Ycm,L1-(rCatalog[8*i+4] - Xcm*Xcm) );
-        fprintf(dadosout,"%f %f ",rCatalog[8*i+5] - Xcm*Ycm,L2-(rCatalog[8*i+4] - Xcm*Xcm) );
-      }
-      else if((rCatalog[8*i+1] - Xcm*Ycm)<0.){
-        fprintf(dadosout,"%f %f ",-rCatalog[8*i+5]+Xcm*Ycm,-L1+(rCatalog[8*i+4] - Xcm*Xcm) );
-        fprintf(dadosout,"%f %f ",-rCatalog[8*i+5]+Xcm*Ycm,-L2+(rCatalog[8*i+4] - Xcm*Xcm) ); 
-      }
-      fprintf(dadosout,"%f ", (L2-(rCatalog[8*i+4]-Xcm*Xcm))/(rCatalog[8*i+5]-Xcm*Ycm));
-    }
-    else{
-      fprintf(dadosout,"%f %f ",1.,0.);
-      fprintf(dadosout,"%f %f ",0.,1.);
-      fprintf(dadosout,"%f ", 0.);
-    }
-
-    fprintf(dadosout,"\n");
-  }
-
-  return 0;
-}
-
 int main(int argc,char **argv){
   int Width = 100, Height = 100, Depth, nVortex=5,nFixVortex=5,nRuns=1000;
   int runType=0,*label=NULL,**eqClass=NULL;
@@ -593,7 +528,8 @@ int main(int argc,char **argv){
       fprintUpresence(dadosout,X,Y,Height,Width,label);
       fclose(dadosout);
     }
-    
+
+    /*
     err=vortexUReconstruction(runType,Height,Width,nCnect,X,Y,sField, 
                               gField,label,&vCatalog);
     if(err!=0){
@@ -604,6 +540,18 @@ int main(int argc,char **argv){
     err=extractSecondMoment(Height,Width,nCnect,X,Y,sField,gField,label,vCatalog,vortSndMomMatrix);
     if(err!=0){
       printf("problems in extractSecondMoment\n");
+      return err;
+    }
+    */
+
+    //vortexQuickSort(vCatalog,nCnect,&greaterAbsCirculation);
+    
+    //vortexAdaptiveQuickSort(rCatalog,nCnect,8,&greaterAbsCirculation);
+    
+
+    err= extract012Momentsw2(Height,Width,nCnect,X,Y,sField,gField,label,vCatalog,vortSndMomMatrix);
+    if(err!=0){
+      printf("problems in extract012Momentsw2\n");
       return err;
     }
 
@@ -617,11 +565,7 @@ int main(int argc,char **argv){
       rCatalog[8*i+6]=vortSndMomMatrix[4*i+2];
       rCatalog[8*i+7]=vortSndMomMatrix[4*i+3];
     }
-
-    vortexQuickSort(vCatalog,nCnect,&greaterAbsCirculation);
-    
-    //vortexAdaptiveQuickSort(rCatalog,nCnect,8,&greaterAbsCirculation);
-
+  
     dbgPrint(17,0);
 
     err=histoIncVortex(nCnect,vCatalog,hG,hRc,ha,hb);
@@ -637,7 +581,6 @@ int main(int argc,char **argv){
       err=fprintVortex(dadosVout,n,nCnect,vCatalog);
       if(err!=0){printf("problems vortices\n"); return -6;}
       fclose(dadosVout);
-
       
       sprintf(filename,"%s/vorticesSafe-%.4f.txt",folder,t);
       dadosVout = fopen(filename,"w");
@@ -707,6 +650,7 @@ int main(int argc,char **argv){
   if(Xload!=NULL) free(Xload);
   if(Yload!=NULL) free(Yload);
   if(Zload!=NULL) free(Zload);
+  if(vortSndMomMatrix!=NULL) free(vortSndMomMatrix);
 
   for(i=0;i<NumCls;i+=1)
     free(eqClass[i]);
