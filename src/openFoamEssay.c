@@ -490,6 +490,8 @@ int main(int argc,char **argv){
       if(planeIndex>0){        
         //safeFopen(uFile,"r","%s/%g/U",foamFolder,t);
         //safeFopen(pFile,"r","%s/%g/p",foamFolder,t);
+
+        printf("planeIndex=%d\n",planeIndex);
         
         sprintf(filename,"%s/%g/U",foamFolder,t);
         uFile = fopen(filename,"r");
@@ -519,6 +521,8 @@ int main(int argc,char **argv){
         if(DEBUG_PRINT)
           printf("Operating with multiple slices\n");
         
+        printf("plane =%d\n",pln[l]);
+
         if(planeType==0)
           sprintf(filename,"%s/plane-z%3d-%.4f.dat",folder,pln[l],t);
         else if(planeType==1)
@@ -532,7 +536,7 @@ int main(int argc,char **argv){
 
         for(i=0;i<Height;i+=1)
           for(j=0;j<Width;j+=1)
-            fscanf(dadosin,"%lf%lf",&(uField[2*(i*Width+j)+0]),&(uField[2*(i*Width+j)+1]));
+            fscanf(dadosin,"%l%lff",&(uField[2*(i*Width+j)+0]),&(uField[2*(i*Width+j)+1]));
         fclose(dadosin);
       }
 
