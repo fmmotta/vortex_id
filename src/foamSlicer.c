@@ -18,8 +18,8 @@
 #include "vortexExtraction.h"		
 #include "essayHandler.h"
 
-#define DEBUG_MODE true
-#define DEBUG_PRINT true
+#define DEBUG_MODE false
+#define DEBUG_PRINT false
 
 #define dbgPrint(num,num2) if(DEBUG_PRINT) printf("check point - %d-%d\n",(num),(num2))
 
@@ -118,8 +118,11 @@ int main(int argc,char **argv){
     printf("error, non-recognized plane type\n");
     return -15;
   }
+  
+  if(planeIndex<0)
+    printf("Switching to plane number list\n");
 
-  if(planeIndex<0 || planeIndex>=Depth)
+  if(planeIndex>=Depth)
     printf("Out of bounds plane\n");
 
   if(cfg.Nx == 0 || cfg.Ny == 0 || cfg.Nz == 0){
@@ -209,15 +212,18 @@ int main(int argc,char **argv){
     
     dbgPrint(5,0);
     
-    sprintf(filename,"%s/%.4f/U",foamFolder,t);
+    sprintf(filename,"%s/%g/U",foamFolder,t);
     uFile = fopen(filename,"r");
     if(uFile==NULL)
-      printf("problems opening uFile - %d\n",n);
+      printf("problems opening uFile - %s\n",filename);
     
-    sprintf(filename,"%s/%.4f/p",foamFolder,t);
+    sprintf(filename,"%s/%g/p",foamFolder,t);
     pFile = fopen(filename,"r");
     if(pFile==NULL)
-      printf("problems opening pFile - %d\n",n);
+      printf("problems opening pFile - %s\n",filename);
+
+    if(uFile==NULL || pFile==NULL)
+      continue;
     
     dbgPrint(5,1);
     
