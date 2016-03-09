@@ -21,7 +21,7 @@
 #include "essayHandler.h"
 
 #define DEBUG_MODE false
-#define DEBUG_PRINT false
+#define DEBUG_PRINT true
 
 #define dbgPrint(num,num2) if(DEBUG_PRINT) printf("check point - %d-%d\n",(num),(num2))
 
@@ -534,10 +534,14 @@ int main(int argc,char **argv){
         if(dadosin==NULL) 
           printf("Failed to open slice - %s\n",filename);
 
+        dbgPrint(15,31);
+        
         for(i=0;i<Height;i+=1)
           for(j=0;j<Width;j+=1)
-            fscanf(dadosin,"%l%lff",&(uField[2*(i*Width+j)+0]),&(uField[2*(i*Width+j)+1]));
+            fscanf(dadosin,"%lf%lf",&(uField[2*(i*Width+j)+0]),&(uField[2*(i*Width+j)+1]));
         fclose(dadosin);
+        
+        dbgPrint(15,32);
       }
 
       dbgPrint(15,3);
