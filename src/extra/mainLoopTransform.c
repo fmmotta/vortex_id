@@ -5,13 +5,13 @@
 
 //---------------------------------------------------------------------
 
-int sliceFoamField(int Height,int Width,int index,openFoamIcoData *node,
-	               double *uField)
+int sliceFoamField(int Height,int Width,int planeType,int index,
+                   int Nx,int Ny,int Nz,openFoamIcoData *node,double *uField)
 {
   int i,j,k;
 
   if(Height<=0 || Width<=0 || index <=0 || node == NULL || uField == NULL)
-  	return 1;
+    return 1;
 
   if(planeType==0){
     if(DEBUG_PRINT)
@@ -48,23 +48,23 @@ int sliceFoamField(int Height,int Width,int index,openFoamIcoData *node,
 
 //---------------------------------------------------------------------
 
-void printVelocityFields(int Height,int Width, double *X,double *Y,int n,
-	                     char *folder,double *sField,int *label);
+void printScalarFields(int Height,int Width, double *X,double *Y,int n,
+	                   char *folder,int index,double *sField,int *label)
 {
   char filename[512+1];
   FILE *dadosout;
 
-  sprintf(filename,"%s/sField-%d.txt",folder,n);
+  sprintf(filename,"%s/sField-p%3d-%d.txt",folder,index,n);
   dadosout = fopen(filename,"w");
   fprintUsfield(dadosout,X,Y,Height,Width,sField);
   fclose(dadosout);
 
-  sprintf(filename,"%s/labels-%d.txt",folder,n);
+  sprintf(filename,"%s/labels-p%3d-%d.txt",folder,index,n);
   dadosout = fopen(filename,"w");
   fprintUlabels(dadosout,X,Y,Height,Width,label);
   fclose(dadosout);
 
-  sprintf(filename,"%s/presence-%d.txt",folder,n);
+  sprintf(filename,"%s/presence-p%3d-%d.txt",folder,index,n);
   dadosout = fopen(filename,"w");
   fprintUpresence(dadosout,X,Y,Height,Width,label);
   fclose(dadosout);
@@ -73,24 +73,24 @@ void printVelocityFields(int Height,int Width, double *X,double *Y,int n,
 //----------------------------------------------------------------------
 
 void printVorticesAndMoments(int Height,int Width, double *X,double *Y,int n,char *folder,
-	                         int nCnect,double *vCatalog,double *rCatalog)
+	                         int index,int nCnect,double *vCatalog,double *rCatalog)
 {
   char filename[512+1];
   FILE *dadosout,*dadosVout;
 
-  sprintf(filename,"%s/vortices-%.4f.txt",folder,t);
+  sprintf(filename,"%s/vortices-p%3d-%.4f.txt",folder,index,t);
   dadosVout = fopen(filename,"w");   
   err=fprintVortex(dadosVout,n,nCnect,vCatalog);
   if(err!=0){printf("problems vortices\n"); return -6;}
   fclose(dadosVout);
       
-  sprintf(filename,"%s/vorticesSafe-%.4f.txt",folder,t);
+  sprintf(filename,"%s/vorticesSafe-p%3d-%.4f.txt",folder,index,t);
   dadosVout = fopen(filename,"w");
   err=fprintSafeVortex(dadosVout,n,nCnect,vCatalog,Height,Width,X,Y);
   if(err!=0){printf("problems vorticesSafe\n"); return -6;}
   fclose(dadosVout);
       
-  sprintf(filename,"%s/vortexSafeMoments-%.4f.txt",folder,t);
+  sprintf(filename,"%s/vortexSafeMoments-p%3d-%.4f.txt",folder,index,t);
   dadosVout = fopen(filename,"w");
   err=fprintSafeVortexMoments(dadosVout,n,8,nCnect,rCatalog,Height,Width,X,Y);
   if(err!=0){printf("problems vortexSafeMoments\n"); return -6;}
@@ -175,7 +175,7 @@ void printVorticesAndMoments(int Height,int Width, double *X,double *Y,int n,cha
       dbgPrint(15,4);
       
       if(n%10==0)
-        printScalarFields(Height,Width,X,Y,n,folder,sField,label);
+        printScalarFields(Height,Width,X,Y,n,folder,pln[l],sField,label);
       
       dbgPrint(15,5);
 
@@ -217,8 +217,6 @@ void printVorticesAndMoments(int Height,int Width, double *X,double *Y,int n,cha
       if(err!=0){printf("problems\n"); return -5;}
     
       dbgPrint(18,0);
-    }
-
 
       /* Preparing for printing */
       if(n%10==0){
@@ -240,7 +238,8 @@ void printVorticesAndMoments(int Height,int Width, double *X,double *Y,int n,cha
         //if(err!=0){printf("problems vortexSafeMoments\n"); return -6;}
         //fclose(dadosVout);
 
-        printVorticesAndMoments(Height,Width,X,Y,n,folder,nCnect,vCatalog,rCatalog);
+        printVorticesAndMoments(Height,Width,X,Y,n,folder,pln[l],nCnect,vCatalog,rCatalog);
+        
       }
 
       err=fprintSafeVortexMoments(totalVortices,n,8,nCnect,rCatalog,Height,Width,X,Y);
@@ -248,4 +247,5 @@ void printVorticesAndMoments(int Height,int Width, double *X,double *Y,int n,cha
     
       err=fprintSafeVortex(vortexFile,n,nCnect,vCatalog,Height,Width,X,Y);
       if(err!=0){printf("problems in printing vortexfile\n"); return -6;}
+    }
   } // End of Main loop

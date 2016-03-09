@@ -186,19 +186,19 @@ int main(int argc,char **argv){
   sprintf(filename,"%s/Xaxis.dat",folder);
   dadosout = fopen(filename,"w");
   for(i=0;i<Nx;i+=1)
-    fprintf(dadosout,"%f\n",X[i]);
+    fprintf(dadosout,"%.8g\n",X[i]);
   fclose(dadosout);
 
   sprintf(filename,"%s/Yaxis.dat",folder);
   dadosout = fopen(filename,"w");
   for(i=0;i<Ny;i+=1)
-    fprintf(dadosout,"%f\n",Y[i]);
+    fprintf(dadosout,"%.8g\n",Y[i]);
   fclose(dadosout);
 
   sprintf(filename,"%s/Zaxis.dat",folder);
   dadosout = fopen(filename,"w");
   for(i=0;i<Nz;i+=1)
-    fprintf(dadosout,"%f\n",Z[i]);
+    fprintf(dadosout,"%.8g\n",Z[i]);
   fclose(dadosout);
 
   for(n=0;n<Nsnapshots;n+=1){
@@ -258,7 +258,7 @@ int main(int argc,char **argv){
           for(i=0;i<Width;i+=1){
             uField[2*(j*Width+i)+0] = node[id(i,j,k)].u;
             uField[2*(j*Width+i)+1] = node[id(i,j,k)].v;
-            fprintf(dadosout,"%lf %lf\n",uField[2*(j*Width+i)+0]
+            fprintf(dadosout,"%.8g %.8g\n",uField[2*(j*Width+i)+0]
                                         ,uField[2*(j*Width+i)+1]);
           }
         
@@ -279,8 +279,8 @@ int main(int argc,char **argv){
             for(i=0;i<Width;i+=1){
               uField[2*(j*Width+i)+0] = node[id(i,j,k)].u;
               uField[2*(j*Width+i)+1] = node[id(i,j,k)].v;
-              fprintf(dadosout,"%lf %lf\n",uField[2*(j*Width+i)+0]
-                                          ,uField[2*(j*Width+i)+1]);
+              fprintf(dadosout,"%.8g %.8g\n",uField[2*(j*Width+i)+0]
+                                            ,uField[2*(j*Width+i)+1]);
             }
           
           if(dadosout!=NULL){fclose(dadosout);dadosout=NULL;}
@@ -305,8 +305,8 @@ int main(int argc,char **argv){
           for(k=0;k<Width;k+=1){
             uField[2*(j*Width+k)+0] = node[id(i,j,k)].w;
             uField[2*(j*Width+k)+1] = node[id(i,j,k)].v;
-            fprintf(dadosout,"%lf %lf\n",uField[2*(j*Width+k)+0]
-                                        ,uField[2*(j*Width+k)+1]);
+            fprintf(dadosout,"%.8g %.8g\n",uField[2*(j*Width+k)+0]
+                                          ,uField[2*(j*Width+k)+1]);
           }
         
         if(dadosout!=NULL){fclose(dadosout);dadosout=NULL;}
@@ -326,8 +326,8 @@ int main(int argc,char **argv){
             for(k=0;k<Width;k+=1){
               uField[2*(j*Width+k)+0] = node[id(i,j,k)].w;
               uField[2*(j*Width+k)+1] = node[id(i,j,k)].v;
-              fprintf(dadosout,"%lf %lf\n",uField[2*(j*Width+k)+0]
-                                          ,uField[2*(j*Width+k)+1]);
+              fprintf(dadosout,"%.8g %.8g\n",uField[2*(j*Width+k)+0]
+                                            ,uField[2*(j*Width+k)+1]);
             }
           
           if(dadosout!=NULL){fclose(dadosout);dadosout=NULL;}
@@ -353,8 +353,8 @@ int main(int argc,char **argv){
           for(i=0;i<Width;i+=1){
             uField[2*(k*Width+i)+0] = node[id(i,j,k)].w;
             uField[2*(k*Width+i)+1] = node[id(i,j,k)].u;
-            fprintf(dadosout,"%lf %lf\n",uField[2*(k*Width+i)+0]
-                                        ,uField[2*(k*Width+i)+1]);
+            fprintf(dadosout,"%.8g %.8g\n",uField[2*(k*Width+i)+0]
+                                          ,uField[2*(k*Width+i)+1]);
           }
         
         if(dadosout!=NULL){fclose(dadosout);dadosout=NULL;}
@@ -374,8 +374,8 @@ int main(int argc,char **argv){
             for(i=0;i<Width;i+=1){
               uField[2*(k*Width+i)+0] = node[id(i,j,k)].w;
               uField[2*(k*Width+i)+1] = node[id(i,j,k)].u;
-              fprintf(dadosout,"%lf %lf\n",uField[2*(k*Width+i)+0]
-                                          ,uField[2*(k*Width+i)+1]);
+              fprintf(dadosout,"%.8g %.8g\n",uField[2*(k*Width+i)+0]
+                                            ,uField[2*(k*Width+i)+1]);
             }
           
           if(dadosout!=NULL){fclose(dadosout);dadosout=NULL;}
