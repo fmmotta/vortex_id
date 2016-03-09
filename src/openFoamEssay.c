@@ -105,6 +105,9 @@ int main(int argc,char **argv){
       printf("Wrongly written configuration file, specify number of slices\n");
       return 1;
     }
+  }else{
+    planeNum = 1;
+    pln[0] = planeIndex;
   }
 
   if(planeType==0){
@@ -377,7 +380,7 @@ int main(int argc,char **argv){
       label[i]=-1;
     
     dbgPrint(15,0);
-    if(planeIndex>=0){
+    
       sprintf(filename,"%s/%g/U",foamFolder,t);
       uFile = fopen(filename,"r");
       if(uFile==NULL)
@@ -452,20 +455,6 @@ int main(int argc,char **argv){
       if(dadosout!=NULL)
         fclose(dadosout);
     
-    }
-    else{
-      // WARNING - This section is not ready to use!!!
-      printf("Problems - This code should not execute!!!");
-      if(planeType==0){
-        if(DEBUG_PRINT)
-          printf("XY plane\n");
-        for(l=0;l<planeNum;l+=1){
-          k=pln[l];
-          sprintf(filename,"%s/plane-z%3d-%.4f.dat",folder,k,t);
-
-        }
-      }
-    }
 
     dbgPrint(15,3);
 

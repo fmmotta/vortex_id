@@ -94,6 +94,9 @@ int main(int argc,char **argv){
       printf("Wrongly written configuration file, specify number of slices\n");
       return 1;
     }
+  }else{
+    planeNum = 1;
+    pln[0] = planeIndex;
   }
   
   if(planeType==0){
