@@ -21,7 +21,7 @@
 #include "essayHandler.h"
 
 #define DEBUG_MODE false
-#define DEBUG_PRINT true
+#define DEBUG_PRINT false
 
 #define dbgPrint(num,num2) if(DEBUG_PRINT) printf("check point - %d-%d\n",(num),(num2))
 
@@ -521,7 +521,8 @@ int main(int argc,char **argv){
         if(DEBUG_PRINT)
           printf("Operating with multiple slices\n");
         
-        printf("plane =%d\n",pln[l]);
+        if(DEBUG_PRINT)
+          printf("plane =%d\n",pln[l]);
 
         if(planeType==0)
           sprintf(filename,"%s/plane-z%3d-%.4f.dat",folder,pln[l],t);

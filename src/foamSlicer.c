@@ -172,8 +172,10 @@ int main(int argc,char **argv){
   sprintf(filename,"%s/constant/polyMesh/points",foamFolder);
   nFile = fopen(filename,"r");
   err=loadAxis(nFile,Nx,Ny,Nz,Xload,Yload,Zload);
-  if(err!=0)
+  if(err!=0){
+  	printf("Coulnd't execute loadAxis\n");
     return err;
+  }
   fclose(nFile);
   
   for(j=0;j<Nx;j+=1)
