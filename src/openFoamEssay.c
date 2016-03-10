@@ -524,12 +524,9 @@ int main(int argc,char **argv){
         if(DEBUG_PRINT)
           printf("plane =%d\n",pln[l]);
 
-        if(planeType==0)
-          sprintf(filename,"%s/plane-z%3d-%.4f.dat",folder,pln[l],t);
-        else if(planeType==1)
-          sprintf(filename,"%s/plane-x%3d-%.4f.dat",folder,pln[l],t);
-        else if(planeType==2)
-          sprintf(filename,"%s/plane-y%3d-%.4f.dat",folder,pln[l],t);
+        if(planeType==0)      sprintf(filename,"%s/plane-z%3d-%.4f.dat",folder,pln[l],t);
+        else if(planeType==1) sprintf(filename,"%s/plane-x%3d-%.4f.dat",folder,pln[l],t);
+        else if(planeType==2) sprintf(filename,"%s/plane-y%3d-%.4f.dat",folder,pln[l],t);
 
         dadosin=fopen(filename,"r");
         if(dadosin==NULL) 
