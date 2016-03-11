@@ -15,6 +15,7 @@
 #include "stencilExtended.h"
 #include "lambdaInit.h"
 #include "vortexExtraction.h"
+#include "vortexExtractionExtend.h"
 #include "inputManager.h"
 #include "essayHandler.h"
 
@@ -182,6 +183,9 @@ int main(int argc,char **argv){
     threshold = cfg.sndSwThresh;
   else
     threshold = -1.;
+
+  if(threshold<0)
+    printf("negative threshold!\n");
 
   hNG     = cfg.hNG;
   hNRc    = cfg.hNRc;
@@ -378,15 +382,15 @@ int main(int argc,char **argv){
       printf("problems in extract012Momentsw2\n");
       return err;
     }
-    
+
     for(i=0;i<nCnect;i+=1){
       if(runType==0){
-        vCatalog[4*i+0]=(1./1.12091)*vCatalog[4*i+0];
-        vCatalog[4*i+1]= 1.397948086*vCatalog[4*i+1];
+        vCatalog[4*i+0]= 1.397948086*vCatalog[4*i+0];
+        vCatalog[4*i+1]=(1./1.12091)*vCatalog[4*i+1];
       }
       else if(runType==1){
-        vCatalog[4*i+0]=  (sqrt(2.))*vCatalog[4*i+0];
-        vCatalog[4*i+1]= 2.541494083*vCatalog[4*i+1]; 
+        vCatalog[4*i+0]= 2.541494083*vCatalog[4*i+0];
+        vCatalog[4*i+1]=  (sqrt(2.))*vCatalog[4*i+1]; 
       }
     }
 
@@ -449,7 +453,7 @@ int main(int argc,char **argv){
       fclose(dadosVin);
       fclose(dadosVout);
 
-      sprintf(filename,"%s/vortexMoments-%.4f.txt",folder,t);
+      sprintf(filename,"%s/vortexMoments-%d.txt",folder,n);
       dadosVout = fopen(filename,"w");
       err=fprintSafeVortexMoments(dadosVout,n,8,mCnect,mCatalog,Height,Width,X,Y);
       if(err!=0){printf("problems vortexSafeMoments\n"); return -6;}
@@ -512,6 +516,8 @@ int main(int argc,char **argv){
     free(vCatalog);
   if(rCatalog!=NULL)
     free(rCatalog);
+  if(vortSndMomMatrix!=NULL)
+    free(vortSndMomMatrix);
   if(mCatalog!=NULL)
     free(mCatalog);
   if(majorVortex!=NULL)

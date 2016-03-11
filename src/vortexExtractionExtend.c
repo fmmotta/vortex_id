@@ -875,7 +875,7 @@ int extract012Momentsw2(int Height,int Width, int nCnect,double *X,double *Y,
         if(err!=0) return err;
         w[k] += dgradU[1][0]-dgradU[0][1];
 
-        err=add_dA(Height,Width,i,j,k,1,-1,gField,label,&dA,X,Y);
+        err=add_dA(Height,Width,i,j,k,-1,-1,gField,label,&dA,X,Y);
         if(err!=0) return err;
         A[k] += dA;
 
