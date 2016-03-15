@@ -105,30 +105,30 @@ int fprintSafeVortexMoments(FILE *dadosout, int run,int size,int nVortex,
                             double *X,double *Y)
 {
   int i;
-  double Xcm,Ycm,rg2,a,b,c,d,norm;
-  double L1,L2,trM2,detM;
+  double Xcm,Ycm,rg2,a,b,c,d,norm,ac,bc;
+  double L1,L2,trM2,detM,gradU[2][2];
 
-  if(dadosout==NULL || run<0 || nVortex<=0 || rCatalog==NULL || size !=8)
+  if(dadosout==NULL || run<0 || nVortex<=0 || rCatalog==NULL)
     return 1;
 
   for(i=0;i<nVortex;i+=1){
-    if(rCatalog[8*i+2] < X[0] || rCatalog[8*i+2] > X[Width-1] ||
-       rCatalog[8*i+3] < Y[0] || rCatalog[8*i+3] > Y[Height-1])
+    if(rCatalog[size*i+2] < X[0] || rCatalog[size*i+2] > X[Width-1] ||
+       rCatalog[size*i+3] < Y[0] || rCatalog[size*i+3] > Y[Height-1])
       continue;
-    Xcm = rCatalog[8*i+2];
-    Ycm = rCatalog[8*i+3];
+    Xcm = rCatalog[size*i+2];
+    Ycm = rCatalog[size*i+3];
 
     // http://www.math.harvard.edu/archive/21b_fall_04/exhibits/2dmatrices/index.html
 
-    a = rCatalog[8*i+4] - Xcm*Xcm;
-    b = rCatalog[8*i+5] - Xcm*Ycm;
-    c = rCatalog[8*i+6] - Ycm*Xcm;
-    d = rCatalog[8*i+7] - Ycm*Ycm;
+    a = rCatalog[size*i+4] - Xcm*Xcm;
+    b = rCatalog[size*i+5] - Xcm*Ycm;
+    c = rCatalog[size*i+6] - Ycm*Xcm;
+    d = rCatalog[size*i+7] - Ycm*Ycm;
 
-    fprintf(dadosout,"%f %f %f %f ",rCatalog[8*i+0]
-                                   ,rCatalog[8*i+1]
-                                   ,rCatalog[8*i+2]
-                                   ,rCatalog[8*i+3]);
+    fprintf(dadosout,"%f %f %f %f ",rCatalog[size*i+0]
+                                   ,rCatalog[size*i+1]
+                                   ,rCatalog[size*i+2]
+                                   ,rCatalog[size*i+3]);
 
     fprintf(dadosout,"%.8f %.8f %.8f %.8f ",a,b,c,d);
 
@@ -171,8 +171,23 @@ int fprintSafeVortexMoments(FILE *dadosout, int run,int size,int nVortex,
     else
       fprintf(dadosout,"%f ",-(L1-a)/norm);
     
+    gradU[0][0] = rCatalog[size*i+8];
+    gradU[0][1] = rCatalog[size*i+9];
+    gradU[1][0] = rCatalog[size*i+10];
+    gradU[1][1] = rCatalog[size*i+11];
+
+    fprintf(dadosout,"%f %f %f %f ",gradU[0][0],
+                                    (gradU[0][1]+gradU[1][0])/2.,
+                                    (gradU[0][1]+gradU[1][0])/2.,
+                                    gradU[1][1]);
+    
+    ac = (gradU[0][1]+gradU[1][0])/2.;
+    bc = gradU[1][1];
+    fprintf(dadosout,"%f %f",gradU[1][0]-gradU[0][1],sqrt(ac*ac+bc*bc));
+    
     fprintf(dadosout,"\n");
   }
+
 
   return 0;
 }

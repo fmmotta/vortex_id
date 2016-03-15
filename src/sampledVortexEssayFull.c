@@ -38,13 +38,13 @@ int main(int argc,char **argv){
   long long int seed=98755;
   int Width = 100, Height = 100,nVortex=5,nFixVortex=5,nRuns=1000;
   int runType=0,genType=0,numG=3,numRc=3,*label=NULL,**eqClass=NULL;
-  int hNG=50,hNRc=53,hNa=40,hNb=40,hNN=10, calcScalarMode=0;
+  int hNG=50,hNRc=53,hNa=40,hNb=40,hNN=10, calcScalarMode=0,dataSize;
   int i,j,err,nCnect=0,rCnect=0,n,nMax=500,padWidth=2,mCnect=0.;
   double Gmin=1.,Gmax=20.,rmin=0.5,rmax=1.0,threshold=0.5;
   double xmin[2]={-9.,-9.},xmax[2]={9.,9.},x0[2],dx[2],xf[2];
   double *parVortex=NULL,*Glist,*Rclist,cutoff=0.;
   double *sField=NULL,*gField=NULL,*g2Field=NULL,*uField=NULL;
-  double *uBuff=NULL,*Xbuff,*Ybuff,*X,*Y,*mCatalog;
+  double *uBuff=NULL,*Xbuff,*Ybuff,*X,*Y,*mCatalog,*avgGradU;
   double *ux,*uy,*uxxy,*uxyy,*uxxx,*uyyy,*vortSndMomMatrix=NULL;
   double v0y0 = 0.00,*vCatalog=NULL,*rCatalog=NULL,*majorVortex=NULL;
   double hGmin=0.,hGmax=0.,hRcMin=0.,hRcMax=0.;
@@ -53,6 +53,8 @@ int main(int argc,char **argv){
   gsl_histogram *hG,*hRc,*ha,*hb,*hN;
   gsl_histogram *iG,*iRc,*ia,*ib;
   configVar cfg;
+
+  dataSize = 12;
   
   /*********************************/
 
@@ -227,7 +229,7 @@ int main(int argc,char **argv){
     return 4;
   }
   
-  mCatalog = (double*)malloc(8*nMax*sizeof(double));
+  mCatalog = (double*)malloc(dataSize*nMax*sizeof(double));
   if(mCatalog==NULL){
     printf("memory not allocked\n");
     return 4;
@@ -240,6 +242,14 @@ int main(int argc,char **argv){
   }
   for(i=0;i<4*nMax;i+=1)
     vortSndMomMatrix[i]=-1.;
+
+  avgGradU = (double*)malloc(4*nMax*sizeof(double));
+  if(avgGradU==NULL){
+    printf("memory not allocked\n");
+    return 3;
+  }
+  for(i=0;i<4*nMax;i+=1)
+    avgGradU[i]=-1.;
 
   dbgPrint(10,0);
 
@@ -377,13 +387,42 @@ int main(int argc,char **argv){
       return err;
     }*/
 
-    err= extract012Momentsw2(Height,Width,nCnect,X,Y,sField,gField,label,vCatalog,vortSndMomMatrix);
+    err= extract012Momentsw2(Height,Width,nCnect,X,Y,sField,gField,label,
+                             vCatalog,vortSndMomMatrix,avgGradU);
     if(err!=0){
       printf("problems in extract012Momentsw2\n");
       return err;
     }
+    
+    {
+      rCnect=0;
+      for(i=0;i<nCnect;i+=1){
+        if(fabs(vCatalog[4*i+2])<=9 && fabs(vCatalog[4*i+3])<=9){
+          rCatalog[4*rCnect+0]=vCatalog[4*i+0];
+          rCatalog[4*rCnect+1]=vCatalog[4*i+1];
+          rCatalog[4*rCnect+2]=vCatalog[4*i+2];
+          rCatalog[4*rCnect+3]=vCatalog[4*i+3];
+          rCnect+=1;
+        }
+      }
+
+      for(i=0;i<rCnect;i+=1){
+        vCatalog[4*i+0]=rCatalog[4*i+0];
+        vCatalog[4*i+1]=rCatalog[4*i+1];
+        vCatalog[4*i+2]=rCatalog[4*i+2];
+        vCatalog[4*i+3]=rCatalog[4*i+3];      
+      }
+      for(i=rCnect;i<nCnect;i+=1){
+        vCatalog[4*i+0]=0.;
+        vCatalog[4*i+1]=0.;
+        vCatalog[4*i+2]=0.;
+        vCatalog[4*i+3]=0.;      
+      }
+      nCnect=rCnect;
+    }
 
     for(i=0;i<nCnect;i+=1){
+      vCatalog[4*i+0] += M_PI*vCatalog[4*i+1]*vCatalog[4*i+1]*v0y0;
       if(runType==0){
         vCatalog[4*i+0]= 1.397948086*vCatalog[4*i+0];
         vCatalog[4*i+1]=(1./1.12091)*vCatalog[4*i+1];
@@ -395,19 +434,23 @@ int main(int argc,char **argv){
     }
 
     for(i=0;i<nCnect;i+=1){
-      mCatalog[8*i+0]=vCatalog[4*i+0];
-      mCatalog[8*i+1]=vCatalog[4*i+1];
-      mCatalog[8*i+2]=vCatalog[4*i+2];
-      mCatalog[8*i+3]=vCatalog[4*i+3];
-      mCatalog[8*i+4]=vortSndMomMatrix[4*i+0];
-      mCatalog[8*i+5]=vortSndMomMatrix[4*i+1];
-      mCatalog[8*i+6]=vortSndMomMatrix[4*i+2];
-      mCatalog[8*i+7]=vortSndMomMatrix[4*i+3];
+      mCatalog[dataSize*i+0]=vCatalog[4*i+0];
+      mCatalog[dataSize*i+1]=vCatalog[4*i+1];
+      mCatalog[dataSize*i+2]=vCatalog[4*i+2];
+      mCatalog[dataSize*i+3]=vCatalog[4*i+3];
+      mCatalog[dataSize*i+4]=vortSndMomMatrix[4*i+0];
+      mCatalog[dataSize*i+5]=vortSndMomMatrix[4*i+1];
+      mCatalog[dataSize*i+6]=vortSndMomMatrix[4*i+2];
+      mCatalog[dataSize*i+7]=vortSndMomMatrix[4*i+3];
+      mCatalog[dataSize*i+8]=avgGradU[4*i+0];
+      mCatalog[dataSize*i+9]=avgGradU[4*i+1];
+      mCatalog[dataSize*i+10]=avgGradU[4*i+2];
+      mCatalog[dataSize*i+11]=avgGradU[4*i+3];
     }
 
     vortexQuickSort(parVortex,nVortex,&greaterAbsCirculation);
     vortexQuickSort(vCatalog,nCnect,&greaterAbsCirculation);
-    vortexAdaptiveQuickSort(mCatalog,nCnect,8,&greaterAbsCirculation);
+    vortexAdaptiveQuickSort(mCatalog,nCnect,dataSize,&greaterAbsCirculation);
 
     /* filtering by cutoff */
 
@@ -424,7 +467,7 @@ int main(int argc,char **argv){
 
     mCnect=0;
     for(i=0;i<nCnect;i+=1)
-      if(fabs(mCatalog[4*i+0])>cutoff)
+      if(fabs(mCatalog[dataSize*i+0])>cutoff)
         mCnect += 1;
 
     /* printing to histogram */
@@ -455,7 +498,7 @@ int main(int argc,char **argv){
 
       sprintf(filename,"%s/vortexMoments-%d.txt",folder,n);
       dadosVout = fopen(filename,"w");
-      err=fprintSafeVortexMoments(dadosVout,n,8,mCnect,mCatalog,Height,Width,X,Y);
+      err=fprintSafeVortexMoments(dadosVout,n,dataSize,mCnect,mCatalog,Height,Width,X,Y);
       if(err!=0){printf("problems vortexSafeMoments\n"); return -6;}
       fclose(dadosVout);
     }
@@ -516,10 +559,12 @@ int main(int argc,char **argv){
     free(vCatalog);
   if(rCatalog!=NULL)
     free(rCatalog);
-  if(vortSndMomMatrix!=NULL)
-    free(vortSndMomMatrix);
   if(mCatalog!=NULL)
     free(mCatalog);
+  if(vortSndMomMatrix!=NULL)
+    free(vortSndMomMatrix);
+  if(avgGradU!=NULL)
+    free(avgGradU);
   if(majorVortex!=NULL)
     free(majorVortex);
   if(Glist!=NULL)

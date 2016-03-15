@@ -18,4 +18,4 @@ int extractSecondMoment(int Height,int Width, int nCnect,double *X,double *Y,
 
 int extract012Momentsw2(int Height,int Width, int nCnect,double *X,double *Y,
                         double *sField,double *gField,int *label,double *vCatalog,
-                        double *vortSndMomMatrix);
+                        double *vortSndMomMatrix,double *avgGradU);

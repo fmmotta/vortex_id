@@ -36,29 +36,48 @@ void vortexAdaptiveQuickSort(double *v,int nCnect,int size,
 inline int add_dgradU(int Height,int Width, int i,int j,int ik,int jk,
                       double *gField,double dgradU[][2],double X[],double Y[])
 {
+  dgradU[0][0]=dgradU[0][1]=dgradU[1][0]=dgradU[1][1]=0.;
   if((i+ik<0) || (i+ik)>=Height){
     if( (j+jk<0) || (j+jk)>=Width ){
+      dgradU[0][0] = 9.*gField[4*(     i*Width +  j  )+0];
       dgradU[0][1] = 9.*gField[4*(     i*Width +  j  )+1];
-
       dgradU[1][0] = 9.*gField[4*(     i*Width +  j  )+2];
+      dgradU[1][1] = 9.*gField[4*(     i*Width +  j  )+3];
     }
     else{
+      dgradU[0][0] = 9.*gField[4*(     i*Width   +   j  )+0]+
+                     3.*gField[4*(     i*Width   +(j+jk))+0];
+
       dgradU[0][1] = 9.*gField[4*(     i*Width   +   j  )+1]+
                      3.*gField[4*(     i*Width   +(j+jk))+1];
 
       dgradU[1][0] = 9.*gField[4*(     i*Width +   j  )+2]+
                      3.*gField[4*(     i*Width +(j+jk))+2];
+
+      dgradU[1][1] = 9.*gField[4*(     i*Width +   j  )+3]+
+                     3.*gField[4*(     i*Width +(j+jk))+3];
     }
   }
   else{
     if( (j+jk<0) || (j+jk)>=Width ){
+      dgradU[0][0] = 9.*gField[4*(     i*Width     +  j )+0]+
+                     3.*gField[4*((i+ik)*Width     +  j )+0];
+
       dgradU[0][1] = 9.*gField[4*(     i*Width     +  j )+1]+
                      3.*gField[4*((i+ik)*Width     +  j )+1];
 
       dgradU[1][0] = 9.*gField[4*(     i*Width +   j  )+2]+
                      3.*gField[4*((i+ik)*Width +   j  )+2];
+
+      dgradU[1][1] = 9.*gField[4*(     i*Width +   j  )+3]+
+                     3.*gField[4*((i+ik)*Width +   j  )+3];
     }
     else{
+      dgradU[0][0] = 9.*gField[4*(     i*Width     +  j )+0]+
+                     3.*gField[4*((i+ik)*Width     +  j )+0]+
+                     3.*gField[4*(     i*Width   +(j+jk))+0]+
+                     1.*gField[4*((i+ik)*Width   +(j+jk))+0];
+
       dgradU[0][1] = 9.*gField[4*(     i*Width     +  j )+1]+
                      3.*gField[4*((i+ik)*Width     +  j )+1]+
                      3.*gField[4*(     i*Width   +(j+jk))+1]+
@@ -67,12 +86,19 @@ inline int add_dgradU(int Height,int Width, int i,int j,int ik,int jk,
       dgradU[1][0] = 9.*gField[4*(     i*Width +   j  )+2]+
                      3.*gField[4*((i+ik)*Width +   j  )+2]+
                      3.*gField[4*(     i*Width +(j+jk))+2]+
-                     1.*gField[4*((i+ik)*Width +(j+jk))+2];  
+                     1.*gField[4*((i+ik)*Width +(j+jk))+2];
+
+      dgradU[1][1] = 9.*gField[4*(     i*Width +   j  )+3]+
+                     3.*gField[4*((i+ik)*Width +   j  )+3]+
+                     3.*gField[4*(     i*Width +(j+jk))+3]+
+                     1.*gField[4*((i+ik)*Width +(j+jk))+3];  
     }
   }
 
+  dgradU[0][0] *= fabs( (Y[i+ik]-Y[i])*(X[j+jk]-X[j]) )/64.0;
   dgradU[0][1] *= fabs( (Y[i+ik]-Y[i])*(X[j+jk]-X[j]) )/64.0;
   dgradU[1][0] *= fabs( (Y[i+ik]-Y[i])*(X[j+jk]-X[j]) )/64.0;
+  dgradU[1][1] *= fabs( (Y[i+ik]-Y[i])*(X[j+jk]-X[j]) )/64.0;
 
   return 0;
 }
@@ -774,20 +800,21 @@ inline int add_w2(int Height,int Width, int i,int j,int ik,int jk,
 
 int extract012Momentsw2(int Height,int Width, int nCnect,double *X,double *Y,
                         double *sField,double *gField,int *label,double *vCatalog,
-                        double *vortSndMomMatrix)
+                        double *vortSndMomMatrix,double *avgGradU)
 {
   int i,j,k,err;
-  double rc,a,b,G,dx,dy,dA;
-  double dgradU[2][2],A[nCnect],a0[nCnect],b0[nCnect]; // vorticity
-  double w[nCnect],SndMom[4*nCnect],XX,XY,YX,YY,dw2,w2[nCnect];
+  double rc,a,b,G,dx,dy,dA,XX,XY,YX,YY,dgradU[2][2],dw2,gdot;
+  double A[nCnect],a0[nCnect],b0[nCnect],w[nCnect]; // vorticity
+  double SndMom[4*nCnect],w2[nCnect],gradU[4*nCnect];
   
   if((Height<=0)||(Width<=0))
     return -1;
   
+  dgradU[0][0]=dgradU[0][1]=dgradU[1][0]=dgradU[1][1]=0.;
   for(k=0;k<nCnect;k+=1){
-    w[k]=0.;SndMom[4*k+0]=0;SndMom[4*k+1]=0;
-    SndMom[4*k+2]=0;SndMom[4*k+3]=0;
-    A[k]=0.;a0[k]=0.;b0[k]=0.;w2[k]=0.;
+    w[k]=0.;A[k]=0.;a0[k]=0.;b0[k]=0.;w2[k]=0.;
+    SndMom[4*k+0]=0.;SndMom[4*k+1]=0.;SndMom[4*k+2]=0.;SndMom[4*k+3]=0.;
+    gradU[4*k+0]=0.;gradU[4*k+1]=0.;gradU[4*k+2]=0.;gradU[4*k+3]=0.;
   }
 
   for(i=0;i<Height;i+=1)
@@ -798,6 +825,10 @@ int extract012Momentsw2(int Height,int Width, int nCnect,double *X,double *Y,
         // ++ quadrant        
         err=add_dgradU(Height,Width,i,j,1,1,gField,dgradU,X,Y);
         if(err!=0) return err;
+        gradU[4*k+0] += dgradU[0][0];
+        gradU[4*k+1] += dgradU[0][1];
+        gradU[4*k+2] += dgradU[1][0];
+        gradU[4*k+3] += dgradU[1][1];
         w[k] += dgradU[1][0]-dgradU[0][1];
 
         err=add_dA(Height,Width,i,j,k,1,1,gField,label,&dA,X,Y);
@@ -823,6 +854,10 @@ int extract012Momentsw2(int Height,int Width, int nCnect,double *X,double *Y,
         // -+ quadrant
         err=add_dgradU(Height,Width,i,j,-1,1,gField,dgradU,X,Y);
         if(err!=0) return err;
+        gradU[4*k+0] += dgradU[0][0];
+        gradU[4*k+1] += dgradU[0][1];
+        gradU[4*k+2] += dgradU[1][0];
+        gradU[4*k+3] += dgradU[1][1];
         w[k] += dgradU[1][0]-dgradU[0][1];
 
         err=add_dA(Height,Width,i,j,k,-1,1,gField,label,&dA,X,Y);
@@ -848,6 +883,10 @@ int extract012Momentsw2(int Height,int Width, int nCnect,double *X,double *Y,
         // +- quadrant
         err=add_dgradU(Height,Width,i,j,1,-1,gField,dgradU,X,Y);
         if(err!=0) return err;
+        gradU[4*k+0] += dgradU[0][0];
+        gradU[4*k+1] += dgradU[0][1];
+        gradU[4*k+2] += dgradU[1][0];
+        gradU[4*k+3] += dgradU[1][1];
         w[k] += dgradU[1][0]-dgradU[0][1];
 
         err=add_dA(Height,Width,i,j,k,1,-1,gField,label,&dA,X,Y);
@@ -873,6 +912,10 @@ int extract012Momentsw2(int Height,int Width, int nCnect,double *X,double *Y,
         // -- quadrant
         err=add_dgradU(Height,Width,i,j,-1,-1,gField,dgradU,X,Y);
         if(err!=0) return err;
+        gradU[4*k+0] += dgradU[0][0];
+        gradU[4*k+1] += dgradU[0][1];
+        gradU[4*k+2] += dgradU[1][0];
+        gradU[4*k+3] += dgradU[1][1];
         w[k] += dgradU[1][0]-dgradU[0][1];
 
         err=add_dA(Height,Width,i,j,k,-1,-1,gField,label,&dA,X,Y);
@@ -919,7 +962,13 @@ int extract012Momentsw2(int Height,int Width, int nCnect,double *X,double *Y,
       b=Y[0];
     }
     
-    G = w[k]; //2.541494083*w[k]; // 2.541494083 = 1/(1-1/sqrt(e)) 
+    gdot =0.;
+    //dx = (gradU[4*k+1]+gradU[4*k+2])/2.;
+    //dy = gradU[4*k+3];
+    //gdot = 2*sqrt(dx*dx+dy*dy);
+    
+    G = w[k]+gdot; // WARNING: the sign of gdot is ad hoc
+                   // must find better way. Look on the notes
 
     vCatalog[4*k+0] = G;
     vCatalog[4*k+1] = rc;
@@ -930,6 +979,11 @@ int extract012Momentsw2(int Height,int Width, int nCnect,double *X,double *Y,
     vortSndMomMatrix[4*k+1] = XY;
     vortSndMomMatrix[4*k+2] = YX;
     vortSndMomMatrix[4*k+3] = YY;
+
+    avgGradU[4*k+0] = gradU[4*k+0];
+    avgGradU[4*k+1] = gradU[4*k+1];
+    avgGradU[4*k+2] = gradU[4*k+2];
+    avgGradU[4*k+3] = gradU[4*k+3];
   }
 
   return 0;
