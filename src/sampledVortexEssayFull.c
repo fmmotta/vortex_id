@@ -21,6 +21,7 @@
 
 #define DEBUG_MODE false
 #define DEBUG_PRINT true
+#define PRINT_MODE false
 
 #define dbgPrint(num,num2) if(DEBUG_PRINT) printf("check point - %d-%d\n",(num),(num2))
 
@@ -42,12 +43,12 @@ int main(int argc,char **argv){
   int i,j,err,nCnect=0,rCnect=0,n,nMax=500,padWidth=2,mCnect=0.;
   double Gmin=1.,Gmax=20.,rmin=0.5,rmax=1.0,threshold=0.5;
   double xmin[2]={-9.,-9.},xmax[2]={9.,9.},x0[2],dx[2],xf[2];
-  double *parVortex=NULL,*Glist,*Rclist,cutoff=0.,*uAvgField;
+  double *parVortex=NULL,*Glist,*Rclist,cutoff=0.,*uAvgField,*u2AvgField;
   double *sField=NULL,*gField=NULL,*g2Field=NULL,*uField=NULL;
   double *uBuff=NULL,*Xbuff,*Ybuff,*X,*Y,*mCatalog,*avgGradU;
   double *ux,*uy,*uxxy,*uxyy,*uxxx,*uyyy,*vortSndMomMatrix=NULL;
   double v0y0 = 0.00,*vCatalog=NULL,*rCatalog=NULL,*majorVortex=NULL;
-  double hGmin=0.,hGmax=0.,hRcMin=0.,hRcMax=0.;
+  double hGmin=0.,hGmax=0.,hRcMin=0.,hRcMax=0.,sigmaUx,sigmaUy;
   char genFile[300+1],folder[100+1],tag[100+1],filename[400+1];
   FILE *dadosgen,*dadosout,*dadosVin,*dadosVout,*dadosField;
   gsl_histogram *hG,*hRc,*ha,*hb,*hN;
@@ -265,6 +266,7 @@ int main(int argc,char **argv){
   fieldAlloc( uxxx ,2*Height*Width,double);
   fieldAlloc( uyyy ,2*Height*Width,double);
   fieldAlloc(uAvgField,2*Height*Width,double);
+  fieldAlloc(u2AvgField,2*Height*Width,double);
   fieldAlloc(uBuff ,2*(Height+2*padWidth)*(Width+2*padWidth),double);
 
   dbgPrint(11,0);
@@ -314,6 +316,9 @@ int main(int argc,char **argv){
   for(i=0;i<2*Height*Width;i+=1)
     uAvgField[i]=0.;
 
+  for(i=0;i<2*Height*Width;i+=1)
+    u2AvgField[i]=0.;
+
   for(n=0;n<nRuns;n+=1){
 
     if(n%1000 == 0){
@@ -360,6 +365,9 @@ int main(int argc,char **argv){
       for(j=0;j<Width;j+=1){
         uAvgField[2*(i*Width+j)+0] += uField[2*(i*Width+j)+0];
         uAvgField[2*(i*Width+j)+1] += uField[2*(i*Width+j)+1];
+
+        u2AvgField[2*(i*Width+j)+0] += uField[2*(i*Width+j)+0]*uField[2*(i*Width+j)+0];
+        u2AvgField[2*(i*Width+j)+1] += uField[2*(i*Width+j)+1]*uField[2*(i*Width+j)+1];
       }
 
     err = floodFill(sField,Width,Height,eqClass,label);
@@ -372,7 +380,7 @@ int main(int argc,char **argv){
     else
       printf("problems with renameLabels - %d\n",err);
     
-    if(n%1000==0){
+    if((n%1000==0) && PRINT_MODE){
       sprintf(filename,"%s/sField-%d.txt",folder,n);
       dadosField = fopen(filename,"w");
       fprintsField(dadosField,x0,dx,Height,Width,sField);
@@ -491,7 +499,7 @@ int main(int argc,char **argv){
     if(err!=0){printf("problems\n"); return -5;}
 
     /* Preparing for printing */
-    if(n%1000==0){
+    if((n%1000==0) && PRINT_MODE){
       sprintf(filename,"%s/vortexesIn-%d.txt",folder,n);
       dadosVin = fopen(filename,"w");
       sprintf(filename,"%s/vortexesOu-%d.txt",folder,n);
@@ -513,31 +521,73 @@ int main(int argc,char **argv){
       fclose(dadosVout);
     }
   }
+  
+  {
+    double omega,strain,gamma,beta;
 
-  for(i=0;i<Height;i+=1)
-    for(j=0;j<Width;j+=1){
-      uAvgField[2*(i*Width+j)+0] /= nRuns;
-      uAvgField[2*(i*Width+j)+1] /= nRuns;
+    for(i=0;i<Height;i+=1)
+      for(j=0;j<Width;j+=1){
+        uAvgField[2*(i*Width+j)+0] /= nRuns;
+        uAvgField[2*(i*Width+j)+1] /= nRuns;
+
+        u2AvgField[2*(i*Width+j)+0] /= nRuns;
+        u2AvgField[2*(i*Width+j)+1] /= nRuns;
+      }
+
+    err = uFieldTouBuff(Height,Width,uAvgField,uBuff,padWidth);
+    if(err!=0)
+      return -2;
+  
+    err = UtoUx5point(Height,Width,ux,uBuff,Xbuff,Ybuff);
+    if(err!=0)
+      return -3;
+
+    err = UtoUy5point(Height,Width,uy,uBuff,Xbuff,Ybuff);
+    if(err!=0)
+      return -4;
+
+    sprintf(filename,"%s/uAvgField-%s.txt",folder,tag); 
+    dadosout = fopen(filename,"w");
+    for(i=0;i<Height;i+=1)
+      for(j=0;j<Width;j+=1){
+        fprintf(dadosout,"%f %f %f %f",X[j],Y[i]
+                                        ,uAvgField[2*(i*Width+j)+0]
+                                        ,uAvgField[2*(i*Width+j)+1]);
+        
+        sigmaUx = u2AvgField[2*(i*Width+j)+0] - 
+                  uAvgField[2*(i*Width+j)+0]*uAvgField[2*(i*Width+j)+0];
+        
+        sigmaUy = u2AvgField[2*(i*Width+j)+1] - 
+                  uAvgField[2*(i*Width+j)+1]*uAvgField[2*(i*Width+j)+1];
+        fprintf(dadosout,"%f %f ",sigmaUx,sigmaUy);
+        
+        omega = ux[2*(i*Width+j)+1]-uy[2*(i*Width+j)+0];
+        gamma = ux[2*(i*Width+j)+1]+uy[2*(i*Width+j)+0];
+        beta  = ux[2*(i*Width+j)+0];
+        strain = sqrt(gamma*gamma+beta*beta);
+
+        fprintf(dadosout,"%f %f %f %f",omega,gamma,beta,strain);
+
+        fprintf(dadosout,"\n");
+      }
+    fclose(dadosout);
+
+    sprintf(filename,"%s/vertical-x0-%s.txt",folder,tag);
+    dadosout = fopen(filename,"w");
+    j=Width/2;
+    for(i=0;i<Height;i+=1){
+      fprintf(dadosout,"%f %f %f\n",Y[i],uAvgField[2*(i*Width+j)+0]
+                                        ,uAvgField[2*(i*Width+j)+1]);
+
+      sigmaUx = u2AvgField[2*(i*Width+j)+0] - 
+                uAvgField[2*(i*Width+j)+0]*uAvgField[2*(i*Width+j)+0];
+
+      sigmaUy = u2AvgField[2*(i*Width+j)+1] - 
+                uAvgField[2*(i*Width+j)+1]*uAvgField[2*(i*Width+j)+1];
+      fprintf(dadosout,"%f %f \n",sigmaUx,sigmaUy);
     }
-
-  sprintf(filename,"%s/uAvgField-%s.txt",folder,tag); 
-  dadosout = fopen(filename,"w");
-  for(i=0;i<Height;i+=1)
-    for(j=0;j<Width;j+=1){
-      fprintf(dadosout,"%f %f %f %f\n",X[j],Y[i]
-                                      ,uAvgField[2*(i*Width+j)+0]
-                                      ,uAvgField[2*(i*Width+j)+1]);
-    }
-  fclose(dadosout);
-
-  sprintf(filename,"%s/vertical-x0-%s.txt",folder,tag);
-  dadosout = fopen(filename,"w");
-  for(i=0;i<Height;i+=1)
-    fprintf(dadosout,"%f %f %f\n",Y[i],uAvgField[2*(i*Width+100)+0]
-                                      ,uAvgField[2*(i*Width+100)+1]);
-  fclose(dadosout);
-  //fclose(dadosVin);
-  //fclose(dadosVout);
+    fclose(dadosout);
+  }
 
   sprintf(filename,"%s/histoOuG-%s.txt",folder,tag); 
   dadosout=fopen(filename,"w");
@@ -588,6 +638,8 @@ int main(int argc,char **argv){
   if(uxxy!=NULL) free(uxxy);
   if(uyyy!=NULL) free(uyyy);
   if(uField!=NULL) free(uField);
+  if(uAvgField!=NULL) free(uAvgField);
+  if(u2AvgField!=NULL) free(u2AvgField);
   if(sField!=NULL) free(sField);
   if(gField!=NULL) free(gField);
   if(g2Field!=NULL) free(g2Field);
