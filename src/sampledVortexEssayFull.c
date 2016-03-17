@@ -21,7 +21,7 @@
 
 #define DEBUG_MODE false
 #define DEBUG_PRINT true
-#define PRINT_MODE false
+#define PRINT_MODE true
 
 #define dbgPrint(num,num2) if(DEBUG_PRINT) printf("check point - %d-%d\n",(num),(num2))
 
@@ -45,7 +45,7 @@ int main(int argc,char **argv){
   double xmin[2]={-9.,-9.},xmax[2]={9.,9.},x0[2],dx[2],xf[2];
   double *parVortex=NULL,*Glist,*Rclist,cutoff=0.,*uAvgField,*u2AvgField;
   double *sField=NULL,*gField=NULL,*g2Field=NULL,*uField=NULL;
-  double *uBuff=NULL,*Xbuff,*Ybuff,*X,*Y,*mCatalog,*avgGradU;
+  double *uBuff=NULL,*Xbuff,*Ybuff,*X,*Y,*mCatalog,*avgGradU,*uFieldAvg;
   double *ux,*uy,*uxxy,*uxyy,*uxxx,*uyyy,*vortSndMomMatrix=NULL;
   double v0y0 = 0.00,*vCatalog=NULL,*rCatalog=NULL,*majorVortex=NULL;
   double hGmin=0.,hGmax=0.,hRcMin=0.,hRcMax=0.,sigmaUx,sigmaUy;
@@ -267,6 +267,7 @@ int main(int argc,char **argv){
   fieldAlloc( uyyy ,2*Height*Width,double);
   fieldAlloc(uAvgField,2*Height*Width,double);
   fieldAlloc(u2AvgField,2*Height*Width,double);
+  fieldAlloc(uFieldAvg,2*Height*Width,double);
   fieldAlloc(uBuff ,2*(Height+2*padWidth)*(Width+2*padWidth),double);
 
   dbgPrint(11,0);
@@ -317,7 +318,27 @@ int main(int argc,char **argv){
     uAvgField[i]=0.;
 
   for(i=0;i<2*Height*Width;i+=1)
+    uFieldAvg[i]=0.;
+
+  for(i=0;i<2*Height*Width;i+=1)
     u2AvgField[i]=0.;
+  
+  {
+    double x,y,Ux,Uy;
+    double avgGradU[2][2];
+    sprintf(filename,"%s/background.txt",folder);
+    dadosField=fopen(filename,"r");
+    for(i=0;i<Height;i+=1)
+      for(j=0;j<Width;j+=1){
+        fscanf(dadosField,"%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",&x,&y,&Ux,&Uy,
+                                                          &sigmaUx,&sigmaUy,
+                                                          &(avgGradU[0][0]),&(avgGradU[0][1]),
+                                                          &(avgGradU[1][0]),&(avgGradU[1][1]));
+        uFieldAvg[2*(i*Width+j)+0] = Ux;
+        uFieldAvg[2*(i*Width+j)+1] = Uy;
+      }
+    fclose(dadosField);
+  }
 
   for(n=0;n<nRuns;n+=1){
 
@@ -335,8 +356,11 @@ int main(int argc,char **argv){
     else if((err>0) && (err<nVortex))
       nVortex = err;
     
-    for(i=0;i<2*Height*Width;i+=1)
-      uField[i]=0.;
+    for(i=0;i<Height;i+=1)
+      for(j=0;j<Width;j+=1){
+        uField[2*(i*Width+j)+0]= 0. - uFieldAvg[2*(i*Width+j)+0];
+        uField[2*(i*Width+j)+1]= 0. - uFieldAvg[2*(i*Width+j)+1];
+      }
 
     for(i=0;i<Height*Width;i+=1)
       label[i]=-1;
@@ -411,7 +435,7 @@ int main(int argc,char **argv){
       printf("problems in extract012Momentsw2\n");
       return err;
     }
-    
+    /*
     {
       rCnect=0;
       for(i=0;i<nCnect;i+=1){
@@ -438,9 +462,9 @@ int main(int argc,char **argv){
       }
       nCnect=rCnect;
     }
-
+    */
     for(i=0;i<nCnect;i+=1){
-      vCatalog[4*i+0] += M_PI*vCatalog[4*i+1]*vCatalog[4*i+1]*v0y0;
+      //vCatalog[4*i+0] += M_PI*vCatalog[4*i+1]*vCatalog[4*i+1]*v0y0;
       if(runType==0){
         vCatalog[4*i+0]= 1.397948086*vCatalog[4*i+0];
         vCatalog[4*i+1]=(1./1.12091)*vCatalog[4*i+1];
@@ -640,6 +664,7 @@ int main(int argc,char **argv){
   if(uField!=NULL) free(uField);
   if(uAvgField!=NULL) free(uAvgField);
   if(u2AvgField!=NULL) free(u2AvgField);
+  if(uFieldAvg!=NULL) free(uFieldAvg);
   if(sField!=NULL) free(sField);
   if(gField!=NULL) free(gField);
   if(g2Field!=NULL) free(g2Field);

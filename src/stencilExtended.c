@@ -4,9 +4,8 @@
 #include "stencilExtended.h"
 
 // Y is between 0 and 1 (half channel)
-// It's allways periodic on X (can be stream or span-wise)
 //  
-//     |
+//   y |
 //     |
 //     |
 //     |
@@ -16,7 +15,7 @@
 //  i  |
 //     |
 //     |_ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-//       
+//                                 x
 //        j ==> 
 //
 
