@@ -91,17 +91,17 @@ void printScalarFields(int Height,int Width, double *X,double *Y,int n,
   char filename[512+1];
   FILE *dadosout;
 
-  sprintf(filename,"%s/sField-p%3d-%d.txt",folder,index,n);
+  sprintf(filename,"%s/sField-p%d-%d.txt",folder,index,n);
   dadosout = fopen(filename,"w");
   fprintUsfield(dadosout,X,Y,Height,Width,sField);
   fclose(dadosout);
 
-  sprintf(filename,"%s/labels-p%3d-%d.txt",folder,index,n);
+  sprintf(filename,"%s/labels-p%d-%d.txt",folder,index,n);
   dadosout = fopen(filename,"w");
   fprintUlabels(dadosout,X,Y,Height,Width,label);
   fclose(dadosout);
 
-  sprintf(filename,"%s/presence-p%3d-%d.txt",folder,index,n);
+  sprintf(filename,"%s/presence-p%d-%d.txt",folder,index,n);
   dadosout = fopen(filename,"w");
   fprintUpresence(dadosout,X,Y,Height,Width,label);
   fclose(dadosout);
@@ -112,25 +112,25 @@ void printScalarFields(int Height,int Width, double *X,double *Y,int n,
 void printVorticesAndMoments(int Height,int Width, double *X,double *Y,double t,int n,
                              char *folder,int index,int nCnect,double *vCatalog,double *rCatalog)
 {
-  int err;
+  int err,dataSize=12;
   char filename[512+1];
   FILE *dadosVout;
 
-  sprintf(filename,"%s/vortices-p%3d-%.4f.txt",folder,index,t);
+  sprintf(filename,"%s/vortices-p%d-%.4f.txt",folder,index,t);
   dadosVout = fopen(filename,"w");   
   err=fprintVortex(dadosVout,n,nCnect,vCatalog);
   if(err!=0){printf("problems vortices\n"); exit(-6);}
   fclose(dadosVout);
       
-  sprintf(filename,"%s/vorticesSafe-p%3d-%.4f.txt",folder,index,t);
+  sprintf(filename,"%s/vorticesSafe-p%d-%.4f.txt",folder,index,t);
   dadosVout = fopen(filename,"w");
   err=fprintSafeVortex(dadosVout,n,nCnect,vCatalog,Height,Width,X,Y);
   if(err!=0){printf("problems vorticesSafe\n"); exit(-6);}
   fclose(dadosVout);
       
-  sprintf(filename,"%s/vortexSafeMoments-p%3d-%.4f.txt",folder,index,t);
+  sprintf(filename,"%s/vortexSafeMoments-p%d-%.4f.txt",folder,index,t);
   dadosVout = fopen(filename,"w");
-  err=fprintSafeVortexMoments(dadosVout,n,8,nCnect,rCatalog,Height,Width,X,Y);
+  err=fprintSafeVortexMoments(dadosVout,n,dataSize,nCnect,rCatalog,Height,Width,X,Y);
   if(err!=0){printf("problems vortexSafeMoments\n"); exit(-6);}
   fclose(dadosVout);
 }
@@ -140,7 +140,7 @@ void printVorticesAndMoments(int Height,int Width, double *X,double *Y,double t,
 int main(int argc,char **argv){
   //double cutoff; int rCnet=0;
   int Width = 100, Height = 100, Depth, nVortex=5,nFixVortex=5,nRuns=1000;
-  int runType=0,*label=NULL,**eqClass=NULL;
+  int dataSize=12,runType=0,*label=NULL,**eqClass=NULL;
   int hNG=50,hNRc=53,hNa=40,hNb=40,hNN=10,Nsnapshots;
   int Nx,Ny,Nz,planeIndex,planeType,planeNum=0,pln[8128];
   int i,j,k,l,err,nCnect=0,n,nMax=1024,padWidth=2;
@@ -149,9 +149,9 @@ int main(int argc,char **argv){
   double *parVortex=NULL,t,t0,dt;
   double *sField=NULL,*gField=NULL,*g2Field=NULL,*uField=NULL,*X,*Y;
   double *uBuff=NULL,*Xbuff=NULL,*Ybuff=NULL,*Xload=NULL,*Yload=NULL;
-  double *Zload=NULL,*ux=NULL;
-  double *uy=NULL,*uxxy=NULL,*uxyy=NULL,*uxxx=NULL,*uyyy=NULL;
-  double v0y0 = 0.00,*vCatalog=NULL,*rCatalog=NULL,*vortSndMomMatrix=NULL;
+  double *Zload=NULL,*ux=NULL,*uy=NULL,*uxxy=NULL,*uxyy=NULL,*uAvgField=NULL;
+  double *uxxx=NULL,*uyyy=NULL,*vCatalog=NULL,*rCatalog=NULL;
+  double v0y0 = 0.00,*vortSndMomMatrix=NULL,*avgGradU=NULL;
   double hGmin=0.,hGmax=0.,hRcMin=0.,hRcMax=0.;
   char folder[100+1],tag[100+1],filename[400+1],foamFolder[200+1];
   FILE *dadosout,*uFile,*pFile,*nFile,*vortexFile,*totalVortices,*dadosin;
@@ -160,6 +160,8 @@ int main(int argc,char **argv){
   configVar cfg;
   openFoamIcoData *node=NULL;
   
+  dataSize = 12;
+
   if(argc!=2){
     printf("Incorrect Number of Arguments - Need exactly "
            "the configuration file\n");
@@ -308,6 +310,7 @@ int main(int argc,char **argv){
   fieldAlloc( uxyy ,2*Height*Width,double);
   fieldAlloc( uxxx ,2*Height*Width,double);
   fieldAlloc( uyyy ,2*Height*Width,double);
+  fieldAlloc(uAvgField,2*Height*Width,double);
   fieldAlloc(uBuff ,2*(Height+2*padWidth)*(Width+2*padWidth),double);
   fieldAlloc(X,Nx+1,double);
   fieldAlloc(Y,Ny+1,double);
@@ -316,7 +319,7 @@ int main(int argc,char **argv){
   fieldAlloc(Xload,Nx+1,double);
   fieldAlloc(Yload,Ny+1,double);
   fieldAlloc(Zload,Nz+1,double);
-
+  
   dbgPrint(5,0);
 
   eqClass=(int**)malloc(NumCls*sizeof(int*));
@@ -336,7 +339,7 @@ int main(int argc,char **argv){
   for(i=0;i<4*nMax;i+=1)
     vCatalog[i]=-1.;
   
-  rCatalog = (double*)malloc(8*nMax*sizeof(double));
+  rCatalog = (double*)malloc(dataSize*nMax*sizeof(double));
   if(rCatalog==NULL){
     printf("memory not allocked\n");
     return 4;
@@ -351,6 +354,14 @@ int main(int argc,char **argv){
   }
   for(i=0;i<4*nMax;i+=1)
     vortSndMomMatrix[i]=-1.;
+
+  avgGradU = (double*)malloc(4*nMax*sizeof(double));
+  if(avgGradU==NULL){
+    printf("memory not allocked\n");
+    return 3;
+  }
+  for(i=0;i<4*nMax;i+=1)
+    avgGradU[i]=-0.;
 
   node = (openFoamIcoData*)malloc(Nx*Ny*Nz*sizeof(openFoamIcoData));
   if(node==NULL){
@@ -469,6 +480,9 @@ int main(int argc,char **argv){
   sprintf(filename,"%s/totalVortices.dat",folder);
   totalVortices = fopen(filename,"w");
 
+  for(i=0;i<2*Height*Width;i+=1)
+    uAvgField[i]=0.;
+
   for(n=0;n<Nsnapshots;n+=1){
 
     t=t0+((double)n)*dt;
@@ -571,7 +585,8 @@ int main(int argc,char **argv){
       
       dbgPrint(15,5);
 
-      err=extract012Momentsw2(Height,Width,nCnect,X,Y,sField,gField,label,vCatalog,vortSndMomMatrix);
+      err=extract012Momentsw2(Height,Width,nCnect,X,Y,sField,gField,
+                              label,vCatalog,vortSndMomMatrix,avgGradU);
       if(err!=0){
         printf("problems in extract012Momentsw2\n");
         return err;
@@ -593,17 +608,21 @@ int main(int argc,char **argv){
       for(i=0;i<nCnect;i+=1){
         //for(k=0;k<4;k+=1) rCatalog[8*i+k]=vCatalog[4*i+k];
         //for(k=0;k<4;k+=1) rCatalog[8*i+4+k]=vortSndMomMatrix[4*i+k];
-        rCatalog[8*i+0]=vCatalog[4*i+0];
-        rCatalog[8*i+1]=vCatalog[4*i+1];
-        rCatalog[8*i+2]=vCatalog[4*i+2];
-        rCatalog[8*i+3]=vCatalog[4*i+3];
-        rCatalog[8*i+4]=vortSndMomMatrix[4*i+0];
-        rCatalog[8*i+5]=vortSndMomMatrix[4*i+1];
-        rCatalog[8*i+6]=vortSndMomMatrix[4*i+2];
-        rCatalog[8*i+7]=vortSndMomMatrix[4*i+3];
+        rCatalog[dataSize*i+0]  = vCatalog[4*i+0];
+        rCatalog[dataSize*i+1]  = vCatalog[4*i+1];
+        rCatalog[dataSize*i+2]  = vCatalog[4*i+2];
+        rCatalog[dataSize*i+3]  = vCatalog[4*i+3];
+        rCatalog[dataSize*i+4]  = vortSndMomMatrix[4*i+0];
+        rCatalog[dataSize*i+5]  = vortSndMomMatrix[4*i+1];
+        rCatalog[dataSize*i+6]  = vortSndMomMatrix[4*i+2];
+        rCatalog[dataSize*i+7]  = vortSndMomMatrix[4*i+3];
+        rCatalog[dataSize*i+8]  = avgGradU[4*i+0];
+        rCatalog[dataSize*i+9]  = avgGradU[4*i+1];
+        rCatalog[dataSize*i+10] = avgGradU[4*i+2];
+        rCatalog[dataSize*i+11] = avgGradU[4*i+3];
       }
   
-      vortexAdaptiveQuickSort(rCatalog,nCnect,8,&greaterAbsCirculation);
+      vortexAdaptiveQuickSort(rCatalog,nCnect,dataSize,&greaterAbsCirculation);
 
       dbgPrint(17,0);
       
@@ -616,7 +635,7 @@ int main(int argc,char **argv){
       if(n%10==0)
         printVorticesAndMoments(Height,Width,X,Y,t,n,folder,pln[l],nCnect,vCatalog,rCatalog);
 
-      err=fprintSafeVortexMoments(totalVortices,n,8,nCnect,rCatalog,Height,Width,X,Y);
+      err=fprintSafeVortexMoments(totalVortices,n,dataSize,nCnect,rCatalog,Height,Width,X,Y);
       if(err!=0){printf("problems vortexSafeMoments Total\n"); return -6;}
     
       err=fprintSafeVortex(vortexFile,n,nCnect,vCatalog,Height,Width,X,Y);
@@ -672,6 +691,7 @@ int main(int argc,char **argv){
   if(rCatalog!=NULL) free(rCatalog);
   if(ux!=NULL) free(ux);
   if(uy!=NULL) free(uy);
+  if(avgGradU!=NULL) free(avgGradU);
   if(uxxx!=NULL) free(uxxx);
   if(uyyy!=NULL) free(uyyy);
   if(uxxy!=NULL) free(uxxy);

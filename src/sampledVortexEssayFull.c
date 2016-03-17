@@ -42,7 +42,7 @@ int main(int argc,char **argv){
   int i,j,err,nCnect=0,rCnect=0,n,nMax=500,padWidth=2,mCnect=0.;
   double Gmin=1.,Gmax=20.,rmin=0.5,rmax=1.0,threshold=0.5;
   double xmin[2]={-9.,-9.},xmax[2]={9.,9.},x0[2],dx[2],xf[2];
-  double *parVortex=NULL,*Glist,*Rclist,cutoff=0.;
+  double *parVortex=NULL,*Glist,*Rclist,cutoff=0.,*uAvgField;
   double *sField=NULL,*gField=NULL,*g2Field=NULL,*uField=NULL;
   double *uBuff=NULL,*Xbuff,*Ybuff,*X,*Y,*mCatalog,*avgGradU;
   double *ux,*uy,*uxxy,*uxyy,*uxxx,*uyyy,*vortSndMomMatrix=NULL;
@@ -249,7 +249,7 @@ int main(int argc,char **argv){
     return 3;
   }
   for(i=0;i<4*nMax;i+=1)
-    avgGradU[i]=-1.;
+    avgGradU[i]=-0.;
 
   dbgPrint(10,0);
 
@@ -264,6 +264,7 @@ int main(int argc,char **argv){
   fieldAlloc( uxyy ,2*Height*Width,double);
   fieldAlloc( uxxx ,2*Height*Width,double);
   fieldAlloc( uyyy ,2*Height*Width,double);
+  fieldAlloc(uAvgField,2*Height*Width,double);
   fieldAlloc(uBuff ,2*(Height+2*padWidth)*(Width+2*padWidth),double);
 
   dbgPrint(11,0);
@@ -310,6 +311,9 @@ int main(int argc,char **argv){
     printf("calcMode=%d\n",calcScalarMode);
   }
 
+  for(i=0;i<2*Height*Width;i+=1)
+    uAvgField[i]=0.;
+
   for(n=0;n<nRuns;n+=1){
 
     if(n%1000 == 0){
@@ -351,6 +355,12 @@ int main(int argc,char **argv){
       printf("Error in calcScalarField\n");
       return err;
     }
+
+    for(i=0;i<Height;i+=1)
+      for(j=0;j<Width;j+=1){
+        uAvgField[2*(i*Width+j)+0] += uField[2*(i*Width+j)+0];
+        uAvgField[2*(i*Width+j)+1] += uField[2*(i*Width+j)+1];
+      }
 
     err = floodFill(sField,Width,Height,eqClass,label);
     if(err!=0)
@@ -434,18 +444,18 @@ int main(int argc,char **argv){
     }
 
     for(i=0;i<nCnect;i+=1){
-      mCatalog[dataSize*i+0]=vCatalog[4*i+0];
-      mCatalog[dataSize*i+1]=vCatalog[4*i+1];
-      mCatalog[dataSize*i+2]=vCatalog[4*i+2];
-      mCatalog[dataSize*i+3]=vCatalog[4*i+3];
-      mCatalog[dataSize*i+4]=vortSndMomMatrix[4*i+0];
-      mCatalog[dataSize*i+5]=vortSndMomMatrix[4*i+1];
-      mCatalog[dataSize*i+6]=vortSndMomMatrix[4*i+2];
-      mCatalog[dataSize*i+7]=vortSndMomMatrix[4*i+3];
-      mCatalog[dataSize*i+8]=avgGradU[4*i+0];
-      mCatalog[dataSize*i+9]=avgGradU[4*i+1];
-      mCatalog[dataSize*i+10]=avgGradU[4*i+2];
-      mCatalog[dataSize*i+11]=avgGradU[4*i+3];
+      mCatalog[dataSize*i+0]  = vCatalog[4*i+0];
+      mCatalog[dataSize*i+1]  = vCatalog[4*i+1];
+      mCatalog[dataSize*i+2]  = vCatalog[4*i+2];
+      mCatalog[dataSize*i+3]  = vCatalog[4*i+3];
+      mCatalog[dataSize*i+4]  = vortSndMomMatrix[4*i+0];
+      mCatalog[dataSize*i+5]  = vortSndMomMatrix[4*i+1];
+      mCatalog[dataSize*i+6]  = vortSndMomMatrix[4*i+2];
+      mCatalog[dataSize*i+7]  = vortSndMomMatrix[4*i+3];
+      mCatalog[dataSize*i+8]  = avgGradU[4*i+0];
+      mCatalog[dataSize*i+9]  = avgGradU[4*i+1];
+      mCatalog[dataSize*i+10] = avgGradU[4*i+2];
+      mCatalog[dataSize*i+11] = avgGradU[4*i+3];
     }
 
     vortexQuickSort(parVortex,nVortex,&greaterAbsCirculation);
@@ -504,6 +514,28 @@ int main(int argc,char **argv){
     }
   }
 
+  for(i=0;i<Height;i+=1)
+    for(j=0;j<Width;j+=1){
+      uAvgField[2*(i*Width+j)+0] /= nRuns;
+      uAvgField[2*(i*Width+j)+1] /= nRuns;
+    }
+
+  sprintf(filename,"%s/uAvgField-%s.txt",folder,tag); 
+  dadosout = fopen(filename,"w");
+  for(i=0;i<Height;i+=1)
+    for(j=0;j<Width;j+=1){
+      fprintf(dadosout,"%f %f %f %f\n",X[j],Y[i]
+                                      ,uAvgField[2*(i*Width+j)+0]
+                                      ,uAvgField[2*(i*Width+j)+1]);
+    }
+  fclose(dadosout);
+
+  sprintf(filename,"%s/vertical-x0-%s.txt",folder,tag);
+  dadosout = fopen(filename,"w");
+  for(i=0;i<Height;i+=1)
+    fprintf(dadosout,"%f %f %f\n",Y[i],uAvgField[2*(i*Width+100)+0]
+                                      ,uAvgField[2*(i*Width+100)+1]);
+  fclose(dadosout);
   //fclose(dadosVin);
   //fclose(dadosVout);
 
@@ -549,28 +581,25 @@ int main(int argc,char **argv){
   err=writeGnuplotScript(filename,folder,tag,nRuns,nVortex);
   if(err!=0){printf("Error printing gnuplot script\n");return err;}
 
-  if(sField!=NULL)
-    free(sField);
-  if(gField!=NULL)
-    free(gField);
-  if(label!=NULL)
-    free(label);
-  if(vCatalog!=NULL)
-    free(vCatalog);
-  if(rCatalog!=NULL)
-    free(rCatalog);
-  if(mCatalog!=NULL)
-    free(mCatalog);
-  if(vortSndMomMatrix!=NULL)
-    free(vortSndMomMatrix);
-  if(avgGradU!=NULL)
-    free(avgGradU);
-  if(majorVortex!=NULL)
-    free(majorVortex);
-  if(Glist!=NULL)
-    free(Glist);
-  if(Rclist!=NULL)
-    free(Rclist);
+  if(ux!=NULL) free(ux);
+  if(uy!=NULL) free(uy);
+  if(uxxx!=NULL) free(uxxx);
+  if(uxyy!=NULL) free(uxyy);
+  if(uxxy!=NULL) free(uxxy);
+  if(uyyy!=NULL) free(uyyy);
+  if(uField!=NULL) free(uField);
+  if(sField!=NULL) free(sField);
+  if(gField!=NULL) free(gField);
+  if(g2Field!=NULL) free(g2Field);
+  if(label!=NULL)  free(label);
+  if(vCatalog!=NULL) free(vCatalog);
+  if(rCatalog!=NULL) free(rCatalog);
+  if(mCatalog!=NULL) free(mCatalog);
+  if(vortSndMomMatrix!=NULL) free(vortSndMomMatrix);
+  if(avgGradU!=NULL) free(avgGradU);
+  if(majorVortex!=NULL) free(majorVortex);
+  if(Glist!=NULL) free(Glist);
+  if(Rclist!=NULL) free(Rclist);
 
   for(i=0;i<NumCls;i+=1)
     free(eqClass[i]);
