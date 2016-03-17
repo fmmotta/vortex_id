@@ -550,7 +550,7 @@ int main(int argc,char **argv){
     dadosout = fopen(filename,"w");
     for(i=0;i<Height;i+=1)
       for(j=0;j<Width;j+=1){
-        fprintf(dadosout,"%f %f %f %f",X[j],Y[i]
+        fprintf(dadosout,"%f %f %f %f ",X[j],Y[i]
                                         ,uAvgField[2*(i*Width+j)+0]
                                         ,uAvgField[2*(i*Width+j)+1]);
         
