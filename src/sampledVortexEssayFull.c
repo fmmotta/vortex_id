@@ -21,7 +21,7 @@
 
 #define DEBUG_MODE false
 #define DEBUG_PRINT true
-#define PRINT_MODE true
+#define PRINT_MODE false
 
 #define dbgPrint(num,num2) if(DEBUG_PRINT) printf("check point - %d-%d\n",(num),(num2))
 
@@ -45,7 +45,7 @@ int main(int argc,char **argv){
   double xmin[2]={-9.,-9.},xmax[2]={9.,9.},x0[2],dx[2],xf[2];
   double *parVortex=NULL,*Glist,*Rclist,cutoff=0.,*uAvgField,*u2AvgField;
   double *sField=NULL,*gField=NULL,*g2Field=NULL,*uField=NULL;
-  double *uBuff=NULL,*Xbuff,*Ybuff,*X,*Y,*mCatalog,*avgGradU,*uFieldAvg;
+  double *uBuff=NULL,*Xbuff,*Ybuff,*X,*Y,*mCatalog,*avgGradU,*background;
   double *ux,*uy,*uxxy,*uxyy,*uxxx,*uyyy,*vortSndMomMatrix=NULL;
   double v0y0 = 0.00,*vCatalog=NULL,*rCatalog=NULL,*majorVortex=NULL;
   double hGmin=0.,hGmax=0.,hRcMin=0.,hRcMax=0.,sigmaUx,sigmaUy;
@@ -217,7 +217,8 @@ int main(int argc,char **argv){
     if(eqClass[i]==NULL)
       return(i+2);
   }
-
+  
+  /*
   vCatalog = (double*)malloc(4*nMax*sizeof(double));
   if(vCatalog==NULL){
     printf("memory not allocked\n");
@@ -250,9 +251,15 @@ int main(int argc,char **argv){
     return 3;
   }
   for(i=0;i<4*nMax;i+=1)
-    avgGradU[i]=-0.;
+    avgGradU[i]=-0.;*/
 
   dbgPrint(10,0);
+  
+  fieldAlloc(vCatalog,4*nMax,double);
+  fieldAlloc(rCatalog,4*nMax,double);
+  fieldAlloc(mCatalog,dataSize*nMax,double);
+  fieldAlloc(vortSndMomMatrix,4*nMax,double);
+  fieldAlloc(avgGradU,4*nMax,double);
 
   fieldAlloc(sField ,Height*Width,double);
   fieldAlloc(gField ,4*Height*Width,double);
@@ -267,7 +274,7 @@ int main(int argc,char **argv){
   fieldAlloc( uyyy ,2*Height*Width,double);
   fieldAlloc(uAvgField,2*Height*Width,double);
   fieldAlloc(u2AvgField,2*Height*Width,double);
-  fieldAlloc(uFieldAvg,2*Height*Width,double);
+  fieldAlloc(background,2*Height*Width,double);
   fieldAlloc(uBuff ,2*(Height+2*padWidth)*(Width+2*padWidth),double);
 
   dbgPrint(11,0);
@@ -315,14 +322,15 @@ int main(int argc,char **argv){
   }
 
   for(i=0;i<2*Height*Width;i+=1)
+    background[i]=0.;
+
+  for(i=0;i<2*Height*Width;i+=1)
     uAvgField[i]=0.;
 
   for(i=0;i<2*Height*Width;i+=1)
-    uFieldAvg[i]=0.;
-
-  for(i=0;i<2*Height*Width;i+=1)
     u2AvgField[i]=0.;
-  
+
+  /*
   {
     double x,y,Ux,Uy;
     double avgGradU[2][2];
@@ -334,11 +342,11 @@ int main(int argc,char **argv){
                                                           &sigmaUx,&sigmaUy,
                                                           &(avgGradU[0][0]),&(avgGradU[0][1]),
                                                           &(avgGradU[1][0]),&(avgGradU[1][1]));
-        uFieldAvg[2*(i*Width+j)+0] = Ux;
-        uFieldAvg[2*(i*Width+j)+1] = Uy;
+        background[2*(i*Width+j)+0] = Ux;
+        background[2*(i*Width+j)+1] = Uy;
       }
     fclose(dadosField);
-  }
+  }*/
 
   for(n=0;n<nRuns;n+=1){
 
@@ -358,8 +366,8 @@ int main(int argc,char **argv){
     
     for(i=0;i<Height;i+=1)
       for(j=0;j<Width;j+=1){
-        uField[2*(i*Width+j)+0]= 0. - uFieldAvg[2*(i*Width+j)+0];
-        uField[2*(i*Width+j)+1]= 0. - uFieldAvg[2*(i*Width+j)+1];
+        uField[2*(i*Width+j)+0]= 0.;// - background[2*(i*Width+j)+0];
+        uField[2*(i*Width+j)+1]= 0.;// - background[2*(i*Width+j)+1];
       }
 
     for(i=0;i<Height*Width;i+=1)
@@ -664,7 +672,7 @@ int main(int argc,char **argv){
   if(uField!=NULL) free(uField);
   if(uAvgField!=NULL) free(uAvgField);
   if(u2AvgField!=NULL) free(u2AvgField);
-  if(uFieldAvg!=NULL) free(uFieldAvg);
+  if(background!=NULL) free(background);
   if(sField!=NULL) free(sField);
   if(gField!=NULL) free(gField);
   if(g2Field!=NULL) free(g2Field);

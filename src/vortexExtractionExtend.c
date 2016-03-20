@@ -967,7 +967,7 @@ int extract012Momentsw2(int Height,int Width, int nCnect,double *X,double *Y,
     //dy = gradU[4*k+3];
     //gdot = 2*sqrt(dx*dx+dy*dy);
     
-    G = w[k]+gdot; // WARNING: the sign of gdot is ad hoc
+    G = w[k];//+gdot; // WARNING: the sign of gdot is ad hoc
                    // must find better way. Look on the notes
 
     vCatalog[4*k+0] = G;
