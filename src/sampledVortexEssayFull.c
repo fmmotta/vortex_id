@@ -40,7 +40,7 @@ int main(int argc,char **argv){
   int Width = 100, Height = 100,nVortex=5,nFixVortex=5,nRuns=1000;
   int runType=0,genType=0,numG=3,numRc=3,*label=NULL,**eqClass=NULL;
   int hNG=50,hNRc=53,hNa=40,hNb=40,hNN=10, calcScalarMode=0,dataSize;
-  int i,j,err,nCnect=0,rCnect=0,n,nMax=500,padWidth=2,mCnect=0.;
+  int i,j,err,nCnect=0,rCnect=0,n,nMax=1024,padWidth=2,mCnect=0.;
   double Gmin=1.,Gmax=20.,rmin=0.5,rmax=1.0,threshold=0.5;
   double xmin[2]={-9.,-9.},xmax[2]={9.,9.},x0[2],dx[2],xf[2];
   double *parVortex=NULL,*Glist,*Rclist,cutoff=0.,*uAvgField,*u2AvgField;
@@ -117,14 +117,17 @@ int main(int argc,char **argv){
   numRc   = cfg.numRc;
   
   dbgPrint(4,0);
+  
+  fieldAlloc(Glist,numG,double);
+  fieldAlloc(Rclist,numRc,double);
 
-  Glist   = (double*)malloc(numG*sizeof(double));
-  if(Glist==NULL){printf("Can't allocate Glist\n"); return 3;}
+  //Glist   = (double*)malloc(numG*sizeof(double));
+  //if(Glist==NULL){printf("Can't allocate Glist\n"); return 3;}
   for(i=0;i<numG;i+=1)
     Glist[i] = cfg.Glist[i];
 
-  Rclist   = (double*)malloc(numRc*sizeof(double));
-  if(Rclist==NULL){printf("Can't allocate Glist\n"); return 3;}
+  //Rclist   = (double*)malloc(numRc*sizeof(double));
+  //if(Rclist==NULL){printf("Can't allocate Glist\n"); return 3;}
   for(i=0;i<numRc;i+=1)
     Rclist[i]=cfg.Rclist[i];
   
@@ -218,41 +221,6 @@ int main(int argc,char **argv){
       return(i+2);
   }
   
-  /*
-  vCatalog = (double*)malloc(4*nMax*sizeof(double));
-  if(vCatalog==NULL){
-    printf("memory not allocked\n");
-    return 3;
-  }
-  
-  rCatalog = (double*)malloc(4*nMax*sizeof(double));
-  if(rCatalog==NULL){
-    printf("memory not allocked\n");
-    return 4;
-  }
-  
-  mCatalog = (double*)malloc(dataSize*nMax*sizeof(double));
-  if(mCatalog==NULL){
-    printf("memory not allocked\n");
-    return 4;
-  }
-
-  vortSndMomMatrix = (double*)malloc(4*nMax*sizeof(double));
-  if(vortSndMomMatrix==NULL){
-    printf("memory not allocked\n");
-    return 3;
-  }
-  for(i=0;i<4*nMax;i+=1)
-    vortSndMomMatrix[i]=-1.;
-
-  avgGradU = (double*)malloc(4*nMax*sizeof(double));
-  if(avgGradU==NULL){
-    printf("memory not allocked\n");
-    return 3;
-  }
-  for(i=0;i<4*nMax;i+=1)
-    avgGradU[i]=-0.;*/
-
   dbgPrint(10,0);
   
   fieldAlloc(vCatalog,4*nMax,double);
@@ -260,7 +228,6 @@ int main(int argc,char **argv){
   fieldAlloc(mCatalog,dataSize*nMax,double);
   fieldAlloc(vortSndMomMatrix,4*nMax,double);
   fieldAlloc(avgGradU,4*nMax,double);
-
   fieldAlloc(sField ,Height*Width,double);
   fieldAlloc(gField ,4*Height*Width,double);
   fieldAlloc(g2Field,4*Height*Width,double);
@@ -663,6 +630,10 @@ int main(int argc,char **argv){
   err=writeGnuplotScript(filename,folder,tag,nRuns,nVortex);
   if(err!=0){printf("Error printing gnuplot script\n");return err;}
 
+  if(X!=NULL) free(X);
+  if(Y!=NULL) free(Y);
+  if(Xbuff!=NULL) free(Xbuff);
+  if(Ybuff!=NULL) free(Ybuff);
   if(ux!=NULL) free(ux);
   if(uy!=NULL) free(uy);
   if(uxxx!=NULL) free(uxxx);
@@ -670,6 +641,7 @@ int main(int argc,char **argv){
   if(uxxy!=NULL) free(uxxy);
   if(uyyy!=NULL) free(uyyy);
   if(uField!=NULL) free(uField);
+  if(uBuff!=NULL) free(uBuff);
   if(uAvgField!=NULL) free(uAvgField);
   if(u2AvgField!=NULL) free(u2AvgField);
   if(background!=NULL) free(background);
