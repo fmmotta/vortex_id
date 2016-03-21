@@ -21,7 +21,7 @@
 
 #define DEBUG_MODE false
 #define DEBUG_PRINT true
-#define PRINT_MODE false
+#define PRINT_MODE true
 
 #define dbgPrint(num,num2) if(DEBUG_PRINT) printf("check point - %d-%d\n",(num),(num2))
 
@@ -44,9 +44,9 @@ int main(int argc,char **argv){
   double Gmin=1.,Gmax=20.,rmin=0.5,rmax=1.0,threshold=0.5;
   double xmin[2]={-9.,-9.},xmax[2]={9.,9.},x0[2],dx[2],xf[2];
   double *parVortex=NULL,*Glist,*Rclist,cutoff=0.,*uAvgField,*u2AvgField;
-  double *sField=NULL,*gField=NULL,*g2Field=NULL,*uField=NULL;
+  double *sField=NULL,*gField=NULL,*g2Field=NULL,*uField=NULL,*uSubtr=NULL;
   double *uBuff=NULL,*Xbuff,*Ybuff,*X,*Y,*mCatalog,*avgGradU,*background;
-  double *ux,*uy,*uxxy,*uxyy,*uxxx,*uyyy,*vortSndMomMatrix=NULL;
+  double *ux,*uy,*uxxy,*uxyy,*uxxx,*uyyy,*sSubtr,*vortSndMomMatrix=NULL;
   double v0y0 = 0.00,*vCatalog=NULL,*rCatalog=NULL,*majorVortex=NULL;
   double hGmin=0.,hGmax=0.,hRcMin=0.,hRcMax=0.,sigmaUx,sigmaUy;
   char genFile[300+1],folder[100+1],tag[100+1],filename[400+1];
@@ -121,13 +121,9 @@ int main(int argc,char **argv){
   fieldAlloc(Glist,numG,double);
   fieldAlloc(Rclist,numRc,double);
 
-  //Glist   = (double*)malloc(numG*sizeof(double));
-  //if(Glist==NULL){printf("Can't allocate Glist\n"); return 3;}
   for(i=0;i<numG;i+=1)
     Glist[i] = cfg.Glist[i];
 
-  //Rclist   = (double*)malloc(numRc*sizeof(double));
-  //if(Rclist==NULL){printf("Can't allocate Glist\n"); return 3;}
   for(i=0;i<numRc;i+=1)
     Rclist[i]=cfg.Rclist[i];
   
@@ -229,10 +225,12 @@ int main(int argc,char **argv){
   fieldAlloc(vortSndMomMatrix,4*nMax,double);
   fieldAlloc(avgGradU,4*nMax,double);
   fieldAlloc(sField ,Height*Width,double);
+  fieldAlloc(sSubtr ,Height*Width,double);
   fieldAlloc(gField ,4*Height*Width,double);
   fieldAlloc(g2Field,4*Height*Width,double);
   fieldAlloc(label,Height*Width,int);
   fieldAlloc(uField,2*Height*Width,double);
+  fieldAlloc(uSubtr,2*Height*Width,double);
   fieldAlloc(  ux  ,2*Height*Width,double);
   fieldAlloc(  uy  ,2*Height*Width,double);
   fieldAlloc( uxxy ,2*Height*Width,double);
@@ -297,11 +295,11 @@ int main(int argc,char **argv){
   for(i=0;i<2*Height*Width;i+=1)
     u2AvgField[i]=0.;
 
-  /*
+  
   {
     double x,y,Ux,Uy;
     double avgGradU[2][2];
-    sprintf(filename,"%s/background.txt",folder);
+    sprintf(filename,"cfg/background/background-negNoShear.bkg");
     dadosField=fopen(filename,"r");
     for(i=0;i<Height;i+=1)
       for(j=0;j<Width;j+=1){
@@ -313,7 +311,7 @@ int main(int argc,char **argv){
         background[2*(i*Width+j)+1] = Uy;
       }
     fclose(dadosField);
-  }*/
+  }
 
   for(n=0;n<nRuns;n+=1){
 
@@ -331,25 +329,68 @@ int main(int argc,char **argv){
     else if((err>0) && (err<nVortex))
       nVortex = err;
     
-    for(i=0;i<Height;i+=1)
-      for(j=0;j<Width;j+=1){
-        uField[2*(i*Width+j)+0]= 0.;// - background[2*(i*Width+j)+0];
-        uField[2*(i*Width+j)+1]= 0.;// - background[2*(i*Width+j)+1];
-      }
+    if(calcScalarMode==0){
+      for(i=0;i<Height;i+=1)
+        for(j=0;j<Width;j+=1){
+          uField[2*(i*Width+j)+0]= 0.;
+          uField[2*(i*Width+j)+1]= 0.;
+        }
 
-    for(i=0;i<Height*Width;i+=1)
-      label[i]=-1;
-    
-    // change here
-    //err=calcScalarField(runType,Height,Width,x0,dx,nVortex,parVortex,gField,v0y0,sField);
-    if(calcScalarMode==0)
       err=calcUScalarField(runType,Height,Width,padWidth,x0,dx,X,Y,Xbuff,
                            Ybuff,nVortex,parVortex,uField,uBuff,ux,uy,
                            uxxx,uyyy,uxxy,uxyy,gField,g2Field,
                            v0y0,sField);
-    else if(calcScalarMode==1)
+    }
+    else if(calcScalarMode==1){
+      for(i=0;i<Height;i+=1)
+        for(j=0;j<Width;j+=1){
+          uField[2*(i*Width+j)+0]= 0.;
+          uField[2*(i*Width+j)+1]= 0.;
+        }
+
       err=calcScalarField(runType,Height,Width,x0,dx,nVortex,parVortex,
                           gField,v0y0,sField);
+    }
+    else if(calcScalarMode==2){
+      
+      for(i=0;i<Height;i+=1)
+        for(j=0;j<Width;j+=1){
+          uField[2*(i*Width+j)+0]= 0.;
+          uField[2*(i*Width+j)+1]= 0.;
+        }
+
+      err=calcUScalarField(runType,Height,Width,padWidth,x0,dx,X,Y,Xbuff,
+                           Ybuff,nVortex,parVortex,uField,uBuff,ux,uy,
+                           uxxx,uyyy,uxxy,uxyy,gField,g2Field,
+                           v0y0,sField);
+      if(err!=0)
+        break;
+      
+      for(i=0;i<Height;i+=1)
+        for(j=0;j<Width;j+=1){
+          uSubtr[2*(i*Width+j)+0]= 0. - background[2*(i*Width+j)+0];
+          uSubtr[2*(i*Width+j)+1]= 0. - background[2*(i*Width+j)+1];
+        }
+
+      err=calcUScalarField(runType,Height,Width,padWidth,x0,dx,X,Y,Xbuff,
+                           Ybuff,nVortex,parVortex,uSubtr,uBuff,ux,uy,
+                           uxxx,uyyy,uxxy,uxyy,gField,g2Field,
+                           v0y0,sSubtr);
+      if(err!=0)
+        break;
+      
+      // gField have already been updated to the subtracted field. 
+      // __ Do not remove this message __
+
+      for(i=0;i<Height;i+=1)
+        for(j=0;j<Width;j+=1){
+          if( sField[i*Width+j] > sSubtr[i*Width+j])
+            sField[i*Width+j] = sSubtr[i*Width+j];
+
+          uField[2*(i*Width+j)+0]= sSubtr[2*(i*Width+j)+0];
+          uField[2*(i*Width+j)+1]= sSubtr[2*(i*Width+j)+1];
+        }
+    }
     else{
       printf("Not identified operation mode \n");
       return -18;
@@ -368,6 +409,9 @@ int main(int argc,char **argv){
         u2AvgField[2*(i*Width+j)+0] += uField[2*(i*Width+j)+0]*uField[2*(i*Width+j)+0];
         u2AvgField[2*(i*Width+j)+1] += uField[2*(i*Width+j)+1]*uField[2*(i*Width+j)+1];
       }
+
+    for(i=0;i<Height*Width;i+=1)
+      label[i]=-1;
 
     err = floodFill(sField,Width,Height,eqClass,label);
     if(err!=0)
@@ -641,11 +685,13 @@ int main(int argc,char **argv){
   if(uxxy!=NULL) free(uxxy);
   if(uyyy!=NULL) free(uyyy);
   if(uField!=NULL) free(uField);
+  if(uSubtr!=NULL) free(uSubtr);
   if(uBuff!=NULL) free(uBuff);
   if(uAvgField!=NULL) free(uAvgField);
   if(u2AvgField!=NULL) free(u2AvgField);
   if(background!=NULL) free(background);
   if(sField!=NULL) free(sField);
+  if(sSubtr!=NULL) free(sSubtr);
   if(gField!=NULL) free(gField);
   if(g2Field!=NULL) free(g2Field);
   if(label!=NULL)  free(label);
