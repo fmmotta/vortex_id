@@ -49,7 +49,7 @@ int main(int argc,char **argv){
   double *ux,*uy,*uxxy,*uxyy,*uxxx,*uyyy,*sSubtr,*vortSndMomMatrix=NULL;
   double v0y0 = 0.00,*vCatalog=NULL,*rCatalog=NULL,*majorVortex=NULL;
   double hGmin=0.,hGmax=0.,hRcMin=0.,hRcMax=0.,sigmaUx,sigmaUy;
-  char genFile[300+1],folder[100+1],tag[100+1],filename[400+1];
+  char genFile[300+1],folder[100+1],tag[100+1],filename[400+1],bkgFile[400+1];
   FILE *dadosgen,*dadosout,*dadosVin,*dadosVout,*dadosField;
   gsl_histogram *hG,*hRc,*ha,*hb,*hN;
   gsl_histogram *iG,*iRc,*ia,*ib;
@@ -95,6 +95,7 @@ int main(int argc,char **argv){
 
   strcpy(folder,cfg.folder);
   strcpy(tag,cfg.tag);
+  strcpy(bkgFile,cfg.bkgFile);
 
   err=mkdir(folder, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
   if(err!=0 && err!=-1){
@@ -294,13 +295,13 @@ int main(int argc,char **argv){
 
   for(i=0;i<2*Height*Width;i+=1)
     u2AvgField[i]=0.;
-
   
   {
     double x,y,Ux,Uy;
     double avgGradU[2][2];
-    sprintf(filename,"cfg/background/background-negNoShear.bkg");
-    dadosField=fopen(filename,"r");
+    //sprintf(filename,"cfg/background/background-negNoShear.bkg");
+    //dadosField=fopen(filename,"r");
+    dadosField=fopen(bkgFile,"r");
     for(i=0;i<Height;i+=1)
       for(j=0;j<Width;j+=1){
         fscanf(dadosField,"%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",&x,&y,&Ux,&Uy,
@@ -352,7 +353,7 @@ int main(int argc,char **argv){
                           gField,v0y0,sField);
     }
     else if(calcScalarMode==2){
-      
+
       for(i=0;i<Height;i+=1)
         for(j=0;j<Width;j+=1){
           uField[2*(i*Width+j)+0]= 0.;
@@ -454,34 +455,9 @@ int main(int argc,char **argv){
       printf("problems in extract012Momentsw2\n");
       return err;
     }
-    /*
-    {
-      rCnect=0;
-      for(i=0;i<nCnect;i+=1){
-        if(fabs(vCatalog[4*i+2])<=9 && fabs(vCatalog[4*i+3])<=9){
-          rCatalog[4*rCnect+0]=vCatalog[4*i+0];
-          rCatalog[4*rCnect+1]=vCatalog[4*i+1];
-          rCatalog[4*rCnect+2]=vCatalog[4*i+2];
-          rCatalog[4*rCnect+3]=vCatalog[4*i+3];
-          rCnect+=1;
-        }
-      }
 
-      for(i=0;i<rCnect;i+=1){
-        vCatalog[4*i+0]=rCatalog[4*i+0];
-        vCatalog[4*i+1]=rCatalog[4*i+1];
-        vCatalog[4*i+2]=rCatalog[4*i+2];
-        vCatalog[4*i+3]=rCatalog[4*i+3];      
-      }
-      for(i=rCnect;i<nCnect;i+=1){
-        vCatalog[4*i+0]=0.;
-        vCatalog[4*i+1]=0.;
-        vCatalog[4*i+2]=0.;
-        vCatalog[4*i+3]=0.;      
-      }
-      nCnect=rCnect;
-    }
-    */
+    // Here for vortex position discart
+
     for(i=0;i<nCnect;i+=1){
       //vCatalog[4*i+0] += M_PI*vCatalog[4*i+1]*vCatalog[4*i+1]*v0y0;
       if(runType==0){
@@ -725,3 +701,33 @@ int main(int argc,char **argv){
 
   return 0;
 }
+
+
+    /*
+    {
+      rCnect=0;
+      for(i=0;i<nCnect;i+=1){
+        if(fabs(vCatalog[4*i+2])<=9 && fabs(vCatalog[4*i+3])<=9){
+          rCatalog[4*rCnect+0]=vCatalog[4*i+0];
+          rCatalog[4*rCnect+1]=vCatalog[4*i+1];
+          rCatalog[4*rCnect+2]=vCatalog[4*i+2];
+          rCatalog[4*rCnect+3]=vCatalog[4*i+3];
+          rCnect+=1;
+        }
+      }
+
+      for(i=0;i<rCnect;i+=1){
+        vCatalog[4*i+0]=rCatalog[4*i+0];
+        vCatalog[4*i+1]=rCatalog[4*i+1];
+        vCatalog[4*i+2]=rCatalog[4*i+2];
+        vCatalog[4*i+3]=rCatalog[4*i+3];      
+      }
+      for(i=rCnect;i<nCnect;i+=1){
+        vCatalog[4*i+0]=0.;
+        vCatalog[4*i+1]=0.;
+        vCatalog[4*i+2]=0.;
+        vCatalog[4*i+3]=0.;      
+      }
+      nCnect=rCnect;
+    }
+    */

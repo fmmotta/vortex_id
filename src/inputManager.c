@@ -15,7 +15,7 @@ int initConfig(configVar *cfg){
   cfg->Glist=NULL; cfg->Rclist=NULL; 
   cfg->swThresh=0.; cfg->sndSwThresh=0.; cfg->cutoff=0.;
   cfg->genFile=NULL; cfg->tag=NULL; cfg->pln=NULL;
-  cfg->folder=NULL;  
+  cfg->folder=NULL; cfg->bkgFile=NULL;  
 
   return 0;
 }
@@ -46,11 +46,13 @@ int freeConfig(configVar *cfg){
     free(cfg->pln);
   if(cfg->FOAMfolder!=NULL)
     free(cfg->FOAMfolder);
+  if(cfg->bkgFile!=NULL)
+    free(cfg->bkgFile);
 
   cfg->Glist=NULL; cfg->Rclist=NULL; 
   cfg->genFile=NULL; cfg->tag=NULL;
   cfg->folder=NULL;cfg->FOAMfolder=NULL;
-  cfg->pln=NULL;
+  cfg->pln=NULL; cfg->bkgFile=NULL;
 
   return 0;  
 }
@@ -105,6 +107,8 @@ int vortexIdHandler(void* user, const char* section,
     vConfig->dim = atoi(value);
   else if (MATCH("Runtime-Info", "Folder"))
     vConfig->folder = strdup(value);
+  else if (MATCH("Runtime-Info", "Background-File"))
+    vConfig->bkgFile = strdup(value);
   else if (MATCH("Reconstruction-Info", "Adaptive"))
     vConfig->adaptive = atoi(value);
   else if (MATCH("Reconstruction-Info", "Circulation-Cutoff"))
@@ -231,6 +235,7 @@ int printConfig(configVar *cfg){
   printf("number of Runs: %d\n",cfg->nRuns);
   printf("dimension : %d\n",cfg->dim);
   printf("Results Folder : %s\n",cfg->folder);
+  printf("Background File : %s\n",cfg->bkgFile);
 
   printf("\nReconstruction-Info: \n");
   printf("Adaptive: %d\n",cfg->adaptive);

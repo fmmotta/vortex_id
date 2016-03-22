@@ -9,7 +9,7 @@ typedef struct configVar {
   double *Glist,*Rclist,x0[2],xf[2];
   double swThresh, sndSwThresh,cutoff,v0y0;
   double hGmin,hGmax,hRcMin,hRcMax,t0,dt;
-  char *genFile,*tag,*folder,*FOAMfolder;
+  char *genFile,*tag,*folder,*FOAMfolder,*bkgFile;
 } configVar;
 
 int initConfig(configVar *cfg);
