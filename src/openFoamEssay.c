@@ -146,10 +146,10 @@ int main(int argc,char **argv){
   int i,j,k,l,err,nCnect=0,n,nMax=1024,padWidth=2;
   double Gmin=1.,Gmax=20.,rmin=0.5,rmax=1.0,threshold=0.5;
   double xmin[2]={-9.,-9.},xmax[2]={9.,9.},x0[2],dx[2],xf[2];
-  double *parVortex=NULL,t,t0,dt;
-  double *sField=NULL,*gField=NULL,*g2Field=NULL,*uField=NULL,*X,*Y;
+  double *parVortex=NULL,t,t0,dt,*avgU=NULL,*avgU2=NULL,*avgW=NULL,*avgW2=NULL;
+  double *sField=NULL,*gField=NULL,*g2Field=NULL,*uField=NULL,*X,*Y,*wBkg;
   double *uBuff=NULL,*Xbuff=NULL,*Ybuff=NULL,*Xload=NULL,*Yload=NULL;
-  double *Zload=NULL,*ux=NULL,*uy=NULL,*uxxy=NULL,*uxyy=NULL,*uAvgField=NULL;
+  double *Zload=NULL,*ux=NULL,*uy=NULL,*uxxy=NULL,*uxyy=NULL;
   double *uxxx=NULL,*uyyy=NULL,*vCatalog=NULL,*rCatalog=NULL;
   double v0y0 = 0.00,*vortSndMomMatrix=NULL,*avgGradU=NULL;
   double hGmin=0.,hGmax=0.,hRcMin=0.,hRcMax=0.;
@@ -310,7 +310,11 @@ int main(int argc,char **argv){
   fieldAlloc( uxyy ,2*Height*Width,double);
   fieldAlloc( uxxx ,2*Height*Width,double);
   fieldAlloc( uyyy ,2*Height*Width,double);
-  fieldAlloc(uAvgField,2*Height*Width,double);
+  fieldAlloc(avgU,2*Height*Width,double);
+  fieldAlloc(avgU2,2*Height*Width,double);
+  fieldAlloc(avgW,Height*Width,double);
+  fieldAlloc(avgW2,Height*Width,double);
+  fieldAlloc(wBkg,Height*Width,double);
   fieldAlloc(uBuff ,2*(Height+2*padWidth)*(Width+2*padWidth),double);
   fieldAlloc(X,Nx+1,double);
   fieldAlloc(Y,Ny+1,double);
@@ -481,7 +485,13 @@ int main(int argc,char **argv){
   totalVortices = fopen(filename,"w");
 
   for(i=0;i<2*Height*Width;i+=1)
-    uAvgField[i]=0.;
+    avgU[i]=0.;
+  for(i=0;i<2*Height*Width;i+=1)
+    avgU2[i]=0.;
+  for(i=0;i<Height*Width;i+=1)
+    avgW[i]=0.;
+  for(i=0;i<Height*Width;i+=1)
+    avgW2[i]=0.;
 
   for(n=0;n<Nsnapshots;n+=1){
 
@@ -568,6 +578,17 @@ int main(int argc,char **argv){
 
       dbgPrint(15,4);
 
+      for(i=0;i<Height;i+=1)
+        for(j=0;j<Width;j+=1){
+          avgU[2*(i*Width+j)+0] += uField[2*(i*Width+j)+0];
+          avgU[2*(i*Width+j)+1] += uField[2*(i*Width+j)+1];
+
+          avgU2[2*(i*Width+j)+0] += uField[2*(i*Width+j)+0]*uField[2*(i*Width+j)+0];
+          avgU2[2*(i*Width+j)+1] += uField[2*(i*Width+j)+1]*uField[2*(i*Width+j)+1];
+        }
+
+      dbgPrint(15,43);
+
       err = floodFill(sField,Width,Height,eqClass,label);
       if(err!=0)
         printf("Problems in floodFill\n");
@@ -585,8 +606,11 @@ int main(int argc,char **argv){
       
       dbgPrint(15,5);
 
-      err=extract012Momentsw2(Height,Width,nCnect,X,Y,sField,gField,
-                              label,vCatalog,vortSndMomMatrix,avgGradU);
+      //err=extract012Momentsw2(Height,Width,nCnect,X,Y,sField,gField,
+      //                        label,vCatalog,vortSndMomMatrix,avgGradU);
+
+      err=extract012Momentsw2(Height,Width,nCnect,X,Y,sField,gField,label,
+                              wBkg,vCatalog,vortSndMomMatrix,avgGradU);
       if(err!=0){
         printf("problems in extract012Momentsw2\n");
         return err;
@@ -692,10 +716,15 @@ int main(int argc,char **argv){
   if(ux!=NULL) free(ux);
   if(uy!=NULL) free(uy);
   if(avgGradU!=NULL) free(avgGradU);
+  if(avgU!=NULL) free(avgU);
+  if(avgU2!=NULL) free(avgU2);
+  if(avgW!=NULL) free(avgW);
+  if(avgW2!=NULL) free(avgW2);
   if(uxxx!=NULL) free(uxxx);
   if(uyyy!=NULL) free(uyyy);
   if(uxxy!=NULL) free(uxxy);
   if(uxyy!=NULL) free(uxyy);
+  if(wBkg!=NULL) free(wBkg);
   if(parVortex!=0) free(parVortex);
   if(Xload!=NULL) free(Xload);
   if(Yload!=NULL) free(Yload);
