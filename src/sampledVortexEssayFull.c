@@ -47,7 +47,7 @@ int main(int argc,char **argv){
   double *sField=NULL,*gField=NULL,*g2Field=NULL,*uField=NULL,*uSubtr=NULL;
   double *uBuff=NULL,*Xbuff,*Ybuff,*X,*Y,*mCatalog,*avgGradU,*background;
   double *ux,*uy,*uxxy,*uxyy,*uxxx,*uyyy,*sSubtr,*vortSndMomMatrix=NULL;
-  double v0y0 = 0.00,*vCatalog=NULL,*rCatalog=NULL,*majorVortex=NULL;
+  double v0y0 = 0.00,*vCatalog=NULL,*rCatalog=NULL,*majorVortex=NULL,*wBkg=NULL;
   double hGmin=0.,hGmax=0.,hRcMin=0.,hRcMax=0.,sigmaUx,sigmaUy;
   char genFile[300+1],folder[100+1],tag[100+1],filename[400+1],bkgFile[400+1];
   FILE *dadosgen,*dadosout,*dadosVin,*dadosVout,*dadosField;
@@ -91,11 +91,16 @@ int main(int argc,char **argv){
     return 2;
   }
   
-  dbgPrint(2,0);
+  dbgPrint(2,1);
 
   strcpy(folder,cfg.folder);
   strcpy(tag,cfg.tag);
-  strcpy(bkgFile,cfg.bkgFile);
+
+  printf("bkg-File = %s\n",cfg.bkgFile);
+  if(cfg.bkgFile!=NULL)
+    strcpy(bkgFile,cfg.bkgFile);
+  else
+    bkgFile[0]='\0';
 
   err=mkdir(folder, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
   if(err!=0 && err!=-1){
@@ -241,6 +246,7 @@ int main(int argc,char **argv){
   fieldAlloc(uAvgField,2*Height*Width,double);
   fieldAlloc(u2AvgField,2*Height*Width,double);
   fieldAlloc(background,2*Height*Width,double);
+  fieldAlloc(wBkg,Height*Width,double);
   fieldAlloc(uBuff ,2*(Height+2*padWidth)*(Width+2*padWidth),double);
 
   dbgPrint(11,0);
@@ -296,21 +302,26 @@ int main(int argc,char **argv){
   for(i=0;i<2*Height*Width;i+=1)
     u2AvgField[i]=0.;
   
-  {
-    double x,y,Ux,Uy;
-    double avgGradU[2][2];
+  if(bkgFile[0]!='\0'){
+    double x,y,Ux,Uy;;
+    double omega,strain,gamma,beta;
+    if(DEBUG_PRINT)
+      printf("loading background file\n");
     //sprintf(filename,"cfg/background/background-negNoShear.bkg");
     //dadosField=fopen(filename,"r");
+    //fprintf(dadosout,"%f %f %f %f",omega,gamma,beta,strain);
     dadosField=fopen(bkgFile,"r");
     for(i=0;i<Height;i+=1)
       for(j=0;j<Width;j+=1){
         fscanf(dadosField,"%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",&x,&y,&Ux,&Uy,
                                                           &sigmaUx,&sigmaUy,
-                                                          &(avgGradU[0][0]),&(avgGradU[0][1]),
-                                                          &(avgGradU[1][0]),&(avgGradU[1][1]));
+                                                          &omega,&gamma,
+                                                          &beta,&strain);
         background[2*(i*Width+j)+0] = Ux;
         background[2*(i*Width+j)+1] = Uy;
+        wBkg[i*Width+j] = omega;
       }
+
     fclose(dadosField);
   }
 
@@ -331,6 +342,8 @@ int main(int argc,char **argv){
       nVortex = err;
     
     if(calcScalarMode==0){
+      //if(DEBUG_PRINT)
+      //  printf("Scalar Mode 0\n");
       for(i=0;i<Height;i+=1)
         for(j=0;j<Width;j+=1){
           uField[2*(i*Width+j)+0]= 0.;
@@ -343,6 +356,8 @@ int main(int argc,char **argv){
                            v0y0,sField);
     }
     else if(calcScalarMode==1){
+      //if(DEBUG_PRINT)
+      //  printf("Scalar Mode 1\n");
       for(i=0;i<Height;i+=1)
         for(j=0;j<Width;j+=1){
           uField[2*(i*Width+j)+0]= 0.;
@@ -353,19 +368,8 @@ int main(int argc,char **argv){
                           gField,v0y0,sField);
     }
     else if(calcScalarMode==2){
-
-      for(i=0;i<Height;i+=1)
-        for(j=0;j<Width;j+=1){
-          uField[2*(i*Width+j)+0]= 0.;
-          uField[2*(i*Width+j)+1]= 0.;
-        }
-
-      err=calcUScalarField(runType,Height,Width,padWidth,x0,dx,X,Y,Xbuff,
-                           Ybuff,nVortex,parVortex,uField,uBuff,ux,uy,
-                           uxxx,uyyy,uxxy,uxyy,gField,g2Field,
-                           v0y0,sField);
-      if(err!=0)
-        break;
+      //if(DEBUG_PRINT)
+      //  printf("Scalar Mode 2\n");
       
       for(i=0;i<Height;i+=1)
         for(j=0;j<Width;j+=1){
@@ -377,6 +381,19 @@ int main(int argc,char **argv){
                            Ybuff,nVortex,parVortex,uSubtr,uBuff,ux,uy,
                            uxxx,uyyy,uxxy,uxyy,gField,g2Field,
                            v0y0,sSubtr);
+      if(err!=0)
+        break;
+
+      for(i=0;i<Height;i+=1)
+        for(j=0;j<Width;j+=1){
+          uField[2*(i*Width+j)+0]= 0.;
+          uField[2*(i*Width+j)+1]= 0.;
+        }
+
+      err=calcUScalarField(runType,Height,Width,padWidth,x0,dx,X,Y,Xbuff,
+                           Ybuff,nVortex,parVortex,uField,uBuff,ux,uy,
+                           uxxx,uyyy,uxxy,uxyy,gField,g2Field,
+                           v0y0,sField);
       if(err!=0)
         break;
       
@@ -449,13 +466,13 @@ int main(int argc,char **argv){
       return err;
     }*/
 
-    err= extract012Momentsw2(Height,Width,nCnect,X,Y,sField,gField,label,
-                             vCatalog,vortSndMomMatrix,avgGradU);
+    err=extract012Momentsw2(Height,Width,nCnect,X,Y,sField,gField,label,
+                            wBkg,vCatalog,vortSndMomMatrix,avgGradU);
     if(err!=0){
       printf("problems in extract012Momentsw2\n");
       return err;
     }
-
+    
     // Here for vortex position discart
 
     for(i=0;i<nCnect;i+=1){
@@ -540,6 +557,8 @@ int main(int argc,char **argv){
       fclose(dadosVout);
     }
   }
+
+  printf("%d runs have passed\n",n);
   
   {
     double omega,strain,gamma,beta;
@@ -570,8 +589,8 @@ int main(int argc,char **argv){
     for(i=0;i<Height;i+=1)
       for(j=0;j<Width;j+=1){
         fprintf(dadosout,"%f %f %f %f ",X[j],Y[i]
-                                        ,uAvgField[2*(i*Width+j)+0]
-                                        ,uAvgField[2*(i*Width+j)+1]);
+                                       ,uAvgField[2*(i*Width+j)+0]
+                                       ,uAvgField[2*(i*Width+j)+1]);
         
         sigmaUx = u2AvgField[2*(i*Width+j)+0] - 
                   uAvgField[2*(i*Width+j)+0]*uAvgField[2*(i*Width+j)+0];
@@ -607,6 +626,8 @@ int main(int argc,char **argv){
     }
     fclose(dadosout);
   }
+
+  dbgPrint(15,0);
 
   sprintf(filename,"%s/histoOuG-%s.txt",folder,tag); 
   dadosout=fopen(filename,"w");
@@ -649,6 +670,8 @@ int main(int argc,char **argv){
   sprintf(filename,"gnuplot_script.gnu");
   err=writeGnuplotScript(filename,folder,tag,nRuns,nVortex);
   if(err!=0){printf("Error printing gnuplot script\n");return err;}
+  
+  dbgPrint(16,0);
 
   if(X!=NULL) free(X);
   if(Y!=NULL) free(Y);
@@ -668,6 +691,7 @@ int main(int argc,char **argv){
   if(background!=NULL) free(background);
   if(sField!=NULL) free(sField);
   if(sSubtr!=NULL) free(sSubtr);
+  if(wBkg!=NULL) free(wBkg);
   if(gField!=NULL) free(gField);
   if(g2Field!=NULL) free(g2Field);
   if(label!=NULL)  free(label);
