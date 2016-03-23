@@ -152,7 +152,7 @@ int main(int argc,char **argv){
   double *Zload=NULL,*ux=NULL,*uy=NULL,*uxxy=NULL,*uxyy=NULL;
   double *uxxx=NULL,*uyyy=NULL,*vCatalog=NULL,*rCatalog=NULL;
   double v0y0 = 0.00,*vortSndMomMatrix=NULL,*avgGradU=NULL;
-  double hGmin=0.,hGmax=0.,hRcMin=0.,hRcMax=0.;
+  double hGmin=0.,hGmax=0.,hRcMin=0.,hRcMax=0.,wTemp=0.,w2Temp=0.;
   char folder[100+1],tag[100+1],filename[400+1],foamFolder[200+1];
   FILE *dadosout,*uFile,*pFile,*nFile,*vortexFile,*totalVortices,*dadosin;
   gsl_histogram *hG,*hRc,*ha,*hb,*hN;
