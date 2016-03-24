@@ -743,7 +743,7 @@ int main(int argc,char **argv){
     dadosout = fopen(filename,"w");
     j=Width/2;
     for(i=0;i<Height;i+=1){
-      fprintf(dadosout,"%f %f %f\n",Y[i],avgU[2*(i*Width+j)+0]
+      fprintf(dadosout,"%f %f %f ",Y[i],avgU[2*(i*Width+j)+0]
                                         ,avgU[2*(i*Width+j)+1]);
 
       sigmaUx = avgU2[2*(i*Width+j)+0] - 
