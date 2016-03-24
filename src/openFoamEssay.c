@@ -139,11 +139,11 @@ void printVorticesAndMoments(int Height,int Width, double *X,double *Y,double t,
 
 int main(int argc,char **argv){
   //double cutoff; int rCnet=0;
-  int Width = 100, Height = 100, Depth, nVortex=5,nFixVortex=5,nRuns=1000;
+  int Width = 100, Height = 100, Depth, nVortex=5,nFixVortex=5;
   int dataSize=12,runType=0,*label=NULL,**eqClass=NULL;
   int hNG=50,hNRc=53,hNa=40,hNb=40,hNN=10,Nsnapshots;
   int Nx,Ny,Nz,planeIndex,planeType,planeNum=0,pln[8128];
-  int i,j,k,l,err,nCnect=0,n,nMax=1024,padWidth=2;
+  int i,j,l,err,nCnect=0,n,nMax=1024,padWidth=2;//,k;
   double Gmin=1.,Gmax=20.,rmin=0.5,rmax=1.0,threshold=0.5;
   double xmin[2]={-9.,-9.},xmax[2]={9.,9.},x0[2],dx[2],xf[2];
   double *parVortex=NULL,t,t0,dt,*avgU=NULL,*avgU2=NULL,*avgW=NULL,*avgW2=NULL;
@@ -152,7 +152,7 @@ int main(int argc,char **argv){
   double *Zload=NULL,*ux=NULL,*uy=NULL,*uxxy=NULL,*uxyy=NULL;
   double *uxxx=NULL,*uyyy=NULL,*vCatalog=NULL,*rCatalog=NULL;
   double v0y0 = 0.00,*vortSndMomMatrix=NULL,*avgGradU=NULL;
-  double hGmin=0.,hGmax=0.,hRcMin=0.,hRcMax=0.,wTemp=0.,w2Temp=0.;
+  double hGmin=0.,hGmax=0.,hRcMin=0.,hRcMax=0.;
   char folder[100+1],tag[100+1],filename[400+1],foamFolder[200+1];
   FILE *dadosout,*uFile,*pFile,*nFile,*vortexFile,*totalVortices,*dadosin;
   gsl_histogram *hG,*hRc,*ha,*hb,*hN;
@@ -506,8 +506,6 @@ int main(int argc,char **argv){
       
       for(i=0;i<2*Height*Width;i+=1)
         uField[i]=0.;
-      for(i=0;i<Height*Width;i+=1)
-        label[i]=-1;
 
       dbgPrint(15,0);
 
@@ -585,9 +583,17 @@ int main(int argc,char **argv){
 
           avgU2[2*(i*Width+j)+0] += uField[2*(i*Width+j)+0]*uField[2*(i*Width+j)+0];
           avgU2[2*(i*Width+j)+1] += uField[2*(i*Width+j)+1]*uField[2*(i*Width+j)+1];
+
+          avgW[i*Width+j]  += gField[4*(i*Width+j)+2]-gField[4*(i*Width+j)+1];
+          
+          avgW2[i*Width+j] += (gField[4*(i*Width+j)+2]-gField[4*(i*Width+j)+1])*
+                              (gField[4*(i*Width+j)+2]-gField[4*(i*Width+j)+1]);
         }
 
       dbgPrint(15,43);
+
+      for(i=0;i<Height*Width;i+=1)
+        label[i]=-1;
 
       err = floodFill(sField,Width,Height,eqClass,label);
       if(err!=0)
@@ -675,6 +681,81 @@ int main(int argc,char **argv){
   
   dbgPrint(19,0);
 
+  {
+    double omega,gamma,beta;
+    double sigmaUx,sigmaUy,sigmaW;
+
+    for(i=0;i<Height;i+=1)
+      for(j=0;j<Width;j+=1){
+        avgU[2*(i*Width+j)+0] /= Nsnapshots*planeNum;
+        avgU[2*(i*Width+j)+1] /= Nsnapshots*planeNum;
+
+        avgU2[2*(i*Width+j)+0] /= Nsnapshots*planeNum;
+        avgU2[2*(i*Width+j)+1] /= Nsnapshots*planeNum;
+
+        avgW[i*Width+j] /= Nsnapshots*planeNum;
+
+        avgW2[i*Width+j] /= Nsnapshots*planeNum;
+      }
+
+    err = uFieldTouBuff(Height,Width,avgU,uBuff,padWidth);
+    if(err!=0)
+      return -2;
+  
+    err = UtoUx5point(Height,Width,ux,uBuff,Xbuff,Ybuff);
+    if(err!=0)
+      return -3;
+
+    err = UtoUy5point(Height,Width,uy,uBuff,Xbuff,Ybuff);
+    if(err!=0)
+      return -4;
+
+    sprintf(filename,"%s/avgU-%s.txt",folder,tag); 
+    dadosout = fopen(filename,"w");
+    for(i=0;i<Height;i+=1)
+      for(j=0;j<Width;j+=1){
+        fprintf(dadosout,"%f %f %f %f ",X[j],Y[i]
+                                       ,avgU[2*(i*Width+j)+0]
+                                       ,avgU[2*(i*Width+j)+1]);
+        
+        sigmaUx = avgU2[2*(i*Width+j)+0] - 
+                  avgU[2*(i*Width+j)+0]*avgU[2*(i*Width+j)+0];
+        
+        sigmaUy = avgU2[2*(i*Width+j)+1] - 
+                  avgU[2*(i*Width+j)+1]*avgU[2*(i*Width+j)+1];
+
+        fprintf(dadosout,"%f %f ",sigmaUx,sigmaUy);
+        
+        //omega = ux[2*(i*Width+j)+1]-uy[2*(i*Width+j)+0];
+        omega = avgW[i*Width+j];
+        sigmaW = avgW2[i*Width+j]-avgW[i*Width+j]*avgW[i*Width+j]; 
+        gamma = ux[2*(i*Width+j)+1]+uy[2*(i*Width+j)+0];
+        beta  = ux[2*(i*Width+j)+0];
+        //strain = sqrt(gamma*gamma+beta*beta);
+
+        fprintf(dadosout,"%f %f %f %f",omega,sigmaW,gamma,beta);//strain);
+
+        fprintf(dadosout,"\n");
+      }
+    fclose(dadosout);
+
+    sprintf(filename,"%s/vertical-x0-%s.txt",folder,tag);
+    dadosout = fopen(filename,"w");
+    j=Width/2;
+    for(i=0;i<Height;i+=1){
+      fprintf(dadosout,"%f %f %f\n",Y[i],avgU[2*(i*Width+j)+0]
+                                        ,avgU[2*(i*Width+j)+1]);
+
+      sigmaUx = avgU2[2*(i*Width+j)+0] - 
+                avgU[2*(i*Width+j)+0]*avgU[2*(i*Width+j)+0];
+
+      sigmaUy = avgU2[2*(i*Width+j)+1] - 
+                avgU[2*(i*Width+j)+1]*avgU[2*(i*Width+j)+1];
+      fprintf(dadosout,"%f %f \n",sigmaUx,sigmaUy);
+    }
+    fclose(dadosout);
+  }
+
   sprintf(filename,"%s/histoOuG-%s.txt",folder,tag); 
   dadosout=fopen(filename,"w");
   gsl_histogram_fprintf(dadosout,hG,"%f","%f");
@@ -699,7 +780,7 @@ int main(int argc,char **argv){
   dbgPrint(20,0);
 
   sprintf(filename,"gnuplot_script.gnu");
-  err=writeGnuplotScript(filename,folder,tag,nRuns,nVortex);
+  err=writeGnuplotScript(filename,folder,tag,0,nVortex);
   if(err!=0){printf("Error printing gnuplot script\n");return err;}
 
   dbgPrint(22,0);
@@ -708,28 +789,32 @@ int main(int argc,char **argv){
   if(Y!=NULL) free(Y);
   if(Xbuff!=NULL) free(Xbuff);
   if(Ybuff!=NULL) free(Ybuff);
+  if(Xload!=NULL) free(Xload);
+  if(Yload!=NULL) free(Yload);
+  if(Zload!=NULL) free(Zload);
+  if(node !=NULL) free(node);
+  if(label!=NULL) free(label);
+  if(uField!=NULL) free(uField);
   if(sField!=NULL) free(sField); 
   if(gField!=NULL)  free(gField);
-  if(label!=NULL) free(label);
-  if(vCatalog!=NULL) free(vCatalog);
-  if(rCatalog!=NULL) free(rCatalog);
+  if(g2Field!=NULL) free(g2Field);
+  if(uBuff!=NULL) free(uBuff);
   if(ux!=NULL) free(ux);
   if(uy!=NULL) free(uy);
-  if(avgGradU!=NULL) free(avgGradU);
-  if(avgU!=NULL) free(avgU);
-  if(avgU2!=NULL) free(avgU2);
-  if(avgW!=NULL) free(avgW);
-  if(avgW2!=NULL) free(avgW2);
   if(uxxx!=NULL) free(uxxx);
   if(uyyy!=NULL) free(uyyy);
   if(uxxy!=NULL) free(uxxy);
   if(uxyy!=NULL) free(uxyy);
   if(wBkg!=NULL) free(wBkg);
-  if(parVortex!=0) free(parVortex);
-  if(Xload!=NULL) free(Xload);
-  if(Yload!=NULL) free(Yload);
-  if(Zload!=NULL) free(Zload);
+  if(avgU!=NULL) free(avgU);
+  if(avgW!=NULL) free(avgW);
+  if(avgU2!=NULL) free(avgU2);
+  if(avgW2!=NULL) free(avgW2);
+  if(avgGradU!=NULL) free(avgGradU);
   if(vortSndMomMatrix!=NULL) free(vortSndMomMatrix);
+  if(parVortex!=0) free(parVortex);
+  if(vCatalog!=NULL) free(vCatalog);
+  if(rCatalog!=NULL) free(rCatalog);
 
   for(i=0;i<NumCls;i+=1)
     free(eqClass[i]);
