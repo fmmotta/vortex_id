@@ -455,6 +455,7 @@ int calcUScalarField(int runType,int Height,int Width,int padWidth,
       return -5;
   }
   else if(runType==1){
+    
     err = addUSingleOseen(nVortex,parVortex,x0,dx,Height,Width,&uField);
     if(err!=0)
       return -1;

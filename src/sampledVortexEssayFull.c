@@ -375,13 +375,40 @@ int main(int argc,char **argv){
           uSubtr[2*(i*Width+j)+0]= 0. - background[2*(i*Width+j)+0];
           uSubtr[2*(i*Width+j)+1]= 0. - background[2*(i*Width+j)+1];
         }
-
+      
+      dbgPrint(15,0);
       err=calcUScalarField(runType,Height,Width,padWidth,x0,dx,X,Y,Xbuff,
                            Ybuff,nVortex,parVortex,uSubtr,uBuff,ux,uy,
                            uxxx,uyyy,uxxy,uxyy,gField,g2Field,
                            v0y0,sSubtr);
       if(err!=0)
         break;
+
+      for(i=0;i<Height;i+=1)
+        for(j=0;j<Width;j+=1){
+          uField[2*(i*Width+j)+0]= 0.;
+          uField[2*(i*Width+j)+1]= 0.;
+        }
+
+      dbgPrint(15,1);
+      err=calcUScalarField(runType,Height,Width,padWidth,x0,dx,X,Y,Xbuff,
+                           Ybuff,nVortex,parVortex,uField,uBuff,ux,uy,
+                           uxxx,uyyy,uxxy,uxyy,gField,g2Field,
+                           v0y0,sField);
+      if(err!=0)
+        break;
+
+      for(i=0;i<Height;i+=1)
+        for(j=0;j<Width;j+=1){
+          if( sField[i*Width+j] > sSubtr[i*Width+j])
+            sField[i*Width+j] = sSubtr[i*Width+j];
+
+          uField[2*(i*Width+j)+0]= uSubtr[2*(i*Width+j)+0];
+          uField[2*(i*Width+j)+1]= uSubtr[2*(i*Width+j)+1];
+        }
+      dbgPrint(15,2);
+    }
+    else if(calcScalarMode==3){
 
       for(i=0;i<Height;i+=1)
         for(j=0;j<Width;j+=1){
@@ -396,6 +423,19 @@ int main(int argc,char **argv){
       if(err!=0)
         break;
       
+      for(i=0;i<Height;i+=1)
+        for(j=0;j<Width;j+=1){
+          uSubtr[2*(i*Width+j)+0]= 0. - background[2*(i*Width+j)+0];
+          uSubtr[2*(i*Width+j)+1]= 0. - background[2*(i*Width+j)+1];
+        }
+
+      err=calcUScalarField(runType,Height,Width,padWidth,x0,dx,X,Y,Xbuff,
+                           Ybuff,nVortex,parVortex,uSubtr,uBuff,ux,uy,
+                           uxxx,uyyy,uxxy,uxyy,gField,g2Field,
+                           v0y0,sSubtr);
+      if(err!=0)
+        break;
+
       // gField have already been updated to the subtracted field. 
       // __ Do not remove this message __
 
@@ -404,9 +444,10 @@ int main(int argc,char **argv){
           if( sField[i*Width+j] > sSubtr[i*Width+j])
             sField[i*Width+j] = sSubtr[i*Width+j];
 
-          uField[2*(i*Width+j)+0]= sSubtr[2*(i*Width+j)+0];
-          uField[2*(i*Width+j)+1]= sSubtr[2*(i*Width+j)+1];
+          uField[2*(i*Width+j)+0]= uSubtr[2*(i*Width+j)+0];
+          uField[2*(i*Width+j)+1]= uSubtr[2*(i*Width+j)+1];
         }
+      
     }
     else{
       printf("Not identified operation mode \n");
@@ -418,6 +459,7 @@ int main(int argc,char **argv){
       return err;
     }
 
+    dbgPrint(15,3);
     for(i=0;i<Height;i+=1)
       for(j=0;j<Width;j+=1){
         uAvgField[2*(i*Width+j)+0] += uField[2*(i*Width+j)+0];
@@ -427,9 +469,11 @@ int main(int argc,char **argv){
         u2AvgField[2*(i*Width+j)+1] += uField[2*(i*Width+j)+1]*uField[2*(i*Width+j)+1];
       }
 
+    dbgPrint(15,4);
     for(i=0;i<Height*Width;i+=1)
       label[i]=-1;
 
+    dbgPrint(15,5);
     err = floodFill(sField,Width,Height,eqClass,label);
     if(err!=0)
       printf("Problems in floodFill\n");
@@ -440,6 +484,8 @@ int main(int argc,char **argv){
     else
       printf("problems with renameLabels - %d\n",err);
     
+    dbgPrint(15,6);
+
     if((n%1000==0) && PRINT_MODE){
       sprintf(filename,"%s/sField-%s-%d.txt",folder,tag,n);
       dadosField = fopen(filename,"w");
@@ -453,6 +499,7 @@ int main(int argc,char **argv){
 
     }
 
+    dbgPrint(15,7);
     // WARNING : Change Here
     //err=vortexReconstruction(runType,Height,Width,nCnect,x0,dx,sField,
     //                         gField,label,&vCatalog);
@@ -472,7 +519,7 @@ int main(int argc,char **argv){
       return err;
     }
     
-    
+    dbgPrint(15,8);
     if(calcScalarMode==2){
       double bkgG[nCnect];
       
@@ -483,6 +530,7 @@ int main(int argc,char **argv){
       for(i=0;i<nCnect;i+=1)
         vCatalog[4*i+0] = vCatalog[4*i+0]-bkgG[i];
     }
+    dbgPrint(15,9);
     
     // Here for vortex position discart
 
@@ -638,7 +686,7 @@ int main(int argc,char **argv){
     fclose(dadosout);
   }
 
-  dbgPrint(15,0);
+  dbgPrint(16,0);
 
   sprintf(filename,"%s/histoOuG-%s.txt",folder,tag); 
   dadosout=fopen(filename,"w");
@@ -682,7 +730,7 @@ int main(int argc,char **argv){
   err=writeGnuplotScript(filename,folder,tag,nRuns,nVortex);
   if(err!=0){printf("Error printing gnuplot script\n");return err;}
   
-  dbgPrint(16,0);
+  dbgPrint(17,0);
 
   if(X!=NULL) free(X);
   if(Y!=NULL) free(Y);
