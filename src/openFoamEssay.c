@@ -509,9 +509,7 @@ int main(int argc,char **argv){
 
       dbgPrint(15,0);
 
-      if(planeIndex>0){        
-        //safeFopen(uFile,"r","%s/%g/U",foamFolder,t);
-        //safeFopen(pFile,"r","%s/%g/p",foamFolder,t);
+      if(planeIndex>0){
 
         printf("planeIndex=%d\n",planeIndex);
         
@@ -616,7 +614,7 @@ int main(int argc,char **argv){
       //                        label,vCatalog,vortSndMomMatrix,avgGradU);
 
       err=extract012Momentsw2(Height,Width,nCnect,X,Y,sField,gField,label,
-                              wBkg,vCatalog,vortSndMomMatrix,avgGradU);
+                              vCatalog,vortSndMomMatrix,avgGradU);
       if(err!=0){
         printf("problems in extract012Momentsw2\n");
         return err;

@@ -902,20 +902,20 @@ inline int add_wBkg(int Height,int Width, int i,int j,int ik,int jk,
 
 int extract012Momentsw2(int Height,int Width, int nCnect,double *X,double *Y,
                         double *sField,double *gField,int *label,
-                        double *wBkg,double *vCatalog,
-                        double *vortSndMomMatrix,double *avgGradU)
+                        double *vCatalog,double *vortSndMomMatrix,
+                        double *avgGradU)
 {
   int i,j,k,err;
-  double rc,a,b,G,dx,dy,dA,XX,XY,YX,YY,dgradU[2][2],dw2,dwBkgGamma;//,gdot;
+  double rc,a,b,G,dx,dy,dA,XX,XY,YX,YY,dgradU[2][2],dw2;
   double A[nCnect],a0[nCnect],b0[nCnect],w[nCnect]; // vorticity
-  double SndMom[4*nCnect],w2[nCnect],gradU[4*nCnect],wBkgGamma[nCnect];
+  double SndMom[4*nCnect],w2[nCnect],gradU[4*nCnect];
   
   if((Height<=0)||(Width<=0))
     return -1;
   
   dgradU[0][0]=dgradU[0][1]=dgradU[1][0]=dgradU[1][1]=0.;
   for(k=0;k<nCnect;k+=1){
-    w[k]=0.;A[k]=0.;a0[k]=0.;b0[k]=0.;w2[k]=0.;wBkgGamma[k]=0.;
+    w[k]=0.;A[k]=0.;a0[k]=0.;b0[k]=0.;w2[k]=0.;
     SndMom[4*k+0]=0.;SndMom[4*k+1]=0.;SndMom[4*k+2]=0.;SndMom[4*k+3]=0.;
     gradU[4*k+0]=0.;gradU[4*k+1]=0.;gradU[4*k+2]=0.;gradU[4*k+3]=0.;
   }
@@ -952,10 +952,6 @@ int extract012Momentsw2(int Height,int Width, int nCnect,double *X,double *Y,
         SndMom[4*k+0] += XX; SndMom[4*k+1] += XY;
         SndMom[4*k+2] += YX; SndMom[4*k+3] += YY; 
 
-        err=add_wBkg(Height,Width,i,j,1,1,wBkg,&dwBkgGamma,X,Y);
-        if(err!=0) return err;
-        wBkgGamma[k] += dwBkgGamma;
-
         /*************************************************/
         
         // -+ quadrant
@@ -984,10 +980,6 @@ int extract012Momentsw2(int Height,int Width, int nCnect,double *X,double *Y,
         if(err!=0) return err;
         SndMom[4*k+0] += XX; SndMom[4*k+1] += XY;
         SndMom[4*k+2] += YX; SndMom[4*k+3] += YY; 
-
-        err=add_wBkg(Height,Width,i,j,-1,1,wBkg,&dwBkgGamma,X,Y);
-        if(err!=0) return err;
-        wBkgGamma[k] += dwBkgGamma;
         
         /*************************************************/
 
@@ -1018,10 +1010,6 @@ int extract012Momentsw2(int Height,int Width, int nCnect,double *X,double *Y,
         SndMom[4*k+0] += XX; SndMom[4*k+1] += XY;
         SndMom[4*k+2] += YX; SndMom[4*k+3] += YY; 
 
-        err=add_wBkg(Height,Width,i,j,1,-1,wBkg,&dwBkgGamma,X,Y);
-        if(err!=0) return err;
-        wBkgGamma[k] += dwBkgGamma;
-        
         /*************************************************/
         
         // -- quadrant
@@ -1050,10 +1038,6 @@ int extract012Momentsw2(int Height,int Width, int nCnect,double *X,double *Y,
         if(err!=0) return err;
         SndMom[4*k+0] += XX; SndMom[4*k+1] += XY;
         SndMom[4*k+2] += YX; SndMom[4*k+3] += YY; 
-
-        err=add_wBkg(Height,Width,i,j,-1,-1,wBkg,&dwBkgGamma,X,Y);
-        if(err!=0) return err;
-        wBkgGamma[k] += dwBkgGamma;
         
         /*************************************************/
       }
@@ -1061,8 +1045,7 @@ int extract012Momentsw2(int Height,int Width, int nCnect,double *X,double *Y,
 
   for(k=0;k<nCnect;k+=1){
     
-    rc= sqrt(A[k]/M_PI);//*(sqrtf(2.));// Constant comming from 
-                                       //  lamb-oseen vortex;
+    rc= sqrt(A[k]/M_PI);
 
     if(fabs(w2[k])>0.){
       XX = SndMom[4*k+0]/w2[k];
@@ -1081,13 +1064,7 @@ int extract012Momentsw2(int Height,int Width, int nCnect,double *X,double *Y,
       b=Y[0];
     }
     
-    //gdot =0.;
-    //dx = (gradU[4*k+1]+gradU[4*k+2])/2.;
-    //dy = gradU[4*k+3];
-    //gdot = 2*sqrt(dx*dx+dy*dy);
-    G = w[k]-wBkgGamma[k]; // background integration 
-             //+gdot; // WARNING: the sign of gdot is ad hoc
-             // must find better way. Look on the notes
+    G = w[k];
 
     vCatalog[4*k+0] = G;
     vCatalog[4*k+1] = rc;
@@ -1104,6 +1081,64 @@ int extract012Momentsw2(int Height,int Width, int nCnect,double *X,double *Y,
     avgGradU[4*k+2] = gradU[4*k+2];
     avgGradU[4*k+3] = gradU[4*k+3];
   }
+
+  return 0;
+}
+
+int extractAvgBkgVort(int Height,int Width,double *X,double *Y,
+                      int nCnect,int *label,double *wBkg,
+                      double *wBkgGammaOut)
+{
+  int i,j,k,err;
+  double wBkgGamma[nCnect],dwBkgGamma;
+  
+  if((Height<=0)||(Width<=0))
+    return -1;
+
+  for(k=0;k<nCnect;k+=1)
+    wBkgGamma[k] = 0.;
+
+  for(i=0;i<Height;i+=1)
+    for(j=0;j<Width;j+=1){
+      k=label[i*Width+j];
+
+      if((k>=0)&&(k<nCnect)){
+        // ++ quadrant        
+
+        err=add_wBkg(Height,Width,i,j,1,1,wBkg,&dwBkgGamma,X,Y);
+        if(err!=0) return err;
+        wBkgGamma[k] += dwBkgGamma;
+
+        /*************************************************/
+        
+        // -+ quadrant
+
+        err=add_wBkg(Height,Width,i,j,-1,1,wBkg,&dwBkgGamma,X,Y);
+        if(err!=0) return err;
+        wBkgGamma[k] += dwBkgGamma;
+        
+        /*************************************************/
+
+        // +- quadrant
+
+        err=add_wBkg(Height,Width,i,j,1,-1,wBkg,&dwBkgGamma,X,Y);
+        if(err!=0) return err;
+        wBkgGamma[k] += dwBkgGamma;
+        
+        /*************************************************/
+        
+        // -- quadrant
+
+        err=add_wBkg(Height,Width,i,j,-1,-1,wBkg,&dwBkgGamma,X,Y);
+        if(err!=0) return err;
+        wBkgGamma[k] += dwBkgGamma;
+        
+        /*************************************************/
+      }
+    }
+
+  for(k=0;k<nCnect;k+=1)
+    wBkgGammaOut[k] = wBkgGamma[k];
 
   return 0;
 }

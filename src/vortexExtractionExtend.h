@@ -18,5 +18,9 @@ int extractSecondMoment(int Height,int Width, int nCnect,double *X,double *Y,
 
 int extract012Momentsw2(int Height,int Width, int nCnect,double *X,double *Y,
                         double *sField,double *gField,int *label,
-                        double *wBkg,double *vCatalog,
-                        double *vortSndMomMatrix,double *avgGradU);
+                        double *vCatalog,double *vortSndMomMatrix,
+                        double *avgGradU);
+
+int extractAvgBkgVort(int Height,int Width,double *X,double *Y,
+                      int nCnect,int *label,double *wBkg,
+                      double *wBkgGammaOut);

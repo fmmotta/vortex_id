@@ -96,7 +96,6 @@ int main(int argc,char **argv){
   strcpy(folder,cfg.folder);
   strcpy(tag,cfg.tag);
 
-  printf("bkg-File = %s\n",cfg.bkgFile);
   if(cfg.bkgFile!=NULL)
     strcpy(bkgFile,cfg.bkgFile);
   else
@@ -302,7 +301,7 @@ int main(int argc,char **argv){
   for(i=0;i<2*Height*Width;i+=1)
     u2AvgField[i]=0.;
   
-  if(bkgFile[0]!='\0'){
+  if(bkgFile[0]!='\0' && calcScalarMode==2){
     double x,y,Ux,Uy;;
     double omega,strain,gamma,beta;
     if(DEBUG_PRINT)
@@ -442,12 +441,12 @@ int main(int argc,char **argv){
       printf("problems with renameLabels - %d\n",err);
     
     if((n%1000==0) && PRINT_MODE){
-      sprintf(filename,"%s/sField-%d.txt",folder,n);
+      sprintf(filename,"%s/sField-%s-%d.txt",folder,tag,n);
       dadosField = fopen(filename,"w");
       fprintsField(dadosField,x0,dx,Height,Width,sField);
       fclose(dadosField);
 
-      sprintf(filename,"%s/labels-%d.txt",folder,n);
+      sprintf(filename,"%s/labels-%s-%d.txt",folder,tag,n);
       dadosField = fopen(filename,"w");
       fprintLabels(dadosField,x0,dx,Width,Height,label);
       fclose(dadosField);
@@ -467,10 +466,22 @@ int main(int argc,char **argv){
     }*/
 
     err=extract012Momentsw2(Height,Width,nCnect,X,Y,sField,gField,label,
-                            wBkg,vCatalog,vortSndMomMatrix,avgGradU);
+                            vCatalog,vortSndMomMatrix,avgGradU);
     if(err!=0){
       printf("problems in extract012Momentsw2\n");
       return err;
+    }
+    
+    
+    if(calcScalarMode==2){
+      double bkgG[nCnect];
+      
+      for(i=0;i<nCnect;i+=1)
+        bkgG[i] = 0.;
+
+      err = extractAvgBkgVort(Height,Width,X,Y,nCnect,label,wBkg,bkgG);
+      for(i=0;i<nCnect;i+=1)
+        vCatalog[4*i+0] = vCatalog[4*i+0]-bkgG[i];
     }
     
     // Here for vortex position discart
