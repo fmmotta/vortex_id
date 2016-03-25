@@ -20,8 +20,8 @@
 #include "essayHandler.h"
 
 #define DEBUG_MODE false
-#define DEBUG_PRINT true
-#define PRINT_MODE true
+#define DEBUG_PRINT false
+#define PRINT_MODE false
 
 #define dbgPrint(num,num2) if(DEBUG_PRINT) printf("check point - %d-%d\n",(num),(num2))
 
@@ -450,7 +450,7 @@ int main(int argc,char **argv){
       
     }
     else{
-      printf("Not identified operation mode \n");
+      printf("Not identified operation mode - %d\n",calcScalarMode);
       return -18;
     }
 
