@@ -301,7 +301,7 @@ int main(int argc,char **argv){
   for(i=0;i<2*Height*Width;i+=1)
     u2AvgField[i]=0.;
   
-  if(bkgFile[0]!='\0' && calcScalarMode==2){
+  if(bkgFile[0]!='\0'){
     double x,y,Ux,Uy;;
     double omega,strain,gamma,beta;
     if(DEBUG_PRINT)
