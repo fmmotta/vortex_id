@@ -21,7 +21,8 @@
 #include "essayHandler.h"
 
 #define DEBUG_MODE false
-#define DEBUG_PRINT false
+#define DEBUG_PRINT true
+#define SUBTRACTION_MODE false
 
 #define dbgPrint(num,num2) if(DEBUG_PRINT) printf("check point - %d-%d\n",(num),(num2))
 
@@ -35,125 +36,23 @@
                                       ptr[i]=(type) 0;                   \
                                   }                                      \
 
-//#define safeFopen(handle,mode,format,complement) sprintf(filename,format,complement);      
-//                                                 handle = fopen(filename,mode);            
-//                                                 if(handle == NULL)                        
-//                                                   printf("Could not open: %s\n",filename);
-
-//---------------------------------------------------------------------
-
-int sliceFoamField(int Height,int Width,int planeType,int index,
-                   int Nx,int Ny,int Nz,openFoamIcoData *node,double *uField)
-{
-  int i,j,k;
-
-  if(Height<=0 || Width<=0 || index <=0 || node == NULL || uField == NULL)
-    return 1;
-
-  if(planeType==0){
-    if(DEBUG_PRINT)
-      printf("XY plane\n");
-    k=index;
-    for(j=0;j<Height;j+=1)
-      for(i=0;i<Width;i+=1){
-        uField[2*(j*Width+i)+0] = node[id(i,j,k)].u;
-        uField[2*(j*Width+i)+1] = node[id(i,j,k)].v;
-      }
-  }
-  else if(planeType==1){
-    if(DEBUG_PRINT)
-      printf("ZY plane\n");
-    i=index;
-    for(j=0;j<Height;j+=1)
-      for(k=0;k<Width;k+=1){
-        uField[2*(j*Width+k)+0] = node[id(i,j,k)].w;
-        uField[2*(j*Width+k)+1] = node[id(i,j,k)].v;
-      }
-  }
-  else if(planeType==2){
-    if(DEBUG_PRINT)
-      printf("ZX plane\n");
-    j=index;
-    for(k=0;k<Height;k+=1)
-      for(i=0;i<Width;i+=1){
-        uField[2*(k*Width+i)+0] = node[id(i,j,k)].w;
-        uField[2*(k*Width+i)+1] = node[id(i,j,k)].u;
-      }
-  }
-  return 0;
-}
-
-//---------------------------------------------------------------------
-
-void printScalarFields(int Height,int Width, double *X,double *Y,int n,
-                     char *folder,int index,double *sField,int *label)
-{
-  char filename[512+1];
-  FILE *dadosout;
-
-  sprintf(filename,"%s/sField-p%d-%d.txt",folder,index,n);
-  dadosout = fopen(filename,"w");
-  fprintUsfield(dadosout,X,Y,Height,Width,sField);
-  fclose(dadosout);
-
-  sprintf(filename,"%s/labels-p%d-%d.txt",folder,index,n);
-  dadosout = fopen(filename,"w");
-  fprintUlabels(dadosout,X,Y,Height,Width,label);
-  fclose(dadosout);
-
-  sprintf(filename,"%s/presence-p%d-%d.txt",folder,index,n);
-  dadosout = fopen(filename,"w");
-  fprintUpresence(dadosout,X,Y,Height,Width,label);
-  fclose(dadosout);
-}
-
-//----------------------------------------------------------------------
-
-void printVorticesAndMoments(int Height,int Width, double *X,double *Y,double t,int n,
-                             char *folder,int index,int nCnect,double *vCatalog,double *rCatalog)
-{
-  int err,dataSize=12;
-  char filename[512+1];
-  FILE *dadosVout;
-
-  sprintf(filename,"%s/vortices-p%d-%.4f.txt",folder,index,t);
-  dadosVout = fopen(filename,"w");   
-  err=fprintVortex(dadosVout,n,nCnect,vCatalog);
-  if(err!=0){printf("problems vortices\n"); exit(-6);}
-  fclose(dadosVout);
-      
-  sprintf(filename,"%s/vorticesSafe-p%d-%.4f.txt",folder,index,t);
-  dadosVout = fopen(filename,"w");
-  err=fprintSafeVortex(dadosVout,n,nCnect,vCatalog,Height,Width,X,Y);
-  if(err!=0){printf("problems vorticesSafe\n"); exit(-6);}
-  fclose(dadosVout);
-      
-  sprintf(filename,"%s/vortexSafeMoments-p%d-%.4f.txt",folder,index,t);
-  dadosVout = fopen(filename,"w");
-  err=fprintSafeVortexMoments(dadosVout,n,dataSize,nCnect,rCatalog,Height,Width,X,Y);
-  if(err!=0){printf("problems vortexSafeMoments\n"); exit(-6);}
-  fclose(dadosVout);
-}
-
-//-----------------------------------------------------------------------
-
 int main(int argc,char **argv){
   //double cutoff; int rCnet=0;
   int Width = 100, Height = 100, Depth, nVortex=5,nFixVortex=5;
   int dataSize=12,runType=0,*label=NULL,**eqClass=NULL;
   int hNG=50,hNRc=53,hNa=40,hNb=40,hNN=10,Nsnapshots;
   int Nx,Ny,Nz,planeIndex,planeType,planeNum=0,pln[8128];
-  int i,j,l,err,nCnect=0,n,nMax=1024,padWidth=2;//,k;
+  int i,j,l,err,nCnect=0,n,nMax=1024,padWidth=2,calcScalarMode;//,k;
   double Gmin=1.,Gmax=20.,rmin=0.5,rmax=1.0,threshold=0.5;
-  double xmin[2]={-9.,-9.},xmax[2]={9.,9.},x0[2],dx[2],xf[2];
+  double xmin[2]={-9.,-9.},xmax[2]={9.,9.},x0[2],dx[2],xf[2],*background;
   double *parVortex=NULL,t,t0,dt,*avgU=NULL,*avgU2=NULL,*avgW=NULL,*avgW2=NULL;
   double *sField=NULL,*gField=NULL,*g2Field=NULL,*uField=NULL,*X,*Y,*wBkg;
   double *uBuff=NULL,*Xbuff=NULL,*Ybuff=NULL,*Xload=NULL,*Yload=NULL;
   double *Zload=NULL,*ux=NULL,*uy=NULL,*uxxy=NULL,*uxyy=NULL;
   double *uxxx=NULL,*uyyy=NULL,*vCatalog=NULL,*rCatalog=NULL;
   double v0y0 = 0.00,*vortSndMomMatrix=NULL,*avgGradU=NULL;
-  double hGmin=0.,hGmax=0.,hRcMin=0.,hRcMax=0.;
-  char folder[100+1],tag[100+1],filename[400+1],foamFolder[200+1];
+  double hGmin=0.,hGmax=0.,hRcMin=0.,hRcMax=0.,*uSubtr,*sSubtr;
+  char folder[100+1],tag[100+1],filename[400+1],foamFolder[200+1],bkgFile[400+1];
   FILE *dadosout,*uFile,*pFile,*nFile,*vortexFile,*totalVortices,*dadosin;
   gsl_histogram *hG,*hRc,*ha,*hb,*hN;
   gsl_histogram *iG,*iRc,*ia,*ib;
@@ -253,6 +152,11 @@ int main(int argc,char **argv){
   strcpy(folder,cfg.folder);
   strcpy(tag,cfg.tag);
 
+  if(cfg.bkgFile!=NULL)
+    strcpy(bkgFile,cfg.bkgFile);
+  else
+    bkgFile[0]='\0';
+
   err=mkdir(folder, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
   if(err!=0 && err!=-1){
     printf("error creating directory - %d\n",err);
@@ -260,6 +164,7 @@ int main(int argc,char **argv){
   }
   
   runType = cfg.runType;
+  calcScalarMode = cfg.calcMode;
   
   dbgPrint(4,1);
 
@@ -301,9 +206,12 @@ int main(int argc,char **argv){
 
   fieldAlloc(label,Height*Width,int);
   fieldAlloc(sField ,Height*Width,double);
+  fieldAlloc(sSubtr ,Height*Width,double);
   fieldAlloc(gField ,4*Height*Width,double);
   fieldAlloc(g2Field,4*Height*Width,double);
   fieldAlloc(uField,2*Height*Width,double);
+  fieldAlloc(uSubtr,2*Height*Width,double);
+  fieldAlloc(background,2*Height*Width,double);
   fieldAlloc(  ux  ,2*Height*Width,double);
   fieldAlloc(  uy  ,2*Height*Width,double);
   fieldAlloc( uxxy ,2*Height*Width,double);
@@ -492,6 +400,29 @@ int main(int argc,char **argv){
     avgW[i]=0.;
   for(i=0;i<Height*Width;i+=1)
     avgW2[i]=0.;
+  for(i=0;i<2*Height*Width;i+=1)
+    background[i]=0.;
+
+  if(bkgFile[0]!='\0'){
+    double x,y,Ux,Uy,sigmaUx,sigmaUy;
+    double omega,strain,gamma,beta;
+    FILE *dadosField;
+    if(DEBUG_PRINT)
+      printf("loading background file\n");
+    dadosField=fopen(bkgFile,"r");
+    for(i=0;i<Height;i+=1)
+      for(j=0;j<Width;j+=1){
+        fscanf(dadosField,"%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",&x,&y,&Ux,&Uy,
+                                                          &sigmaUx,&sigmaUy,
+                                                          &omega,&gamma,
+                                                          &beta,&strain);
+        background[2*(i*Width+j)+0] = Ux;
+        background[2*(i*Width+j)+1] = Uy;
+        wBkg[i*Width+j] = omega;
+      }
+
+    fclose(dadosField);
+  }
 
   for(n=0;n<Nsnapshots;n+=1){
 
@@ -563,16 +494,107 @@ int main(int argc,char **argv){
       }
 
       dbgPrint(15,3);
-
-      err=foamScalarField(runType,Height,Width,padWidth,X,Y,Xbuff,Ybuff,
-                          uField,uBuff,ux,uy,uxxx,uyyy,uxxy,
-                          uxyy,gField,g2Field,v0y0,sField);
-      if(err!=0){
-        printf("Error in calcScalarField - %d\n",err);
-        return err;
+      
+      if(calcScalarMode==0){
+        err=foamScalarField(runType,Height,Width,padWidth,X,Y,Xbuff,Ybuff,
+                            uField,uBuff,ux,uy,uxxx,uyyy,uxxy,
+                            uxyy,gField,g2Field,v0y0,sField);
+        if(err!=0)
+          break;
       }
+      else if(calcScalarMode==2){
 
-      dbgPrint(15,4);
+        for(i=0;i<Height;i+=1)
+          for(j=0;j<Width;j+=1){
+            uSubtr[2*(i*Width+j)+0]= uField[2*(i*Width+j)+0] 
+                                   - background[2*(i*Width+j)+0];
+            uSubtr[2*(i*Width+j)+1]= uField[2*(i*Width+j)+1]
+                                   - background[2*(i*Width+j)+1];
+          }
+           
+        dbgPrint(15,4);
+        err=foamScalarField(runType,Height,Width,padWidth,X,Y,Xbuff,Ybuff,
+                            uSubtr,uBuff,ux,uy,uxxx,uyyy,uxxy,
+                            uxyy,gField,g2Field,v0y0,sSubtr);
+        if(err!=0)
+          break;
+
+        //for(i=0;i<Height;i+=1)
+        //  for(j=0;j<Width;j+=1){
+        //    uField[2*(i*Width+j)+0]= 0.;
+        //    uField[2*(i*Width+j)+1]= 0.;
+        //  }
+
+        dbgPrint(15,5);
+        err=foamScalarField(runType,Height,Width,padWidth,X,Y,Xbuff,Ybuff,
+                            uField,uBuff,ux,uy,uxxx,uyyy,uxxy,
+                            uxyy,gField,g2Field,v0y0,sField);
+        if(err!=0)
+          break;
+
+        for(i=0;i<Height;i+=1)
+          for(j=0;j<Width;j+=1){
+            if( sField[i*Width+j] > sSubtr[i*Width+j])
+              sField[i*Width+j] = sSubtr[i*Width+j];
+
+            uField[2*(i*Width+j)+0]= uSubtr[2*(i*Width+j)+0];
+            uField[2*(i*Width+j)+1]= uSubtr[2*(i*Width+j)+1];
+          }
+        dbgPrint(15,6);
+      }
+      else if(calcScalarMode==3){
+
+        //for(i=0;i<Height;i+=1)
+        //  for(j=0;j<Width;j+=1){
+        //    uField[2*(i*Width+j)+0]= 0.;
+        //    uField[2*(i*Width+j)+1]= 0.;
+        //  }
+
+        dbgPrint(15,4);
+        err=foamScalarField(runType,Height,Width,padWidth,X,Y,Xbuff,Ybuff,
+                            uField,uBuff,ux,uy,uxxx,uyyy,uxxy,
+                            uxyy,gField,g2Field,v0y0,sField);
+        if(err!=0)
+          break;
+        
+        dbgPrint(15,5);
+        for(i=0;i<Height;i+=1)
+          for(j=0;j<Width;j+=1){
+            uSubtr[2*(i*Width+j)+0]= uField[2*(i*Width+j)+0] 
+                                   - background[2*(i*Width+j)+0];
+            uSubtr[2*(i*Width+j)+1]= uField[2*(i*Width+j)+1]
+                                   - background[2*(i*Width+j)+1];
+          }
+
+        dbgPrint(15,6);
+        err=foamScalarField(runType,Height,Width,padWidth,X,Y,Xbuff,Ybuff,
+                            uSubtr,uBuff,ux,uy,uxxx,uyyy,uxxy,
+                            uxyy,gField,g2Field,v0y0,sSubtr);
+        if(err!=0)
+          break;
+
+        for(i=0;i<Height;i+=1)
+          for(j=0;j<Width;j+=1){
+            //if( sField[i*Width+j] > sSubtr[i*Width+j])
+            //  sField[i*Width+j] = sSubtr[i*Width+j];
+            if( (sField[i*Width+j]==0) || (sSubtr[i*Width+j]==0))
+              sField[i*Width+j] = 0.;
+
+            uField[2*(i*Width+j)+0]= uSubtr[2*(i*Width+j)+0];
+            uField[2*(i*Width+j)+1]= uSubtr[2*(i*Width+j)+1];
+          }
+      }
+      else{
+        printf("Not identified operation mode - %d\n",calcScalarMode);
+        return -18;
+      }
+      
+      if(err!=0){
+          printf("Error in calcScalarField - %d\n",err);
+          return err;
+        }
+      
+      dbgPrint(15,7);
 
       for(i=0;i<Height;i+=1)
         for(j=0;j<Width;j+=1){
@@ -588,7 +610,7 @@ int main(int argc,char **argv){
                               (gField[4*(i*Width+j)+2]-gField[4*(i*Width+j)+1]);
         }
 
-      dbgPrint(15,43);
+      dbgPrint(15,8);
 
       for(i=0;i<Height*Width;i+=1)
         label[i]=-1;
@@ -603,12 +625,12 @@ int main(int argc,char **argv){
       else
         printf("problems with renameLabels - %d\n",err);
 
-      dbgPrint(15,4);
+      dbgPrint(15,9);
       
       if(n%10==0)
         printScalarFields(Height,Width,X,Y,n,folder,pln[l],sField,label);
       
-      dbgPrint(15,5);
+      dbgPrint(15,10);
 
       //err=extract012Momentsw2(Height,Width,nCnect,X,Y,sField,gField,
       //                        label,vCatalog,vortSndMomMatrix,avgGradU);
@@ -618,6 +640,17 @@ int main(int argc,char **argv){
       if(err!=0){
         printf("problems in extract012Momentsw2\n");
         return err;
+      }
+
+      if(SUBTRACTION_MODE){
+        double bkgG[nCnect];
+        
+        for(i=0;i<nCnect;i+=1)
+          bkgG[i] = 0.;
+        
+        err = extractAvgBkgVort(Height,Width,X,Y,nCnect,label,wBkg,bkgG);
+        for(i=0;i<nCnect;i+=1)
+          vCatalog[4*i+0] = vCatalog[4*i+0]-bkgG[i];
       }
 
       dbgPrint(16,0);
@@ -793,7 +826,10 @@ int main(int argc,char **argv){
   if(node !=NULL) free(node);
   if(label!=NULL) free(label);
   if(uField!=NULL) free(uField);
+  if(uSubtr!=NULL) free(uSubtr);
+  if(background!=NULL) free(background);
   if(sField!=NULL) free(sField); 
+  if(sSubtr!=NULL) free(sSubtr);
   if(gField!=NULL)  free(gField);
   if(g2Field!=NULL) free(g2Field);
   if(uBuff!=NULL) free(uBuff);

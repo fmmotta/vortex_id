@@ -33,6 +33,13 @@ int fprintUpresence(FILE *dadosout,double *X,double *Y,
 int fprintUlabels(FILE *dadosout,double *X,double *Y,
                   int Width, int Height, int *label);
 
+void printScalarFields(int Height,int Width, double *X,double *Y,int n,
+                     char *folder,int index,double *sField,int *label);
+
+void printVorticesAndMoments(int Height,int Width, double *X,double *Y,
+                             double t,int n,char *folder,int index,
+                             int nCnect,double *vCatalog,double *rCatalog);
+
 int genVortices(int genType,long long int seed, double xmin[],double xmax[], 
                 int nFixVortex, double **parVortex,
                 double Gmin,double Gmax,double rmin,double rmax,

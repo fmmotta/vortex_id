@@ -306,9 +306,6 @@ int main(int argc,char **argv){
     double omega,strain,gamma,beta;
     if(DEBUG_PRINT)
       printf("loading background file\n");
-    //sprintf(filename,"cfg/background/background-negNoShear.bkg");
-    //dadosField=fopen(filename,"r");
-    //fprintf(dadosout,"%f %f %f %f",omega,gamma,beta,strain);
     dadosField=fopen(bkgFile,"r");
     for(i=0;i<Height;i+=1)
       for(j=0;j<Width;j+=1){

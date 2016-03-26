@@ -9,7 +9,7 @@ import matplotlib.patches as mpatches
 
 n = 0
 
-RawData =np.loadtxt("sField-"+str(n)+".txt")
+RawData =np.loadtxt("sField-p64-0.txt")
 X,Y,Z	=np.transpose(RawData)
 
 xmax = np.max(X); xmin = np.min(X); Dx = xmax-xmin; xmed=(xmax+xmin)/2;
@@ -30,17 +30,17 @@ zi = griddata((X, Y), Z, (xi[None,:], yi[:,None]), method='cubic')
 
 fig = plt.figure()
 
-plt.imshow(zi, extent=(-10,9.9,-10,9.9), origin='lower',cmap='nipy_spectral')
+plt.imshow(zi, extent=(0,2*math.pi,0,1), origin='lower',cmap='nipy_spectral')
 
 cb=plt.colorbar(aspect='equal')
 cb.ax.tick_params(labelsize=8) 
 plt.clim(zmin,zmax)
 ax = fig.add_subplot(1,1,1)
 
-RawData =np.loadtxt("vortexesOut-"+str(n)+".txt")
-W,R,X,Y =np.transpose(RawData)
+#RawData =np.loadtxt("vortexesOut-"+str(n)+".txt")
+#W,R,X,Y =np.transpose(RawData)
 
-plt.scatter(X,Y,s=5, lw = 0,color='green')
+#plt.scatter(X,Y,s=5, lw = 0,color='green')
 
 plt.savefig("sField-"+str(n)+".pdf",bbox_inches='tight',transparent=True)
 

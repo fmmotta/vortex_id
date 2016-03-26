@@ -31,3 +31,6 @@ int printYZcoordinates(int Nx,int Ny,int Nz,double *X,
 /*
 int printUField(int Nx,int Ny, int Nz,openFoamIcoData *node,
                 double *X,double *Y,double *Z,const char *folder);*/
+
+int sliceFoamField(int Height,int Width,int planeType,int index,
+                   int Nx,int Ny,int Nz,openFoamIcoData *node,double *uField);

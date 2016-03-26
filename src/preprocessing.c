@@ -238,3 +238,40 @@ int printYZcoordinates(int Nx,int Ny,int Nz,double *X,
 
   return 0;
 }
+
+//---------------------------------------------------------------------
+
+int sliceFoamField(int Height,int Width,int planeType,int index,
+                   int Nx,int Ny,int Nz,openFoamIcoData *node,double *uField)
+{
+  int i,j,k;
+
+  if(Height<=0 || Width<=0 || index <=0 || node == NULL || uField == NULL)
+    return 1;
+
+  if(planeType==0){
+    k=index;
+    for(j=0;j<Height;j+=1)
+      for(i=0;i<Width;i+=1){
+        uField[2*(j*Width+i)+0] = node[id(i,j,k)].u;
+        uField[2*(j*Width+i)+1] = node[id(i,j,k)].v;
+      }
+  }
+  else if(planeType==1){
+    i=index;
+    for(j=0;j<Height;j+=1)
+      for(k=0;k<Width;k+=1){
+        uField[2*(j*Width+k)+0] = node[id(i,j,k)].w;
+        uField[2*(j*Width+k)+1] = node[id(i,j,k)].v;
+      }
+  }
+  else if(planeType==2){
+    j=index;
+    for(k=0;k<Height;k+=1)
+      for(i=0;i<Width;i+=1){
+        uField[2*(k*Width+i)+0] = node[id(i,j,k)].w;
+        uField[2*(k*Width+i)+1] = node[id(i,j,k)].u;
+      }
+  }
+  return 0;
+}
