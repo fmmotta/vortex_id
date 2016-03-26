@@ -21,7 +21,7 @@
 #include "essayHandler.h"
 
 #define DEBUG_MODE false
-#define DEBUG_PRINT true
+#define DEBUG_PRINT false
 #define SUBTRACTION_MODE false
 
 #define dbgPrint(num,num2) if(DEBUG_PRINT) printf("check point - %d-%d\n",(num),(num2))
@@ -427,8 +427,8 @@ int main(int argc,char **argv){
   for(n=0;n<Nsnapshots;n+=1){
 
     t=t0+((double)n)*dt;
-    if(n%10 == 0){
-      printf("%d timesteps processed\n",n);
+    printf("%d timesteps processed\n",n);
+    if(n%10 == 0){      
       fflush(vortexFile);
       fflush(totalVortices);
     }
@@ -442,7 +442,7 @@ int main(int argc,char **argv){
 
       if(planeIndex>0){
 
-        printf("planeIndex=%d\n",planeIndex);
+        //printf("planeIndex=%d\n",planeIndex);
         
         sprintf(filename,"%s/%g/U",foamFolder,t);
         uFile = fopen(filename,"r");
