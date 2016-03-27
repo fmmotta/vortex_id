@@ -249,7 +249,7 @@ int main(int argc,char **argv){
       if(planeIndex>=0){
         k=planeIndex;
 
-      	sprintf(filename,"%s/plane-z%3d-%.4f.dat",folder,k,t);
+      	sprintf(filename,"%s/plane-z%d-%.4f.dat",folder,k,t);
       	dadosout=fopen(filename,"w");
         if(dadosout==NULL){
           printf("Could not open file\n");
@@ -270,7 +270,7 @@ int main(int argc,char **argv){
       	for(pn=0;pn<planeNum;pn+=1){
       	  k=pln[pn];
       	  
-      	  sprintf(filename,"%s/plane-z%3d-%.4f.dat",folder,k,t);
+      	  sprintf(filename,"%s/plane-z%d-%.4f.dat",folder,k,t);
       	  dadosout=fopen(filename,"w");
           if(dadosout==NULL){
             printf("Could not open file\n");
@@ -296,7 +296,7 @@ int main(int argc,char **argv){
       if(planeIndex>=0){
         i=planeIndex;
         
-        sprintf(filename,"%s/plane-x%3d-%.4f.dat",folder,planeIndex,t);
+        sprintf(filename,"%s/plane-x%d-%.4f.dat",folder,planeIndex,t);
       	dadosout=fopen(filename,"w");
         if(dadosout==NULL){
           printf("Could not open file\n");
@@ -317,7 +317,7 @@ int main(int argc,char **argv){
       	for(pn=0;pn<planeNum;pn+=1){
           i=pln[pn];
       	  
-      	  sprintf(filename,"%s/plane-x%3d-%.4f.dat",folder,i,t);
+      	  sprintf(filename,"%s/plane-x%d-%.4f.dat",folder,i,t);
       	  dadosout=fopen(filename,"w");
           if(dadosout==NULL){
             printf("Could not open file\n");
@@ -344,7 +344,7 @@ int main(int argc,char **argv){
       if(planeIndex>=0){
         j=planeIndex;
      
-        sprintf(filename,"%s/plane-y%3d-%.4f.dat",folder,planeIndex,t);
+        sprintf(filename,"%s/plane-y%d-%.4f.dat",folder,planeIndex,t);
         dadosout=fopen(filename,"w");
         if(dadosout==NULL){
           printf("Could not open file\n");
@@ -365,7 +365,7 @@ int main(int argc,char **argv){
       	for(pn=0;pn<planeNum;pn+=1){
           j=pln[pn];
       	  
-      	  sprintf(filename,"%s/plane-y%3d-%.4f.dat",folder,j,t);
+      	  sprintf(filename,"%s/plane-y%d-%.4f.dat",folder,j,t);
       	  dadosout=fopen(filename,"w");
           if(dadosout==NULL){
             printf("Could not open file\n");

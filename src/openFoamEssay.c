@@ -39,8 +39,8 @@
 int main(int argc,char **argv){
   //double cutoff; int rCnet=0;
   int Width = 100, Height = 100, Depth, nVortex=5,nFixVortex=5;
-  int dataSize=12,runType=0,*label=NULL,**eqClass=NULL;
-  int hNG=50,hNRc=53,hNa=40,hNb=40,hNN=10,Nsnapshots;
+  int dataSize=12,runType=0,*label=NULL,**eqClass=NULL,nSkip=0;
+  int hNG=50,hNRc=53,hNa=40,hNb=40,hNN=10,Nsnapshots=0,openFoamFile=0;
   int Nx,Ny,Nz,planeIndex,planeType,planeNum=0,pln[8128];
   int i,j,l,err,nCnect=0,n,nMax=1024,padWidth=2,calcScalarMode;//,k;
   double Gmin=1.,Gmax=20.,rmin=0.5,rmax=1.0,threshold=0.5;
@@ -57,8 +57,8 @@ int main(int argc,char **argv){
   gsl_histogram *hG,*hRc,*ha,*hb,*hN;
   gsl_histogram *iG,*iRc,*ia,*ib;
   configVar cfg;
-  openFoamIcoData *node=NULL;
-  
+  openFoamIcoData *node=NULL; 
+
   dataSize = 12;
 
   if(argc!=2){
@@ -424,6 +424,8 @@ int main(int argc,char **argv){
     fclose(dadosField);
   }
 
+  nSkip=0;
+
   for(n=0;n<Nsnapshots;n+=1){
 
     t=t0+((double)n)*dt;
@@ -435,6 +437,7 @@ int main(int argc,char **argv){
 
     for(l=0;l<planeNum;l+=1){
       
+      openFoamFile = 0;
       for(i=0;i<2*Height*Width;i+=1)
         uField[i]=0.;
 
@@ -452,8 +455,12 @@ int main(int argc,char **argv){
         pFile = fopen(filename,"r");
         if(pFile==NULL) printf("problems opening pFile - %d\n",n);
 
-        if(uFile == NULL || pFile == NULL)
+        if(uFile == NULL || pFile == NULL){
+          openFoamFile = 1;
+          nSkip+=1;
           printf("Failed time = %g\n",t);
+          break;
+        }
 
         dbgPrint(15,1);
       
@@ -475,13 +482,17 @@ int main(int argc,char **argv){
         if(DEBUG_PRINT)
           printf("plane =%d\n",pln[l]);
 
-        if(planeType==0)      sprintf(filename,"%s/plane-z%3d-%.4f.dat",folder,pln[l],t);
-        else if(planeType==1) sprintf(filename,"%s/plane-x%3d-%.4f.dat",folder,pln[l],t);
-        else if(planeType==2) sprintf(filename,"%s/plane-y%3d-%.4f.dat",folder,pln[l],t);
+        if(planeType==0)      sprintf(filename,"%s/plane-z%d-%.4f.dat",folder,pln[l],t);
+        else if(planeType==1) sprintf(filename,"%s/plane-x%d-%.4f.dat",folder,pln[l],t);
+        else if(planeType==2) sprintf(filename,"%s/plane-y%d-%.4f.dat",folder,pln[l],t);
 
         dadosin=fopen(filename,"r");
-        if(dadosin==NULL) 
+        if(dadosin==NULL){
+          openFoamFile=1;
+          nSkip+=1;
           printf("Failed to open slice - %s\n",filename);
+          break;
+        }
 
         dbgPrint(15,31);
         
@@ -492,6 +503,9 @@ int main(int argc,char **argv){
         
         dbgPrint(15,32);
       }
+
+      if(openFoamFile!=0)
+        continue;
 
       dbgPrint(15,3);
       
@@ -712,21 +726,23 @@ int main(int argc,char **argv){
   
   dbgPrint(19,0);
 
+  printf("Skiped timesteps - %d\n",nSkip);
+
   {
     double omega,gamma,beta;
     double sigmaUx,sigmaUy,sigmaW;
 
     for(i=0;i<Height;i+=1)
       for(j=0;j<Width;j+=1){
-        avgU[2*(i*Width+j)+0] /= Nsnapshots*planeNum;
-        avgU[2*(i*Width+j)+1] /= Nsnapshots*planeNum;
+        avgU[2*(i*Width+j)+0] /= Nsnapshots*planeNum - nSkip;
+        avgU[2*(i*Width+j)+1] /= Nsnapshots*planeNum - nSkip;
 
-        avgU2[2*(i*Width+j)+0] /= Nsnapshots*planeNum;
-        avgU2[2*(i*Width+j)+1] /= Nsnapshots*planeNum;
+        avgU2[2*(i*Width+j)+0] /= Nsnapshots*planeNum - nSkip;
+        avgU2[2*(i*Width+j)+1] /= Nsnapshots*planeNum - nSkip;
 
-        avgW[i*Width+j] /= Nsnapshots*planeNum;
+        avgW[i*Width+j] /= Nsnapshots*planeNum - nSkip;
 
-        avgW2[i*Width+j] /= Nsnapshots*planeNum;
+        avgW2[i*Width+j] /= Nsnapshots*planeNum - nSkip;
       }
 
     err = uFieldTouBuff(Height,Width,avgU,uBuff,padWidth);
@@ -782,7 +798,10 @@ int main(int argc,char **argv){
 
       sigmaUy = avgU2[2*(i*Width+j)+1] - 
                 avgU[2*(i*Width+j)+1]*avgU[2*(i*Width+j)+1];
-      fprintf(dadosout,"%f %f \n",sigmaUx,sigmaUy);
+
+      omega = avgW[i*Width+j];
+      sigmaW = avgW2[i*Width+j]-avgW[i*Width+j]*avgW[i*Width+j]; 
+      fprintf(dadosout,"%f %f %f %f\n",sigmaUx,sigmaUy,omega,sigmaW);
     }
     fclose(dadosout);
   }
