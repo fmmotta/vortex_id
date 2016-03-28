@@ -780,7 +780,7 @@ int main(int argc,char **argv){
         beta  = ux[2*(i*Width+j)+0];
         //strain = sqrt(gamma*gamma+beta*beta);
 
-        fprintf(dadosout,"%f %f %f %f",omega,sigmaW,gamma,beta);//strain);
+        fprintf(dadosout,"%f %f %f %f",omega,sqrt(sigmaW),gamma,beta);//strain);
 
         fprintf(dadosout,"\n");
       }
