@@ -118,3 +118,24 @@ plt.clim(zmin,zmax)
 ax = fig.add_subplot(1,1,1)
 
 plt.savefig("avgSigW.pdf",bbox_inches='tight',transparent=True)
+
+############################################################
+
+fig = plt.figure()
+
+zmax = np.max(Ux); zmin = np.min(Uy); Dz = zmax-zmin; zmed=(zmax+zmin)/2;
+print str(zmin)+" "+str(zmax)
+zi = griddata((X, Y), Ux, (xi[None,:], yi[:,None]), method='cubic')
+plt.imshow(zi, extent=(0,2*math.pi,0,1), origin='lower',cmap='nipy_spectral')
+      
+plt.axis([0.5,0.81415926,0,0.1])          
+
+cb=plt.colorbar(aspect='equal')
+cb.ax.tick_params(labelsize=8) 
+plt.clim(zmin,zmax)
+plt.axes().set_aspect('equal')
+ax = fig.add_subplot(1,1,1)
+
+plt.savefig("avgUxZoom.pdf",bbox_inches='tight',transparent=True)
+
+############################################################
