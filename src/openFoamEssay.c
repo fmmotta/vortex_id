@@ -734,15 +734,15 @@ int main(int argc,char **argv){
 
     for(i=0;i<Height;i+=1)
       for(j=0;j<Width;j+=1){
-        avgU[2*(i*Width+j)+0] /= Nsnapshots*planeNum - nSkip;
-        avgU[2*(i*Width+j)+1] /= Nsnapshots*planeNum - nSkip;
+        avgU[2*(i*Width+j)+0] /= (Nsnapshots-nSkip)*planeNum ;
+        avgU[2*(i*Width+j)+1] /= (Nsnapshots-nSkip)*planeNum;
 
-        avgU2[2*(i*Width+j)+0] /= Nsnapshots*planeNum - nSkip;
-        avgU2[2*(i*Width+j)+1] /= Nsnapshots*planeNum - nSkip;
+        avgU2[2*(i*Width+j)+0] /= (Nsnapshots-nSkip)*planeNum;
+        avgU2[2*(i*Width+j)+1] /= (Nsnapshots-nSkip)*planeNum;
 
-        avgW[i*Width+j] /= Nsnapshots*planeNum - nSkip;
+        avgW[i*Width+j] /= (Nsnapshots-nSkip)*planeNum;
 
-        avgW2[i*Width+j] /= Nsnapshots*planeNum - nSkip;
+        avgW2[i*Width+j] /= (Nsnapshots-nSkip)*planeNum;
       }
 
     err = uFieldTouBuff(Height,Width,avgU,uBuff,padWidth);
