@@ -11,6 +11,7 @@ data/DNS_OPEN_FOAM
 *.txt
 *.pdf
 *.log
+*.dat
 *.aux
 *.eps
 *~

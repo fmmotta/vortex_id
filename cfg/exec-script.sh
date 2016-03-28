@@ -9,4 +9,4 @@ time ./bin/sampledVortexEssayFull cfg/vc-uSub-negWeakShear.ini > log/uSub-negWea
 time ./bin/sampledVortexEssayFull cfg/vc-uSub-negStrongShear.ini > log/uSub-negStrongShear.log &
 time ./bin/sampledVortexEssayFull cfg/vc-uSub-posnegNoShear.ini > log/uSub-posnegNoShear.log &
 time ./bin/sampledVortexEssayFull cfg/vc-uSub-posnegWeakShear.ini > log/uSub-posnegWeakShear.log &
-time ./bin/sampledVortexEssayFull cfg/vc-uSub-posnegStrongShear.ini > log/uSub-posnegStrongShear.log
+time ./bin/sampledVortexEssayFull cfg/vc-uSub-posnegStrongShear.ini > log/uSub-posnegStrongShear.log &
