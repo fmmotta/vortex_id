@@ -11,6 +11,7 @@ int main(int argc,char **argv){
   double y0=0.,y1=1.0,dy=0.;
   double G,rc,x,y;
   double avgGp[Nbins+1],avgRcp[Nbins+1],avgGn[Nbins+1],avgRcn[Nbins+1];
+  double avgWp[Nbins+1],avgWn[Nbins+1];
   FILE *dados;
   
   dy = (y1-y0)/Nbins;
@@ -24,6 +25,7 @@ int main(int argc,char **argv){
     avgGp[k] = 0.; avgRcp[k] = 0.;
     numGn[k] = 0 ; numRcn[k] = 0 ;
     avgGn[k] = 0.; avgRcn[k] = 0.;
+    avgWn[k] = 0.; avgWp[k] = 0.;
   }
 
   while( true ){
@@ -35,10 +37,12 @@ int main(int argc,char **argv){
     if(G>=0){
       numGp[k] += 1; numRcp[k] += 1;
       avgGp[k] += G; avgRcp[k] += rc;
+      avgWp[k] += G/(rc*rc);
     }
     else{
       numGn[k] += 1; numRcn[k] += 1;
       avgGn[k] += G; avgRcn[k] += rc;
+      avgWn[k] += G/(rc*rc);
     }
   }
 
@@ -48,16 +52,20 @@ int main(int argc,char **argv){
   for(k=0;k<Nbins;k+=1){
     if(numGp[k]!=0)
       avgGp[k] /= numGp[k];
+    if(numGp[k]!=0)
+      avgWp[k] /= numGp[k];
     if(numRcp[k]!=0)
       avgRcp[k] /= numRcp[k];
 
-    if(numGp[k]!=0)
+    if(numGn[k]!=0)
       avgGn[k] /= numGn[k];
-    if(numRcp[k]!=0)
+    if(numGn[k]!=0)
+      avgWn[k] /= numGn[k];
+    if(numRcn[k]!=0)
       avgRcn[k] /= numRcn[k];
 
-    fprintf(dados,"%f %f %f %f %f \n",y0+k*dy,avgGp[k],avgRcp[k]
-                                             ,avgGn[k],avgRcn[k]);
+    fprintf(dados,"%f %f %f %f %f %f %f\n",y0+k*dy,avgGp[k],avgRcp[k],avgGn[k],avgRcn[k]
+    	                                  ,avgWp[k],avgWn[k]);
   }
   fclose(dados);
 
