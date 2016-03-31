@@ -378,6 +378,8 @@ int main(int argc,char **argv){
     }
   }
 
+  dbgPrint(14,1);
+
   err = XtoXbuff(Width,X,Xbuff,padWidth);
   if(err!=0)
     printf("problem in XtoXbuff - X\n");
@@ -385,12 +387,16 @@ int main(int argc,char **argv){
   err = XtoXbuff(Height,Y,Ybuff,padWidth);
   if(err!=0)
     printf("problem in XtoXbuff - Y\n");
-  
+
+  dbgPrint(14,2);
+
   sprintf(filename,"%s/vortices.dat",folder);
   vortexFile = fopen(filename,"w");
   
   sprintf(filename,"%s/totalVortices.dat",folder);
   totalVortices = fopen(filename,"w");
+
+  dbgPrint(14,3);
 
   for(i=0;i<2*Height*Width;i+=1)
     avgU[i]=0.;
@@ -402,6 +408,8 @@ int main(int argc,char **argv){
     avgW2[i]=0.;
   for(i=0;i<2*Height*Width;i+=1)
     background[i]=0.;
+
+  dbgPrint(14,4);
 
   if(bkgFile[0]!='\0'){
     double x,y,Ux,Uy,sigmaUx,sigmaUy;
@@ -423,6 +431,8 @@ int main(int argc,char **argv){
 
     fclose(dadosField);
   }
+
+  dbgPrint(14,5);
 
   nSkip=0;
 
