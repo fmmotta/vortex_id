@@ -7,10 +7,10 @@
 int main(int argc,char **argv){
   const int Nbins=100;
   int i,k,err;
-  int numG[Nbins+1],numRc[Nbins+1];
+  int numGp[Nbins+1],numRcp[Nbins+1],numGn[Nbins+1],numRcn[Nbins+1];
   double y0=0.,y1=1.0,dy=0.;
-  double G,rc,x,y,M[2][2],rg,L[2],v[2][2],sinRef,S[2][2],omega,strain;
-  double avgG[Nbins+1],avgRc[Nbins+1];
+  double G,rc,x,y;
+  double avgGp[Nbins+1],avgRcp[Nbins+1],avgGn[Nbins+1],avgRcn[Nbins+1];
   FILE *dados;
   
   dy = (y1-y0)/Nbins;
@@ -20,8 +20,10 @@ int main(int argc,char **argv){
     printf("Problems\n");
 
   for(k=0;k<=Nbins;k+=1){
-    numG[k] = 0 ; numRc[k] = 0 ;
-    avgG[k] = 0.; avgRc[k] = 0.;
+    numGp[k] = 0 ; numRcp[k] = 0 ;
+    avgGp[k] = 0.; avgRcp[k] = 0.;
+    numGn[k] = 0 ; numRcn[k] = 0 ;
+    avgGn[k] = 0.; avgRcn[k] = 0.;
   }
 
   while( true ){
@@ -30,20 +32,32 @@ int main(int argc,char **argv){
       break;
     
     k = (int)( (y-y0)/dy );
-    numG[k] += 1; numRc[k] += 1;
-    avgG[k] += G; avgRc[k] += rc;
+    if(G>=0){
+      numGp[k] += 1; numRcp[k] += 1;
+      avgGp[k] += G; avgRcp[k] += rc;
+    }
+    else{
+      numGn[k] += 1; numRcn[k] += 1;
+      avgGn[k] += G; avgRcn[k] += rc;
+    }
   }
 
   fclose(dados);
 
-  fopen("results.dat","w");
+  fopen(argv[2],"w");
   for(k=0;k<Nbins;k+=1){
-    if(numG[k]!=0)
-      avgG[k] /= numG[k];
-    if(numRc[k]!=0)
-      avgRc[k] /= numRc[k];
+    if(numGp[k]!=0)
+      avgGp[k] /= numGp[k];
+    if(numRcp[k]!=0)
+      avgRcp[k] /= numRcp[k];
 
-    fprintf(dados,"%f %f %f\n",y0+k*dy,avgG[k],avgRc[k]);
+    if(numGp[k]!=0)
+      avgGn[k] /= numGn[k];
+    if(numRcp[k]!=0)
+      avgRcn[k] /= numRcn[k];
+
+    fprintf(dados,"%f %f %f %f %f \n",y0+k*dy,avgGp[k],avgRcp[k]
+                                             ,avgGn[k],avgRcn[k]);
   }
   fclose(dados);
 
