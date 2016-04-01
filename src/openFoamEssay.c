@@ -651,7 +651,7 @@ int main(int argc,char **argv){
 
       dbgPrint(15,9);
       
-      if(n%10==0)
+      if(n%100==0)
         printScalarFields(Height,Width,X,Y,n,folder,pln[l],sField,label);
       
       dbgPrint(15,10);
@@ -718,7 +718,7 @@ int main(int argc,char **argv){
 
       /* Preparing for printing */
       //if(n%10==0)
-      //  printVorticesAndMoments(Height,Width,X,Y,t,n,folder,pln[l],nCnect,vCatalog,rCatalog);
+      printVorticesAndMoments(Height,Width,X,Y,t,n,folder,pln[l],nCnect,vCatalog,rCatalog);
 
       err=fprintSafeVortexMoments(totalVortices,n,dataSize,nCnect,rCatalog,Height,Width,X,Y);
       if(err!=0){printf("problems vortexSafeMoments Total\n"); return -6;}
