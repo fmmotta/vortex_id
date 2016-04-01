@@ -717,8 +717,8 @@ int main(int argc,char **argv){
       dbgPrint(18,0);
 
       /* Preparing for printing */
-      if(n%10==0)
-        printVorticesAndMoments(Height,Width,X,Y,t,n,folder,pln[l],nCnect,vCatalog,rCatalog);
+      //if(n%10==0)
+      //  printVorticesAndMoments(Height,Width,X,Y,t,n,folder,pln[l],nCnect,vCatalog,rCatalog);
 
       err=fprintSafeVortexMoments(totalVortices,n,dataSize,nCnect,rCatalog,Height,Width,X,Y);
       if(err!=0){printf("problems vortexSafeMoments Total\n"); return -6;}
