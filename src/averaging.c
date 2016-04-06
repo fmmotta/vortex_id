@@ -48,7 +48,9 @@ int main(int argc,char **argv){
 
   fclose(dados);
 
-  fopen(argv[2],"w");
+  dados = fopen(argv[2],"w");
+  if(dados==NULL)
+  	printf("Shit!\n");
   for(k=0;k<Nbins;k+=1){
     if(numGp[k]!=0)
       avgGp[k] /= numGp[k];
