@@ -21,7 +21,7 @@ int main(int argc,char **argv){
   char buffer[1024],filename[1024];
   FILE *uFile,*pFile,*uSubFile,*pSubFile;
   
-  Nsteps = 2;
+  Nsteps = 10;
 
   t0 = 10.0075;//atod(argv[2]);
   dt =  0.0120;//atod(argv[3]);
@@ -223,7 +223,7 @@ int main(int argc,char **argv){
             "    version     2.0;\n"
             "    format      ascii;\n"
             "    class       volVectorField;\n"
-            "    location    \"0.0\";\n"
+            "    location    \"%f\";\n"
             "    object      U;\n"
             "}\n"
             "// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //\n"
@@ -231,7 +231,7 @@ int main(int argc,char **argv){
             "dimensions      [0 1 -1 0 0 0 0];\n"
             "internalField   nonuniform List<vector>\n"
             "%d\n"
-            "(\n",N);
+            "(\n",t,N);
     
     fprintf(pSubFile,
   	        "/*--------------------------------*- C++ -*----------------------------------*\\\n"
@@ -246,7 +246,7 @@ int main(int argc,char **argv){
             "    version     2.0;\n"
             "    format      ascii;\n"
             "    class       volScalarField;\n"
-            "    location    \"0.0\";\n"
+            "    location    \"%f\";\n"
             "    object      p;\n"
             "}\n"
             "// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //\n"
@@ -254,7 +254,7 @@ int main(int argc,char **argv){
             "dimensions      [0 2 -2 0 0 0 0];\n"
             "internalField   nonuniform List<scalar>\n"
             "%d\n"
-            "(\n",N);
+            "(\n",t,N);
 
     for(i=0;i<N;i+=1){
       fscanf(pFile,"%lf",&p);
