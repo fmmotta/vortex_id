@@ -33,30 +33,16 @@ int main(int argc,char **argv){
   double x,y,v0y0 = 0.00;
   FILE *vFile;
 
-  if(argc!=3){
-    printf("Need number of vortices and file with vortices\n");
+  if(argc!=2){
+    printf("Need file with vortices\n");
     return 1;
   }
 
-  nVortex = atoi(argv[1]);
-  vFile = fopen(argv[2],"r");
+  vFile = fopen(argv[1],"r");
   if(vFile==NULL){
     printf("could not open vortex file\n");
     return 2;
   }
-
-  fieldAlloc(sField,Height*Width,double);
-  fieldAlloc(uField,2*Height*Width,double);
-  fieldAlloc(ux,2*Height*Width,double);
-  fieldAlloc(uy,2*Height*Width,double);
-  fieldAlloc(uxxx,2*Height*Width,double);
-  fieldAlloc(uxxy,2*Height*Width,double);
-  fieldAlloc(uxyy,2*Height*Width,double);
-  fieldAlloc(uyyy,2*Height*Width,double);
-  fieldAlloc(uBuff,2*(Height+2*padWidth)*(Width+2*padWidth),double);
-  fieldAlloc(gField,4*Height*Width,double);
-  fieldAlloc(g2Field,4*Height*Width,double);
-  fieldAlloc(parVortex,4*nVortex,double)
 
   eqClass=(int**)malloc(NumCls*sizeof(int*));
   if(eqClass==NULL)
@@ -70,10 +56,25 @@ int main(int argc,char **argv){
   //x0[0]=-10.; xf[0]= 10.; 
   //x0[1]=-10.; xf[1]= 10.; 
   
+  fscanf(vFile,"%d %d %lf",&nVortex,&type,&v0y0);
   fscanf(vFile,"%d %d",&Height,&Width);
   fscanf(vFile,"%lf %lf",&(x0[0]),&(xf[0]));
   fscanf(vFile,"%lf %lf",&(x0[1]),&(xf[1]));
   
+
+  fieldAlloc(sField,Height*Width,double);
+  fieldAlloc(uField,2*Height*Width,double);
+  fieldAlloc(ux,2*Height*Width,double);
+  fieldAlloc(uy,2*Height*Width,double);
+  fieldAlloc(uxxx,2*Height*Width,double);
+  fieldAlloc(uxxy,2*Height*Width,double);
+  fieldAlloc(uxyy,2*Height*Width,double);
+  fieldAlloc(uyyy,2*Height*Width,double);
+  fieldAlloc(uBuff,2*(Height+2*padWidth)*(Width+2*padWidth),double);
+  fieldAlloc(gField,4*Height*Width,double);
+  fieldAlloc(g2Field,4*Height*Width,double);
+  fieldAlloc(parVortex,4*nVortex,double);
+
   dx[0] = (xf[0]-x0[0])/Width; dx[1] = (xf[1]-x0[1])/Height;
 
   for(i=0;i<nVortex;i+=1){
@@ -83,6 +84,7 @@ int main(int argc,char **argv){
                                   , &(parVortex[4*i+3]));
   }
   fclose(vFile);
+  
   /*
   parVortex[0+0]=1.; parVortex[0+1]=1.; parVortex[0+2]=-2.; parVortex[0+3]=0.;
   parVortex[4+0]=1.; parVortex[4+1]=1.;  parVortex[4+2]=2.; parVortex[4+3]=0.;
