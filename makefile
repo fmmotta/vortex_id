@@ -28,10 +28,19 @@ openFoamEssay: obj/openFoamEssay.o obj/lambdaInit.o obj/floodFill.o obj/vortexGe
 foamSlicer: obj/foamSlicer.o obj/ini.o obj/preprocessing.o obj/inputManager.o obj/floodFill.o obj/essayHandler.o obj/stencilExtended.o obj/lambdaInit.o obj/vortexGen.o obj/mt64.o obj/vortexExtraction.o obj/vortexExtractionExtend.o
 	$(CC) -o bin/foamSlicer $^ $(LIBS)
 
+test_lambOseenNSecGrad: obj/floodFill.o obj/lambdaInit.o obj/stencilExtended.o obj/test_lambOseenNSecGrad.o
+	$(CC) -o bin/test_lambOseenNSecGrad $^ $(LIBS)
+
 obj/%.o: src/%.c
 	$(CC) $(CFLAGS) $^ -o $@
 
+obj/test_lambOseenNSecGrad.o: src/tests/test_lambOseenNSecGrad.c
+	$(CC) $(CFLAGS) src/tests/test_lambOseenNSecGrad.c -o obj/test_lambOseenNSecGrad.o
+
 %.o: src/%.c
+	$(CC) $(CFLAGS) $^ -o obj/$@
+
+%.o: src/tests/%.c
 	$(CC) $(CFLAGS) $^ -o obj/$@
 
 obj/mt64.o: src/mt19937-64.c src/mt64.h
