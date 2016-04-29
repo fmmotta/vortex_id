@@ -25,11 +25,11 @@ int main(int argc,char **argv){
   int Width = 200, Height = 200;
   int i,j,err, padWidth=2,nVortex=3;
   int type = 1; // 0 = swst, 1 = vc
-  int label[Width*Height],**eqClass;
+  int *label,**eqClass;
   double *parVortex,x0[2],dx[2],xf[2],*sField=NULL;
-  double *gField=NULL,*g2Field,*uField=NULL,X[Width],Y[Height];
+  double *gField=NULL,*g2Field,*uField=NULL,*X,*Y;
   double *ux,*uy,*uxxx,*uyyy,*uxxy,*uxyy;
-  double *uBuff=NULL,Xbuff[Width+4],Ybuff[Height+4];
+  double *uBuff=NULL,*Xbuff,*Ybuff;
   double x,y,v0y0 = 0.00;
   FILE *vFile;
 
@@ -61,9 +61,15 @@ int main(int argc,char **argv){
   fscanf(vFile,"%lf %lf",&(x0[0]),&(xf[0]));
   fscanf(vFile,"%lf %lf",&(x0[1]),&(xf[1]));
   
+  printf("Check - 1\n");
 
+  fieldAlloc(X,Width,double);
+  fieldAlloc(Y,Height,double);
+  fieldAlloc(Xbuff,Width+2*padWidth,double);
+  fieldAlloc(Ybuff,Height+2*padWidth,double);
   fieldAlloc(sField,Height*Width,double);
   fieldAlloc(uField,2*Height*Width,double);
+  fieldAlloc(label,Height*Width,int);
   fieldAlloc(ux,2*Height*Width,double);
   fieldAlloc(uy,2*Height*Width,double);
   fieldAlloc(uxxx,2*Height*Width,double);
@@ -75,6 +81,8 @@ int main(int argc,char **argv){
   fieldAlloc(g2Field,4*Height*Width,double);
   fieldAlloc(parVortex,4*nVortex,double);
 
+  printf("Check - 2\n");
+
   dx[0] = (xf[0]-x0[0])/Width; dx[1] = (xf[1]-x0[1])/Height;
 
   for(i=0;i<nVortex;i+=1){
@@ -85,6 +93,8 @@ int main(int argc,char **argv){
   }
   fclose(vFile);
   
+  printf("Check - 3\n");
+
   /*
   parVortex[0+0]=1.; parVortex[0+1]=1.; parVortex[0+2]=-2.; parVortex[0+3]=0.;
   parVortex[4+0]=1.; parVortex[4+1]=1.;  parVortex[4+2]=2.; parVortex[4+3]=0.;
@@ -99,6 +109,8 @@ int main(int argc,char **argv){
   err = XtoXbuff(Width,X,Xbuff,2);
   err = XtoXbuff(Height,Y,Ybuff,2);
   
+  printf("Check - 4\n");
+
   err = addUSingleOseen(nVortex,parVortex,x0,dx,Height,Width,&uField);
   if(err!=0)
     printf("Problems in addUSingleOseen\n");
@@ -108,10 +120,15 @@ int main(int argc,char **argv){
     for(j=0;j<Width;j+=1)
       uField[2*(i*Width+j)+0] += v0y0*Y[i];
 
+  printf("Check - 5\n");
+
   err = uFieldTouBuff(Height,Width,uField,uBuff,padWidth);
   if(err!=0)
     printf("Problems in uFieldTouBuff\n");
   
+
+  printf("Check - 6\n");
+
   if(type == 0){
     err = UtoUx5point(Height,Width,ux,uBuff,Xbuff,Ybuff);
     if(err!=0)
@@ -198,6 +215,7 @@ int main(int argc,char **argv){
     if(err!=0)
       printf("Problems in gradU2UtoLambda\n");
   }
+  printf("Check - 7\n");
 
   err = floodFill(sField,Width,Height,eqClass,label);
   if(err!=0)
@@ -208,6 +226,8 @@ int main(int argc,char **argv){
     printf("%d connected component(s)\n",err);
   else
     printf("problems with renameLabels\n");
+
+  printf("Check - 8\n");
 
   {
     FILE *dadosout;
@@ -233,6 +253,8 @@ int main(int argc,char **argv){
     }
     fclose(dadosout);
   }
+
+  printf("Check - 9\n");
   
   if(sField!=NULL)
     free(sField);
