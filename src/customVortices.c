@@ -52,16 +52,12 @@ int main(int argc,char **argv){
     if(eqClass[i]==NULL)
       return(i+2);
   }
-
-  //x0[0]=-10.; xf[0]= 10.; 
-  //x0[1]=-10.; xf[1]= 10.; 
   
   fscanf(vFile,"%d %d %lf",&nVortex,&type,&v0y0);
   fscanf(vFile,"%d %d",&Height,&Width);
   fscanf(vFile,"%lf %lf",&(x0[0]),&(xf[0]));
   fscanf(vFile,"%lf %lf",&(x0[1]),&(xf[1]));
   
-
   fieldAlloc(sField,Height*Width,double);
   fieldAlloc(uField,2*Height*Width,double);
   fieldAlloc(ux,2*Height*Width,double);
@@ -85,11 +81,6 @@ int main(int argc,char **argv){
   }
   fclose(vFile);
   
-  /*
-  parVortex[0+0]=1.; parVortex[0+1]=1.; parVortex[0+2]=-2.; parVortex[0+3]=0.;
-  parVortex[4+0]=1.; parVortex[4+1]=1.;  parVortex[4+2]=2.; parVortex[4+3]=0.;
-  parVortex[8+0]=1.; parVortex[8+1]=1.;  parVortex[8+2]=0.; parVortex[8+3]=4.;
-  */
   for(j=0;j<Width;j+=1)
     X[j] = x0[0] + j*dx[0];
 
@@ -204,11 +195,20 @@ int main(int argc,char **argv){
     printf("Problems in floodFill\n");
 
   err = renameLabels(Width,Height,label);
-  if(err>0)
+  if(err>0){
     printf("%d connected component(s)\n",err);
+    nCnect=err;
+  }
   else
     printf("problems with renameLabels\n");
-
+  
+  err=extract012Momentsw2(Height,Width,nCnect,X,Y,sField,gField,label,
+                          vCatalog,vortSndMomMatrix,avgGradU);
+  if(err!=0){
+    printf("problems in extract012Momentsw2\n");
+    return err;
+  }
+ 
   {
     FILE *dadosout;
     dadosout=fopen("data/sField.dat","w");
