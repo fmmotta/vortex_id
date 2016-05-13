@@ -60,7 +60,7 @@ int main(int argc,char** argv){
 
   for(i=0;i<N;i+=1)
     for(j=0;j<3;j+=1)
-      avgVelocity[i][j] /= N;
+      avgVelocity[i][j] /= Ntimes;
   
   for (i = 0; i < N; i++)
     fprintf(dadosout,"%f %f %f %f\n", x0+(((float) i)/((float) N-1))*(xf-x0), 
