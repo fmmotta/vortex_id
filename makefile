@@ -28,7 +28,7 @@ openFoamEssay: obj/openFoamEssay.o obj/lambdaInit.o obj/floodFill.o obj/vortexGe
 foamSlicer: obj/foamSlicer.o obj/ini.o obj/preprocessing.o obj/inputManager.o obj/floodFill.o obj/essayHandler.o obj/stencilExtended.o obj/lambdaInit.o obj/vortexGen.o obj/mt64.o obj/vortexExtraction.o obj/vortexExtractionExtend.o
 	$(CC) -o bin/foamSlicer $^ $(LIBS)
 
-customVortices: obj/floodFill.o obj/lambdaInit.o obj/stencilExtended.o obj/customVortices.o
+customVortices: obj/floodFill.o obj/lambdaInit.o obj/stencilExtended.o obj/customVortices.o  obj/vortexExtraction.o obj/vortexExtractionExtend.o
 	$(CC) -o bin/customVortices $^ $(LIBS)
 
 obj/%.o: src/%.c

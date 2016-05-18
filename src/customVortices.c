@@ -6,6 +6,8 @@
 #include "floodFill.h"
 #include "lambdaInit.h"
 #include "stencilExtended.h"
+#include "vortexExtraction.h"
+#include "vortexExtractionExtend.h"
 
 #define filtered true
 
@@ -21,17 +23,22 @@
                                       ptr[i]=(type) 0;                   \
                                   }                                      \
 
+#define safeFree(ptr) if(ptr!=NULL){free(ptr);ptr=NULL;}
+
 int main(int argc,char **argv){
   int Width = 200, Height = 200;
-  int i,j,err, padWidth=2,nVortex=3;
+  int i,j,err, padWidth=2,nVortex=3,nCnect=0,nMax=1024,dataSize;
   int type = 1; // 0 = swst, 1 = vc
   int *label,**eqClass;
   double *parVortex,x0[2],dx[2],xf[2],*sField=NULL;
   double *gField=NULL,*g2Field,*uField=NULL,*X,*Y;
   double *ux,*uy,*uxxx,*uyyy,*uxxy,*uxyy;
+  double *rCatalog,*vCatalog,*avgGradU,*vortSndMomMatrix;
   double *uBuff=NULL,*Xbuff,*Ybuff;
   double x,y,v0y0 = 0.00;
   FILE *vFile;
+
+  dataSize=12;
 
   if(argc!=2){
     printf("Need file with vortices\n");
@@ -80,6 +87,10 @@ int main(int argc,char **argv){
   fieldAlloc(gField,4*Height*Width,double);
   fieldAlloc(g2Field,4*Height*Width,double);
   fieldAlloc(parVortex,4*nVortex,double);
+  fieldAlloc(vCatalog,4*nMax,double);
+  fieldAlloc(vortSndMomMatrix,4*nMax,double);
+  fieldAlloc(avgGradU,4*nMax,double);
+  fieldAlloc(rCatalog,dataSize*nMax,double);
 
   printf("Check - 2\n");
 
@@ -257,13 +268,64 @@ int main(int argc,char **argv){
   }
 
   printf("Check - 9\n");
+
+  err=extract012Momentsw2(Height,Width,nCnect,X,Y,sField,gField,label,
+                          vCatalog,vortSndMomMatrix,avgGradU);
+  if(err!=0){
+    printf("problems in extract012Momentsw2\n");
+    return err;
+  }
+
+  for(i=0;i<nCnect;i+=1){
+    if(type==0){
+      vCatalog[4*i+0]=1.397948086*vCatalog[4*i+0];
+      vCatalog[4*i+1]= (1./1.12091)*vCatalog[4*i+1];
+    }
+    else if(type==1){
+      vCatalog[4*i+0]= 2.541494083*vCatalog[4*i+0];
+      vCatalog[4*i+1]= (sqrt(2.))*vCatalog[4*i+1]; 
+    }
+  }
+
+  printf("Check - 10\n");
   
-  if(sField!=NULL)
-    free(sField);
+  for(i=0;i<nCnect;i+=1){
+    rCatalog[dataSize*i+0]  = vCatalog[4*i+0];
+    rCatalog[dataSize*i+1]  = vCatalog[4*i+1];
+    rCatalog[dataSize*i+2]  = vCatalog[4*i+2];
+    rCatalog[dataSize*i+3]  = vCatalog[4*i+3];
+    rCatalog[dataSize*i+4]  = vortSndMomMatrix[4*i+0];
+    rCatalog[dataSize*i+5]  = vortSndMomMatrix[4*i+1];
+    rCatalog[dataSize*i+6]  = vortSndMomMatrix[4*i+2];
+    rCatalog[dataSize*i+7]  = vortSndMomMatrix[4*i+3];
+    rCatalog[dataSize*i+8]  = avgGradU[4*i+0];
+    rCatalog[dataSize*i+9]  = avgGradU[4*i+1];
+    rCatalog[dataSize*i+10] = avgGradU[4*i+2];
+    rCatalog[dataSize*i+11] = avgGradU[4*i+3];
+  }
+
+  vortexAdaptiveQuickSort(rCatalog,nCnect,dataSize,&greaterAbsCirculation);
+
+  {
+	FILE *dadosout;
+	dadosout=fopen("data/reconstructedVortices.dat","w");
+	for(i=0;i<nCnect;i+=1)
+      fprintf(dadosout,"%f %f %f %f\n",rCatalog[dataSize*i+0],rCatalog[dataSize*i+1]
+      	                              ,rCatalog[dataSize*i+2],rCatalog[dataSize*i+3]);
+    fclose(dadosout);
+  }
+
+  safeFree(X); safeFree(Y); safeFree(Xbuff); safeFree(Ybuff);
+  safeFree(sField); safeFree(uField); safeFree(label);
+  safeFree(uBuff); safeFree(ux); safeFree(uy); safeFree(uxxx);
+  safeFree(uxxy); safeFree(uxyy); safeFree(uyyy);
+  safeFree(gField); safeFree(g2Field);
+  safeFree(parVortex); safeFree(rCatalog); safeFree(vCatalog);
+  safeFree(vortSndMomMatrix); safeFree(avgGradU);
 
   for(i=0;i<NumCls;i+=1)
-    free(eqClass[i]);
-  free(eqClass);
+    safeFree(eqClass[i]);
+  safeFree(eqClass);
 
   return 0;
 }
