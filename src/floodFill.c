@@ -78,8 +78,6 @@ int findEq(int element,int *eqList,int pop){
   return -1;
 }
 
-#define NumCls 1024
-
 int checkEqClass(int eqClass[][NumCls],int eqPop[],int counter){
   int i,j,k,found;
   
@@ -149,7 +147,7 @@ int floodFill(double *sField,int Width,int Height,int **eqClass,int *label){
           eqPop[counter] += 1; /* Set new label equivalent to itself */
           eqClass[counter][0]=counter;
           counter+=1;
-          if(counter>(1024-1))
+          if(counter>(NumCls-1))
             printf("moments of dispair -- floodFill\n");
         }
       }

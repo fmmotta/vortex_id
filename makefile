@@ -4,7 +4,7 @@
 # Compiler Choice : Gnu C Compiler ; Can change for icc
 # optional CFLAGS: -Wconversion -Wall
 CC = gcc
-INC_DIR = -Isrc -Isrc/inih
+INC_DIR = -Isrc -Isrc/inih -Isrc/jhu
 CFLAGS = -c -Wall -O3 $(INC_DIR) 
 LIBS = -lm -lgsl -lgslcblas
 
@@ -30,6 +30,9 @@ foamSlicer: obj/foamSlicer.o obj/ini.o obj/preprocessing.o obj/inputManager.o ob
 
 customVortices: obj/floodFill.o obj/lambdaInit.o obj/stencilExtended.o obj/customVortices.o  obj/vortexExtraction.o obj/vortexExtractionExtend.o
 	$(CC) -o bin/customVortices $^ $(LIBS)
+
+foamStatistics: obj/foamStatistics.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/mt64.o obj/vortexExtraction.o obj/ini.o obj/inputManager.o obj/essayHandler.o obj/stencilExtended.o obj/vortexExtractionExtend.o obj/preprocessing.o
+	$(CC) -o bin/foamStatistics $^ $(LIBS)
 
 obj/%.o: src/%.c
 	$(CC) $(CFLAGS) $^ -o $@

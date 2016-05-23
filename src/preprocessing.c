@@ -118,8 +118,8 @@ int loadFields(int Nx,int Ny,int Nz,FILE *uFile,FILE *pFile,
   for(i=0;i<Npre;i++)
     fgets(buffer,1024,pFile);
   fscanf(pFile,"%d",&Np);
-  
-  if(Nu != Np || Nu != 2*(Nx*Ny*Nz)){
+
+  if(Nu != Np || Nu != (Nx*Ny*Nz)){//Nu != 2*(Nx*Ny*Nz)){ // verificar depois como modificar isso
     fclose(uFile); fclose(pFile);
     return -10;
   }
@@ -129,7 +129,7 @@ int loadFields(int Nx,int Ny,int Nz,FILE *uFile,FILE *pFile,
 
   fgets(buffer,1024,uFile);
   fgets(buffer,1024,pFile);
-  
+
   for(k=0;k<Nz;k+=1){
     for(j=0;j<Ny;j+=1){
       for(i=0;i<Nx;i+=1){

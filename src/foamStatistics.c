@@ -36,6 +36,10 @@
                                       ptr[i]=(type) 0;                   \
                                   }                                      \
 
+#define sfopen(file,name,mode) file = fopen(name,mode);                     \
+                               if(file==NULL)                               \
+                                printf("problems opening file: %s\n",name); 
+
 int main(int argc,char **argv){
   //double cutoff; int rCnet=0;
   int Width = 100, Height = 100, Depth, nVortex=5,nFixVortex=5;
@@ -48,8 +52,8 @@ int main(int argc,char **argv){
   double *parVortex=NULL,t,t0,dt,*avgU=NULL,*avgU2=NULL,*avgW=NULL,*avgW2=NULL;
   double *sField=NULL,*gField=NULL,*g2Field=NULL,*uField=NULL,*X,*Y,*wBkg;
   double *uBuff=NULL,*Xbuff=NULL,*Ybuff=NULL,*Xload=NULL,*Yload=NULL;
-  double *Zload=NULL,*ux=NULL,*uy=NULL,*uxxy=NULL,*uxyy=NULL;
-  double *uxxx=NULL,*uyyy=NULL,*vCatalog=NULL,*rCatalog=NULL;
+  double *Zload=NULL,*ux=NULL,*uy=NULL,*uxxy=NULL,*uxyy=NULL,*sSubtr=NULL;
+  double *uxxx=NULL,*uyyy=NULL,*vCatalog=NULL,*rCatalog=NULL,*uSubtr=NULL;
   double v0y0 = 0.00,*vortSndMomMatrix=NULL,*avgGradU=NULL;
   char folder[100+1],tag[100+1],filename[400+1],foamFolder[200+1],bkgFile[400+1];
   FILE *dadosout,*uFile,*pFile,*nFile,*vortexFile,*totalVortices,*dadosin;
@@ -282,7 +286,7 @@ int main(int argc,char **argv){
 
   if(planeIndex>=0){
     sprintf(filename,"%s/constant/polyMesh/points",foamFolder);
-    nFile = fopen(filename,"r");
+    sfopen(nFile,filename,"r");
     err=loadAxis(nFile,Nx,Ny,Nz,Xload,Yload,Zload);
     if(err!=0)
       return err;
@@ -312,39 +316,39 @@ int main(int argc,char **argv){
   else{
     if(planeType==0){
       sprintf(filename,"%s/Xaxis.dat",folder);
-      nFile=fopen(filename,"r");
+      sfopen(nFile,filename,"r");
       for(i=0;i<Nx;i+=1)
         fscanf(nFile,"%lf",&(X[i]));
       fclose(nFile); nFile=NULL;
 
       sprintf(filename,"%s/Yaxis.dat",folder);
-      nFile=fopen(filename,"r");
+      sfopen(nFile,filename,"r");
       for(i=0;i<Ny;i+=1)
         fscanf(nFile,"%lf",&(Y[i]));
       fclose(nFile); nFile=NULL;
     }
     else if(planeType==1){
       sprintf(filename,"%s/Yaxis.dat",folder);
-      nFile=fopen(filename,"r");
+      sfopen(nFile,filename,"r");
       for(i=0;i<Nx;i+=1)
         fscanf(nFile,"%lf",&(X[i]));
       fclose(nFile); nFile=NULL;
 
       sprintf(filename,"%s/Zaxis.dat",folder);
-      nFile=fopen(filename,"r");
+      sfopen(nFile,filename,"r");
       for(i=0;i<Ny;i+=1)
         fscanf(nFile,"%lf",&(Y[i]));
       fclose(nFile); nFile=NULL;
     }
     else if(planeType==2){
       sprintf(filename,"%s/Zaxis.dat",folder);
-      nFile=fopen(filename,"r");
+      sfopen(nFile,filename,"r");
       for(i=0;i<Nx;i+=1)
         fscanf(nFile,"%lf",&(X[i]));
       fclose(nFile); nFile=NULL;
 
       sprintf(filename,"%s/Xaxis.dat",folder);
-      nFile=fopen(filename,"r");
+      sfopen(nFile,filename,"r");
       for(i=0;i<Ny;i+=1)
         fscanf(nFile,"%lf",&(Y[i]));
       fclose(nFile); nFile=NULL;
@@ -364,10 +368,10 @@ int main(int argc,char **argv){
   dbgPrint(14,2);
 
   sprintf(filename,"%s/vortices.dat",folder);
-  vortexFile = fopen(filename,"w");
+  sfopen(vortexFile,filename,"w");
   
   sprintf(filename,"%s/totalVortices.dat",folder);
-  totalVortices = fopen(filename,"w");
+  sfopen(totalVortices,filename,"w");
 
   dbgPrint(14,3);
 
@@ -390,7 +394,7 @@ int main(int argc,char **argv){
     FILE *dadosField;
     if(DEBUG_PRINT)
       printf("loading background file\n");
-    dadosField=fopen(bkgFile,"r");
+    sfopen(dadosField,bkgFile,"r");
     for(i=0;i<Height;i+=1)
       for(j=0;j<Width;j+=1){
         fscanf(dadosField,"%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",&x,&y,&Ux,&Uy,
@@ -431,11 +435,11 @@ int main(int argc,char **argv){
         //printf("planeIndex=%d\n",planeIndex);
         
         sprintf(filename,"%s/%g/U",foamFolder,t);
-        uFile = fopen(filename,"r");
+        sfopen(uFile,filename,"r");
         if(uFile==NULL) printf("problems opening uFile - %d\n",n);
 
         sprintf(filename,"%s/%g/p",foamFolder,t);
-        pFile = fopen(filename,"r");
+        sfopen(pFile,filename,"r");
         if(pFile==NULL) printf("problems opening pFile - %d\n",n);
 
         if(uFile == NULL || pFile == NULL){

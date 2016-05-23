@@ -233,7 +233,10 @@ int main(int argc,char **argv){
     if(err!=0)
       printf("Problems with loadFields\n");
     
-    fclose(pFile); fclose(uFile);
+    if(pFile!=NULL)
+      fclose(pFile); 
+    if(uFile!=NULL)
+      fclose(uFile);
     
     dbgPrint(5,2);
 
@@ -241,6 +244,8 @@ int main(int argc,char **argv){
       printf("folder = %s\n",folder);
     
     dadosout=NULL;
+    
+    printf("Hello loop 0\n");
     
     if(planeType==0){
       if(DEBUG_PRINT)
@@ -268,6 +273,8 @@ int main(int argc,char **argv){
       }
       else{
       	for(pn=0;pn<planeNum;pn+=1){
+    
+          printf("Hello loop 1\n");
       	  k=pln[pn];
       	  
       	  sprintf(filename,"%s/plane-z%d-%.4f.dat",folder,k,t);
@@ -276,6 +283,7 @@ int main(int argc,char **argv){
             printf("Could not open file\n");
             exit(EXIT_FAILURE);
           }
+          printf("Hello loop 2\n");
 
           for(j=0;j<Height;j+=1)
             for(i=0;i<Width;i+=1){
@@ -284,6 +292,7 @@ int main(int argc,char **argv){
               fprintf(dadosout,"%.8g %.8g\n",uField[2*(j*Width+i)+0]
                                             ,uField[2*(j*Width+i)+1]);
             }
+          printf("Hello loop 3\n");
           
           if(dadosout!=NULL){fclose(dadosout);dadosout=NULL;}
         }
@@ -384,6 +393,8 @@ int main(int argc,char **argv){
         }
       }
     }
+
+    printf("Hello loop final\n");
     
     dbgPrint(5,3);
   }
