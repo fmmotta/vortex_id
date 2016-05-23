@@ -24,3 +24,7 @@ int extract012Momentsw2(int Height,int Width, int nCnect,double *X,double *Y,
 int extractAvgBkgVort(int Height,int Width,double *X,double *Y,
                       int nCnect,int *label,double *wBkg,
                       double *wBkgGammaOut);
+
+int extLambOseenParams(int Height,int Width, int nCnect,double *X,double *Y,
+                       double *sField,double *gField,int *label,
+                       double *vCatalog);

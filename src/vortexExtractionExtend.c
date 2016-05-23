@@ -1259,3 +1259,127 @@ int vortexExtFromSwirlStr(int Height,int Width, int nCnect,double *X,double *Y,
 
   return 0;
 }
+
+int extLambOseenParams(int Height,int Width, int nCnect,double *X,double *Y,
+                       double *sField,double *gField,int *label,
+                       double *vCatalog)
+{
+  int i,j,k,err;
+  double rc,a,b,G,dx,dy,dA,XX,XY,YX,YY,dgradU[2][2],dw2;
+  double A[nCnect],a0[nCnect],b0[nCnect],w[nCnect],w2[nCnect]; 
+  
+  if((Height<=0)||(Width<=0))
+    return -1;
+  
+  for(k=0;k<nCnect;k+=1){ w[k]=0.;A[k]=0.;a0[k]=0.;b0[k]=0.;w2[k]=0.; }
+
+  for(i=0;i<Height;i+=1)
+    for(j=0;j<Width;j+=1){
+      k=label[i*Width+j];
+
+      if((k>=0)&&(k<nCnect)){
+        // ++ quadrant        
+        err=add_dgradU(Height,Width,i,j,1,1,gField,dgradU,X,Y);
+        if(err!=0) return err;
+        w[k] += dgradU[1][0]-dgradU[0][1];
+
+        err=add_dA(Height,Width,i,j,k,1,1,gField,label,&dA,X,Y);
+        if(err!=0) return err;
+        A[k] += dA;
+
+        err=add_w2(Height,Width,i,j,1,1,gField,&(dw2),X,Y);
+        if(err!=0) return err;
+        w2[k]+=dw2;
+        
+        err=add_dxdyw2(Height,Width,i,j,1,1,gField,&dx,&dy,X,Y);
+        if(err!=0) return err;
+        a0[k] += dx;
+        b0[k] += dy;
+
+        /*************************************************/
+        
+        // -+ quadrant
+        err=add_dgradU(Height,Width,i,j,-1,1,gField,dgradU,X,Y);
+        if(err!=0) return err;
+        w[k] += dgradU[1][0]-dgradU[0][1];
+
+        err=add_dA(Height,Width,i,j,k,-1,1,gField,label,&dA,X,Y);
+        if(err!=0) return err;
+        A[k] += dA;
+
+        err=add_w2(Height,Width,i,j,-1,1,gField,&(dw2),X,Y);
+        if(err!=0) return err;
+        w2[k]+=dw2;
+        
+        err=add_dxdyw2(Height,Width,i,j,-1,1,gField,&dx,&dy,X,Y);
+        if(err!=0) return err;
+        a0[k] += dx;
+        b0[k] += dy;
+        
+        /*************************************************/
+
+        // +- quadrant
+        err=add_dgradU(Height,Width,i,j,1,-1,gField,dgradU,X,Y);
+        if(err!=0) return err;
+        w[k] += dgradU[1][0]-dgradU[0][1];
+
+        err=add_dA(Height,Width,i,j,k,1,-1,gField,label,&dA,X,Y);
+        if(err!=0) return err;
+        A[k] += dA;
+
+        err=add_w2(Height,Width,i,j,1,-1,gField,&(dw2),X,Y);
+        if(err!=0) return err;
+        w2[k]+=dw2;
+        
+        err=add_dxdyw2(Height,Width,i,j,1,-1,gField,&dx,&dy,X,Y);
+        if(err!=0) return err;
+        a0[k] += dx;
+        b0[k] += dy;
+
+        /*************************************************/
+        
+        // -- quadrant
+        err=add_dgradU(Height,Width,i,j,-1,-1,gField,dgradU,X,Y);
+        if(err!=0) return err;
+        w[k] += dgradU[1][0]-dgradU[0][1];
+
+        err=add_dA(Height,Width,i,j,k,-1,-1,gField,label,&dA,X,Y);
+        if(err!=0) return err;
+        A[k] += dA;
+
+        err=add_w2(Height,Width,i,j,-1,-1,gField,&(dw2),X,Y);
+        if(err!=0) return err;
+        w2[k]+=dw2;
+        
+        err=add_dxdyw2(Height,Width,i,j,-1,-1,gField,&dx,&dy,X,Y);
+        if(err!=0) return err;
+        a0[k] += dx;
+        b0[k] += dy;
+        
+        /*************************************************/
+      }
+    }
+
+  for(k=0;k<nCnect;k+=1){
+    
+    rc= sqrt(A[k]/M_PI);
+
+    if(fabs(w2[k])>0.){
+      a=a0[k]/w2[k]; 
+      b=b0[k]/w2[k];
+    }
+    else{
+      a=X[0];
+      b=Y[0];
+    }
+    
+    G = w[k];
+
+    vCatalog[4*k+0] = G;
+    vCatalog[4*k+1] = rc;
+    vCatalog[4*k+2] = a;
+    vCatalog[4*k+3] = b;
+  }
+
+  return 0;
+}
