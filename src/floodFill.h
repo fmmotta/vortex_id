@@ -1,7 +1,7 @@
 
 #define _USE_MATH_DEFINES
 
-#define NumCls 2048
+#define NumCls 1024
 
 #define dbg_prints(label,i) printf(label" debug %d\n",(i));
 #define dbg_printp(label,i,j) printf(label " debug (%d,%d)\n",(i),(j));

@@ -287,7 +287,7 @@ int main(int argc,char **argv){
 
   dbgPrint(14,0);
 
-  if(DEBUG_MODE){
+  if(DEBUG_PRINT){
     printf("v0y0=%lf\n",v0y0);
     printf("calcMode=%d\n",calcScalarMode);
   }
@@ -338,8 +338,8 @@ int main(int argc,char **argv){
       nVortex = err;
     
     if(calcScalarMode==0){
-      //if(DEBUG_PRINT)
-      //  printf("Scalar Mode 0\n");
+      if(DEBUG_PRINT)
+        printf("Scalar Mode 0\n");
       for(i=0;i<Height;i+=1)
         for(j=0;j<Width;j+=1){
           uField[2*(i*Width+j)+0]= 0.;
@@ -352,8 +352,8 @@ int main(int argc,char **argv){
                            v0y0,sField);
     }
     else if(calcScalarMode==1){
-      //if(DEBUG_PRINT)
-      //  printf("Scalar Mode 1\n");
+      if(DEBUG_PRINT)
+        printf("Scalar Mode 1\n");
       for(i=0;i<Height;i+=1)
         for(j=0;j<Width;j+=1){
           uField[2*(i*Width+j)+0]= 0.;
@@ -364,8 +364,8 @@ int main(int argc,char **argv){
                           gField,v0y0,sField);
     }
     else if(calcScalarMode==2){
-      //if(DEBUG_PRINT)
-      //  printf("Scalar Mode 2\n");
+      if(DEBUG_PRINT)
+        printf("Scalar Mode 2\n");
       
       for(i=0;i<Height;i+=1)
         for(j=0;j<Width;j+=1){
@@ -406,6 +406,8 @@ int main(int argc,char **argv){
       dbgPrint(15,2);
     }
     else if(calcScalarMode==3){
+      if(DEBUG_PRINT)
+        printf("Scalar Mode 3\n");
 
       for(i=0;i<Height;i+=1)
         for(j=0;j<Width;j+=1){
@@ -498,17 +500,17 @@ int main(int argc,char **argv){
 
     dbgPrint(15,7);
     // WARNING : Change Here
-    //err=vortexReconstruction(runType,Height,Width,nCnect,x0,dx,sField,
-    //                         gField,label,&vCatalog);
+    err=vortexReconstruction(runType,Height,Width,nCnect,x0,dx,sField,
+                             gField,label,&vCatalog);
     
-    /*
-    err=vortexUReconstruction(runType,Height,Width,nCnect,X,Y,sField, 
-                              gField,label,&vCatalog);
+    
+    //err=vortexUReconstruction(runType,Height,Width,nCnect,X,Y,sField, 
+    //                          gField,label,&vCatalog);
     if(err!=0){
       printf("problems in vortexReconstruction\n");
       return err;
-    }*/
-
+    }
+    /*
     err=extract012Momentsw2(Height,Width,nCnect,X,Y,sField,gField,label,
                             vCatalog,vortSndMomMatrix,avgGradU);
     if(err!=0){
@@ -541,7 +543,7 @@ int main(int argc,char **argv){
         vCatalog[4*i+0]= 2.541494083*vCatalog[4*i+0];
         vCatalog[4*i+1]=  (sqrt(2.))*vCatalog[4*i+1]; 
       }
-    }
+    }*/
 
     for(i=0;i<nCnect;i+=1){
       mCatalog[dataSize*i+0]  = vCatalog[4*i+0];
