@@ -500,17 +500,17 @@ int main(int argc,char **argv){
 
     dbgPrint(15,7);
     // WARNING : Change Here
-    err=vortexReconstruction(runType,Height,Width,nCnect,x0,dx,sField,
-                             gField,label,&vCatalog);
+    //err=vortexReconstruction(runType,Height,Width,nCnect,x0,dx,sField,
+    //                         gField,label,&vCatalog);
     
     
     //err=vortexUReconstruction(runType,Height,Width,nCnect,X,Y,sField, 
     //                          gField,label,&vCatalog);
-    if(err!=0){
-      printf("problems in vortexReconstruction\n");
-      return err;
-    }
-    /*
+    //if(err!=0){
+    //  printf("problems in vortexReconstruction\n");
+    //  return err;
+    //}
+    
     err=extract012Momentsw2(Height,Width,nCnect,X,Y,sField,gField,label,
                             vCatalog,vortSndMomMatrix,avgGradU);
     if(err!=0){
@@ -543,7 +543,7 @@ int main(int argc,char **argv){
         vCatalog[4*i+0]= 2.541494083*vCatalog[4*i+0];
         vCatalog[4*i+1]=  (sqrt(2.))*vCatalog[4*i+1]; 
       }
-    }*/
+    }
 
     for(i=0;i<nCnect;i+=1){
       mCatalog[dataSize*i+0]  = vCatalog[4*i+0];

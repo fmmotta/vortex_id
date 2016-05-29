@@ -73,6 +73,7 @@ int main(int argc,char** argv){
                      avgVelocity[i][0],avgVelocity[i][1],avgVelocity[i][2]);
 
   fclose(dadosout);
+  fclose(uFile);
 
   /* Free gSOAP resources */
   soapdestroy();
