@@ -1265,7 +1265,7 @@ int extLambOseenParams(int Height,int Width, int nCnect,double *X,double *Y,
                        double *vCatalog)
 {
   int i,j,k,err;
-  double rc,a,b,G,dx,dy,dA,XX,XY,YX,YY,dgradU[2][2],dw2;
+  double rc,a,b,G,dx,dy,dA,dgradU[2][2],dw2;
   double A[nCnect],a0[nCnect],b0[nCnect],w[nCnect],w2[nCnect]; 
   
   if((Height<=0)||(Width<=0))
