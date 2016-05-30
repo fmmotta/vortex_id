@@ -1,9 +1,8 @@
-cd ../../
-./bin/sampledVortexEssayFull cfg/sanityCheck/sw-nosub-negNoShear.ini > file 2>&1 sw-nosub-negNoShear.log & 
-./bin/sampledVortexEssayFull cfg/sanityCheck/sw-nosub-negStrongShear.ini > file 2>&1 sw-nosub-negStrongShear.log & 
-./bin/sampledVortexEssayFull cfg/sanityCheck/sw-nosub-negWeakShear.ini > file 2>&1 sw-nosub-negWeakShear.log & 
-./bin/sampledVortexEssayFull cfg/sanityCheck/sw-nosub-negVeryWeakShear.ini > file 2>&1 sw-nosub-negVeryWeakShear.log & 
-./bin/sampledVortexEssayFull cfg/sanityCheck/vc-nosub-negNoShear.ini > file 2>&1 vc-nosub-negNoShear.log & 
-./bin/sampledVortexEssayFull cfg/sanityCheck/vc-nosub-negStrongShear.ini > file 2>&1 vc-nosub-negStrongShear.log & 
-./bin/sampledVortexEssayFull cfg/sanityCheck/vc-nosub-negWeakShear.ini > file 2>&1 vc-nosub-negWeakShear.log & 
-./bin/sampledVortexEssayFull cfg/sanityCheck/vc-nosub-negVeryWeakShear.ini > file 2>&1 vc-nosub-negVeryWeakShear.log & 
+./bin/sampledVortexEssayFull cfg/sanityCheck/sw-nosub-negNoShear.ini > log/sw-nosub-negNoShear.log 2>&1  & 
+./bin/sampledVortexEssayFull cfg/sanityCheck/sw-nosub-negStrongShear.ini > log/sw-nosub-negStrongShear.log 2>&1  & 
+./bin/sampledVortexEssayFull cfg/sanityCheck/sw-nosub-negWeakShear.ini > log/sw-nosub-negWeakShear.log 2>&1  & 
+./bin/sampledVortexEssayFull cfg/sanityCheck/sw-nosub-negVeryWeakShear.ini > log/sw-nosub-negVeryWeakShear.log 2>&1  & 
+./bin/sampledVortexEssayFull cfg/sanityCheck/vc-nosub-negNoShear.ini > log/vc-nosub-negNoShear.log 2>&1  & 
+./bin/sampledVortexEssayFull cfg/sanityCheck/vc-nosub-negStrongShear.ini > log/vc-nosub-negStrongShear.log 2>&1  & 
+./bin/sampledVortexEssayFull cfg/sanityCheck/vc-nosub-negWeakShear.ini > log/vc-nosub-negWeakShear.log 2>&1  & 
+./bin/sampledVortexEssayFull cfg/sanityCheck/vc-nosub-negVeryWeakShear.ini > log/vc-nosub-negVeryWeakShear.log 2>&1  & 

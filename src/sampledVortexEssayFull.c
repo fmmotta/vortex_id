@@ -50,7 +50,7 @@ int main(int argc,char **argv){
   double v0y0 = 0.00,*vCatalog=NULL,*rCatalog=NULL,*majorVortex=NULL,*wBkg=NULL;
   double hGmin=0.,hGmax=0.,hRcMin=0.,hRcMax=0.,sigmaUx,sigmaUy;
   char genFile[300+1],folder[100+1],tag[100+1],filename[400+1],bkgFile[400+1];
-  FILE *dadosgen,*dadosout,*dadosVin,*dadosVout,*dadosField;
+  FILE *dadosgen,*dadosout,*dadosVin,*dadosVout,*dadosField,*totalVin,*totalVout;
   gsl_histogram *hG,*hRc,*ha,*hb,*hN;
   gsl_histogram *iG,*iRc,*ia,*ib;
   configVar cfg;
@@ -307,19 +307,37 @@ int main(int argc,char **argv){
     if(DEBUG_PRINT)
       printf("loading background file\n");
     dadosField=fopen(bkgFile,"r");
-    for(i=0;i<Height;i+=1)
-      for(j=0;j<Width;j+=1){
-        fscanf(dadosField,"%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",&x,&y,&Ux,&Uy,
-                                                          &sigmaUx,&sigmaUy,
-                                                          &omega,&gamma,
-                                                          &beta,&strain);
-        background[2*(i*Width+j)+0] = Ux;
-        background[2*(i*Width+j)+1] = Uy;
-        wBkg[i*Width+j] = omega;
-      }
-
-    fclose(dadosField);
+    if(dadosField!=NULL){
+      for(i=0;i<Height;i+=1)
+        for(j=0;j<Width;j+=1){
+          fscanf(dadosField,"%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",&x,&y,&Ux,&Uy,
+                                                            &sigmaUx,&sigmaUy,
+                                                            &omega,&gamma,
+                                                            &beta,&strain);
+          background[2*(i*Width+j)+0] = Ux;
+          background[2*(i*Width+j)+1] = Uy;
+          wBkg[i*Width+j] = omega;
+        }
+    }
+    else{ // If no background file open, just zeroes the background field
+      printf("No background file found\n");
+      for(i=0;i<Height;i+=1)
+        for(j=0;j<Width;j+=1){
+          background[2*(i*Width+j)+0] = Ux;
+          background[2*(i*Width+j)+1] = Uy;
+        }
+    }
+    if(dadosField!=NULL)
+      fclose(dadosField);
   }
+
+  sprintf(filename,"%s/inputVortexes.txt",folder);
+  totalVin = fopen(filename,"w");
+  if(totalVin==NULL){printf("Problems to open input vortex list\n");}
+
+  sprintf(filename,"%s/outputVortexes.txt",folder);
+  totalVout = fopen(filename,"w");
+  if(totalVout==NULL){printf("Problems to open output vortex list\n");}
 
   for(n=0;n<nRuns;n+=1){
 
@@ -614,7 +632,20 @@ int main(int argc,char **argv){
       if(err!=0){printf("problems vortexSafeMoments\n"); return -6;}
       fclose(dadosVout);
     }
+
+    {
+      fprintVortex(totalVin,n,nVortex,parVortex);
+      fprintVortex(totalVout,n,rCnect,rCatalog);
+
+      if(n%1000==0){
+        fflush(totalVin);
+        fflush(totalVout);
+      }
+    }
   }
+
+  if(totalVin!=NULL) fclose(totalVin);
+  if(totalVout!=NULL) fclose(totalVout);
 
   printf("%d runs have passed\n",n);
   
