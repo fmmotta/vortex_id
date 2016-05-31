@@ -11,10 +11,10 @@ int main(int argc,char** argv){
   float time0 = 0.0F,dt=0.0065,t,time1=6.5;//0.364F;
   enum SpatialInterpolation spatialInterp = Lag6;
   enum TemporalInterpolation temporalInterp = NoTInt;
-  float x0=-1.0, xf=1.0;
+  float x0=-1.0, xf=1.0, y;
   FILE *dadosout,*uFile;
 
-  if(argc!=4){
+  if(argc!=5){
     printf("wrong number of arguments\n");
     return 1;
   }
@@ -28,15 +28,29 @@ int main(int argc,char** argv){
     return 2;
   }
 
+  y = atof(argv[4]);
+
+  // Ny = 2048
+  // Nx = 25736 = 1+(int)(8 x pi x 1024)
+  // Nz = 9651  = 1+(int)(3 x pi x 1024)
+
   float (*position)[3] = malloc(N*sizeof(*position));
   float (*velocity)[3] = malloc(N*sizeof(*velocity));  
   float (*avgVelocity)[3] = malloc(N*sizeof(*avgVelocity));  
-  
+  /*
   x0=-1.0; xf=1.0;
   for(i=0;i<N;i+=1){
   	position[i][0] = 0.;
   	position[i][1] = x0+(((float) i)/((float) N-1))*(xf-x0);
   	position[i][2] = 0.;
+  }
+  */
+  
+  x0=0; xf=3*M_PI;
+  for(i=0;i<N;i+=1){
+    position[i][0] = x0+(((float) i)/((float) N-1))*(xf-x0);
+    position[i][1] = -1+y*(0.0010006); printf("%f\n",position[i][1]);
+    position[i][2] = 0.;
   }
 
   /* Initialize gSOAP */
