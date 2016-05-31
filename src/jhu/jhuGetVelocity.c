@@ -46,10 +46,10 @@ int main(int argc,char** argv){
   }
   */
   
-  x0=0; xf=3*M_PI;
+  x0=0; xf=8*M_PI;
   for(i=0;i<N;i+=1){
     position[i][0] = x0+(((float) i)/((float) N-1))*(xf-x0);
-    position[i][1] = -1+y*(0.0010006); printf("%f\n",position[i][1]);
+    position[i][1] = -1+y*(0.0010006);
     position[i][2] = 0.;
   }
 
@@ -74,7 +74,7 @@ int main(int argc,char** argv){
         avgVelocity[i][j] += velocity[i][j];
 
     for(i=0;i<N;i+=1)
-      fprintf(uFile,"%f %f %f %f\n",position[i][1],velocity[i][0]
+      fprintf(uFile,"%f %f %f %f\n",position[i][0],velocity[i][0]
                                    ,velocity[i][1],velocity[i][2]);
   }
 
