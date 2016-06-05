@@ -34,6 +34,9 @@ customVortices: obj/floodFill.o obj/lambdaInit.o obj/stencilExtended.o obj/custo
 foamStatistics: obj/foamStatistics.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/mt64.o obj/vortexExtraction.o obj/ini.o obj/inputManager.o obj/essayHandler.o obj/stencilExtended.o obj/vortexExtractionExtend.o obj/preprocessing.o
 	$(CC) -o bin/foamStatistics $^ $(LIBS)
 
+vortexHistogram: obj/vortexHistogram.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/mt64.o obj/vortexExtraction.o obj/ini.o obj/inputManager.o obj/essayHandler.o obj/stencilExtended.o obj/vortexExtractionExtend.o obj/preprocessing.o
+	$(CC) -o bin/vortexHistogram $^ $(LIBS)
+
 obj/%.o: src/%.c
 	$(CC) $(CFLAGS) $^ -o $@
 
