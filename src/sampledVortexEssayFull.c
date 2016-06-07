@@ -513,7 +513,6 @@ int main(int argc,char **argv){
       dadosField = fopen(filename,"w");
       fprintLabels(dadosField,x0,dx,Width,Height,label);
       fclose(dadosField);
-
     }
 
     dbgPrint(15,7);
