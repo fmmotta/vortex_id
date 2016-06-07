@@ -9,7 +9,7 @@ CFLAGS = -c -Wall -O3 $(INC_DIR)
 LIBS = -lm -lgsl -lgslcblas
 
 default: main
-all: main othermain tests
+all: main sampledVortexEssayFull openFoamEssay foamSlicer customVortices foamStatistics
 
 othermain: mainMultiRunHistogram mainMultiRunRecursive mainMultiRunThreshold mainMultiRun2ndLamb mainMultiRunHistoShear
 
