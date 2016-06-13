@@ -265,6 +265,18 @@ int main(int argc,char **argv){
       fprintf(dadosout,"\n");
     }
     fclose(dadosout);
+
+    dadosout=fopen("data/presenceField.dat","w");
+    for(i=0;i<Height;i+=1){
+      for(j=0;j<Width;j+=1){
+        x = x0[0] + j*dx[0];
+        y = x0[1] + i*dx[1];
+        
+        fprintf(dadosout,"%f %f %2d \n",x,y,(sField[i*Width+j]>0)? 1:0);
+      }
+      fprintf(dadosout,"\n");
+    }
+    fclose(dadosout);
   }
 
   printf("Check - 9\n");
