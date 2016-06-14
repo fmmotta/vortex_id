@@ -42,7 +42,8 @@ int main(int argc,char **argv){
   double vG,vR,va,vb;
   double hGmin=0.,hGmax=0.,hRcMin=0.,hRcMax=0.;
   double xmin[2]={-9.,-9.},xmax[2]={9.,9.},x0[2],dx[2],xf[2];
-  char folder[100+1],tag[100+1],filename[400+1],bkgFile[400+1];
+  char folder[100+1],tag[100+1],filename[400+1],bkgFile[400+1],line[1023+1];
+  char *errs;
   gsl_histogram *hG,*hRc,*ha,*hb,*hN;
   gsl_histogram *iG,*iRc,*ia,*ib;
   FILE *totalVin,*totalVout,*dadosout;
@@ -143,7 +144,7 @@ int main(int argc,char **argv){
   hRc = gsl_histogram_alloc(hNRc); gsl_histogram_set_ranges_uniform(hRc,hRcMin,hRcMax);
   ha  = gsl_histogram_alloc(hNa);  gsl_histogram_set_ranges_uniform(ha,xmin[0],xmax[0]);
   hb  = gsl_histogram_alloc(hNb);  gsl_histogram_set_ranges_uniform(hb,xmin[1],xmax[1]);
-  hN  = gsl_histogram_alloc(hNN);  gsl_histogram_set_ranges_uniform(hN,0,2*nVortex);
+  hN  = gsl_histogram_alloc(hNN);  gsl_histogram_set_ranges_uniform(hN,0-0.5,2*nFixVortex-0.5);
 
   iG  = gsl_histogram_alloc(hNG);  gsl_histogram_set_ranges_uniform(iG,hGmin,hGmax);
   iRc = gsl_histogram_alloc(hNRc); gsl_histogram_set_ranges_uniform(iRc,hRcMin,hRcMax);
@@ -172,18 +173,33 @@ int main(int argc,char **argv){
   dbgPrint(10,0);
   
   /**********************************************************/
-  
+  /*
+  inFile = fopen("text.txt", "r");
+  size_t i = 0;
+
+  while (fgets(input[i], LINE_SIZE, inFile))
+  {
+      printf("%d %s\n", i, input[i]);
+      ++i;  
+  }*/
+
+
   n=0;
   do{
-  	err=fscanf(totalVin,"%lf%lf%lf%lf",&vG,&vR,&va,&vb);
+  	//err=fscanf(totalVin,"%lf%lf%lf%lf",&vG,&vR,&va,&vb);
+    errs=fgets(line,1024,totalVin);
+    if(strlen(line) == 1)
+      continue;
+
+    err=sscanf(line,"%lf%lf%lf%lf",&vG,&vR,&va,&vb);
   	if(DEBUG_PRINT && n%10000==0){
       printf("%d vortices processed\n",n);
       printf("v: %lf %lf %lf %lf\n",vG,vR,va,vb);
     }
 
     n+=1;
-    if(err!=4)
-      continue;
+    //if(err!=4)
+    
 
     /* printing to histogram */
 
@@ -200,19 +216,30 @@ int main(int argc,char **argv){
   count = 0;
   n=0;
   do{
-    err=fscanf(totalVout,"%lf%lf%lf%lf",&vG,&vR,&va,&vb);
+    //err=fscanf(totalVout,"%lf%lf%lf%lf",&vG,&vR,&va,&vb);
+    errs=fgets(line,1024,totalVout);
+    if(strlen(line) == 1){
+      gsl_histogram_increment(hN,count);
+      //printf("%d vortices counted\n",count);
+      count = 0;
+      continue;
+    }
+
+    n+=1;
+    count += 1;
+
+    err=sscanf(line,"%lf%lf%lf%lf",&vG,&vR,&va,&vb);
   	if(DEBUG_PRINT && n%10000==0){
       printf("%d vortices processed\n",n);
       printf("v: %lf %lf %lf %lf\n",vG,vR,va,vb);
     }
 
-    n+=1;
-    count += 1;
-    if(err!=4){
+    /*if(err!=4){
       gsl_histogram_increment(hN,count);
+      printf("%d vortices counted\n",count);
       count = 0;
       continue;
-    }
+    }*/
 
     /* printing to histogram */
 
