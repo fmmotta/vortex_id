@@ -250,7 +250,7 @@ int main(int argc,char **argv){
         x = x0[0] + j*dx[0];
         y = x0[1] + i*dx[1];
         
-        fprintf(dadosout,"%f %f %f\n",x,y,sField[i*Width+j]);
+        fprintf(dadosout,"%f %f %f\n",x,y,(sField[i*Width+j]>0)? 0.1+sField[i*Width+j]:0);//sField[i*Width+j]);
       }
     fclose(dadosout);dadosout=NULL;
 
