@@ -66,7 +66,7 @@ int main(int argc,char **argv){
   configVar cfg;
   openFoamIcoData *node=NULL; 
 
-  dataSize = 4;
+  dataSize = 6;
 
   if(argc!=2){
     printf("Incorrect Number of Arguments - Need exactly "
@@ -407,8 +407,8 @@ int main(int argc,char **argv){
         rCatalog[dataSize*i+2] = vCatalog[4*i+2];
         rCatalog[dataSize*i+3] = vCatalog[4*i+3];
         // Added as to add vortex avg velocity
-        rCatalog[dataSize*i+4] = uVort[4*i+0];
-        rCatalog[dataSize*i+5] = uVort[4*i+1];
+        rCatalog[dataSize*i+4] = uVort[2*i+0];
+        rCatalog[dataSize*i+5] = uVort[2*i+1];
       }
   
       vortexAdaptiveQuickSort(rCatalog,nCnect,dataSize,&greaterAbsCirculation);
