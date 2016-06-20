@@ -1383,3 +1383,181 @@ int extLambOseenParams(int Height,int Width, int nCnect,double *X,double *Y,
 
   return 0;
 }
+
+inline int add_UVw2(int Height,int Width, int i,int j,int ik,int jk,
+                    double *uField,double *gField,double *u,double *v,
+                    double X[],double Y[])
+{
+  double w2,da;
+
+  if((i+ik<0) || (i+ik)>=Height){
+    if( (j+jk<0) || (j+jk)>=Width ){
+      w2 = gField[4*(     i*Width  + j  )+2] 
+         - gField[4*(     i*Width  + j  )+1];
+      w2 = w2*w2;
+
+      *u  = 9.*w2*uField[2*(i*Width+j)+0];
+      *v  = 9.*w2*uField[2*(i*Width+j)+1];
+
+      da = fabs( (Y[i-ik]-Y[i])*(X[j-jk]-X[j]) )/64.0; 
+    }
+    else{
+      w2 = gField[4*(     i*Width  + j  )+2] 
+         - gField[4*(     i*Width  + j  )+1];
+      w2 = w2*w2;
+
+      *u  = 9.*w2*uField[2*(     i*Width  + j  )+0];
+      *v  = 9.*w2*uField[2*(     i*Width  + j  )+1];
+      
+      w2 = gField[4*(     i*Width+(j+jk))+2] 
+         - gField[4*(     i*Width+(j+jk))+1];
+      w2 = w2*w2;
+
+      *u += 3.*w2*uField[2*(     i*Width+(j+jk))+0];
+      *v += 3.*w2*uField[2*(     i*Width+(j+jk))+1];
+
+      da = fabs( (Y[i-ik]-Y[i])*(X[j+jk]-X[j]) )/64.0; 
+    }
+  }
+  else{
+    if( (j+jk<0) || (j+jk)>=Width ){
+      w2 = gField[4*(     i*Width  + j  )+2] 
+         - gField[4*(     i*Width  + j  )+1];
+      w2 = w2*w2;
+
+      *u  = 9.*w2*uField[2*(     i*Width  + j  )+0];
+      *v  = 9.*w2*uField[2*(     i*Width  + j  )+1];
+      
+      w2 = gField[4*((i+ik)*Width  + j  )+2] 
+         - gField[4*((i+ik)*Width  + j  )+1];
+      w2 = w2*w2;
+
+      *u += 3.*w2*uField[2*((i+ik)*Width  + j  )+0];
+      *v += 3.*w2*uField[2*((i+ik)*Width  + j  )+1];
+
+      da = fabs( (Y[i+ik]-Y[i])*(X[j-jk]-X[j]) )/64.0; 
+    }
+    else{
+      w2 = gField[4*(     i*Width  + j  )+2] 
+         - gField[4*(     i*Width  + j  )+1];
+      w2 = w2*w2;
+
+      *u  = 9.*w2*uField[2*(     i*Width  + j  )+0];
+      *v  = 9.*w2*uField[2*(     i*Width  + j  )+1];
+
+      w2 = gField[4*(     i*Width+(j+jk))+2] 
+         - gField[4*(     i*Width+(j+jk))+1];
+      w2 = w2*w2;
+
+      *u += 3.*w2*uField[2*(     i*Width+(j+jk))+0];
+      *v += 3.*w2*uField[2*(     i*Width+(j+jk))+1];
+      
+      w2 = gField[4*((i+ik)*Width  + j  )+2] 
+         - gField[4*((i+ik)*Width  + j  )+1];
+      w2 = w2*w2;
+
+      *u += 3.*w2*uField[2*((i+ik)*Width  + j  )+0];
+      *v += 3.*w2*uField[2*((i+ik)*Width  + j  )+1];
+
+      w2 = gField[4*((i+ik)*Width+(j+jk))+2] 
+         - gField[4*((i+ik)*Width+(j+jk))+1];
+      w2 = w2*w2;
+
+      *u += 1.*w2*uField[2*((i+ik)*Width+(j+jk))+0];
+      *v += 1.*w2*uField[2*((i+ik)*Width+(j+jk))+1];
+
+      da = fabs( (Y[i+ik]-Y[i])*(X[j+jk]-X[j]) )/64.0; 
+    }
+  }
+
+  *u *= da;
+  *v *= da;
+
+  return 0;
+}
+
+int extVortexVelocity(int Height,int Width, int nCnect,double *X,double *Y,
+                      double *uField,double *sField,double *gField,int *label,
+                      double *uVort)
+{
+  int i,j,k,err;
+  double dw2,U,V;
+  double w2[nCnect],u[2*nCnect];
+  
+  if((Height<=0)||(Width<=0))
+    return -1;
+  
+  for(k=0;k<nCnect;k+=1){ w2[k]=0.; u[2*k+0]=0.; u[2*k+1]=0.; }
+
+  for(i=0;i<Height;i+=1)
+    for(j=0;j<Width;j+=1){
+      k=label[i*Width+j];
+
+      if((k>=0)&&(k<nCnect)){
+        // ++ quadrant        
+        err=add_w2(Height,Width,i,j,1,1,gField,&(dw2),X,Y);
+        if(err!=0) return err;
+        w2[k] += dw2;
+
+        err=add_UVw2(Height,Width,i,j,1,1,uField,gField,&U,&V,X,Y);
+        if(err!=0) return err;
+        u[2*k+0] += U;
+        u[2*k+1] += V;
+
+        /*************************************************/
+        
+        // -+ quadrant
+        err=add_w2(Height,Width,i,j,-1,1,gField,&(dw2),X,Y);
+        if(err!=0) return err;
+        w2[k]+=dw2;
+
+        err=add_UVw2(Height,Width,i,j,-1,1,uField,gField,&U,&V,X,Y);
+        if(err!=0) return err;
+        u[2*k+0] += U;
+        u[2*k+1] += V;
+        
+        /*************************************************/
+
+        // +- quadrant
+        err=add_w2(Height,Width,i,j,1,-1,gField,&(dw2),X,Y);
+        if(err!=0) return err;
+        w2[k]+=dw2;
+
+        err=add_UVw2(Height,Width,i,j,1,-1,uField,gField,&U,&V,X,Y);
+        if(err!=0) return err;
+        u[2*k+0] += U;
+        u[2*k+1] += V;
+
+        /*************************************************/
+        
+        // -- quadrant
+        err=add_w2(Height,Width,i,j,-1,-1,gField,&(dw2),X,Y);
+        if(err!=0) return err;
+        w2[k]+=dw2;
+
+        err=add_UVw2(Height,Width,i,j,-1,-1,uField,gField,&U,&V,X,Y);
+        if(err!=0) return err;
+        u[2*k+0] += U;
+        u[2*k+1] += V;
+        
+        /*************************************************/
+      }
+    }
+
+  for(k=0;k<nCnect;k+=1){
+
+    if(fabs(w2[k])>0.){
+      U=u[2*k+0]/w2[k]; 
+      V=u[2*k+1]/w2[k];
+    }
+    else{
+      U=0.0;
+      V=0.0;
+    }
+
+    uVort[2*k+0] = U;
+    uVort[2*k+1] = V;
+  }
+
+  return 0;
+}
