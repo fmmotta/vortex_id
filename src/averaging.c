@@ -6,7 +6,7 @@
 
 int main(int argc,char **argv){
   const int Nbins=100;
-  int i,k,err;
+  int k,err;
   int numGp[Nbins+1],numRcp[Nbins+1],numGn[Nbins+1],numRcn[Nbins+1];
   double y0=0.,y1=1.0,dy=0.;
   double G,rc,x,y;
@@ -48,7 +48,7 @@ int main(int argc,char **argv){
 
   fclose(dados);
 
-  fopen(argv[2],"w");
+  dados=fopen(argv[2],"w");
   for(k=0;k<Nbins;k+=1){
     if(numGp[k]!=0)
       avgGp[k] /= numGp[k];
