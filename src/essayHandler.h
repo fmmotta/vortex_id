@@ -8,7 +8,8 @@ int histoIncVortex(int nVortex, double *parVortex,
                    gsl_histogram *iG, gsl_histogram *iRc,
                    gsl_histogram *ia, gsl_histogram *ib);
 
-int fprintVortex(FILE *dadosout, int run,int nVortex, double *vCatalog);
+int fprintVortex(FILE *dadosout, int run,int datasize,
+                 int nVortex, double *vCatalog);
 
 int fprintSafeVortex(FILE *dadosout, int run,int nVortex, 
                      double *vCatalog,int Height,int Width,

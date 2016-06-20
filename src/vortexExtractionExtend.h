@@ -13,7 +13,8 @@ int vortexExtFromSwirlStr(int Height,int Width, int nCnect,double *X,double *Y,
 
 
 int extractSecondMoment(int Height,int Width, int nCnect,double *X,double *Y,
-                        double *sField,double *gField,int *label,double *vCatalog,double *vortSndMomMatrix);
+                        double *sField,double *gField,int *label,
+                        double *vCatalog,double *vortSndMomMatrix);
 
 
 int extract012Momentsw2(int Height,int Width, int nCnect,double *X,double *Y,
@@ -28,3 +29,7 @@ int extractAvgBkgVort(int Height,int Width,double *X,double *Y,
 int extLambOseenParams(int Height,int Width, int nCnect,double *X,double *Y,
                        double *sField,double *gField,int *label,
                        double *vCatalog);
+
+int extVortexVelocity(int Height,int Width, int nCnect,double *X,double *Y,
+                      double *uField,double *sField,double *gField,int *label,
+                      double *uVort);

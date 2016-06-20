@@ -59,18 +59,19 @@ int histoIncVortex(int nVortex, double *parVortex,
   return 0;
 }
 
-int fprintVortex(FILE *dadosout, int run,int nVortex, double *vCatalog)
+int fprintVortex(FILE *dadosout, int run,int datasize,
+                 int nVortex, double *vCatalog)
 {
-  int i;
+  int i,j;
 
   if(dadosout==NULL || run<0 || nVortex<=0 || vCatalog==NULL)
     return 1;
 
-  for(i=0;i<nVortex;i+=1)
-    fprintf(dadosout,"%f %f %f %f\n",vCatalog[4*i+0]
-                                    ,vCatalog[4*i+1]
-                                    ,vCatalog[4*i+2]
-                                    ,vCatalog[4*i+3]);
+  for(i=0;i<nVortex;i+=1){
+    for(j=0;j<datasize;j+=1)
+      fprintf(dadosout,"%f ",vCatalog[datasize*i+j]);
+    fprintf(dadosout,"\n");
+  }
 
   fprintf(dadosout,"\n");
 
@@ -336,7 +337,7 @@ void printVorticesAndMoments(int Height,int Width, double *X,double *Y,double t,
 
   sprintf(filename,"%s/vortices-p%d-%.4f.txt",folder,index,t);
   dadosVout = fopen(filename,"w");   
-  err=fprintVortex(dadosVout,n,nCnect,vCatalog);
+  err=fprintVortex(dadosVout,n,dataSize,nCnect,vCatalog);
   if(err!=0){printf("problems vortices\n"); exit(-6);}
   fclose(dadosVout);
       

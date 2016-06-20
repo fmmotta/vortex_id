@@ -59,7 +59,7 @@ int main(int argc,char **argv){
   double *sField=NULL,*gField=NULL,*g2Field=NULL,*uField=NULL,*X,*Y,*wBkg;
   double *uBuff=NULL,*Xbuff=NULL,*Ybuff=NULL,*Xload=NULL,*Yload=NULL;
   double *Zload=NULL,*ux=NULL,*uy=NULL,*uxxy=NULL,*uxyy=NULL;
-  double *uxxx=NULL,*uyyy=NULL,*vCatalog=NULL,*rCatalog=NULL;
+  double *uxxx=NULL,*uyyy=NULL,*vCatalog=NULL,*rCatalog=NULL,*uVort;
   double v0y0 = 0.00,*vortSndMomMatrix=NULL,*avgGradU=NULL,*sSubtr,*uSubtr;
   char folder[100+1],tag[100+1],filename[400+1],foamFolder[200+1],bkgFile[400+1];
   FILE *vortexFile,*dadosin;
@@ -214,6 +214,7 @@ int main(int argc,char **argv){
   fieldAlloc(Zload,Nz+1,double);
   fieldAlloc(rCatalog,dataSize*nMax,double);
   fieldAlloc(vCatalog,4*nMax,double);
+  fieldAlloc(uVort,2*nMax,double);
   fieldAlloc(vortSndMomMatrix,4*nMax,double);
   fieldAlloc(avgGradU,4*nMax,double);
   //fieldAlloc(node,Nx*Ny*Nz,openFoamIcoData);
@@ -374,9 +375,18 @@ int main(int argc,char **argv){
       err=extLambOseenParams(Height,Width,nCnect,X,Y,sField,gField,label,
                              vCatalog);
       if(err!=0){
-        printf("problems in extract012Momentsw2\n");
+        printf("problems in extLambOseenParams\n");
         return err;
       }
+
+      dbgPrint(15,11);
+
+      err=extVortexVelocity(Height,Width,nCnect,X,Y,uField,sField,
+                            gField,label,uVort);
+      if(err!=0){
+        printf("problems in extVortexVelocity\n");
+        return err;
+      }      
 
       dbgPrint(16,0);
 
@@ -392,10 +402,13 @@ int main(int argc,char **argv){
       }
 
       for(i=0;i<nCnect;i+=1){
-        rCatalog[dataSize*i+0]  = vCatalog[4*i+0];
-        rCatalog[dataSize*i+1]  = vCatalog[4*i+1];
-        rCatalog[dataSize*i+2]  = vCatalog[4*i+2];
-        rCatalog[dataSize*i+3]  = vCatalog[4*i+3];
+        rCatalog[dataSize*i+0] = vCatalog[4*i+0];
+        rCatalog[dataSize*i+1] = vCatalog[4*i+1];
+        rCatalog[dataSize*i+2] = vCatalog[4*i+2];
+        rCatalog[dataSize*i+3] = vCatalog[4*i+3];
+        // Added as to add vortex avg velocity
+        rCatalog[dataSize*i+4] = uVort[4*i+0];
+        rCatalog[dataSize*i+5] = uVort[4*i+1];
       }
   
       vortexAdaptiveQuickSort(rCatalog,nCnect,dataSize,&greaterAbsCirculation);
@@ -404,7 +417,7 @@ int main(int argc,char **argv){
 
       /* Preparing for printing */
 
-      err=fprintVortex(vortexFile,n,nCnect,vCatalog);
+      err=fprintVortex(vortexFile,n,dataSize,nCnect,vCatalog);
       if(err!=0){printf("problems in printing vortexfile\n"); return -6;}
     }
   } // End of Main loop
@@ -442,6 +455,7 @@ int main(int argc,char **argv){
   if(wBkg!=NULL) free(wBkg);
   if(avgGradU!=NULL) free(avgGradU);
   if(vortSndMomMatrix!=NULL) free(vortSndMomMatrix);
+  if(uVort!=NULL) free(uVort);
   if(parVortex!=0) free(parVortex);
   if(vCatalog!=NULL) free(vCatalog);
   if(rCatalog!=NULL) free(rCatalog);
