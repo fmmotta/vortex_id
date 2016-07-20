@@ -66,7 +66,7 @@ int main(int argc,char **argv){
   configVar cfg;
   openFoamIcoData *node=NULL; 
 
-  dataSize = 6;
+  dataSize = 4;//6;
 
   if(argc!=2){
     printf("Incorrect Number of Arguments - Need exactly "
@@ -380,13 +380,14 @@ int main(int argc,char **argv){
       }
 
       dbgPrint(15,11);
-
+      /*
       err=extVortexVelocity(Height,Width,nCnect,X,Y,uField,sField,
                             gField,label,uVort);
       if(err!=0){
         printf("problems in extVortexVelocity\n");
         return err;
       }      
+      */
 
       dbgPrint(16,0);
 
@@ -407,8 +408,8 @@ int main(int argc,char **argv){
         rCatalog[dataSize*i+2] = vCatalog[4*i+2];
         rCatalog[dataSize*i+3] = vCatalog[4*i+3];
         // Added as to add vortex avg velocity
-        rCatalog[dataSize*i+4] = uVort[2*i+0];
-        rCatalog[dataSize*i+5] = uVort[2*i+1];
+        //rCatalog[dataSize*i+4] = uVort[2*i+0];
+        //rCatalog[dataSize*i+5] = uVort[2*i+1];
       }
   
       vortexAdaptiveQuickSort(rCatalog,nCnect,dataSize,&greaterAbsCirculation);
@@ -490,15 +491,15 @@ int readAxis(int Nx,int Ny,int Nz,int planeType,
     fclose(nFile); nFile=NULL;
   }
   else if(planeType==1){
-    sprintf(filename,"%s/Yaxis.dat",folder);
-    nFile=fopen(filename,"r");
-    for(i=0;i<Nx;i+=1)
-      fscanf(nFile,"%lf",&(X[i]));
-    fclose(nFile); nFile=NULL;
-
     sprintf(filename,"%s/Zaxis.dat",folder);
     nFile=fopen(filename,"r");
     for(i=0;i<Ny;i+=1)
+      fscanf(nFile,"%lf",&(X[i]));
+    fclose(nFile); nFile=NULL;
+
+    sprintf(filename,"%s/Yaxis.dat",folder);
+    nFile=fopen(filename,"r");
+    for(i=0;i<Nx;i+=1)
       fscanf(nFile,"%lf",&(Y[i]));
     fclose(nFile); nFile=NULL;
   }
