@@ -245,8 +245,6 @@ int main(int argc,char **argv){
     
     dadosout=NULL;
     
-    printf("Hello loop 0\n");
-    
     if(planeType==0){
       if(DEBUG_PRINT)
         printf("XY plane\n");
@@ -394,8 +392,6 @@ int main(int argc,char **argv){
       }
     }
 
-    printf("Hello loop final\n");
-    
     dbgPrint(5,3);
   }
 
