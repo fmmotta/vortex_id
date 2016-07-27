@@ -367,7 +367,7 @@ int main(int argc,char **argv){
 
       dbgPrint(15,9);
       
-      if(n%100==0)
+      //if(n%100==0)
         printScalarFields(Height,Width,X,Y,n,folder,pln[l],sField,label);
       
       dbgPrint(15,10);
