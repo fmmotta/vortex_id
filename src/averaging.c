@@ -57,16 +57,17 @@ int main(int argc,char **argv){
     if(numGp[k]!=0)
       avgRcp[k] /= numGp[k];
 
-    if(numGp[k]!=0)
+    if(numGn[k]!=0)
       avgGn[k] /= numGn[k];
-    if(numGp[k]!=0)
+    if(numGn[k]!=0)
       avgWn[k] /= numGn[k];
-    if(numGp[k]!=0)
-      avgRcn[k] /= numGp[k];
+    if(numGn[k]!=0)
+      avgRcn[k] /= numGn[k];
 
-    fprintf(dados,"%f %f %f %f %f %f %f\n",y0+k*dy,avgGp[k],avgRcp[k]
-                                             ,avgGn[k],avgRcn[k]
-                                             ,avgWp[k],avgWn[k]);
+    fprintf(dados,"%f %f %f %f %f %f %f %d %d\n",y0+k*dy,avgGp[k],avgRcp[k]
+                                                ,avgGn[k],avgRcn[k]
+                                                ,avgWp[k],avgWn[k]
+                                                ,numGp[k],numGn[k]);
   }
   fclose(dados);
 

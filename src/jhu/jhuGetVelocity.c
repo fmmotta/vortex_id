@@ -5,53 +5,44 @@
 #include "turblib.h"
 
 int main(int argc,char** argv){
-  int i,j,n,N=10,Ntimes=4000;
-  char *authtoken = "br.ufrj.if.foster-2377d412";
+  int i,j,n,N=10,Ntimes=4000,Nx,Ny,Nz;
+  char *authtoken = "com.gmail.jhelsas-b854269a";
   char *dataset = "channel";
   float time0 = 0.0F,dt=0.0065,t,time1=6.5;//0.364F;
   enum SpatialInterpolation spatialInterp = Lag6;
   enum TemporalInterpolation temporalInterp = NoTInt;
-  float x0=-1.0, xf=1.0, y;
+  float x0=-1.0, xf=1.0, y,y0,yf;
   FILE *dadosout,*uFile;
 
-  if(argc!=5){
+  if(argc!=3){
     printf("wrong number of arguments\n");
     return 1;
   }
 
-  N = atof(argv[1]);
-
-  uFile = fopen(argv[2],"w");
-  dadosout=fopen(argv[3],"w");
+  uFile = fopen(argv[1],"w");
+  dadosout=fopen(argv[2],"w");
   if(dadosout==NULL||uFile==NULL){
     printf("could not open file\n");
     return 2;
   }
 
-  y = atof(argv[4]);
+  Nx = 256;
+  Ny = 192;
 
-  // Ny = 2048
-  // Nx = 25736 = 1+(int)(8 x pi x 1024)
-  // Nz = 9651  = 1+(int)(3 x pi x 1024)
+  N = Nx * Ny;
 
   float (*position)[3] = malloc(N*sizeof(*position));
   float (*velocity)[3] = malloc(N*sizeof(*velocity));  
   float (*avgVelocity)[3] = malloc(N*sizeof(*avgVelocity));  
-  /*
-  x0=-1.0; xf=1.0;
-  for(i=0;i<N;i+=1){
-  	position[i][0] = 0.;
-  	position[i][1] = x0+(((float) i)/((float) N-1))*(xf-x0);
-  	position[i][2] = 0.;
-  }
-  */
-  
-  x0=0; xf=8*M_PI;
-  for(i=0;i<N;i+=1){
-    position[i][0] = x0+(((float) i)/((float) N-1))*(xf-x0);
-    position[i][1] = -1+y*(0.0010006);
-    position[i][2] = 0.;
-  }
+    
+  y0=-1.0; yf = -0.5;
+  x0=0; xf=2*M_PI;
+  for(i=0;i<Ny;i+=1)
+    for(j=0;j<Nx;j+=1){
+      position[i*Nx+j][0] = x0+(((float) j)/((float) Nx-1))*(xf-x0);
+      position[i*Nx+j][1] = y0+(((float) i)/((float) Ny-1))*(yf-y0);
+      position[i*Nx+j][2] = 0.;
+    }
 
   /* Initialize gSOAP */
   soapinit();
