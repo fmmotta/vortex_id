@@ -9,7 +9,7 @@ CFLAGS = -c -Wall -O3 $(INC_DIR)
 LIBS = -lm -lgsl -lgslcblas
 
 default: main
-all: main sampledVortexEssayFull openFoamEssay foamSlicer customVortices foamStatistics vortexHistogram
+all: main sampledVortexEssayFull openFoamEssay foamSlicer customVortices foamStatistics vortexHistogram fieldAverages
 
 othermain: mainMultiRunHistogram mainMultiRunRecursive mainMultiRunThreshold mainMultiRun2ndLamb mainMultiRunHistoShear
 
@@ -33,6 +33,9 @@ customVortices: obj/floodFill.o obj/lambdaInit.o obj/stencilExtended.o obj/custo
 
 foamStatistics: obj/foamStatistics.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/mt64.o obj/vortexExtraction.o obj/ini.o obj/inputManager.o obj/essayHandler.o obj/stencilExtended.o obj/vortexExtractionExtend.o obj/preprocessing.o
 	$(CC) -o bin/foamStatistics $^ $(LIBS)
+
+fieldAverages: obj/fieldAverages.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/mt64.o obj/vortexExtraction.o obj/ini.o obj/inputManager.o obj/essayHandler.o obj/stencilExtended.o obj/vortexExtractionExtend.o obj/preprocessing.o
+	$(CC) -o bin/fieldAverages $^ $(LIBS)
 
 vortexHistogram: obj/vortexHistogram.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/mt64.o obj/vortexExtraction.o obj/ini.o obj/inputManager.o obj/essayHandler.o obj/stencilExtended.o obj/vortexExtractionExtend.o obj/preprocessing.o
 	$(CC) -o bin/vortexHistogram $^ $(LIBS)

@@ -42,10 +42,10 @@ int readAxis(int Nx,int Ny,int Nz,int planeType,
 int main(int argc,char **argv){
   //double cutoff; int rCnet=0;
   int Width = 100, Height = 100, Depth,nFixVortex=5;
-  int runType=0,**eqClass=NULL,nSkip=0;
+  int runType=0,nSkip=0;
   int Nsnapshots=0,openFoamFile=0;
   int Nx,Ny,Nz,planeIndex,planeType,planeNum=0,pln[8128],planeCount=0;
-  int i,j,l,err,nCnect=0,n,nMax=1024,padWidth=2,calcScalarMode;//,k;
+  int i,j,l,err,n,padWidth=2;//,k;
   double Gmin=1.,Gmax=20.,rmin=0.5,rmax=1.0,threshold=0.5;
   double xmin[2]={-9.,-9.},xmax[2]={9.,9.},x0[2],dx[2],xf[2];
   double t,t0,dt;
@@ -53,7 +53,7 @@ int main(int argc,char **argv){
   double *uBuff=NULL,*Xbuff=NULL,*Ybuff=NULL,*ux=NULL,*uy=NULL;
   double *uAvg=NULL,*u2Avg=NULL,*eps=NULL,*epsSub=NULL,*epsPerp=NULL,*epsPerpSub=NULL;
   char folder[100+1],tag[100+1],filename[400+1],foamFolder[200+1],bkgFile[400+1];
-  FILE *vortexFile,*dadosin;
+  FILE *dadosin,*dadosout;
   configVar cfg;
 
   if(argc!=2){
@@ -146,7 +146,6 @@ int main(int argc,char **argv){
   }
   
   runType = cfg.runType;
-  calcScalarMode = cfg.calcMode;
   
   dbgPrint(4,1);
 
@@ -174,6 +173,11 @@ int main(int argc,char **argv){
 
   /* Memory Allocation */
 
+  fieldAlloc(X,Nx+1,double);
+  fieldAlloc(Y,Ny+1,double);
+  fieldAlloc(Xbuff,Width+2*padWidth,double);
+  fieldAlloc(Ybuff,Height+2*padWidth,double);
+
   fieldAlloc(gField ,4*Height*Width,double);
   fieldAlloc(uField,2*Height*Width,double);
   fieldAlloc(uSubtr,2*Height*Width,double);
@@ -182,10 +186,6 @@ int main(int argc,char **argv){
   fieldAlloc(  uy  ,2*Height*Width,double);
   fieldAlloc(wBkg,Height*Width,double);
   fieldAlloc(uBuff ,2*(Height+2*padWidth)*(Width+2*padWidth),double);
-  fieldAlloc(X,Nx+1,double);
-  fieldAlloc(Y,Ny+1,double);
-  fieldAlloc(Xbuff,Width+2*padWidth,double);
-  fieldAlloc(Ybuff,Height+2*padWidth,double);
   fieldAlloc(uAvg,2*Height*Width,double);
   fieldAlloc(u2Avg,2*Height*Width,double);
   fieldAlloc(eps,Height*Width,double);
@@ -193,15 +193,6 @@ int main(int argc,char **argv){
   fieldAlloc(epsPerp,Height*Width,double);
   fieldAlloc(epsPerpSub,Height*Width,double);
 
-  eqClass=(int**)malloc(NumCls*sizeof(int*));
-  if(eqClass==NULL)
-    return 1;
-  for(i=0;i<NumCls;i+=1){
-    eqClass[i]=(int*)malloc(NumCls*sizeof(int));
-    if(eqClass[i]==NULL)
-      return(i+2);
-  }  
-  
   dbgPrint(13,0);
 
   if(DEBUG_MODE==true){
@@ -226,11 +217,6 @@ int main(int argc,char **argv){
     printf("problem in XtoXbuff - Y\n");
 
   dbgPrint(14,2);
-
-  sprintf(filename,"%s/vortices.dat",folder);
-  vortexFile = fopen(filename,"w");
-
-  dbgPrint(14,3);
 
   if(bkgFile[0]!='\0'){
     double x,y,Ux,Uy,sigmaUx,sigmaUy;
@@ -277,9 +263,6 @@ int main(int argc,char **argv){
 
     t=t0+((double)n)*dt;
     printf("%d timesteps processed\n",n);
-    if(n%10 == 0){      
-      fflush(vortexFile);
-    }
 
     for(l=0;l<planeNum;l+=1){
       
@@ -326,16 +309,20 @@ int main(int argc,char **argv){
                                  - background[2*(i*Width+j)+1];
         }
 
+      dbgPrint(15,4);
+
       /*******************************************************/
 
       for(i=0;i<Height;i+=1)
         for(j=0;j<Width;j+=1){
-          uAvg[2*(i*Width+j)+0]= uSubtr[2*(i*Width+j)+0];
-          uAvg[2*(i*Width+j)+1]= uSubtr[2*(i*Width+j)+1];
+          uAvg[2*(i*Width+j)+0] += uSubtr[2*(i*Width+j)+0];
+          uAvg[2*(i*Width+j)+1] += uSubtr[2*(i*Width+j)+1];
 
-          u2Avg[2*(i*Width+j)+0]= uSubtr[2*(i*Width+j)+0]*uSubtr[2*(i*Width+j)+0];
-          u2Avg[2*(i*Width+j)+1]= uSubtr[2*(i*Width+j)+1]*uSubtr[2*(i*Width+j)+1];
+          u2Avg[2*(i*Width+j)+0] += uSubtr[2*(i*Width+j)+0]*uSubtr[2*(i*Width+j)+0];
+          u2Avg[2*(i*Width+j)+1] += uSubtr[2*(i*Width+j)+1]*uSubtr[2*(i*Width+j)+1];
         }
+
+      dbgPrint(15,5);
 
       /****** Subtracted gradients and dissipation rate ******/
       
@@ -351,18 +338,25 @@ int main(int argc,char **argv){
       if(err!=0)
         return -4;
       
+
+      dbgPrint(15,6);
+
       for(i=0;i<Height;i+=1)
         for(j=0;j<Width;j+=1){
-          gField[4*(i*Width+j)+0] = ux[2*(i*Width+j)+0];
-          gField[4*(i*Width+j)+1] = uy[2*(i*Width+j)+0];
-          gField[4*(i*Width+j)+2] = ux[2*(i*Width+j)+1];
-          gField[4*(i*Width+j)+3] = uy[2*(i*Width+j)+1];
-        }
+          eps[i*Width+j] += ux[2*(i*Width+j)+0]*ux[2*(i*Width+j)+0] 
+                         + uy[2*(i*Width+j)+1]*uy[2*(i*Width+j)+1]
+                         + (ux[2*(i*Width+j)+0]+uy[2*(i*Width+j)+1])*(ux[2*(i*Width+j)+0]+uy[2*(i*Width+j)+1])
+                         + (3./2.)*(uy[2*(i*Width+j)+0]+ux[2*(i*Width+j)+1])*(uy[2*(i*Width+j)+0]+ux[2*(i*Width+j)+1]);
 
+          epsPerp[i*Width+j] += ux[2*(i*Width+j)+0]*ux[2*(i*Width+j)+0] 
+                             + uy[2*(i*Width+j)+1]*uy[2*(i*Width+j)+1]
+                             + (1./2.)*(uy[2*(i*Width+j)+0]+ux[2*(i*Width+j)+1])*(uy[2*(i*Width+j)+0]+ux[2*(i*Width+j)+1]);
+        }      
 
+      dbgPrint(15,7);
       /****** Subtracted gradients and dissipation rate ******/
 
-      err = uFieldTouBuff(Height,Width,uField,uBuff,padWidth);
+      err = uFieldTouBuff(Height,Width,uSubtr,uBuff,padWidth);
       if(err!=0)
         return -2;
       
@@ -373,23 +367,145 @@ int main(int argc,char **argv){
       err = UtoUy5point(Height,Width,uy,uBuff,Xbuff,Ybuff);
       if(err!=0)
         return -4;
-      
+
+      dbgPrint(15,8);
+
       for(i=0;i<Height;i+=1)
         for(j=0;j<Width;j+=1){
-          gField[4*(i*Width+j)+0] = ux[2*(i*Width+j)+0];
-          gField[4*(i*Width+j)+1] = uy[2*(i*Width+j)+0];
-          gField[4*(i*Width+j)+2] = ux[2*(i*Width+j)+1];
-          gField[4*(i*Width+j)+3] = uy[2*(i*Width+j)+1];
-        }
+          epsSub[i*Width+j] += ux[2*(i*Width+j)+0]*ux[2*(i*Width+j)+0] 
+                            + uy[2*(i*Width+j)+1]*uy[2*(i*Width+j)+1]
+                            + (ux[2*(i*Width+j)+0]+uy[2*(i*Width+j)+1])*(ux[2*(i*Width+j)+0]+uy[2*(i*Width+j)+1])
+                            + (3./2.)*(uy[2*(i*Width+j)+0]+ux[2*(i*Width+j)+1])*(uy[2*(i*Width+j)+0]+ux[2*(i*Width+j)+1]);
 
-      
+          epsPerpSub[i*Width+j] += ux[2*(i*Width+j)+0]*ux[2*(i*Width+j)+0] 
+                                + uy[2*(i*Width+j)+1]*uy[2*(i*Width+j)+1]
+                                + (1./2.)*(uy[2*(i*Width+j)+0]+ux[2*(i*Width+j)+1])*(uy[2*(i*Width+j)+0]+ux[2*(i*Width+j)+1]);
+        }      
+
+      dbgPrint(15,9);  
     }
   } // End of Main loop
 
-    
   printf("%d timesteps processed\n",n);
 
-  fclose(vortexFile);
+  for(i=0;i<Height;i+=1)
+    for(j=0;j<Width;j+=1){
+      uAvg[2*(i*Width+j)+0]  /= planeCount;
+      uAvg[2*(i*Width+j)+1]  /= planeCount;
+      u2Avg[2*(i*Width+j)+0] /= planeCount;
+      u2Avg[2*(i*Width+j)+1] /= planeCount;
+      eps[i*Width+j]         /= planeCount;
+      epsSub[i*Width+j]      /= planeCount;
+      epsPerp[i*Width+j]     /= planeCount;
+      epsPerpSub[i*Width+j]  /= planeCount;
+    }
+
+  /***********************/
+
+  printf("printing\n");
+
+  double nu = 8.5764e-4;
+
+  sprintf(filename,"%s/uAvg.dat",folder);
+  dadosout=fopen(filename,"w");
+  for(i=0;i<Height;i+=1)
+    for(j=0;j<Width;j+=1)
+      fprintf(dadosout,"%lf %lf %lf %lf\n",X[j],Y[i],
+                                           uAvg[2*(i*Width+j)+0],uAvg[2*(i*Width+j)+1]);
+  fclose(dadosout); dadosout=NULL;
+
+  sprintf(filename,"%s/u2Avg.dat",folder);
+  dadosout=fopen(filename,"w");
+  for(i=0;i<Height;i+=1)
+    for(j=0;j<Width;j+=1)
+      fprintf(dadosout,"%lf %lf %lf %lf\n",X[j],Y[i],u2Avg[2*(i*Width+j)+0],u2Avg[2*(i*Width+j)+1]);
+  fclose(dadosout); dadosout=NULL;
+
+  sprintf(filename,"%s/eps.dat",folder);
+  dadosout=fopen(filename,"w");
+  for(i=0;i<Height;i+=1)
+    for(j=0;j<Width;j+=1)
+      fprintf(dadosout,"%lf %lf %lf\n",X[j],Y[i],nu*eps[i*Width+j]);
+  fclose(dadosout); dadosout=NULL;
+
+  sprintf(filename,"%s/epsSub.dat",folder);
+  dadosout=fopen(filename,"w");
+  for(i=0;i<Height;i+=1)
+    for(j=0;j<Width;j+=1)
+      fprintf(dadosout,"%lf %lf %lf\n",X[j],Y[i],nu*epsSub[i*Width+j]);
+  fclose(dadosout); dadosout=NULL;
+
+  sprintf(filename,"%s/epsPerp.dat",folder);
+  dadosout=fopen(filename,"w");
+  for(i=0;i<Height;i+=1)
+    for(j=0;j<Width;j+=1)
+      fprintf(dadosout,"%lf %lf %lf\n",X[j],Y[i],nu*epsPerp[i*Width+j]);
+  fclose(dadosout); dadosout=NULL;
+
+  sprintf(filename,"%s/epsPerpSub.dat",folder);
+  dadosout=fopen(filename,"w");
+  for(i=0;i<Height;i+=1)
+    for(j=0;j<Width;j+=1)
+      fprintf(dadosout,"%lf %lf %lf\n",X[j],Y[i],nu*epsPerpSub[i*Width+j]);
+  fclose(dadosout); dadosout=NULL;
+
+  sprintf(filename,"%s/uAvgLine.dat",folder);
+  dadosout=fopen(filename,"w");
+  j=0;
+  for(i=0;i<Height;i+=1)
+    fprintf(dadosout,"%lf %lf %lf\n",Y[i],uAvg[2*(i*Width+j)+0],uAvg[2*(i*Width+j)+1]);
+  fclose(dadosout); dadosout=NULL;
+
+  sprintf(filename,"%s/u2AvgLine.dat",folder);
+  dadosout=fopen(filename,"w");
+  j=0;
+  for(i=0;i<Height;i+=1)
+    fprintf(dadosout,"%lf %lf %lf\n",Y[i],u2Avg[2*(i*Width+j)+0],u2Avg[2*(i*Width+j)+1]);
+  fclose(dadosout); dadosout=NULL;
+
+  sprintf(filename,"%s/epsLine.dat",folder);
+  dadosout=fopen(filename,"w");
+  j=0;
+  for(i=0;i<Height;i+=1)
+    fprintf(dadosout,"%lf %lf\n",Y[i],nu*eps[i*Width+j]);
+  fclose(dadosout); dadosout=NULL;
+
+
+  sprintf(filename,"%s/epsSubLine.dat",folder);
+  dadosout=fopen(filename,"w");
+  j=0;
+  for(i=0;i<Height;i+=1)
+    fprintf(dadosout,"%lf %lf\n",Y[i],nu*epsSub[i*Width+j]);
+  fclose(dadosout); dadosout=NULL;
+
+  sprintf(filename,"%s/epsPerpLine.dat",folder);
+  dadosout=fopen(filename,"w");
+  j=0;
+  for(i=0;i<Height;i+=1)
+    fprintf(dadosout,"%lf %lf\n",Y[i],nu*epsPerp[i*Width+j]);
+  fclose(dadosout); dadosout=NULL;
+
+  sprintf(filename,"%s/epsPerpSubLine.dat",folder);
+  dadosout=fopen(filename,"w");
+  j=0;
+  for(i=0;i<Height;i+=1)
+    fprintf(dadosout,"%lf %lf\n",Y[i],nu*epsPerpSub[i*Width+j]);
+  fclose(dadosout); dadosout=NULL;
+
+  sprintf(filename,"%s/kolmogorov.dat",folder);
+  dadosout=fopen(filename,"w");
+  j=0;
+  for(i=0;i<Height;i+=1){
+    double diss = nu*epsSub[i*Width+j];
+    fprintf(dadosout,"%lf %lf %lf %lf ",Y[i],sqrt(sqrt(nu*nu*nu/diss)),sqrt(nu/diss),sqrt(sqrt(nu*diss)));
+    diss = nu*eps[i*Width+j];
+    fprintf(dadosout,"%lf %lf %lf \n",sqrt(sqrt(nu*nu*nu/diss)),sqrt(nu/diss),sqrt(sqrt(nu*diss)));
+  }
+  fclose(dadosout); dadosout=NULL;
+
+  printf("printed\n");
+
+  /***********************/
     
   dbgPrint(22,0);
 
@@ -397,23 +513,32 @@ int main(int argc,char **argv){
   if(Y!=NULL) free(Y);
   if(Xbuff!=NULL) free(Xbuff);
   if(Ybuff!=NULL) free(Ybuff);
+
+  dbgPrint(22,1);
+
   if(uField!=NULL) free(uField);
   if(uSubtr!=NULL) free(uSubtr);
+  if(uBuff!=NULL) free(uBuff);
+
+  dbgPrint(22,2);
+
   if(background!=NULL) free(background);
   if(gField!=NULL)  free(gField);
-  if(uBuff!=NULL) free(uBuff);
+
+  dbgPrint(22,3);
+
   if(ux!=NULL) free(ux);
   if(uy!=NULL) free(uy);
+
+  dbgPrint(23,0);
+
   if(wBkg!=NULL) free(wBkg);
+  if(uAvg!=NULL) free(uAvg);
   if(u2Avg!=NULL) free(u2Avg);
   if(eps!=NULL) free(eps);
   if(epsSub!=NULL) free(epsSub);
   if(epsPerp!=NULL) free(epsPerp);
   if(epsPerpSub!=NULL) free(epsPerpSub);
-
-  for(i=0;i<NumCls;i+=1)
-    free(eqClass[i]);
-  free(eqClass);
 
   dbgPrint(24,0);
 
