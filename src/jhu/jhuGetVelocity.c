@@ -39,8 +39,8 @@ int main(int argc,char** argv){
   x0=0; xf=2*M_PI;
   for(i=0;i<Ny;i+=1)
     for(j=0;j<Nx;j+=1){
-      position[i*Nx+j][0] = x0+(((float) j)/((float) Nx-1))*(xf-x0);
-      position[i*Nx+j][1] = y0+(((float) i)/((float) Ny-1))*(yf-y0);
+      position[i*Nx+j][0] = x0+(((float) j)/((float) (Nx-1)))*(xf-x0);
+      position[i*Nx+j][1] = y0+(((float) i)/((float) (Ny-1)))*(yf-y0);
       position[i*Nx+j][2] = 0.;
     }
 
@@ -65,7 +65,7 @@ int main(int argc,char** argv){
         avgVelocity[i][j] += velocity[i][j];
 
     for(i=0;i<N;i+=1)
-      fprintf(uFile,"%f %f %f %f\n",position[i][0],velocity[i][0]
+      fprintf(uFile,"%f %f %f %f %f\n",position[i][0],position[i][1],velocity[i][0]
                                    ,velocity[i][1],velocity[i][2]);
   }
 
@@ -74,7 +74,7 @@ int main(int argc,char** argv){
       avgVelocity[i][j] /= Ntimes;
   
   for (i = 0; i < N; i++)
-    fprintf(dadosout,"%f %f %f %f\n", x0+(((float) i)/((float) N-1))*(xf-x0), 
+    fprintf(dadosout,"%f %f %f %f %f\n",position[i][0],position[i][1], 
                      avgVelocity[i][0],avgVelocity[i][1],avgVelocity[i][2]);
 
   fclose(dadosout);
