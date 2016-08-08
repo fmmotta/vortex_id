@@ -47,12 +47,12 @@ int main(int argc,char** argv){
   {
     FILE *dadosAxis = fopen("Yaxis.dat","w");
     for(i=0;i<Ny;i+=1)
-      fprintf("%lf\n",y0+(((float) i)/((float) (Ny-1)))*(yf-y0));
+      fprintf(dadosAxis,"%lf\n",y0+(((float) i)/((float) (Ny-1)))*(yf-y0));
     fclose(dadosAxis); 
 
     dadosAxis = fopen("Xaxis.dat","w");
     for(j=0;j<Nx;j+=1)
-      position[i*Nx+j][0] = x0+(((float) j)/((float) (Nx-1)))*(xf-x0);
+      fprintf(dadosAxis,"%lf\n",x0+(((float) j)/((float) (Nx-1)))*(xf-x0));
     fclose(dadosAxis);
   }
 
