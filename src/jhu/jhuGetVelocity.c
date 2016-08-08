@@ -26,7 +26,7 @@ int main(int argc,char** argv){
     return 2;
   }
 
-  Nx = 256;
+  Nx = 603;
   Ny = 192;
 
   N = Nx * Ny;
@@ -36,7 +36,7 @@ int main(int argc,char** argv){
   float (*avgVelocity)[3] = malloc(N*sizeof(*avgVelocity));  
     
   y0=-1.0; yf = -0.5;
-  x0=0; xf=2*M_PI;
+  x0=0; xf=M_PI/2;
   for(i=0;i<Ny;i+=1)
     for(j=0;j<Nx;j+=1){
       position[i*Nx+j][0] = x0+(((float) j)/((float) (Nx-1)))*(xf-x0);
