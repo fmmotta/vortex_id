@@ -54,6 +54,11 @@ int main(int argc,char** argv){
     for(j=0;j<Nx;j+=1)
       fprintf(dadosAxis,"%lf\n",x0+(((float) j)/((float) (Nx-1)))*(xf-x0));
     fclose(dadosAxis);
+
+    dadosAxis = fopen("axis.csv","w");
+    for(i=0;i<N;i+=1)
+      fprintf(dadosAxis,"%f,%f,%f\n",position[i][0],position[i][1],position[i][2]);
+    fclose(dadosAxis);
   }
 
   /* Initialize gSOAP */
@@ -87,7 +92,7 @@ int main(int argc,char** argv){
   
   for (i = 0; i < N; i++)
     fprintf(dadosout,"%f %f %f %f %f\n",position[i][0],position[i][1],avgVelocity[i][0]
-                                   ,avgVelocity[i][1],avgVelocity[i][2]);
+                                       ,avgVelocity[i][1],avgVelocity[i][2]);
 
   fclose(dadosout);
   fclose(uFile);
