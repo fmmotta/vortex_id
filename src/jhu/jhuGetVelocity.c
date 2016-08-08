@@ -44,6 +44,18 @@ int main(int argc,char** argv){
       position[i*Nx+j][2] = 0.;
     }
 
+  {
+    FILE *dadosAxis = fopen("Yaxis.dat","w");
+    for(i=0;i<Ny;i+=1)
+      fprintf("%lf\n",y0+(((float) i)/((float) (Ny-1)))*(yf-y0));
+    fclose(dadosAxis); 
+
+    dadosAxis = fopen("Xaxis.dat","w");
+    for(j=0;j<Nx;j+=1)
+      position[i*Nx+j][0] = x0+(((float) j)/((float) (Nx-1)))*(xf-x0);
+    fclose(dadosAxis);
+  }
+
   /* Initialize gSOAP */
   soapinit();
 
@@ -65,8 +77,7 @@ int main(int argc,char** argv){
         avgVelocity[i][j] += velocity[i][j];
 
     for(i=0;i<N;i+=1)
-      fprintf(uFile,"%f %f %f %f %f\n",position[i][0],position[i][1],velocity[i][0]
-                                   ,velocity[i][1],velocity[i][2]);
+      fprintf(uFile,"%f %f\n",velocity[i][0],velocity[i][1]);
     fprintf(uFile,"\n");
   }
 
