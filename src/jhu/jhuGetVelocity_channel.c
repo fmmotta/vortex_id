@@ -85,15 +85,15 @@ int main(int argc,char** argv){
     printf("\nRequesting velocity at t=%f\n",t);
     //getVelocity (authtoken, dataset, t, spatialInterp, temporalInterp,N, position, velocity);
 
-	while (getVelocity (authtoken, dataset, time0, spatialInterp, temporalInterp, N, position, velocity) != SOAP_OK) {
-  	if (attempts++ > 100) {
-  	  printf("Fatal Error: too many failures\n");
-      	  exit(1);
+	  while (getVelocity (authtoken, dataset, time0, spatialInterp, temporalInterp, N, position, velocity) != SOAP_OK) {
+  	  if (attempts++ > 100) {
+  	    printf("Fatal Error: too many failures\n");
+        exit(1);
       } 
-  	else {
-   		printf("Temporary Error: %s\n", turblibGetErrorString());
-			printf("After error %d, returning to download...\n",attempts);
-			sleep(60);      
+  	  else {
+    		printf("Temporary Error: %s\n", turblibGetErrorString());
+		  	printf("After error %d, returning to download...\n",attempts);
+			  sleep(60);      
 			}
 		}
 
@@ -104,8 +104,12 @@ int main(int argc,char** argv){
     for(i=0;i<N;i+=1)
       fprintf(uFile,"%f %f %f %f\n",position[i][2],velocity[i][0]
                                    ,velocity[i][1],velocity[i][2]);
-  	}
+    fprintf(uFile,"\n");
+  }
 
+  for(i=0;i<N;i+=1)
+    fprintf(dadosout,"%f %f %f %f\n",position[i][2],velocity[i][0]
+                                   ,avgVelocity[i][1],avgVelocity[i][2]);
   for (i = 0; i < N; i++)
     fprintf(dadosout,"%f %f %f %f\n", z0+(((float) i)/((float) N-1))*(zf-z0), 
                      avgVelocity[i][0],avgVelocity[i][1],avgVelocity[i][2]);

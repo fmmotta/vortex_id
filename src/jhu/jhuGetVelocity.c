@@ -67,6 +67,7 @@ int main(int argc,char** argv){
     for(i=0;i<N;i+=1)
       fprintf(uFile,"%f %f %f %f %f\n",position[i][0],position[i][1],velocity[i][0]
                                    ,velocity[i][1],velocity[i][2]);
+    fprintf(uFile,"\n");
   }
 
   for(i=0;i<N;i+=1)
@@ -74,8 +75,8 @@ int main(int argc,char** argv){
       avgVelocity[i][j] /= Ntimes;
   
   for (i = 0; i < N; i++)
-    fprintf(dadosout,"%f %f %f %f %f\n",position[i][0],position[i][1], 
-                     avgVelocity[i][0],avgVelocity[i][1],avgVelocity[i][2]);
+    fprintf(dadosout,"%f %f %f %f %f\n",position[i][0],position[i][1],avgVelocity[i][0]
+                                   ,avgVelocity[i][1],avgVelocity[i][2]);
 
   fclose(dadosout);
   fclose(uFile);
