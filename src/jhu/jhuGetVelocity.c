@@ -28,6 +28,9 @@ int main(int argc,char** argv){
 
   Nx = 301;
   Ny = 172;
+  //Nx = Ny = 256;
+  //Ntimes = 1024;
+  //dt=0.0004;
 
   N = Nx * Ny;
 
@@ -36,6 +39,7 @@ int main(int argc,char** argv){
   float (*avgVelocity)[3] = malloc(N*sizeof(*avgVelocity));  
     
   y0=-1+0.05; yf=-1+0.5;
+  //y0=0; yf=M_PI/4;
   x0=0; xf=M_PI/4;
   for(i=0;i<Ny;i+=1)
     for(j=0;j<Nx;j+=1){
