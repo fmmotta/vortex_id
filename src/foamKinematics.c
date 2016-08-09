@@ -59,14 +59,14 @@ int main(int argc,char **argv){
   double *sField=NULL,*gField=NULL,*g2Field=NULL,*uField=NULL,*X,*Y,*wBkg;
   double *uBuff=NULL,*Xbuff=NULL,*Ybuff=NULL,*Xload=NULL,*Yload=NULL;
   double *Zload=NULL,*ux=NULL,*uy=NULL,*uxxy=NULL,*uxyy=NULL;
-  double *uxxx=NULL,*uyyy=NULL,*vCatalog=NULL,*rCatalog=NULL;
+  double *uxxx=NULL,*uyyy=NULL,*vCatalog=NULL,*rCatalog=NULL,*uVort;
   double v0y0 = 0.00,*vortSndMomMatrix=NULL,*avgGradU=NULL,*sSubtr,*uSubtr;
   char folder[100+1],tag[100+1],filename[400+1],foamFolder[200+1],bkgFile[400+1];
   FILE *vortexFile,*dadosin;
   configVar cfg;
   openFoamIcoData *node=NULL; 
 
-  dataSize = 4;//6;
+  dataSize = 6;//6;
 
   if(argc!=2){
     printf("Incorrect Number of Arguments - Need exactly "
@@ -214,9 +214,9 @@ int main(int argc,char **argv){
   fieldAlloc(Zload,Nz+1,double);
   fieldAlloc(rCatalog,dataSize*nMax,double);
   fieldAlloc(vCatalog,4*nMax,double);
+  fieldAlloc(uVort,2*nMax,double);
   fieldAlloc(vortSndMomMatrix,4*nMax,double);
   fieldAlloc(avgGradU,4*nMax,double);
-  //fieldAlloc(node,Nx*Ny*Nz,openFoamIcoData);
 
   node = (openFoamIcoData*)malloc(Nx*Ny*Nz*sizeof(openFoamIcoData));
   if(node==NULL){
@@ -379,6 +379,13 @@ int main(int argc,char **argv){
       }
 
       dbgPrint(15,11);
+      
+      err=extVortexVelocity(Height,Width,nCnect,X,Y,uField,sField,
+                            gField,label,uVort);
+      if(err!=0){
+        printf("problems in extVortexVelocity\n");
+        return err;
+      }
 
       dbgPrint(16,0);
 
@@ -399,6 +406,8 @@ int main(int argc,char **argv){
         rCatalog[dataSize*i+2] = vCatalog[4*i+2];
         rCatalog[dataSize*i+3] = vCatalog[4*i+3];
         // Added as to add vortex avg velocity
+        rCatalog[dataSize*i+4] = uVort[2*i+0];
+        rCatalog[dataSize*i+5] = uVort[2*i+1];
       }
   
       vortexAdaptiveQuickSort(rCatalog,nCnect,dataSize,&greaterAbsCirculation);
@@ -445,6 +454,7 @@ int main(int argc,char **argv){
   if(wBkg!=NULL) free(wBkg);
   if(avgGradU!=NULL) free(avgGradU);
   if(vortSndMomMatrix!=NULL) free(vortSndMomMatrix);
+  if(uVort!=NULL) free(uVort);
   if(parVortex!=0) free(parVortex);
   if(vCatalog!=NULL) free(vCatalog);
   if(rCatalog!=NULL) free(rCatalog);
@@ -579,4 +589,4 @@ int foamCalcScalar(int runType,int calcScalarMode,int Height,int Width,
   }
 
   return 0;
-}
+} 
