@@ -416,7 +416,7 @@ int main(int argc,char **argv){
 
       /* Preparing for printing */
 
-      err=fprintVortex(vortexFile,n,dataSize,nCnect,vCatalog);
+      err=fprintVortex(vortexFile,n,dataSize,nCnect,rCatalog);
       if(err!=0){printf("problems in printing vortexfile\n"); return -6;}
     }
   } // End of Main loop
