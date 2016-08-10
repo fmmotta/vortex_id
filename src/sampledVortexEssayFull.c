@@ -616,10 +616,10 @@ int main(int argc,char **argv){
       sprintf(filename,"%s/vortexesOu-%d.txt",folder,n);
       dadosVout = fopen(filename,"w");
       
-      err=fprintVortex(dadosVin,n,nVortex,parVortex);
+      err=fprintVortex(dadosVin,n,4,nVortex,parVortex);
       if(err!=0){printf("problems\n"); return -6;}
   
-      err=fprintVortex(dadosVout,n,rCnect,rCatalog);
+      err=fprintVortex(dadosVout,n,4,rCnect,rCatalog);
       if(err!=0){printf("problems\n"); return -6;}
 
       fclose(dadosVin);
@@ -633,8 +633,8 @@ int main(int argc,char **argv){
     }
 
     {
-      fprintVortex(totalVin,n,nVortex,parVortex);
-      fprintVortex(totalVout,n,rCnect,rCatalog);
+      fprintVortex(totalVin,n,4,nVortex,parVortex);
+      fprintVortex(totalVout,n,4,rCnect,rCatalog);
 
       if(n%1000==0){
         fflush(totalVin);

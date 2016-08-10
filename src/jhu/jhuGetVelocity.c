@@ -5,13 +5,13 @@
 #include "turblib.h"
 
 int main(int argc,char** argv){
-  int i,j,n,N=10,Ntimes=4000,Nx,Ny,Nz;
+  int i,j,k,n,N=10,Ntimes=4000,Nx,Ny,Nz;
   char *authtoken = "com.gmail.jhelsas-b854269a";
   char *dataset = "channel";
   float time0 = 0.0F,dt=0.0065,t,time1=6.5;//0.364F;
   enum SpatialInterpolation spatialInterp = Lag6;
   enum TemporalInterpolation temporalInterp = NoTInt;
-  float x0=-1.0, xf=1.0, y,y0,yf;
+  float x0=-1.0, xf=1.0, y,y0,yf,z0,zf,dx,dy,dz;
   FILE *dadosout,*uFile;
 
   if(argc!=3){
@@ -28,35 +28,41 @@ int main(int argc,char** argv){
 
   Nx = 301;
   Ny = 172;
-  //Nx = Ny = 256;
-  //Ntimes = 1024;
-  //dt=0.0004;
+  Nz = 10;
 
-  N = Nx * Ny;
+  N = Nx * Ny * Nz;
 
   float (*position)[3] = malloc(N*sizeof(*position));
   float (*velocity)[3] = malloc(N*sizeof(*velocity));  
-  float (*avgVelocity)[3] = malloc(N*sizeof(*avgVelocity));  
+  float (*avgVelocity)[3] = malloc((N/Nz)*sizeof(*avgVelocity));  
     
   y0=-1+0.05; yf=-1+0.5;
-  //y0=0; yf=M_PI/4;
-  x0=0; xf=M_PI/4;
-  for(i=0;i<Ny;i+=1)
-    for(j=0;j<Nx;j+=1){
-      position[i*Nx+j][0] = x0+(((float) j)/((float) (Nx-1)))*(xf-x0);
-      position[i*Nx+j][1] = y0+(((float) i)/((float) (Ny-1)))*(yf-y0);
-      position[i*Nx+j][2] = 0.;
-    }
+  x0=0;       xf=M_PI/4;
+  z0=0;       zf=M_PI;
+  dx = (xf-x0)/((float) (Nx-1));
+  dy = (yf-y0)/((float) (Ny-1));
+  if(Nz > 1)
+    dz = (zf-z0)/((float) Nz);
+  else
+    dz = 0.;
+  
+  for(k=0;k<Nz;k+=1)
+    for(i=0;i<Ny;i+=1)
+      for(j=0;j<Nx;j+=1){
+        position[k*Ny*Nx+(i*Nx+j)][0] = x0+((float) j)*dx;
+        position[k*Ny*Nx+(i*Nx+j)][1] = y0+((float) i)*dy;
+        position[k*Ny*Nx+(i*Nx+j)][2] = z0+((float) k)*dz;
+      }
 
   {
     FILE *dadosAxis = fopen("Yaxis.dat","w");
     for(i=0;i<Ny;i+=1)
-      fprintf(dadosAxis,"%lf\n",y0+(((float) i)/((float) (Ny-1)))*(yf-y0));
+     fprintf(dadosAxis,"%lf\n",y0+((float) i)*dy);
     fclose(dadosAxis); 
 
     dadosAxis = fopen("Xaxis.dat","w");
     for(j=0;j<Nx;j+=1)
-      fprintf(dadosAxis,"%lf\n",x0+(((float) j)/((float) (Nx-1)))*(xf-x0));
+      fprintf(dadosAxis,"%lf\n",x0+((float) j)*dx);
     fclose(dadosAxis);
 
     dadosAxis = fopen("axis.csv","w");
@@ -81,21 +87,25 @@ int main(int argc,char** argv){
     getVelocity (authtoken, dataset, t, spatialInterp, temporalInterp, 
                  N, position, velocity);
 
-    for(i=0;i<N;i+=1)
-      for(j=0;j<3;j+=1)
-        avgVelocity[i][j] += velocity[i][j];
+    for(k=0;k<Nz;k+=1)
+      for(i=0;i<(N/Nz);i+=1)
+        for(j=0;j<3;j+=1)
+          avgVelocity[i][j] += velocity[k*Ny*Nx+i][j];
 
-    for(i=0;i<N;i+=1)
-      fprintf(uFile,"%f %f\n",velocity[i][0],velocity[i][1]);
-    fprintf(uFile,"\n");
+    //for(i=0;i<N;i+=1)
+    for(k=0;k<Nz;k+=1){
+      for(i=0;i<(N/Nz);i+=1)
+        fprintf(uFile,"%f %f\n",velocity[k*Ny*Nx+i][0],velocity[k*Ny*Nx+i][1]);
+      fprintf(uFile,"\n");
+    }
   }
 
-  for(i=0;i<N;i+=1)
+  for(i=0;i<(N/Nz);i+=1)
     for(j=0;j<3;j+=1)
       avgVelocity[i][j] /= Ntimes;
   
-  for (i = 0; i < N; i++)
-    fprintf(dadosout,"%f %f %f %f %f\n",position[i][0],position[i][1],avgVelocity[i][0]
+  for(i = 0; i < (N/Nz); i++)
+    fprintf(dadosout,"%f %f %f %f %f\n",position[Nz*0+i][0],position[Nz*0+i][1],avgVelocity[i][0]
                                        ,avgVelocity[i][1],avgVelocity[i][2]);
 
   fclose(dadosout);
