@@ -42,7 +42,7 @@ int main(int argc,char** argv){
   dx = (xf-x0)/((float) (Nx-1));
   dy = (yf-y0)/((float) (Ny-1));
   if(Nz > 1)
-    dz = (zf-z0)/((float) Nz);
+    dz = (zf-z0)/((float) (Nz-1));
   else
     dz = 0.;
   
@@ -67,7 +67,9 @@ int main(int argc,char** argv){
 
     dadosAxis = fopen("axis.csv","w");
     for(i=0;i<N;i+=1)
-      fprintf(dadosAxis,"%f,%f,%f\n",position[i][0],position[i][1],position[i][2]);
+      fprintf(dadosAxis,"%f,%f,%f\n",position[Nz*0+i][0]
+                                    ,position[Nz*0+i][1]
+                                    ,position[Nz*0+i][2]);
     fclose(dadosAxis);
   }
 
@@ -77,7 +79,7 @@ int main(int argc,char** argv){
   /* Enable exit on error.  See README for details. */
   turblibSetExitOnError(1);
   
-  for(i=0;i<N;i+=1)
+  for(i=0;i<(N/Nz);i+=1)
     for(j=0;j<3;j+=1)
       avgVelocity[i][j] = 0.;
 
