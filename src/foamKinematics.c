@@ -378,7 +378,7 @@ int main(int argc,char **argv){
         return err;
       }
 
-      dbgPrint(15,11);
+      dbgPrint(15,11);   
       
       err=extVortexVelocity(Height,Width,nCnect,X,Y,uField,sField,
                             gField,label,uVort);
@@ -553,9 +553,10 @@ int foamCalcScalar(int runType,int calcScalarMode,int Height,int Width,
       for(j=0;j<Width;j+=1){
         if( sField[i*Width+j] > sSubtr[i*Width+j])
           sField[i*Width+j] = sSubtr[i*Width+j];
-
-        uField[2*(i*Width+j)+0]= uSubtr[2*(i*Width+j)+0];
-        uField[2*(i*Width+j)+1]= uSubtr[2*(i*Width+j)+1];
+        
+        // WARNING : Why the hell are this velocity substitution by its subtraction is here?
+        //uField[2*(i*Width+j)+0]= uSubtr[2*(i*Width+j)+0];
+        //uField[2*(i*Width+j)+1]= uSubtr[2*(i*Width+j)+1];
       }
     dbgPrint(15,6);
   }
@@ -579,8 +580,9 @@ int foamCalcScalar(int runType,int calcScalarMode,int Height,int Width,
         if( (sField[i*Width+j]==0) || (sSubtr[i*Width+j]==0))
           sField[i*Width+j] = 0.;
 
-        uField[2*(i*Width+j)+0]= uSubtr[2*(i*Width+j)+0];
-        uField[2*(i*Width+j)+1]= uSubtr[2*(i*Width+j)+1];
+        // WARNING : Why the hell are this velocity substitution by its subtraction is here?
+        //uField[2*(i*Width+j)+0]= uSubtr[2*(i*Width+j)+0];
+        //uField[2*(i*Width+j)+1]= uSubtr[2*(i*Width+j)+1];
       }
   }
   else{
