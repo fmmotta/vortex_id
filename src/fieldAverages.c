@@ -315,8 +315,8 @@ int main(int argc,char **argv){
 
       for(i=0;i<Height;i+=1)
         for(j=0;j<Width;j+=1){
-          uAvg[2*(i*Width+j)+0] += uSubtr[2*(i*Width+j)+0];
-          uAvg[2*(i*Width+j)+1] += uSubtr[2*(i*Width+j)+1];
+          uAvg[2*(i*Width+j)+0] += uField[2*(i*Width+j)+0];
+          uAvg[2*(i*Width+j)+1] += uField[2*(i*Width+j)+1];
 
           u2Avg[2*(i*Width+j)+0] += uSubtr[2*(i*Width+j)+0]*uSubtr[2*(i*Width+j)+0];
           u2Avg[2*(i*Width+j)+1] += uSubtr[2*(i*Width+j)+1]*uSubtr[2*(i*Width+j)+1];

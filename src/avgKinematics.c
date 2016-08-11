@@ -74,10 +74,13 @@ int main(int argc,char **argv){
       avgVn[k] /= numGn[k];
     }
 
-    fprintf(dados,"%f %f %f %f %f %f %f %d %d\n",y0+k*dy,avgGp[k],avgRcp[k]
-                                                ,avgGn[k],avgRcn[k]
-                                                ,avgWp[k],avgWn[k]
-                                                ,numGp[k],numGn[k]);
+    fprintf(dados,"%f %d %d %f %f %f %f %f %f %f %f %f %f\n",y0+k*dy
+                                                ,numGp[k] ,numGn[k]
+                                                ,avgGp[k] ,avgGn[k]
+                                                ,avgRcp[k],avgRcn[k]
+                                                ,avgWp[k] ,avgWn[k]
+                                                ,avgUp[k] ,avgUn[k]
+                                                ,avgVp[k] ,avgVn[k]);
   }
   fclose(dados);
 
