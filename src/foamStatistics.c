@@ -263,22 +263,16 @@ int main(int argc,char **argv){
   dbgPrint(14,3);
 
   if(bkgFile[0]!='\0'){
-    double x,y,Ux,Uy,sigmaUx,sigmaUy;
-    double omega,strain,gamma,beta;
+    double Ux,Uy;
     FILE *dadosField;
     if(DEBUG_PRINT)
       printf("loading background file\n");
     dadosField=fopen(bkgFile,"r");
     for(i=0;i<Height;i+=1)
       for(j=0;j<Width;j+=1){
-        fscanf(dadosField,"%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",
-                                                          &x,&y,&Ux,&Uy,
-                                                          &sigmaUx,&sigmaUy,
-                                                          &omega,&gamma,
-                                                          &beta,&strain);
+        fscanf(dadosField,"%lf %lf",&Ux,&Uy);
         background[2*(i*Width+j)+0] = Ux;
         background[2*(i*Width+j)+1] = Uy;
-        wBkg[i*Width+j] = omega;
       }
 
     fclose(dadosField);
