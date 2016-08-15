@@ -307,9 +307,9 @@ int main(int argc,char **argv){
       if(DEBUG_PRINT)
         printf("plane =%d\n",pln[l]);
 
-      if(planeType==0)      sprintf(filename,"%s/plane-z%d-%.4f.dat",folder,pln[l],t);
-      else if(planeType==1) sprintf(filename,"%s/plane-x%d-%.4f.dat",folder,pln[l],t);
-      else if(planeType==2) sprintf(filename,"%s/plane-y%d-%.4f.dat",folder,pln[l],t);
+      if(planeType==0)      sprintf(filename,"%s/plane-z%d-%g.dat",folder,pln[l],t);
+      else if(planeType==1) sprintf(filename,"%s/plane-x%d-%g.dat",folder,pln[l],t);
+      else if(planeType==2) sprintf(filename,"%s/plane-y%d-%g.dat",folder,pln[l],t);
 
       dadosin=fopen(filename,"r");
       if(dadosin==NULL){
@@ -366,7 +366,7 @@ int main(int argc,char **argv){
 
       dbgPrint(15,9);
       
-      if(n%100==0)
+      //if(n%100==0)
         printScalarFields(Height,Width,X,Y,n,folder,pln[l],sField,label);
       
       dbgPrint(15,10);
