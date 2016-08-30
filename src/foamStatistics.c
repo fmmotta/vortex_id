@@ -345,6 +345,20 @@ int main(int argc,char **argv){
       
       dbgPrint(15,8);
 
+      /****************************************************/
+
+      {
+        char sFieldfilename[512+1];
+        FILE *dadosout;
+
+        sprintf(sFieldfilename,"%s/sField-p%d-%d.txt",folder,pln[l],n);
+        dadosout = fopen(sFieldfilename,"w");
+        fprintUsfield(dadosout,X,Y,Height,Width,sField);
+        fclose(dadosout);
+      }
+
+      /****************************************************/
+
       for(i=0;i<Height*Width;i+=1)
         label[i]=-1;
 

@@ -33,8 +33,9 @@ int main(int argc,char** argv){
   N = Nx * Ny * Nz;
 
   float (*position)[3] = malloc(N*sizeof(*position));
-  float (*velocity)[3] = malloc(N*sizeof(*velocity));  
-  float (*gradient)[9] = malloc(N*sizeof(*gradient));  
+  float (*velocity)[3] = malloc(N*sizeof(*velocity));
+  float (*gradient)[9] = malloc(N*sizeof(*gradient));
+  float (*hessian)[18] = malloc(N*sizeof(*hessian));
   double *data = (double*) malloc(Nx*sizeof(double));
   double (*Espect)[3] = malloc(Nx*sizeof(*Espect));
   double (*Espect9)[9] = malloc(Nx*sizeof(*Espect9));
@@ -194,6 +195,50 @@ int main(int argc,char** argv){
 
     // ---------------------------------------------------------
     
+    // ---------------------------------------------------------
+
+    printf("\nRequesting velocity Hessian at t=%f\n",t);
+    sprintf(filename,"planeHess-%d.dat",n);
+    planeFile=fopen(filename,"r");
+    if(planeFile==NULL){
+      printf("Downloading\n");
+      
+      for(k=0;k<Nz;k+=1){
+        if(k%100)
+          printf("Querying %d - line\n",k);
+        getVelocityHessian (authtoken, dataset, t, FD4NoInt, temporalInterp, 
+                             Nx, (position+k*Nx), (hessian+k*Nx));
+      }
+    //getVelocityHessian (authtoken, dataset, time, FD4Lag4, temporalInterp, 
+    //                    N, points, result18);
+      planeFile=fopen(filename,"w");
+      if(planeFile==NULL)
+        return -1;
+      printf("Printing\n");
+      for(k=0;k<Nz;k+=1)
+        for(j=0;j<Nx;j+=1){
+          int c;
+          for(c=0;c<18;c+=1)
+            fprintf(planeFile,"%lf ",hessian[k*Nx+j][c]);
+          fprintf(planeFile,"\n");
+        }
+      fclose(planeFile);
+    }
+    else{
+      printf("Reading\n");
+      for(k=0;k<Nz;k+=1)
+        for(j=0;j<Nx;j+=1){
+          int c;
+          for(c=0;c<18;c+=1)
+            fscanf(planeFile,"%f",&(hessian[k*Nx+j][c]));
+        }
+
+      fclose(planeFile); planeFile=NULL;
+    }
+    printf("Velocity gradient retrieved\n");
+
+    // ---------------------------------------------------------
+
     uAvg[0]=uAvg[1]=uAvg[2]=0.;
     for(k=0;k<Nz;k+=1)
       for(j=0;j<Nx;j+=1){
@@ -211,21 +256,11 @@ int main(int argc,char** argv){
       gradAvg[k]=0.;
     for(k=0;k<Nz;k+=1)
       for(j=0;j<Nx;j+=1){
-        gradAvg[0] += gradient[k*Nx+j][0];
-        gradAvg[1] += gradient[k*Nx+j][1];
-        gradAvg[2] += gradient[k*Nx+j][2];
-        gradAvg[3] += gradient[k*Nx+j][3];
-        gradAvg[4] += gradient[k*Nx+j][4];
-        gradAvg[5] += gradient[k*Nx+j][5];
-        gradAvg[6] += gradient[k*Nx+j][6];
-        gradAvg[7] += gradient[k*Nx+j][7];
-        gradAvg[8] += gradient[k*Nx+j][8];
+        int c;
+        for(c=0;c<9;c+=1)
+          gradAvg[c] += gradient[k*Nx+j][c];
       }
 
-    for(k=0;k<9;k+=1){
-      gradAvg[k] /= Nx*Nz;
-      printf("grad %d = %f\n",k,gradAvg[k]);
-    }
     // ---------------------------------------------------------
     
     {
@@ -251,7 +286,7 @@ int main(int argc,char** argv){
       for(c=0;c<9;c+=1){
         for(k=0;k<Nz;k+=1){
           for(j=0;j<Nx;j+=1)
-            data[j] = (double) (gradient[k*Nx+j][c] - gradAvg[c]);
+            data[j] = (double) (gradient[k*Nx+j][c]);// - gradAvg[c]);
 
           gsl_fft_real_transform(data,1,Nx,real, work);
           for(j=0;j<(Nx+1)/2;j+=1)
@@ -262,6 +297,22 @@ int main(int argc,char** argv){
 
     // ---------------------------------------------------------
     
+    {
+      int c;
+      
+      for(c=0;c<18;c+=1){
+        for(k=0;k<Nz;k+=1){
+          for(j=0;j<Nx;j+=1)
+            data[j] = (double) (hessian[k*Nx+j][c]);
+
+          gsl_fft_real_transform(data,1,Nx,real, work);
+          for(j=0;j<(Nx+1)/2;j+=1)
+            Espect18[j][c] += data[2*j]*data[2*j]+data[2*j+1]*data[2*j+1];
+        }
+      }
+    }
+
+    // ---------------------------------------------------------
   }
 
   for(j=0;j<(Nx+1)/2;j+=1){
@@ -271,6 +322,9 @@ int main(int argc,char** argv){
 
     for(c=0;c<9;c+=1)
       Espect9[j][c] /= Nz*Ntimes*(xf-x0);
+
+    for(c=0;c<18;c+=1)
+      Espect18[j][c] /= Nz*Ntimes*(xf-x0);
   }
 
   {
@@ -280,18 +334,20 @@ int main(int argc,char** argv){
     for(j=0;j<(Nx+1)/2;j+=1)
       norm += Espect[j][0];
 
-    for(c=0;c<3;c+=1)
-      for(j=0;j<(Nx+1)/2;j+=1)
+    for(j=0;j<(Nx+1)/2;j+=1)
+      for(c=0;c<3;c+=1)
         Espect[j][c] /= norm;
 
-    //norm = 0.;
-    //for(j=0;j<(Nx+1)/2;j+=1)
-    //  norm += Espect9[j][0];
-
-    for(c=0;c<9;c+=1)
-      for(j=0;j<(Nx+1)/2;j+=1)
+    for(j=0;j<(Nx+1)/2;j+=1)
+      for(c=0;c<9;c+=1)
         Espect9[j][c] /= norm;
+
+    for(j=0;j<(Nx+1)/2;j+=1)
+      for(c=0;c<18;c+=1)
+        Espect18[j][c] /= norm;
   }
+
+  // -------------------------------------------
 
   {
     FILE *spctOut = fopen("spectre.dat","w");
@@ -309,6 +365,19 @@ int main(int argc,char** argv){
                   (2*M_PI*j)/(xf-x0),Espect9[j][0],Espect9[j][1],Espect9[j][2]
                                     ,Espect9[j][3],Espect9[j][4],Espect9[j][5]
                                     ,Espect9[j][6],Espect9[j][7],Espect9[j][8]);
+    fclose(spctOut);
+  }
+
+  {
+    FILE *spctOut = fopen("spectreHessian.dat","w");
+    for(j=0;j<(Nx+1)/2;j+=1){
+      int c;
+      fprintf(spctOut,"%lf ",(2*M_PI*j)/(xf-x0));
+      for(c=0;c<18;c+=1)
+        fprintf(spctOut,"%.14lf ",Espect18[j][c]);
+      fprintf(spctOut,"\n");
+    }
+      
     fclose(spctOut);
   }
 
