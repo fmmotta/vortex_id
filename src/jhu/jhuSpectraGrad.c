@@ -21,7 +21,7 @@ int main(int argc,char** argv){
   Nx = 2048;
   Ny = 1;
   Nz = 1536;
-  Ntimes = 1;
+  Ntimes = 4000;
 
   y0=0.0; yf=0.0;
   x0=0;      xf=8*M_PI;
