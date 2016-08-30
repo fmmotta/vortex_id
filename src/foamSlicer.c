@@ -272,7 +272,7 @@ int main(int argc,char **argv){
       else{
       	for(pn=0;pn<planeNum;pn+=1){
     
-          printf("Hello loop 1\n");
+          //printf("Hello loop 1\n");
       	  k=pln[pn];
       	  
       	  sprintf(filename,"%s/plane-z%d-%.4f.dat",folder,k,t);
@@ -281,7 +281,7 @@ int main(int argc,char **argv){
             printf("Could not open file\n");
             exit(EXIT_FAILURE);
           }
-          printf("Hello loop 2\n");
+          //printf("Hello loop 2\n");
 
           for(j=0;j<Height;j+=1)
             for(i=0;i<Width;i+=1){
@@ -290,7 +290,7 @@ int main(int argc,char **argv){
               fprintf(dadosout,"%.8g %.8g\n",uField[2*(j*Width+i)+0]
                                             ,uField[2*(j*Width+i)+1]);
             }
-          printf("Hello loop 3\n");
+          //printf("Hello loop 3\n");
           
           if(dadosout!=NULL){fclose(dadosout);dadosout=NULL;}
         }

@@ -148,11 +148,13 @@ int floodFill(double *sField,int Width,int Height,int **eqClass,int *label){
           eqClass[counter][0]=counter;
           counter+=1;
           if(counter>(NumCls-1))
-            printf("moments of dispair -- floodFill\n");
+            printf("moments of dispair -- floodFill -- (%d,%d)\n",i,j);
         }
       }
     }
   }
+
+  printf("First pass passed\n");
 
   /* Necessary Intermediary step to assure 
    * that we have equivalence classes 
@@ -168,9 +170,17 @@ int floodFill(double *sField,int Width,int Height,int **eqClass,int *label){
    * initial state
    */ 
    
+  printf("Renaming labels\n");
+  
+  printf("counter = %d\n",counter);
+
+  int loopCount=0;
   do{
     err=0;
+    loopCount+=1; 
+    printf("%d iteration\n",loopCount);
     for(i=0;i<counter;i+=1){
+      printf("i=%d\n",i);
       for(j=0;j<counter;j+=1){
         for(k=0;k<counter;k+=1){
           found = fmind(findEq(j,eqClass[i],eqPop[i]), findEq(k,eqClass[j],
@@ -190,6 +200,8 @@ int floodFill(double *sField,int Width,int Height,int **eqClass,int *label){
     }
   }while(err!=0);
   
+  printf("Second loop\n");
+
   //Main flood fill loop - 2nd pass
   for(i=0;i<Height;i+=1)
     for(j=0;j<Width;j+=1)
