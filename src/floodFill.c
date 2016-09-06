@@ -178,9 +178,7 @@ int floodFill(double *sField,int Width,int Height,int **eqClass,int *label){
   do{
     err=0;
     loopCount+=1; 
-    printf("%d iteration\n",loopCount);
     for(i=0;i<counter;i+=1){
-      printf("i=%d\n",i);
       for(j=0;j<counter;j+=1){
         for(k=0;k<counter;k+=1){
           found = fmind(findEq(j,eqClass[i],eqPop[i]), findEq(k,eqClass[j],

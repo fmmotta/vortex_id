@@ -1561,3 +1561,35 @@ int extVortexVelocity(int Height,int Width, int nCnect,double *X,double *Y,
 
   return 0;
 }
+
+int gaussianFilter(int Height,int Width,int padWidth,double *Xbuff,
+                   double *Ybuff,double *uBuff,double *uFilt){
+  int i,j,ik,jk,idx,jdx;
+  double wgt=0.,uf,vf;
+  
+  if(Width<0 || Height<0)
+    return -1;
+  if(padWidth<=0)
+    return -2;
+  if(uBuff==NULL)
+    return -3;
+  if(uFilt==NULL)
+    return -4;
+  if(Xbuff==NULL)
+    return -5;
+  if(Ybuff==NULL)
+    return -6;
+  
+  for(i=0;i<Height;i+=1)
+    for(j=0;j<Width;j+=1){
+      uFilt[2*(i*Width+j)+0]=0.;
+      uFilt[2*(i*Width+j)+1]=0.;
+      idx = i+padWidth;
+      jdx = j+padWidth;
+      for(ik=-padWidth;ik<=padWidth;ik+=1)
+        for(jk=-padWidth;jk<=padWidth;jk+=1){
+        }
+    }
+  
+  return 0;
+}
