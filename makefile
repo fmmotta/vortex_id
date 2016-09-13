@@ -40,6 +40,9 @@ foamKinematics: obj/foamKinematics.o obj/lambdaInit.o obj/floodFill.o obj/vortex
 fieldAverages: obj/fieldAverages.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/mt64.o obj/vortexExtraction.o obj/ini.o obj/inputManager.o obj/essayHandler.o obj/stencilExtended.o obj/vortexExtractionExtend.o obj/preprocessing.o
 	$(CC) -o bin/fieldAverages $^ $(LIBS)
 
+fieldSpectra: obj/fieldSpectra.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/mt64.o obj/vortexExtraction.o obj/ini.o obj/inputManager.o obj/essayHandler.o obj/stencilExtended.o obj/vortexExtractionExtend.o obj/preprocessing.o
+	$(CC) -o bin/fieldSpectra $^ $(LIBS)
+
 vortexHistogram: obj/vortexHistogram.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/mt64.o obj/vortexExtraction.o obj/ini.o obj/inputManager.o obj/essayHandler.o obj/stencilExtended.o obj/vortexExtractionExtend.o obj/preprocessing.o
 	$(CC) -o bin/vortexHistogram $^ $(LIBS)
 

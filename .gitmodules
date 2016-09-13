@@ -1,3 +1,6 @@
 [submodule "src/inih"]
 	path = src/inih
 	url = https://github.com/benhoyt/inih.git
+[submodule "src/nfft"]
+	path = src/nfft
+	url = https://github.com/NFFT/nfft.git
