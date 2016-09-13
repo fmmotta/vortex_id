@@ -194,7 +194,7 @@ int main(int argc,char **argv){
 
   fieldAlloc(datax  ,Width ,double);
   fieldAlloc(datay  ,Height,double);
-  fieldAlloc(yUAvg  ,Height,double);
+  fieldAlloc(yUAvg  ,2*Height,double);
   fieldAlloc(uTilde ,2*Height*Width,double);
   fieldAlloc(uxTilde,2*Height*Width,double);
   fieldAlloc(uyTilde,2*Height*Width,double);
@@ -235,12 +235,17 @@ int main(int argc,char **argv){
     if(DEBUG_PRINT)
       printf("loading background file\n");
     dadosField=fopen(bkgFile,"r");
+    
+    dbgPrint(14,17);
+
     for(i=0;i<Height;i+=1)
       for(j=0;j<Width;j+=1){
         fscanf(dadosField,"%lf %lf",&Ux,&Uy);
         background[2*(i*Width+j)+0] = Ux;
         background[2*(i*Width+j)+1] = Uy;
       }
+    
+    dbgPrint(14,18);
 
     for(i=0;i<Height;i+=1){
       yUAvg[2*i+0] = 0.;
@@ -252,6 +257,8 @@ int main(int argc,char **argv){
       yUAvg[2*i+0] /= Width;
       yUAvg[2*i+1] /= Width;
     }
+
+    dbgPrint(14,19);
 
     fclose(dadosField);
   }

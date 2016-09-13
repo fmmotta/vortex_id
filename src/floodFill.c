@@ -154,8 +154,6 @@ int floodFill(double *sField,int Width,int Height,int **eqClass,int *label){
     }
   }
 
-  printf("First pass passed\n");
-
   /* Necessary Intermediary step to assure 
    * that we have equivalence classes 
    * which satisfy transitivity
@@ -170,10 +168,6 @@ int floodFill(double *sField,int Width,int Height,int **eqClass,int *label){
    * initial state
    */ 
    
-  printf("Renaming labels\n");
-  
-  printf("counter = %d\n",counter);
-
   int loopCount=0;
   do{
     err=0;
@@ -198,8 +192,6 @@ int floodFill(double *sField,int Width,int Height,int **eqClass,int *label){
     }
   }while(err!=0);
   
-  printf("Second loop\n");
-
   //Main flood fill loop - 2nd pass
   for(i=0;i<Height;i+=1)
     for(j=0;j<Width;j+=1)
