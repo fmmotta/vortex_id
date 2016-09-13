@@ -187,14 +187,14 @@ int main(int argc,char **argv){
   fieldAlloc(gField ,4*Height*Width,double);
   fieldAlloc(uField ,2*Height*Width,double);
   fieldAlloc(uSubtr ,2*Height*Width,double);
-  fieldAlloc(background,2*Height*Width,double);
   fieldAlloc(  ux   ,2*Height*Width,double);
   fieldAlloc(  uy   ,2*Height*Width,double);
+  fieldAlloc(background,2*Height*Width,double);
   fieldAlloc(uBuff  ,2*(Height+2*padWidth)*(Width+2*padWidth),double);
 
   fieldAlloc(datax  ,Width ,double);
   fieldAlloc(datay  ,Height,double);
-  fieldAlloc(yUAvg  ,Height,double);
+  fieldAlloc(yUAvg  ,2*Height,double);
   fieldAlloc(uTilde ,2*Height*Width,double);
   fieldAlloc(uxTilde,2*Height*Width,double);
   fieldAlloc(uyTilde,2*Height*Width,double);
