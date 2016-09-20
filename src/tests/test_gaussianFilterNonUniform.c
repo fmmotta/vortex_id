@@ -39,7 +39,7 @@ int print_u(int Height,int Width,double *uField,int padWidth,int comp){
 }
 
 int main(){  
-  const int Width = 20, Height = 20, padWidth=4;
+  const int Width = 20, Height = 20, padWidth=3;
   int i,j,err;
   double *X,*Xbuff,*Y,*Ybuff;
   double *uField,*uBuff,*uFilt;
@@ -153,7 +153,7 @@ int main(){
 
   //double sigma2 = (0.84089642*0.84089642)*(0.2*0.2)*(padWidth/2);
   double sigma2 = 0.84089642*0.84089642*0.1*0.1;
-  err=gaussianFilterNonUniform2(Height,Width,padWidth,Xbuff,Ybuff,uBuff,sigma2,uFilt);
+  err=gaussianFilterNonUniform(Height,Width,padWidth,Xbuff,Ybuff,uBuff,sigma2,uFilt);
   if(err!=0){
     printf("Problems in Gaussian non uniform\n");
 
@@ -182,6 +182,60 @@ int main(){
     for(j=0;j<Width;j+=1)
       printf("%2.3f ",uFilt[2*(i*Width+j)+1]);
     printf("\n");
+  }
+
+  printf("\n\n\n");
+
+  for(i=0;i<Height;i+=1)
+    for(j=0;j<Width;j+=1){
+      uField[2*(i*Width+j)+0] = 0.;
+      uField[2*(i*Width+j)+1] = 0.;
+    }
+
+  uField[2*((Height/2)*Width+(Width/2))+0] =  1.;
+  uField[2*((Height/2)*Width+(Width/2))+1] = -1.;
+  err = uFieldTouBuffMirror(Height,Width,uField,uBuff,padWidth);
+  if(err!=0)
+    printf("problems in uFieldTouBuff\n");
+
+  err=gaussianFilterNonUniform(Height,Width,padWidth,Xbuff,Ybuff,uBuff,sigma2,uFilt);
+  if(err!=0){
+    printf("Problems in Gaussian non uniform\n");
+
+    free(uField);
+    free(uBuff);
+    free(uFilt);
+    free(X);
+    free(Y);
+    free(Xbuff);
+    free(Ybuff);
+    
+    return -1;
+  }
+
+  printf("Filtered u:\n");
+  printf("\n");
+  for(i=0;i<Height;i+=1){
+    for(j=0;j<Width;j+=1)
+      printf("%2.7f ",uFilt[2*(i*Width+j)+0]);
+    printf("\n");
+  }
+
+  printf("Filtered v:\n");
+  printf("\n");
+  for(i=0;i<Height;i+=1){
+    for(j=0;j<Width;j+=1)
+      printf("%2.7f ",uFilt[2*(i*Width+j)+1]);
+    printf("\n");
+  }
+
+  {
+    double sum;
+    sum=0.;
+    for(i=0;i<Height;i+=1)
+      for(j=0;j<Width;j+=1)
+        sum += uFilt[2*(i*Width+j)+0];
+    printf("sum=%.22f",sum);
   }
 
   free(uField);

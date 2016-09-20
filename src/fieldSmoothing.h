@@ -10,10 +10,6 @@ int gaussianFilterNonUniform(int Height,int Width,int padWidth,
                              double *Xbuff,double *Ybuff,double *uBuff,
                              double sigma2,double *uFilt);
 
-int gaussianFilterNonUniform2(int Height,int Width,int padWidth,
-                              double *Xbuff,double *Ybuff,double *uBuff,
-                              double sigma2,double *uFilt);
-
 const double gauss3x3mask[] = 
 {0.0625,0.1250,0.0625,
  0.1250,0.2500,0.1250,

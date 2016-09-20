@@ -39,7 +39,7 @@ int print_u(int Height,int Width,double *uField,int padWidth,int comp){
 }
 
 int main(){  
-  const int Width = 20, Height = 20, padWidth=2;
+  const int Width = 20, Height = 20, padWidth=3;
   int i,j,err;
   double *X,*Xbuff,*Y,*Ybuff;
   double *uField,*uBuff,*uFilt;
@@ -136,11 +136,11 @@ int main(){
 
   for(i=0;i<2*padWidth+1;i+=1){
     for(j=0;j<2*padWidth+1;j+=1)
-      printf("%f ",gauss5x5mask[i*(2*padWidth+1)+j]);
+      printf("%f ",gauss7x7mask[i*(2*padWidth+1)+j]);
     printf("\n");
   }
 
-  err=gaussianFilterUniform(Height,Width,padWidth,gauss5x5mask,Xbuff,Ybuff,uBuff,uFilt);
+  err=gaussianFilterUniform(Height,Width,padWidth,gauss7x7mask,Xbuff,Ybuff,uBuff,uFilt);
   
   printf("Filtered u:\n");
   printf("\n");

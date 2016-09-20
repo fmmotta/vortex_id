@@ -149,258 +149,13 @@ int gaussianFilterUniform(int Height,int Width,int padWidth,const double *mask,
 // Important : buffer width is padwidth+1, not the usual padWidth
 
 int gaussianFilterNonUniform(int Height,int Width,int padWidth,
-                             double *Xbuff,double *Ybuff,double *uBuff,
-                             double sigma2,double *uFilt)
-{
-  const int wdx=Width+2*padWidth;
-  int i,j,ik,jk,idx,jdx;
-  double wgt=0.,dist,scale=1./(2.0*M_PI*sigma2);
-  
-  if(Width<0 || Height<0)
-    return -1;
-  if(padWidth<=0)
-    return -2;
-  if(uBuff==NULL)
-    return -3;
-  if(uFilt==NULL)
-    return -4;
-  if(Xbuff==NULL)
-    return -5;
-  if(Ybuff==NULL)
-    return -6;
-  
-  for(i=0;i<Height;i+=1)
-    for(j=0;j<Width;j+=1){
-      uFilt[2*(i*Width+j)+0]=0.;
-      uFilt[2*(i*Width+j)+1]=0.;
-      idx = i+padWidth;
-      jdx = j+padWidth;
-      
-      // First Block - Lower block - Regions 1,2,3
-      ik=-(padWidth-1);
-      {
-        //--- Region 1 ----
-        jk = -(padWidth-1);
-        {
-          dist  = (Xbuff[jdx+jk]-Xbuff[jdx])*(Xbuff[jdx+jk]-Xbuff[jdx])
-                + (Ybuff[idx+ik]-Ybuff[idx])*(Ybuff[idx+ik]-Ybuff[idx]);
-          dist /= 2.0*sigma2;
-
-          wgt = (1.0/64.0)*( 9.0*(Xbuff[jdx+jk+1]-Xbuff[jdx+jk-1])
-                                *(Ybuff[idx+ik+1]-Ybuff[idx+ik-1])
-
-                           + 3.0*(Xbuff[jdx+jk+1]-Xbuff[jdx+jk-0])
-                                *(Ybuff[idx+ik+1]-Ybuff[idx+ik-1])
-
-                           + 3.0*(Xbuff[jdx+jk+1]-Xbuff[jdx+jk-1])
-                                *(Ybuff[idx+ik+1]-Ybuff[idx+ik-0])
-
-                           + 1.0*(Xbuff[jdx+jk+1]-Xbuff[jdx+jk-0])
-                                *(Ybuff[idx+ik+1]-Ybuff[idx+ik-0]) );
-          
-          uFilt[2*(i*Width+j)+0] += wgt*exp(-dist)
-                                       *uBuff[2*((idx+ik)*wdx+(jdx+jk))+0];
-
-          uFilt[2*(i*Width+j)+1] += wgt*exp(-dist)
-                                       *uBuff[2*((idx+ik)*wdx+(jdx+jk))+1];
-        }
-
-        //--- Region 2 ----
-        for(jk=-(padWidth-1)+1;jk<=(padWidth-1)-1;jk+=1){
-          dist  = (Xbuff[jdx+jk]-Xbuff[jdx])*(Xbuff[jdx+jk]-Xbuff[jdx])
-                + (Ybuff[idx+ik]-Ybuff[idx])*(Ybuff[idx+ik]-Ybuff[idx]);
-          dist /= 2.0*sigma2;
-
-          wgt = (1.0/64.0)*(12.0*(Xbuff[jdx+jk+1]-Xbuff[jdx+jk-1])
-                                *(Ybuff[idx+ik+1]-Ybuff[idx+ik-1])
-
-                           + 4.0*(Xbuff[jdx+jk+1]-Xbuff[jdx+jk-1])
-                                *(Ybuff[idx+ik+1]-Ybuff[idx+ik-0]) );
-
-          uFilt[2*(i*Width+j)+0] += wgt*exp(-dist)
-                                       *uBuff[2*((idx+ik)*wdx+(jdx+jk))+0];
-
-          uFilt[2*(i*Width+j)+1] += wgt*exp(-dist)
-                                       *uBuff[2*((idx+ik)*wdx+(jdx+jk))+1];
-        }
-
-        //--- Region 3 ----
-        jk =  (padWidth-1);
-        {
-          dist  = (Xbuff[jdx+jk]-Xbuff[jdx])*(Xbuff[jdx+jk]-Xbuff[jdx])
-                + (Ybuff[idx+ik]-Ybuff[idx])*(Ybuff[idx+ik]-Ybuff[idx]);
-          dist /= 2.0*sigma2;
-          
-          wgt = (1.0/64.0)*( 9.0*(Xbuff[jdx+jk+1]-Xbuff[jdx+jk-1])
-                                *(Ybuff[idx+ik+1]-Ybuff[idx+ik-1])
-
-                           + 3.0*(Xbuff[jdx+jk+1]-Xbuff[jdx+jk-1])
-                                *(Ybuff[idx+ik+1]-Ybuff[idx+ik-0])
-
-                           + 3.0*(Xbuff[jdx+jk+1]-Xbuff[jdx+jk-1])
-                                *(Ybuff[idx+ik+0]-Ybuff[idx+ik-1])
-
-                           + 1.0*(Xbuff[jdx+jk+1]-Xbuff[jdx+jk-0])
-                                *(Ybuff[idx+ik+0]-Ybuff[idx+ik-1]) );
-
-          uFilt[2*(i*Width+j)+0] += wgt*exp(-dist)
-                                       *uBuff[2*((idx+ik)*wdx+(jdx+jk))+0];
-
-          uFilt[2*(i*Width+j)+1] += wgt*exp(-dist)
-                                       *uBuff[2*((idx+ik)*wdx+(jdx+jk))+1];
-        }
-      }
-
-      // Second Block - Middle block - Regions 4,5,6
-      for(ik=-(padWidth-1)+1;ik<=(padWidth-1)-1;ik+=1){
-        //--- Region 4 ----
-        jk = -(padWidth-1);
-        {
-          dist  = (Xbuff[jdx+jk]-Xbuff[jdx])*(Xbuff[jdx+jk]-Xbuff[jdx])
-                + (Ybuff[idx+ik]-Ybuff[idx])*(Ybuff[idx+ik]-Ybuff[idx]);
-          dist /= 2.0*sigma2;
-
-          wgt = (1.0/64.0)*(12.0*(Xbuff[jdx+jk+1]-Xbuff[jdx+jk-1])
-                                *(Ybuff[idx+ik+1]-Ybuff[idx+ik-1])
-
-                           + 4.0*(Xbuff[jdx+jk+1]-Xbuff[jdx+jk-0])
-                                *(Ybuff[idx+ik+1]-Ybuff[idx+ik-1]) );
-
-          uFilt[2*(i*Width+j)+0] += wgt*exp(-dist)
-                                       *uBuff[2*((idx+ik)*wdx+(jdx+jk))+0];
-
-          uFilt[2*(i*Width+j)+1] += wgt*exp(-dist)
-                                       *uBuff[2*((idx+ik)*wdx+(jdx+jk))+1];
-        }
-
-        //--- Region 5 ----
-        for(jk=-(padWidth-1)+1;jk<=(padWidth-1)-1;jk+=1){
-          dist  = (Xbuff[jdx+ik]-Xbuff[jdx])*(Xbuff[jdx+jk]-Xbuff[jdx])
-                + (Ybuff[idx+ik]-Ybuff[idx])*(Ybuff[idx+ik]-Ybuff[idx]);
-          dist /= 2.0*sigma2;
-
-          wgt = (1.0/64.0)*(16.0*fabs((Xbuff[jdx+jk+1]-Xbuff[jdx+jk-1])
-                                     *(Ybuff[idx+ik+1]-Ybuff[idx+ik-1])) );
-
-          //printf("%d %d %d %d: %lf %lf\n",i,j,ik,jk,dist,wgt);
-
-          uFilt[2*(i*Width+j)+0] += wgt*exp(-dist)
-                                       *uBuff[2*((idx+ik)*wdx+(jdx+jk))+0];
-
-          uFilt[2*(i*Width+j)+1] += wgt*exp(-dist)
-                                       *uBuff[2*((idx+ik)*wdx+(jdx+jk))+1];
-        }
-
-        //--- Region 6 ----
-        jk =  (padWidth-1);
-        {
-          dist  = (Xbuff[jdx+jk]-Xbuff[jdx])*(Xbuff[jdx+jk]-Xbuff[jdx])
-                + (Ybuff[idx+ik]-Ybuff[idx])*(Ybuff[idx+ik]-Ybuff[idx]);
-          dist /= 2.0*sigma2;
-
-          wgt = (1.0/64.0)*(12.0*(Xbuff[jdx+jk+1]-Xbuff[jdx+jk-1])
-                                *(Ybuff[idx+ik+1]-Ybuff[idx+ik-1])
-
-                           + 4.0*(Xbuff[jdx+jk+0]-Xbuff[jdx+jk-1])
-                                *(Ybuff[idx+ik+1]-Ybuff[idx+ik-1]) );
-
-          uFilt[2*(i*Width+j)+0] += wgt*exp(-dist)
-                                       *uBuff[2*((idx+ik)*wdx+(jdx+jk))+0];
-
-          uFilt[2*(i*Width+j)+1] += wgt*exp(-dist)
-                                       *uBuff[2*((idx+ik)*wdx+(jdx+jk))+1];
-        }
-      }
-
-      // Third Block - Top block - Regions 7,8,9
-      ik= (padWidth-1);
-      {
-        //--- Region 7 ----
-        jk = -(padWidth-1);
-        {
-          dist  = (Xbuff[jdx+jk]-Xbuff[jdx])*(Xbuff[jdx+jk]-Xbuff[jdx])
-                + (Ybuff[idx+ik]-Ybuff[idx])*(Ybuff[idx+ik]-Ybuff[idx]);
-          dist /= 2.0*sigma2;
-
-          wgt = (1.0/64.0)*( 9.0*(Xbuff[jdx+jk+1]-Xbuff[jdx+jk-1])
-                                *(Ybuff[idx+ik+1]-Ybuff[idx+ik-1])
-
-                           + 3.0*(Xbuff[jdx+jk+1]-Xbuff[jdx+jk-0])
-                                *(Ybuff[idx+ik+1]-Ybuff[idx+ik-1])
-
-                           + 3.0*(Xbuff[jdx+jk+1]-Xbuff[jdx+jk-1])
-                                *(Ybuff[idx+ik+0]-Ybuff[idx+ik-1])
-
-                           + 1.0*(Xbuff[jdx+jk+1]-Xbuff[jdx+jk-0])
-                                *(Ybuff[idx+ik+0]-Ybuff[idx+ik-1]) );
-
-          uFilt[2*(i*Width+j)+0] += wgt*exp(-dist)
-                                       *uBuff[2*((idx+ik)*wdx+(jdx+jk))+0];
-
-          uFilt[2*(i*Width+j)+1] += wgt*exp(-dist)
-                                       *uBuff[2*((idx+ik)*wdx+(jdx+jk))+1];
-        }
-
-        //--- Region 8 ----
-        for(jk=-(padWidth-1)+1;jk<=(padWidth-1)-1;jk+=1){
-          dist  = (Xbuff[jdx+jk]-Xbuff[jdx])*(Xbuff[jdx+jk]-Xbuff[jdx])
-                + (Ybuff[idx+ik]-Ybuff[idx])*(Ybuff[idx+ik]-Ybuff[idx]);
-          dist /= 2.0*sigma2;
-
-          wgt = (1.0/64.0)*(12.0*(Xbuff[jdx+jk+1]-Xbuff[jdx+jk-1])
-                                *(Ybuff[idx+ik+1]-Ybuff[idx+ik-1])
-                           + 4.0*(Xbuff[jdx+jk+1]-Xbuff[jdx+jk-1])
-                                *(Ybuff[idx+ik+0]-Ybuff[idx+ik-1]) );
-
-          uFilt[2*(i*Width+j)+0] += wgt*exp(-dist)
-                                       *uBuff[2*((idx+ik)*wdx+(jdx+jk))+0];
-
-          uFilt[2*(i*Width+j)+1] += wgt*exp(-dist)
-                                       *uBuff[2*((idx+ik)*wdx+(jdx+jk))+1];
-        }
-
-        //--- Region 9 ----
-        jk =  (padWidth-1);
-        {
-          dist  = (Xbuff[jdx+jk]-Xbuff[jdx])*(Xbuff[jdx+jk]-Xbuff[jdx])
-                + (Ybuff[idx+ik]-Ybuff[idx])*(Ybuff[idx+ik]-Ybuff[idx]);
-          dist /= 2.0*sigma2;
-          
-          wgt = (1.0/64.0)*( 9.0*(Xbuff[jdx+jk+1]-Xbuff[jdx+jk-1])
-                                *(Ybuff[idx+ik+1]-Ybuff[idx+ik-1])
-                           + 3.0*(Xbuff[jdx+jk+1]-Xbuff[jdx+jk-1])
-                                *(Ybuff[idx+ik+0]-Ybuff[idx+ik-1])
-                           + 3.0*(Xbuff[jdx+jk+0]-Xbuff[jdx+jk-1])
-                                *(Ybuff[idx+ik+1]-Ybuff[idx+ik-1])
-                           + 1.0*(Xbuff[jdx+jk+0]-Xbuff[jdx+jk-1])
-                                *(Ybuff[idx+ik+0]-Ybuff[idx+ik-1]) );
-
-          uFilt[2*(i*Width+j)+0] += wgt*exp(-dist)
-                                       *uBuff[2*((idx+ik)*wdx+(jdx+jk))+0];
-
-          uFilt[2*(i*Width+j)+1] += wgt*exp(-dist)
-                                       *uBuff[2*((idx+ik)*wdx+(jdx+jk))+1];
-        }
-      }
-      uFilt[2*(i*Width+j)+0] *= scale;
-      uFilt[2*(i*Width+j)+1] *= scale;
-    }
-
-  return 0;
-}
-
-int gaussianFilterNonUniform2(int Height,int Width,int padWidth,
                               double *Xbuff,double *Ybuff,double *uBuff,
                               double sigma2,double *uFilt)
 {
   // ipadWidth = integration pad width
   const int wdx=Width+2*padWidth,ipadWidth=padWidth-1;
   int i,j,ik,jk,idx,jdx,ii,jj;
-  double scale=1./(2.*M_PI*sigma2);
   double wgt=0.,dist,x,y,u,v,norm,nm;
-
-  printf("sigma2=%lf\n",sigma2);
-  printf("scale=%lf\n",scale);
   
   if(Width<0 || Height<0)
     return -1;
@@ -426,7 +181,7 @@ int gaussianFilterNonUniform2(int Height,int Width,int padWidth,
       y=Ybuff[idx];
       
       for(ik=-ipadWidth;ik<=ipadWidth;ik+=1)
-        for(jk=-ipadWidth;ik<=ipadWidth;ik+=1){
+        for(jk=-ipadWidth;jk<=ipadWidth;jk+=1){
           ii = idx+ik; jj = jdx+jk;
           //--------------------------------------------------------
           // Region Y+ X+ 
@@ -456,8 +211,8 @@ int gaussianFilterNonUniform2(int Height,int Width,int padWidth,
           v += 1.*uBuff[2*((ii+1)*wdx+(jj+1))+1]*exp(-dist);
           nm+= 1.*exp(-dist);
 
-          u *= wgt;//*scale; 
-          v *= wgt;//*scale;
+          u *= wgt;
+          v *= wgt;
           nm*= wgt;
          
           uFilt[2*(i*Width+j)+0] += u;
@@ -491,8 +246,8 @@ int gaussianFilterNonUniform2(int Height,int Width,int padWidth,
           v += 1.*uBuff[2*((ii+1)*wdx+(jj-1))+1]*exp(-dist);
           nm+= 1.*exp(-dist);
 
-          u *= wgt;//*scale; 
-          v *= wgt;//*scale;
+          u *= wgt;
+          v *= wgt;
           nm*= wgt;
          
           uFilt[2*(i*Width+j)+0] += u;
@@ -526,8 +281,8 @@ int gaussianFilterNonUniform2(int Height,int Width,int padWidth,
           v += 1.*uBuff[2*((ii-1)*wdx+(jj+1))+1]*exp(-dist);
           nm+= 1.*exp(-dist);
 
-          u *= wgt;//*scale; 
-          v *= wgt;//*scale;
+          u *= wgt;
+          v *= wgt;
           nm*= wgt;
          
           uFilt[2*(i*Width+j)+0] += u;
@@ -561,19 +316,17 @@ int gaussianFilterNonUniform2(int Height,int Width,int padWidth,
           v += 1.*uBuff[2*((ii-1)*wdx+(jj-1))+1]*exp(-dist);
           nm+= 1.*exp(-dist);
 
-          u *= wgt;//*scale; 
-          v *= wgt;//*scale;
+          u *= wgt;
+          v *= wgt;
           nm*= wgt;
          
           uFilt[2*(i*Width+j)+0] += u;
           uFilt[2*(i*Width+j)+1] += v;
           norm += nm;
           //------------------------------------------------------
-          // Finished Calculating uFilt -- filtered uField
+          // Finished Calculating uFilt and normalization additive part
         }
 
-      //uFilt[2*(i*Width+j)+0] *= scale;
-      //uFilt[2*(i*Width+j)+1] *= scale;
       uFilt[2*(i*Width+j)+0] /= norm;
       uFilt[2*(i*Width+j)+1] /= norm;
     }
