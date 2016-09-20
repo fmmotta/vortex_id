@@ -9,45 +9,54 @@ CFLAGS = -c -Wall -O3 $(INC_DIR)
 LIBS = -lm -lgsl -lgslcblas
 
 default: main
-all: main sampledVortexEssayFull openFoamEssay foamSlicer customVortices foamStatistics vortexHistogram fieldAverages
+all: sampledVortexEssayFull openFoamEssay foamSlicer customVortices foamStatistics foamKinematics vortexHistogram fieldAverages fieldSpectra
 
 othermain: mainMultiRunHistogram mainMultiRunRecursive mainMultiRunThreshold mainMultiRun2ndLamb mainMultiRunHistoShear
 
-main: obj/main.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/mt64.o obj/vortexExtraction.o obj/ini.o obj/inputManager.o obj/essayHandler.o obj/stencilExtended.o obj/vortexExtractionExtend.o
-	$(CC) -o bin/main $^ $(LIBS)
+main: main.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o ini.o inputManager.o essayHandler.o stencilExtended.o vortexExtractionExtend.o
+	$(CC) -o bin/$@ $(patsubst %.o,obj/%.o,$^) $(LIBS)
 
-main%: obj/main%.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/mt64.o obj/vortexExtraction.o src/lambdaInit.h src/floodFill.h src/vortexGen.h src/vortexExtraction.h src/mt64.h
-	$(CC) -o bin/$@ $^ $(LIBS)
+main%: main%.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o src/lambdaInit.h src/floodFill.h src/vortexGen.h src/vortexExtraction.h src/mt64.h
+	$(CC) -o bin/$@ $(patsubst %.o,obj/%.o,$^) $(LIBS)
 
-sampledVortexEssayFull: obj/sampledVortexEssayFull.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/mt64.o obj/vortexExtraction.o obj/ini.o obj/inputManager.o obj/essayHandler.o obj/stencilExtended.o obj/vortexExtractionExtend.o
-	$(CC) -o bin/sampledVortexEssayFull $^ $(LIBS)
+sampledVortexEssayFull: sampledVortexEssayFull.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o ini.o inputManager.o essayHandler.o stencilExtended.o vortexExtractionExtend.o
+	$(CC) -o bin/$@ $(patsubst %.o,obj/%.o,$^) $(LIBS)
 
-openFoamEssay: obj/openFoamEssay.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/mt64.o obj/vortexExtraction.o obj/ini.o obj/inputManager.o obj/essayHandler.o obj/stencilExtended.o obj/vortexExtractionExtend.o obj/preprocessing.o
-	$(CC) -o bin/openFoamEssay $^ $(LIBS)
+openFoamEssay: openFoamEssay.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o ini.o inputManager.o essayHandler.o stencilExtended.o vortexExtractionExtend.o preprocessing.o
+	$(CC) -o bin/$@ $(patsubst %.o,obj/%.o,$^) $(LIBS)
 
-foamSlicer: obj/foamSlicer.o obj/ini.o obj/preprocessing.o obj/inputManager.o obj/floodFill.o obj/essayHandler.o obj/stencilExtended.o obj/lambdaInit.o obj/vortexGen.o obj/mt64.o obj/vortexExtraction.o obj/vortexExtractionExtend.o
-	$(CC) -o bin/foamSlicer $^ $(LIBS)
+foamSlicer: foamSlicer.o ini.o preprocessing.o inputManager.o floodFill.o essayHandler.o stencilExtended.o lambdaInit.o vortexGen.o mt64.o vortexExtraction.o vortexExtractionExtend.o
+	$(CC) -o bin/$@ $(patsubst %.o,obj/%.o,$^) $(LIBS)
 
-customVortices: obj/floodFill.o obj/lambdaInit.o obj/stencilExtended.o obj/customVortices.o  obj/vortexExtraction.o obj/vortexExtractionExtend.o
-	$(CC) -o bin/customVortices $^ $(LIBS)
+customVortices: floodFill.o lambdaInit.o stencilExtended.o customVortices.o  vortexExtraction.o vortexExtractionExtend.o
+	$(CC) -o bin/$@ $(patsubst %.o,obj/%.o,$^) $(LIBS)
 
-foamStatistics: obj/foamStatistics.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/mt64.o obj/vortexExtraction.o obj/ini.o obj/inputManager.o obj/essayHandler.o obj/stencilExtended.o obj/vortexExtractionExtend.o obj/preprocessing.o
-	$(CC) -o bin/foamStatistics $^ $(LIBS)
+foamStatistics: foamStatistics.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o ini.o inputManager.o essayHandler.o stencilExtended.o vortexExtractionExtend.o preprocessing.o
+	$(CC) -o bin/$@ $(patsubst %.o,obj/%.o,$^) $(LIBS)
 
-foamKinematics: obj/foamKinematics.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/mt64.o obj/vortexExtraction.o obj/ini.o obj/inputManager.o obj/essayHandler.o obj/stencilExtended.o obj/vortexExtractionExtend.o obj/preprocessing.o
-	$(CC) -o bin/foamKinematics $^ $(LIBS)
+foamKinematics: foamKinematics.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o ini.o inputManager.o essayHandler.o stencilExtended.o vortexExtractionExtend.o preprocessing.o
+	$(CC) -o bin/$@ $(patsubst %.o,obj/%.o,$^) $(LIBS)
 
-fieldAverages: obj/fieldAverages.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/mt64.o obj/vortexExtraction.o obj/ini.o obj/inputManager.o obj/essayHandler.o obj/stencilExtended.o obj/vortexExtractionExtend.o obj/preprocessing.o
-	$(CC) -o bin/fieldAverages $^ $(LIBS)
+fieldAverages: fieldAverages.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o ini.o inputManager.o essayHandler.o stencilExtended.o vortexExtractionExtend.o preprocessing.o
+	$(CC) -o bin/$@ $(patsubst %.o,obj/%.o,$^) $(LIBS)
 
-fieldSpectra: obj/fieldSpectra.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/mt64.o obj/vortexExtraction.o obj/ini.o obj/inputManager.o obj/essayHandler.o obj/stencilExtended.o obj/vortexExtractionExtend.o obj/preprocessing.o
-	$(CC) -o bin/fieldSpectra $^ $(LIBS)
+fieldSpectra: fieldSpectra.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o ini.o inputManager.o essayHandler.o stencilExtended.o vortexExtractionExtend.o preprocessing.o
+	$(CC) -o bin/$@ $(patsubst %.o,obj/%.o,$^) $(LIBS)
 
-vortexHistogram: obj/vortexHistogram.o obj/lambdaInit.o obj/floodFill.o obj/vortexGen.o obj/mt64.o obj/vortexExtraction.o obj/ini.o obj/inputManager.o obj/essayHandler.o obj/stencilExtended.o obj/vortexExtractionExtend.o obj/preprocessing.o
-	$(CC) -o bin/vortexHistogram $^ $(LIBS)
+vortexHistogram: vortexHistogram.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o ini.o inputManager.o essayHandler.o stencilExtended.o vortexExtractionExtend.o preprocessing.o
+	$(CC) -o bin/$@ $(patsubst %.o,obj/%.o,$^) $(LIBS)
 
-obj/%.o: src/%.c
-	$(CC) $(CFLAGS) $^ -o $@
+test_XtoXbuffMirror: test_XtoXbuffMirror.o fieldSmoothing.o
+	$(CC) -o bin/$@ $(patsubst %.o,obj/%.o,$^) $(LIBS)
+
+test_uTouBuffMirror: test_uTouBuffMirror.o fieldSmoothing.o
+	$(CC) -o bin/$@ $(patsubst %.o,obj/%.o,$^) $(LIBS)
+
+test_gaussianFilterUniform: test_gaussianFilterUniform.o fieldSmoothing.o
+	$(CC) -o bin/$@ $(patsubst %.o,obj/%.o,$^) $(LIBS)
+
+test_gaussianFilterNonUniform: test_gaussianFilterNonUniform.o fieldSmoothing.o
+	$(CC) -o bin/$@ $(patsubst %.o,obj/%.o,$^) $(LIBS)
 
 %.o: src/%.c
 	$(CC) $(CFLAGS) $^ -o obj/$@
@@ -55,17 +64,11 @@ obj/%.o: src/%.c
 %.o: src/tests/%.c
 	$(CC) $(CFLAGS) $^ -o obj/$@
 
-obj/mt64.o: src/mt19937-64.c src/mt64.h
-	$(CC) $(CFLAGS) src/mt19937-64.c -o $@
-
-mt64.o: src/mt19937-64.c src/mt64.h
-	$(CC) $(CFLAGS) src/mt19937-64.c -o $@
-
-obj/ini.o: src/inih/ini.c
-	$(CC) $(CFLAGS) $< -o $@
-
 ini.o: src/inih/ini.c
-	$(CC) $(CFLAGS) $< -o $@
+	$(CC) $(CFLAGS) $< -o obj/$@
 
+mt64.o: src/mt19937-64.c
+	$(CC) $(CFLAGS) src/mt19937-64.c -o obj/$@
+	
 clean:
 	rm -f bin/* obj/* data/*.txt data/*.tex data/*.eps data/*.pdf data/*.aux data/*.log

@@ -350,6 +350,8 @@ int main(int argc,char **argv){
         gsl_fft_real_transform(datax,1,Width,realWTx, realWSx);
         for(j=0;j<(Width+1)/2;j+=1)
           uTilde[2*(i*Width+j)+1] += datax[2*j]*datax[2*j]+datax[2*j+1]*datax[2*j+1];
+        
+        /********************************************/
 
         for(j=0;j<Width;j+=1)
           datax[j] = ux[2*(i*Width+j)+0];
@@ -362,6 +364,8 @@ int main(int argc,char **argv){
         gsl_fft_real_transform(datax,1,Width,realWTx, realWSx);
         for(j=0;j<(Width+1)/2;j+=1)
           uxTilde[2*(i*Width+j)+1] += datax[2*j]*datax[2*j]+datax[2*j+1]*datax[2*j+1];
+        
+        /********************************************/
         
         for(j=0;j<Width;j+=1)
           datax[j] = uy[2*(i*Width+j)+0];

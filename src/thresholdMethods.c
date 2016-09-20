@@ -64,7 +64,7 @@ int applyComponentThreshold(int Height,int Width,int *label,
   if(sField==NULL)
     return -2;
 
-  if(theta<0.)
+  if(theta==NULL)
     return -3;
 
   for(i=0;i<Height;i+=1)

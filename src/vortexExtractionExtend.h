@@ -1,4 +1,3 @@
-
 void vortexAdaptiveQuickSort(double *v,int nCnect,int size,
                              int (*cmp)(const double*,const double*));
 

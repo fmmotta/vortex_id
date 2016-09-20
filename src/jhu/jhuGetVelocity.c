@@ -5,7 +5,7 @@
 #include "turblib.h"
 
 int main(int argc,char** argv){
-  int i,j,k,n,N=10,Ntimes=4000,Nx,Ny,Nz;
+  int i,j,k,n,N=10,Ntimes=4000,Nx,Ny,Nz,dN;
   char *authtoken = "com.gmail.jhelsas-b854269a";
   char *dataset = "channel";
   float time0 = 0.0F,dt=0.0065,t,time1=6.5;//0.364F;
@@ -36,9 +36,10 @@ int main(int argc,char** argv){
   float (*velocity)[3] = malloc(N*sizeof(*velocity));  
   float (*avgVelocity)[3] = malloc((N/Nz)*sizeof(*avgVelocity));  
     
-  y0=-1+0.05; yf=-1+0.5;
+  y0=-1+0.5; yf=-1+0.0;
   x0=0;       xf=M_PI/4;
   z0=0;       zf=M_PI;
+  dN = 10;
   dx = (xf-x0)/((float) (Nx-1));
   dy = (yf-y0)/((float) (Ny-1));
   if(Nz > 1)
@@ -83,7 +84,7 @@ int main(int argc,char** argv){
     for(j=0;j<3;j+=1)
       avgVelocity[i][j] = 0.;
 
-  for(n=0;n<Ntimes;n+=1){
+  for(n=0;n<Ntimes;n+=dN){
     t=time0+n*dt;
     printf("\nRequesting velocity at t=%f\n",t);
     getVelocity (authtoken, dataset, t, spatialInterp, temporalInterp, 

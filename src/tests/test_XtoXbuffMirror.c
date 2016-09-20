@@ -1,0 +1,66 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+#include "fieldSmoothing.h"
+
+int main(){  
+  const int Width = 20, Height = 20, padWidth=2;
+  int i,j,err;
+  double *X,*Xbuff,*Y,*Ybuff;
+
+  X=(double*)malloc((Width+2*padWidth)*sizeof(double));
+  if(X==NULL)
+  	printf("problem allocating X\n");
+
+  Xbuff=(double*)malloc((Width+2*padWidth)*sizeof(double));
+  if(Xbuff==NULL)
+  	printf("problem allocating Xbuff\n");
+
+  Y=(double*)malloc((Height+2*padWidth)*sizeof(double));
+  if(Y==NULL)
+  	printf("problem allocating Y\n");
+
+  Ybuff=(double*)malloc((Height+2*padWidth)*sizeof(double));
+  if(Ybuff==NULL)
+  	printf("problem allocating Ybuff\n");
+  
+  for(j=0;j<Width;j+=1)
+  	X[j] = j;
+
+  for(i=0;i<Height;i+=1)
+  	Y[i] = 1000+i;
+  
+  err = XtoXbuffMirror(Width,X,Xbuff,padWidth);
+  if(err!=0)
+  	printf("problem in XtoXbuff - X\n");
+
+  err = XtoXbuffMirror(Height,Y,Ybuff,padWidth);
+  if(err!=0)
+  	printf("problem in XtoXbuff - Y\n");
+
+  printf("__ __ ");
+  for(i=0;i<Width;i+=1)
+    printf("%2.0f ",X[i]);
+  printf("__ __ \n");
+
+  for(i=0;i<(Width+2*padWidth);i+=1)
+  	printf("%2.0f ",Xbuff[i]);
+  printf("\n");
+
+  printf("____ ____ ");
+  for(i=0;i<Height;i+=1)
+    printf("%.0f ",Y[i]);
+  printf("____ ____ \n");
+
+  for(i=0;i<(Height+2*padWidth);i+=1)
+    printf("%.0f ",Ybuff[i]);
+  printf("\n");
+
+  free(X);
+  free(Xbuff);
+  free(Y);
+  free(Ybuff);
+
+  return 0;
+}
