@@ -388,6 +388,7 @@ int main(int argc,char **argv){
 
   printf("%d timesteps processed\n",n);
 
+  printf("planeCount=%d\n",planeCount);
   for(i=0;i<Height;i+=1)
     for(j=0;j<Width;j+=1){
       uAvg[2*(i*Width+j)+0]  /= planeCount;
