@@ -149,8 +149,8 @@ int gaussianFilterUniform(int Height,int Width,int padWidth,const double *mask,
 // Important : buffer width is padwidth+1, not the usual padWidth
 
 int gaussianFilterNonUniform(int Height,int Width,int padWidth,
-                              double *Xbuff,double *Ybuff,double *uBuff,
-                              double sigma2,double *uFilt)
+                             double *Xbuff,double *Ybuff,double *uBuff,
+                             double sigma2,double *uFilt)
 {
   // ipadWidth = integration pad width
   const int wdx=Width+2*padWidth,ipadWidth=padWidth-1;

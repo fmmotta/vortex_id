@@ -414,6 +414,13 @@ int main(int argc,char **argv){
                                            uAvg[2*(i*Width+j)+0],uAvg[2*(i*Width+j)+1]);
   fclose(dadosout); dadosout=NULL;
 
+  sprintf(filename,"%s/uBkg.dat",folder);
+  dadosout=fopen(filename,"w");
+  for(i=0;i<Height;i+=1)
+    for(j=0;j<Width;j+=1)
+      fprintf(dadosout,"%lf %lf\n",uAvg[2*(i*Width+j)+0],uAvg[2*(i*Width+j)+1]);
+  fclose(dadosout); dadosout=NULL;
+
   sprintf(filename,"%s/u2Avg.dat",folder);
   dadosout=fopen(filename,"w");
   for(i=0;i<Height;i+=1)

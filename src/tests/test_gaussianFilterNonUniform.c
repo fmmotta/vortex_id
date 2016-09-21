@@ -238,13 +238,13 @@ int main(){
     printf("sum=%.22f",sum);
   }
 
-  free(uField);
-  free(uBuff);
-  free(uFilt);
   free(X);
   free(Y);
   free(Xbuff);
   free(Ybuff);
+  free(uField);
+  free(uBuff);
+  free(uFilt);
   
   return 0;
 }
