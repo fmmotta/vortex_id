@@ -218,6 +218,7 @@ int gaussianFilterNonUniform(int Height,int Width,int padWidth,
           uFilt[2*(i*Width+j)+0] += u;
           uFilt[2*(i*Width+j)+1] += v;
           norm += nm;
+
           //--------------------------------------------------------
           // Region Y+ X- 
           wgt = (Ybuff[ii+1]-Ybuff[ii+0])*(Xbuff[jj+0]-Xbuff[jj-1])/64.;
@@ -253,6 +254,7 @@ int gaussianFilterNonUniform(int Height,int Width,int padWidth,
           uFilt[2*(i*Width+j)+0] += u;
           uFilt[2*(i*Width+j)+1] += v;
           norm += nm;
+
           //--------------------------------------------------------
           // Region Y- X+ 
           wgt = (Ybuff[ii+0]-Ybuff[ii-1])*(Xbuff[jj+1]-Xbuff[jj+0])/64.;
@@ -288,6 +290,7 @@ int gaussianFilterNonUniform(int Height,int Width,int padWidth,
           uFilt[2*(i*Width+j)+0] += u;
           uFilt[2*(i*Width+j)+1] += v;
           norm += nm;
+
           //--------------------------------------------------------
           // Region Y- X- 
           wgt = (Ybuff[ii+0]-Ybuff[ii-1])*(Xbuff[jj+0]-Xbuff[jj-1])/64.;
@@ -323,6 +326,7 @@ int gaussianFilterNonUniform(int Height,int Width,int padWidth,
           uFilt[2*(i*Width+j)+0] += u;
           uFilt[2*(i*Width+j)+1] += v;
           norm += nm;
+          
           //------------------------------------------------------
           // Finished Calculating uFilt and normalization additive part
         }
