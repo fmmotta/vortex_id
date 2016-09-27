@@ -140,7 +140,7 @@ int main(){
     printf("\n");
   }
 
-  err=gaussianFilterUniform(Height,Width,padWidth,gauss7x7mask,Xbuff,Ybuff,uBuff,uFilt);
+  err=gaussianFilterUniform(Height,Width,padWidth,gauss7x7mask,uBuff,uFilt);
   
   printf("Filtered u:\n");
   printf("\n");

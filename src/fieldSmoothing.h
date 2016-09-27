@@ -1,10 +1,12 @@
 int XtoXbuffMirror(int Width,double *X,double *Xbuff,int padWidth);
 
+int XtoXbuffPeriodic(int Width,double *X,double *Xbuff,int padWidth);
+
 int uFieldTouBuffMirror(int Height,int Width,double *uField,
                         double *uBuff,int padWidth);
 
 int gaussianFilterUniform(int Height,int Width,int padWidth,const double *mask,
-                          double *Xbuff,double *Ybuff,double *uBuff,double *uFilt);
+                          double *uBuff,double *uFilt);
 
 int gaussianFilterNonUniform(int Height,int Width,int padWidth,
                              double *Xbuff,double *Ybuff,double *uBuff,

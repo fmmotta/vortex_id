@@ -238,6 +238,62 @@ int main(){
     printf("sum=%.22f",sum);
   }
 
+  //------------------------------------------------------------------
+
+  printf("\n\n\n");
+
+  for(i=0;i<Height;i+=1)
+    for(j=0;j<Width;j+=1){
+      uField[2*(i*Width+j)+0] = 0.;
+      uField[2*(i*Width+j)+1] = 0.;
+    }
+
+  uField[2*((0)*Width+(0))+0] =  1.;
+  uField[2*((0)*Width+(0))+1] = -1.;
+  err = uFieldTouBuffMirror(Height,Width,uField,uBuff,padWidth);
+  if(err!=0)
+    printf("problems in uFieldTouBuff\n");
+
+  err=gaussianFilterNonUniform(Height,Width,padWidth,Xbuff,Ybuff,uBuff,sigma2,uFilt);
+  if(err!=0){
+    printf("Problems in Gaussian non uniform\n");
+
+    free(uField);
+    free(uBuff);
+    free(uFilt);
+    free(X);
+    free(Y);
+    free(Xbuff);
+    free(Ybuff);
+    
+    return -1;
+  }
+
+  printf("Filtered u:\n");
+  printf("\n");
+  for(i=0;i<Height;i+=1){
+    for(j=0;j<Width;j+=1)
+      printf("%2.7f ",uFilt[2*(i*Width+j)+0]);
+    printf("\n");
+  }
+
+  printf("Filtered v:\n");
+  printf("\n");
+  for(i=0;i<Height;i+=1){
+    for(j=0;j<Width;j+=1)
+      printf("%2.7f ",uFilt[2*(i*Width+j)+1]);
+    printf("\n");
+  }
+
+  {
+    double sum;
+    sum=0.;
+    for(i=0;i<Height;i+=1)
+      for(j=0;j<Width;j+=1)
+        sum += uFilt[2*(i*Width+j)+0];
+    printf("sum=%.22f",sum);
+  }
+
   free(X);
   free(Y);
   free(Xbuff);

@@ -23,6 +23,7 @@
 #define DEBUG_MODE false
 #define DEBUG_PRINT false
 #define SUBTRACTION_MODE false
+#define smooth false
 
 #define dbgPrint(num,num2) if(DEBUG_PRINT) printf("check point - %d-%d\n",(num),(num2))
 
@@ -52,20 +53,24 @@ int main(int argc,char **argv){
   int dataSize=12,runType=0,*label=NULL,**eqClass=NULL,nSkip=0;
   int Nsnapshots=0,openFoamFile=0;
   int Nx,Ny,Nz,planeIndex,planeType,planeNum=0,pln[8128];
+  double sigma2= 2*0.0245436921875;
+  double *parVortex=NULL,t,t0,dt;
   int i,j,l,err,nCnect=0,n,nMax=1024,padWidth=2,calcScalarMode;//,k;
   double Gmin=1.,Gmax=20.,rmin=0.5,rmax=1.0,threshold=0.5;
   double xmin[2]={-9.,-9.},xmax[2]={9.,9.},x0[2],dx[2],xf[2],*background;
-  double *parVortex=NULL,t,t0,dt;
   double *sField=NULL,*gField=NULL,*g2Field=NULL,*uField=NULL,*X,*Y,*wBkg;
   double *uBuff=NULL,*Xbuff=NULL,*Ybuff=NULL,*Xload=NULL,*Yload=NULL;
   double *Zload=NULL,*ux=NULL,*uy=NULL,*uxxy=NULL,*uxyy=NULL;
   double *uxxx=NULL,*uyyy=NULL,*vCatalog=NULL,*rCatalog=NULL,*uVort;
   double v0y0 = 0.00,*vortSndMomMatrix=NULL,*avgGradU=NULL,*sSubtr,*uSubtr;
+  int spadWidth = padWidth+1;
+  double uSuff,*Xsuff=NULL,*Ysuff=NULL;
   char folder[100+1],tag[100+1],filename[400+1],foamFolder[200+1],bkgFile[400+1];
   FILE *vortexFile,*dadosin;
   configVar cfg;
   openFoamIcoData *node=NULL; 
 
+  spadWidth = padWidth+1;
   dataSize = 6;//6;
 
   if(argc!=2){
@@ -189,26 +194,29 @@ int main(int argc,char **argv){
 
   /* Memory Allocation */
 
-  fieldAlloc(label,Height*Width,int);
-  fieldAlloc(sField ,Height*Width,double);
-  fieldAlloc(sSubtr ,Height*Width,double);
-  fieldAlloc(gField ,4*Height*Width,double);
-  fieldAlloc(g2Field,4*Height*Width,double);
-  fieldAlloc(uField,2*Height*Width,double);
-  fieldAlloc(uSubtr,2*Height*Width,double);
-  fieldAlloc(background,2*Height*Width,double);
+  fieldAlloc(label ,  Height*Width,int);
+  fieldAlloc(sField,  Height*Width,double);
+  fieldAlloc(sSubtr,  Height*Width,double);
   fieldAlloc(  ux  ,2*Height*Width,double);
   fieldAlloc(  uy  ,2*Height*Width,double);
   fieldAlloc( uxxy ,2*Height*Width,double);
   fieldAlloc( uxyy ,2*Height*Width,double);
   fieldAlloc( uxxx ,2*Height*Width,double);
   fieldAlloc( uyyy ,2*Height*Width,double);
-  fieldAlloc(wBkg,Height*Width,double);
+  fieldAlloc( wBkg ,  Height*Width,double);
+  fieldAlloc(gField,4*Height*Width,double);
+  fieldAlloc(uField,2*Height*Width,double);
+  fieldAlloc(uSubtr,2*Height*Width,double);
+  fieldAlloc(g2Field,4*Height*Width,double);
+  fieldAlloc(background,2*Height*Width,double);
   fieldAlloc(uBuff ,2*(Height+2*padWidth)*(Width+2*padWidth),double);
+  fieldAlloc(uSuff ,2*(Height+2*spadWidth)*(Width+2*spadWidth),double);
   fieldAlloc(X,Nx+1,double);
   fieldAlloc(Y,Ny+1,double);
-  fieldAlloc(Xbuff,Width+2*padWidth,double);
-  fieldAlloc(Ybuff,Height+2*padWidth,double);
+  fieldAlloc(Xbuff,Width +2*padWidth ,double);
+  fieldAlloc(Ybuff,Height+2*padWidth ,double);
+  fieldAlloc(Xsuff,Width +2*spadWidth,double);
+  fieldAlloc(Ysuff,Height+2*spadWidth,double);
   fieldAlloc(Xload,Nx+1,double);
   fieldAlloc(Yload,Ny+1,double);
   fieldAlloc(Zload,Nz+1,double);
@@ -254,6 +262,14 @@ int main(int argc,char **argv){
   err = XtoXbuff(Height,Y,Ybuff,padWidth);
   if(err!=0)
     printf("problem in XtoXbuff - Y\n");
+
+  err = XtoXbuffMirror(Width,X,Xsuff,spadWidth);
+  if(err!=0)
+    printf("problem in XtoXbuffMirror - X\n");
+
+  err = XtoXbuffMirror(Height,Y,Ysuff,spadWidth);
+  if(err!=0)
+    printf("problem in XtoXbuffMirror - Y\n");
 
   dbgPrint(14,2);
 
@@ -333,6 +349,36 @@ int main(int argc,char **argv){
                                  - background[2*(i*Width+j)+1];
         }
       
+      if(smooth){
+        err=uFieldTouBuffMirror(Height,Width,uField,uSuff,spadWidth);
+        if(err!=0)
+          return err;
+
+        err=gaussianFilterNonUniform(Height,Width,spadWidth,Xsuff,Ysuff,uSuff,sigma2,uFilt);
+        if(err!=0)
+          return err;
+
+        for(i=0;i<Height;i+=1)
+          for(j=0;j<Width;j+=1){
+            uField[2*(i*Width+j)+0] = uFilt[2*(i*Width+j)+0];
+            uField[2*(i*Width+j)+1] = uFilt[2*(i*Width+j)+1];
+          }
+
+
+        err=uFieldTouBuffMirror(Height,Width,uSubtr,uSuff,spadWidth);
+        if(err!=0)
+          return err;
+
+        err=gaussianFilterNonUniform(Height,Width,spadWidth,Xsuff,Ysuff,uSuff,sigma2,uFilt);
+        if(err!=0)
+          return err;
+
+        for(i=0;i<Height;i+=1)
+          for(j=0;j<Width;j+=1){
+            uSubtr[2*(i*Width+j)+0] = uFilt[2*(i*Width+j)+0];
+            uSubtr[2*(i*Width+j)+1] = uFilt[2*(i*Width+j)+1];
+          }
+      }      
       
       err=foamCalcScalar(runType,calcScalarMode,Height,Width,padWidth,X,Y,
                          Xbuff,Ybuff,uField,uSubtr,uBuff,ux,uy,uxxx,uyyy,uxxy,
@@ -430,6 +476,8 @@ int main(int argc,char **argv){
   if(Xload!=NULL) free(Xload);
   if(Yload!=NULL) free(Yload);
   if(Zload!=NULL) free(Zload);
+  if(Xsuff!=NULL) free(Xsuff);
+  if(Ysuff!=NULL) free(Ysuff);
   if(node !=NULL) free(node);
   if(label!=NULL) free(label);
   if(uField!=NULL) free(uField);

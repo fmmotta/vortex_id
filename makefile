@@ -31,10 +31,10 @@ foamSlicer: foamSlicer.o ini.o preprocessing.o inputManager.o floodFill.o essayH
 customVortices: floodFill.o lambdaInit.o stencilExtended.o customVortices.o  vortexExtraction.o vortexExtractionExtend.o
 	$(CC) -o bin/$@ $(patsubst %.o,obj/%.o,$^) $(LIBS)
 
-foamStatistics: foamStatistics.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o ini.o inputManager.o essayHandler.o stencilExtended.o vortexExtractionExtend.o preprocessing.o
+foamStatistics: foamStatistics.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o ini.o inputManager.o essayHandler.o stencilExtended.o vortexExtractionExtend.o preprocessing.o fieldSmoothing.o
 	$(CC) -o bin/$@ $(patsubst %.o,obj/%.o,$^) $(LIBS)
 
-foamKinematics: foamKinematics.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o ini.o inputManager.o essayHandler.o stencilExtended.o vortexExtractionExtend.o preprocessing.o
+foamKinematics: foamKinematics.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o ini.o inputManager.o essayHandler.o stencilExtended.o vortexExtractionExtend.o preprocessing.o fieldSmoothing.o
 	$(CC) -o bin/$@ $(patsubst %.o,obj/%.o,$^) $(LIBS)
 
 fieldAverages: fieldAverages.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o ini.o inputManager.o essayHandler.o stencilExtended.o vortexExtractionExtend.o preprocessing.o

@@ -26,6 +26,30 @@ int XtoXbuffMirror(int Width,double *X,double *Xbuff,int padWidth){
   return 0;
 }
 
+int XtoXbuffPeriodic(int Width,double *X,double *Xbuff,int padWidth){
+  int i;
+
+  if(Width<=0)
+    return 1;
+  if(X==NULL)
+    return 2;
+  if(Xbuff==NULL)
+    return 3;
+  if(padWidth >= (Width/2)-2)
+    return 4;
+
+  for(i=0;i<padWidth;i+=1)
+    Xbuff[i] = X[0]-(X[Width]-X[Width-i]);
+
+  for(i=padWidth;i<Width+padWidth;i+=1)
+    Xbuff[i] = X[i-padWidth];
+
+  for(i=Width+padWidth;i<Width+2*padWidth;i+=1)
+    Xbuff[i] = X[Width-1]+(X[i-(Width+padWidth)]-X[0]);
+ 
+  return 0;
+}
+
 /*
  * Field to uBuff using mirror buffering, which changes the
  * relative weight around the borders.
@@ -105,11 +129,79 @@ int uFieldTouBuffMirror(int Height,int Width,double *uField,
   return 0;
 }
 
+int uFieldTouBuffMirrorXperiodic(int Height,int Width,double *uField,
+                                 double *uBuff,int padWidth){
+  const int wdx=Width+2*padWidth,pdw=padWidth;
+  int i,j;
+  
+  if(Width<0 || Height<0)
+    return -1;
+  if(uBuff==NULL)
+    return -3;
+  if(uField==NULL)
+    return -4;
+  if(padWidth+1 >= (Width/2)-2)
+    return -4;
+
+  for(i=0;i<padWidth;i+=1){
+    // Region 1 
+    for(j=0;j<padWidth;j+=1){
+      uBuff[2*(i*wdx+j)+0] = uField[2*((pdw-i)*Width+(Width-j))+0];
+      uBuff[2*(i*wdx+j)+1] = uField[2*((pdw-i)*Width+(Width-j))+1];
+    }
+    // Region 2 
+    for(j=padWidth;j<Width+padWidth;j+=1){
+      uBuff[2*(i*wdx+j)+0] = uField[2*((pdw-i)*Width+(j-pdw))+0];
+      uBuff[2*(i*wdx+j)+1] = uField[2*((pdw-i)*Width+(j-pdw))+1];
+    }    
+    // Region 3
+    for(j=Width+padWidth;j<Width+2*padWidth;j+=1){
+      uBuff[2*(i*wdx+j)+0] = uField[2*((pdw-i)*Width+(j-Width-padWidth))+0];
+      uBuff[2*(i*wdx+j)+1] = uField[2*((pdw-i)*Width+(j-Width-padWidth))+1];
+    }
+  }
+  for(i=padWidth;i<Height+padWidth;i+=1){
+    // Region 4
+    for(j=0;j<padWidth;j+=1){
+      uBuff[2*(i*wdx+j)+0] = uField[2*((i-pdw)*Width+(Width-j))+0];
+      uBuff[2*(i*wdx+j)+1] = uField[2*((i-pdw)*Width+(Width-j))+1];
+    }
+    // Region 5 
+    for(j=padWidth;j<Width+padWidth;j+=1){
+      uBuff[2*(i*wdx+j)+0] = uField[2*((i-pdw)*Width+(j-pdw))+0];
+      uBuff[2*(i*wdx+j)+1] = uField[2*((i-pdw)*Width+(j-pdw))+1];
+    }    
+    // Region 6 
+    for(j=Width+padWidth;j<Width+2*padWidth;j+=1){
+      uBuff[2*(i*wdx+j)+0] = uField[2*((i-pdw)*Width+(2*(Width-1)+pdw-j))+0];
+      uBuff[2*(i*wdx+j)+1] = uField[2*((i-pdw)*Width+(2*(Width-1)+pdw-j))+1];
+    }
+  }
+  for(i=Height+padWidth;i<Height+2*padWidth;i+=1){
+    // Region 7 
+    for(j=0;j<padWidth;j+=1){
+      uBuff[2*(i*wdx+j)+0] = uField[2*((2*(Width-1)+pdw-i)*Width+(Width-j))+0];
+      uBuff[2*(i*wdx+j)+1] = uField[2*((2*(Width-1)+pdw-i)*Width+(Width-j))+1];
+    }
+    // Region 8 
+    for(j=padWidth;j<Width+padWidth;j+=1){
+      uBuff[2*(i*wdx+j)+0] = uField[2*((2*(Width-1)+pdw-i)*Width+(j-pdw))+0];
+      uBuff[2*(i*wdx+j)+1] = uField[2*((2*(Width-1)+pdw-i)*Width+(j-pdw))+1];
+    }    
+    // Region 9
+    for(j=Width+padWidth;j<Width+2*padWidth;j+=1){
+      uBuff[2*(i*wdx+j)+0] = uField[2*((2*(Width-1)+pdw-i)*Width+(j-Width-padWidth))+0];
+      uBuff[2*(i*wdx+j)+1] = uField[2*((2*(Width-1)+pdw-i)*Width+(j-Width-padWidth))+1];
+    }
+  }
+
+  return 0;
+}
+
 // just your run to the mill mask convolution.
 
 int gaussianFilterUniform(int Height,int Width,int padWidth,const double *mask,
-                          double *Xbuff,double *Ybuff,double *uBuff,
-                          double *uFilt)
+                          double *uBuff,double *uFilt)
 {
   int i,j,ik,jk,idx,jdx,wdx=Width+2*padWidth,mwd=2*padWidth+1;
   
@@ -121,12 +213,8 @@ int gaussianFilterUniform(int Height,int Width,int padWidth,const double *mask,
     return -3;
   if(uFilt==NULL)
     return -4;
-  if(Xbuff==NULL)
-    return -5;
-  if(Ybuff==NULL)
-    return -6;
   if(mask==NULL)
-    return -7;
+    return -5;
   
   for(i=0;i<Height;i+=1)
     for(j=0;j<Width;j+=1){
