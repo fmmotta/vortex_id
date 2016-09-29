@@ -37,6 +37,9 @@ foamStatistics: foamStatistics.o lambdaInit.o floodFill.o vortexGen.o mt64.o vor
 foamKinematics: foamKinematics.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o ini.o inputManager.o essayHandler.o stencilExtended.o vortexExtractionExtend.o preprocessing.o fieldSmoothing.o
 	$(CC) -o bin/$@ $(patsubst %.o,obj/%.o,$^) $(LIBS)
 
+foamKinematicsSmooth: foamKinematicsSmooth.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o ini.o inputManager.o essayHandler.o stencilExtended.o vortexExtractionExtend.o preprocessing.o fieldSmoothing.o
+	$(CC) -o bin/$@ $(patsubst %.o,obj/%.o,$^) $(LIBS)
+
 fieldAverages: fieldAverages.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o ini.o inputManager.o essayHandler.o stencilExtended.o vortexExtractionExtend.o preprocessing.o
 	$(CC) -o bin/$@ $(patsubst %.o,obj/%.o,$^) $(LIBS)
 

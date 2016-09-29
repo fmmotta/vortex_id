@@ -19,11 +19,12 @@
 #include "vortexExtractionExtend.h"
 #include "inputManager.h"
 #include "essayHandler.h"
+#include "fieldSmoothing.h"
 
 #define DEBUG_MODE false
 #define DEBUG_PRINT false
 #define SUBTRACTION_MODE false
-#define smooth false
+#define smooth true
 
 #define dbgPrint(num,num2) if(DEBUG_PRINT) printf("check point - %d-%d\n",(num),(num2))
 
@@ -36,6 +37,8 @@
                                     for(i=0;i<(size);i+=1)               \
                                       ptr[i]=(type) 0;                   \
                                   }                                      \
+
+#define sfree(ptr) if(ptr!=NULL){free(ptr);ptr=NULL;}
 
 int readAxis(int Nx,int Ny,int Nz,int planeType,
              char *folder, double *X,double *Y);
@@ -53,7 +56,7 @@ int main(int argc,char **argv){
   int dataSize=12,runType=0,*label=NULL,**eqClass=NULL,nSkip=0;
   int Nsnapshots=0,openFoamFile=0;
   int Nx,Ny,Nz,planeIndex,planeType,planeNum=0,pln[8128];
-  double sigma2= 2*0.0245436921875;
+  double sigma2= 2*0.002618*0.002618;
   double *parVortex=NULL,t,t0,dt;
   int i,j,l,err,nCnect=0,n,nMax=1024,padWidth=2,calcScalarMode;//,k;
   double Gmin=1.,Gmax=20.,rmin=0.5,rmax=1.0,threshold=0.5;
@@ -64,14 +67,16 @@ int main(int argc,char **argv){
   double *uxxx=NULL,*uyyy=NULL,*vCatalog=NULL,*rCatalog=NULL,*uVort;
   double v0y0 = 0.00,*vortSndMomMatrix=NULL,*avgGradU=NULL,*sSubtr,*uSubtr;
   int spadWidth = padWidth+1;
-  double uSuff,*Xsuff=NULL,*Ysuff=NULL;
+  double *uSuff=NULL,*Xsuff=NULL,*Ysuff=NULL,*uFilt=NULL;
   char folder[100+1],tag[100+1],filename[400+1],foamFolder[200+1],bkgFile[400+1];
   FILE *vortexFile,*dadosin;
   configVar cfg;
   openFoamIcoData *node=NULL; 
 
-  spadWidth = padWidth+1;
+  spadWidth = 4;//padWidth+1;
   dataSize = 6;//6;
+  //sigma2 = pow(0.002618*0.84089642,2);
+  sigma2 = pow(0.002618*1.5,2);
 
   if(argc!=2){
     printf("Incorrect Number of Arguments - Need exactly "
@@ -206,6 +211,7 @@ int main(int argc,char **argv){
   fieldAlloc( wBkg ,  Height*Width,double);
   fieldAlloc(gField,4*Height*Width,double);
   fieldAlloc(uField,2*Height*Width,double);
+  fieldAlloc(uFilt,2*Height*Width,double);
   fieldAlloc(uSubtr,2*Height*Width,double);
   fieldAlloc(g2Field,4*Height*Width,double);
   fieldAlloc(background,2*Height*Width,double);
@@ -317,9 +323,9 @@ int main(int argc,char **argv){
       if(DEBUG_PRINT)
         printf("plane =%d\n",pln[l]);
 
-      if(planeType==0)      sprintf(filename,"%s/plane-z%d-%.4f.dat",folder,pln[l],t);
-      else if(planeType==1) sprintf(filename,"%s/plane-x%d-%.4f.dat",folder,pln[l],t);
-      else if(planeType==2) sprintf(filename,"%s/plane-y%d-%.4f.dat",folder,pln[l],t);
+      if(planeType==0)      sprintf(filename,"%s/plane-z%d-%g.dat",folder,pln[l],t);
+      else if(planeType==1) sprintf(filename,"%s/plane-x%d-%g.dat",folder,pln[l],t);
+      else if(planeType==2) sprintf(filename,"%s/plane-y%d-%g.dat",folder,pln[l],t);
 
       dadosin=fopen(filename,"r");
       if(dadosin==NULL){
@@ -329,15 +335,16 @@ int main(int argc,char **argv){
         break;
       }
 
+      if(openFoamFile!=0){
+        continue;
+      }
+
       dbgPrint(15,31);
         
       for(i=0;i<Height;i+=1)
         for(j=0;j<Width;j+=1)
           fscanf(dadosin,"%lf%lf",&(uField[2*(i*Width+j)+0]),&(uField[2*(i*Width+j)+1]));
       fclose(dadosin);
-        
-      if(openFoamFile!=0)
-        continue;
 
       dbgPrint(15,3);
 
@@ -348,8 +355,11 @@ int main(int argc,char **argv){
           uSubtr[2*(i*Width+j)+1]= uField[2*(i*Width+j)+1]
                                  - background[2*(i*Width+j)+1];
         }
+
+      dbgPrint(15,4);
       
       if(smooth){
+        printf("Smoothing the fields\n");
         err=uFieldTouBuffMirror(Height,Width,uField,uSuff,spadWidth);
         if(err!=0)
           return err;
@@ -378,7 +388,9 @@ int main(int argc,char **argv){
             uSubtr[2*(i*Width+j)+0] = uFilt[2*(i*Width+j)+0];
             uSubtr[2*(i*Width+j)+1] = uFilt[2*(i*Width+j)+1];
           }
-      }      
+      }    
+
+      dbgPrint(15,5);  
       
       err=foamCalcScalar(runType,calcScalarMode,Height,Width,padWidth,X,Y,
                          Xbuff,Ybuff,uField,uSubtr,uBuff,ux,uy,uxxx,uyyy,uxxy,
@@ -407,7 +419,9 @@ int main(int argc,char **argv){
 
       dbgPrint(15,9);
       
-      if(n%100==0)
+      if(n<10)
+        printScalarFields(Height,Width,X,Y,n,folder,pln[l],sField,label);
+      else if(n%100==0)
         printScalarFields(Height,Width,X,Y,n,folder,pln[l],sField,label);
       
       dbgPrint(15,10);
@@ -469,7 +483,8 @@ int main(int argc,char **argv){
     
   dbgPrint(22,0);
 
-  if(X!=NULL) free(X);
+  /*
+  if(X!=NULL){ free(X); X=NULL}
   if(Y!=NULL) free(Y);
   if(Xbuff!=NULL) free(Xbuff);
   if(Ybuff!=NULL) free(Ybuff);
@@ -481,13 +496,15 @@ int main(int argc,char **argv){
   if(node !=NULL) free(node);
   if(label!=NULL) free(label);
   if(uField!=NULL) free(uField);
+  if(uFilt!=NULL) free(uFilt);
   if(uSubtr!=NULL) free(uSubtr);
+  if(uBuff!=NULL) free(uBuff);
+  if(uSuff!=NULL) free(uSuff);
   if(background!=NULL) free(background);
   if(sField!=NULL) free(sField); 
   if(sSubtr!=NULL) free(sSubtr);
   if(gField!=NULL)  free(gField);
   if(g2Field!=NULL) free(g2Field);
-  if(uBuff!=NULL) free(uBuff);
   if(ux!=NULL) free(ux);
   if(uy!=NULL) free(uy);
   if(uxxx!=NULL) free(uxxx);
@@ -500,7 +517,21 @@ int main(int argc,char **argv){
   if(uVort!=NULL) free(uVort);
   if(parVortex!=0) free(parVortex);
   if(vCatalog!=NULL) free(vCatalog);
-  if(rCatalog!=NULL) free(rCatalog);
+  if(rCatalog!=NULL) free(rCatalog);*/
+
+  sfree(X); sfree(Y);
+  sfree(Xbuff); sfree(Ybuff);
+  sfree(Xload); sfree(Yload); sfree(Zload);
+  sfree(Xsuff); sfree(Ysuff);
+  sfree(node); sfree(background);
+  sfree(label); sfree(uField); sfree(uFilt);
+  sfree(uSubtr); sfree(uBuff); sfree(uSuff); 
+  sfree(sField); sfree(sSubtr); sfree(gField);
+  sfree(g2Field); sfree(ux); sfree(uy);
+  sfree(uxxx); sfree(uyyy); sfree(uxxy); sfree(uxyy);
+  sfree(wBkg); sfree(avgGradU); sfree(vortSndMomMatrix);
+  sfree(uVort); sfree(parVortex); 
+  sfree(vCatalog); sfree(rCatalog);
 
   for(i=0;i<NumCls;i+=1)
     free(eqClass[i]);
@@ -521,12 +552,16 @@ int readAxis(int Nx,int Ny,int Nz,int planeType,
   if(planeType==0){
     sprintf(filename,"%s/Xaxis.dat",folder);
     nFile=fopen(filename,"r");
+    if(nFile==NULL)
+      printf("Could not open Xaxis.dat file\n");
     for(i=0;i<Nx;i+=1)
       fscanf(nFile,"%lf",&(X[i]));
     fclose(nFile); nFile=NULL;
 
     sprintf(filename,"%s/Yaxis.dat",folder);
     nFile=fopen(filename,"r");
+    if(nFile==NULL)
+      printf("Could not open Yaxis.dat file\n");
     for(i=0;i<Ny;i+=1)
       fscanf(nFile,"%lf",&(Y[i]));
     fclose(nFile); nFile=NULL;
@@ -534,12 +569,16 @@ int readAxis(int Nx,int Ny,int Nz,int planeType,
   else if(planeType==1){
     sprintf(filename,"%s/Zaxis.dat",folder);
     nFile=fopen(filename,"r");
+    if(nFile==NULL)
+      printf("Could not open Zaxis.dat file\n");
     for(i=0;i<Ny;i+=1)
       fscanf(nFile,"%lf",&(X[i]));
     fclose(nFile); nFile=NULL;
 
     sprintf(filename,"%s/Yaxis.dat",folder);
     nFile=fopen(filename,"r");
+    if(nFile==NULL)
+      printf("Could not open Yaxis.dat file\n");
     for(i=0;i<Nx;i+=1)
       fscanf(nFile,"%lf",&(Y[i]));
     fclose(nFile); nFile=NULL;
@@ -547,12 +586,16 @@ int readAxis(int Nx,int Ny,int Nz,int planeType,
   else if(planeType==2){
     sprintf(filename,"%s/Zaxis.dat",folder);
     nFile=fopen(filename,"r");
+    if(nFile==NULL)
+      printf("Could not open Zaxis.dat file\n");
     for(i=0;i<Nx;i+=1)
       fscanf(nFile,"%lf",&(X[i]));
     fclose(nFile); nFile=NULL;
 
     sprintf(filename,"%s/Xaxis.dat",folder);
     nFile=fopen(filename,"r");
+    if(nFile==NULL)
+      printf("Could not open Xaxis.dat file\n");
     for(i=0;i<Ny;i+=1)
       fscanf(nFile,"%lf",&(Y[i]));
     fclose(nFile); nFile=NULL;
