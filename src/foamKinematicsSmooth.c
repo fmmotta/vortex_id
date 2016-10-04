@@ -483,42 +483,6 @@ int main(int argc,char **argv){
     
   dbgPrint(22,0);
 
-  /*
-  if(X!=NULL){ free(X); X=NULL}
-  if(Y!=NULL) free(Y);
-  if(Xbuff!=NULL) free(Xbuff);
-  if(Ybuff!=NULL) free(Ybuff);
-  if(Xload!=NULL) free(Xload);
-  if(Yload!=NULL) free(Yload);
-  if(Zload!=NULL) free(Zload);
-  if(Xsuff!=NULL) free(Xsuff);
-  if(Ysuff!=NULL) free(Ysuff);
-  if(node !=NULL) free(node);
-  if(label!=NULL) free(label);
-  if(uField!=NULL) free(uField);
-  if(uFilt!=NULL) free(uFilt);
-  if(uSubtr!=NULL) free(uSubtr);
-  if(uBuff!=NULL) free(uBuff);
-  if(uSuff!=NULL) free(uSuff);
-  if(background!=NULL) free(background);
-  if(sField!=NULL) free(sField); 
-  if(sSubtr!=NULL) free(sSubtr);
-  if(gField!=NULL)  free(gField);
-  if(g2Field!=NULL) free(g2Field);
-  if(ux!=NULL) free(ux);
-  if(uy!=NULL) free(uy);
-  if(uxxx!=NULL) free(uxxx);
-  if(uyyy!=NULL) free(uyyy);
-  if(uxxy!=NULL) free(uxxy);
-  if(uxyy!=NULL) free(uxyy);
-  if(wBkg!=NULL) free(wBkg);
-  if(avgGradU!=NULL) free(avgGradU);
-  if(vortSndMomMatrix!=NULL) free(vortSndMomMatrix);
-  if(uVort!=NULL) free(uVort);
-  if(parVortex!=0) free(parVortex);
-  if(vCatalog!=NULL) free(vCatalog);
-  if(rCatalog!=NULL) free(rCatalog);*/
-
   sfree(X); sfree(Y);
   sfree(Xbuff); sfree(Ybuff);
   sfree(Xload); sfree(Yload); sfree(Zload);

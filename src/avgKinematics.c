@@ -8,7 +8,7 @@ int main(int argc,char **argv){
   const int Nbins=100;
   int k,err;
   int numGp[Nbins+1],numRcp[Nbins+1],numGn[Nbins+1],numRcn[Nbins+1],count=0;
-  double y0=0.,y1=1.0,dy=0.;
+  double y0=-0.95,y1=-0.5,dy=0.;
   double G,rc,x,y,u,v;
   double avgGp[Nbins+1],avgRcp[Nbins+1],avgGn[Nbins+1],avgRcn[Nbins+1];
   double avgWp[Nbins+1],avgWn[Nbins+1];
