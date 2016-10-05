@@ -10,12 +10,17 @@ int initConfig(configVar *cfg){
   cfg->Gmin=0.; cfg->Gmax =0.; cfg->RcMin=0.; cfg->RcMax=0.;
   cfg->hNG=0; cfg->hNRc=0; cfg->hNa=0; cfg->hNb=0; cfg->hNN=0;
   cfg->Nx=0;cfg->Ny=0;cfg->Nz=0;cfg->pType=0;cfg->pIndex=0;
+  cfg->jhtdb_iT=0,cfg->jhtdb_Tw=0;
+  cfg->jhtdb_Raw_iX=0,cfg->jhtdb_Raw_iY=0,cfg->jhtdb_Raw_iZ=0;
+  cfg->jhtdb_Raw_Xw=0,cfg->jhtdb_Raw_Yw=0,cfg->jhtdb_Raw_Zw=0;
+  cfg->jhtdb_t0=0.0,  cfg->jhtdb_dt=0.0,  cfg->jhtdb_tf=0.0;
   cfg->planeNum=0; 
   cfg->calcMode=-1; cfg->FOAMfolder=NULL;
   cfg->Glist=NULL; cfg->Rclist=NULL; 
   cfg->swThresh=0.; cfg->sndSwThresh=0.; cfg->cutoff=0.;
   cfg->genFile=NULL; cfg->tag=NULL; cfg->pln=NULL;
-  cfg->folder=NULL; cfg->bkgFile=NULL;  
+  cfg->folder=NULL; cfg->bkgFile=NULL; 
+  cfg->jhtdb_authToken=NULL,cfg->jhtdb_dataset=NULL; cfg->jhtdb_folder=NULL;
 
   return 0;
 }
@@ -25,11 +30,14 @@ int freeConfig(configVar *cfg){
   cfg->runType=-1; cfg->seed=0; cfg->dim=2; cfg->adaptive=0;
   cfg->numG =0; cfg->numRc =0; cfg->hNmax=0; cfg->adaptive=0;
   cfg->Gmin=0.; cfg->Gmax =0.; cfg->RcMin=0.; cfg->RcMax=0.;
-  cfg->swThresh=0.; cfg->sndSwThresh=0.; cfg->cutoff=0.;
+  cfg->swThresh=0.; cfg->sndSwThresh=0.; cfg->cutoff=0.;cfg->planeNum=0; 
   cfg->hNG=0; cfg->hNRc=0; cfg->hNa=0; cfg->hNb=0; cfg->hNN=0;
   cfg->Nx=0;cfg->Ny=0;cfg->Nz=0;cfg->pType=0;cfg->pIndex=0;
   cfg->Nsnapshots=0; cfg->t0 = 0.; cfg->dt=0.; cfg->calcMode-=-1;
-  cfg->planeNum=0; 
+  cfg->jhtdb_iT=0,    cfg->jhtdb_Tw=0;
+  cfg->jhtdb_Raw_iX=0,cfg->jhtdb_Raw_iY=0,cfg->jhtdb_Raw_iZ=0;
+  cfg->jhtdb_Raw_Xw=0,cfg->jhtdb_Raw_Yw=0,cfg->jhtdb_Raw_Zw=0;
+  cfg->jhtdb_t0=0.0,  cfg->jhtdb_dt=0.0,  cfg->jhtdb_tf=0.0;
   
 
   if(cfg->Glist!=NULL)
@@ -48,11 +56,20 @@ int freeConfig(configVar *cfg){
     free(cfg->FOAMfolder);
   if(cfg->bkgFile!=NULL)
     free(cfg->bkgFile);
+  if(cfg->jhtdb_authToken!=NULL)
+    free(cfg->jhtdb_authToken);
+  if(cfg->jhtdb_dataset!=NULL)
+    free(cfg->jhtdb_dataset);
+  if(cfg->jhtdb_folder!=NULL)
+    free(cfg->jhtdb_folder);
 
   cfg->Glist=NULL; cfg->Rclist=NULL; 
   cfg->genFile=NULL; cfg->tag=NULL;
   cfg->folder=NULL;cfg->FOAMfolder=NULL;
   cfg->pln=NULL; cfg->bkgFile=NULL;
+  cfg->jhtdb_authToken=NULL;
+  cfg->jhtdb_dataset=NULL;
+  cfg->jhtdb_folder=NULL;
 
   return 0;  
 }
@@ -192,11 +209,40 @@ int vortexIdHandler(void* user, const char* section,
     vConfig->t0=atof(value);
   else if(MATCH("openFOAM","dt"))
     vConfig->dt=atof(value);
+  else if(MATCH("JHTDB","iT"))
+    vConfig->jhtdb_iT=atoi(value);
+  else if(MATCH("JHTDB","Tw"))
+    vConfig->jhtdb_Tw=atoi(value);
+  else if(MATCH("JHTDB","Raw_iX"))
+    vConfig->jhtdb_Raw_iX=atoi(value);
+  else if(MATCH("JHTDB","Raw_iY"))
+    vConfig->jhtdb_Raw_iY=atoi(value);
+  else if(MATCH("JHTDB","Raw_iZ"))
+    vConfig->jhtdb_Raw_iZ=atoi(value);
+  else if(MATCH("JHTDB","Raw_Xw"))
+    vConfig->jhtdb_Raw_Xw=atoi(value);
+  else if(MATCH("JHTDB","Raw_Yw"))
+    vConfig->jhtdb_Raw_Yw=atoi(value);
+  else if(MATCH("JHTDB","Raw_Zw"))
+    vConfig->jhtdb_Raw_Zw=atoi(value);
+  else if(MATCH("JHTDB","t0"))
+    vConfig->jhtdb_t0=atof(value);
+  else if(MATCH("JHTDB","dt"))
+    vConfig->jhtdb_dt=atof(value);
+  else if(MATCH("JHTDB","tf"))
+    vConfig->jhtdb_tf=atof(value);
+  else if(MATCH("JHTDB","authentication-token"))
+    vConfig->jhtdb_authToken=strdup(value);
+  else if(MATCH("JHTDB","dataset"))
+    vConfig->jhtdb_dataset=strdup(value);
+  else if(MATCH("JHTDB","folder"))
+    vConfig->jhtdb_folder=strdup(value);
   else 
     return 0;  /* unknown section/name, error */
 
   return 1; /* returns sucess */
 }
+
 
 int printConfig(configVar *cfg){
   int k;
@@ -225,9 +271,9 @@ int printConfig(configVar *cfg){
       printf("%f ",cfg->Rclist[k]);
     printf("\n");
   }
-  printf("Vertical Shear: %f\n",cfg->v0y0);
+  printf("Vertical Shear:%f\n",cfg->v0y0);
 
-  printf("\nRuntime Info: \n");
+  printf("\nRuntime Info:\n");
   printf("type: %d\n",cfg->runType);
   printf("mode: %d\n",cfg->calcMode);
   printf("tag: %s\n",cfg->tag);
@@ -237,13 +283,13 @@ int printConfig(configVar *cfg){
   printf("Results Folder : %s\n",cfg->folder);
   printf("Background File : %s\n",cfg->bkgFile);
 
-  printf("\nReconstruction-Info: \n");
+  printf("\nReconstruction-Info:\n");
   printf("Adaptive: %d\n",cfg->adaptive);
   printf("Circulation Minimum Cutoff: %f\n",cfg->cutoff);
   printf("Swirling Strength Threshold: %f\n",cfg->swThresh);
   printf("2nd Swirling Strength Threshold: %f\n",cfg->swThresh);
 
-  printf("\nHistogram Parameters\n");
+  printf("\nHistogram Parameters:\n");
   printf("Number of G bins: %d\n",cfg->hNG);
   printf("Number of Rc bins: %d\n",cfg->hNRc);
   printf("Number of a bins: %d\n",cfg->hNa);
@@ -253,7 +299,7 @@ int printConfig(configVar *cfg){
   printf("Rc Interval: [%.f , %f)\n",cfg->hRcMin,cfg->hRcMax);
   printf("N max value: %d\n",cfg->hNmax);
 
-  printf("\nOpenFOAM parameters\n");
+  printf("\nOpenFOAM parameters:\n");
   printf("OpenFOAM folder: %s\n",cfg->FOAMfolder);
   printf("OpenFOAM Nx : %d\n",cfg->Nx);
   printf("OpenFOAM Ny : %d\n",cfg->Ny);
@@ -268,6 +314,22 @@ int printConfig(configVar *cfg){
   printf("Number of Snapshots: %d\n",cfg->Nsnapshots);
   printf("Initial Time: %f\n",cfg->t0);
   printf("Time step: %f\n",cfg->dt);
+
+  printf("\nJHU Turbulence Database parameters:");
+  printf("JHUTDB folder: %s\n",cfg->jhtdb_folder);
+  printf("JHUTDB dataset: %s\n",cfg->jhtdb_dataset);
+  printf("JHUTDB authentication-token: %s\n",cfg->jhtdb_authToken);
+  printf("JHUTDB t0: %lf\n",cfg->jhtdb_t0);
+  printf("JHUTDB dt: %lf\n",cfg->jhtdb_dt);
+  printf("JHUTDB tf: %lf\n",cfg->jhtdb_tf);
+  printf("JHUTDB iT: %d\n",cfg->jhtdb_iT);
+  printf("JHUTDB Tw: %d\n",cfg->jhtdb_Tw);
+  printf("JHUTDB Raw_iX: %d\n",cfg->jhtdb_Raw_iX);
+  printf("JHUTDB Raw_iY: %d\n",cfg->jhtdb_Raw_iY);
+  printf("JHUTDB Raw_iZ: %d\n",cfg->jhtdb_Raw_iZ);
+  printf("JHUTDB Raw_Xw: %d\n",cfg->jhtdb_Raw_Xw);
+  printf("JHUTDB Raw_Yw: %d\n",cfg->jhtdb_Raw_Yw);
+  printf("JHUTDB Raw_Zw: %d\n",cfg->jhtdb_Raw_Zw);
 
   return 0;
 }

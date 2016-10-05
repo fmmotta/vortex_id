@@ -10,6 +10,12 @@ typedef struct configVar {
   double swThresh, sndSwThresh,cutoff,v0y0;
   double hGmin,hGmax,hRcMin,hRcMax,t0,dt;
   char *genFile,*tag,*folder,*FOAMfolder,*bkgFile;
+  
+  int jhtdb_iT,jhtdb_Tw;
+  int jhtdb_Raw_iX,jhtdb_Raw_iY,jhtdb_Raw_iZ;
+  int jhtdb_Raw_Xw,jhtdb_Raw_Yw,jhtdb_Raw_Zw;
+  double jhtdb_t0,jhtdb_dt,jhtdb_tf;
+  char *jhtdb_authToken,*jhtdb_dataset,*jhtdb_folder;
 } configVar;
 
 int initConfig(configVar *cfg);

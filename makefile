@@ -4,7 +4,7 @@
 # Compiler Choice : Gnu C Compiler ; Can change for icc
 # optional CFLAGS: -Wconversion -Wall
 CC = gcc
-INC_DIR = -Isrc -Isrc/inih -Isrc/jhu
+INC_DIR = -Isrc -Isrc/inih -Isrc/jhu -Isrc/jhtdb
 CFLAGS = -c -Wall -O3 $(INC_DIR) 
 LIBS = -lm -lgsl -lgslcblas
 
@@ -49,6 +49,9 @@ fieldSpectra: fieldSpectra.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexE
 vortexHistogram: vortexHistogram.o lambdaInit.o floodFill.o vortexGen.o mt64.o vortexExtraction.o ini.o inputManager.o essayHandler.o stencilExtended.o vortexExtractionExtend.o preprocessing.o
 	$(CC) -o bin/$@ $(patsubst %.o,obj/%.o,$^) $(LIBS)
 
+jhtdbRawDownload: ini.o inputManager.o soapC.o soapClient.o stdsoap2.o turblib.o jhtdbRawDownload.o
+	$(CC) -o bin/$@ $(patsubst %.o,obj/%.o,$^) $(LIBS)
+
 test_XtoXbuffMirror: test_XtoXbuffMirror.o fieldSmoothing.o
 	$(CC) -o bin/$@ $(patsubst %.o,obj/%.o,$^) $(LIBS)
 
@@ -65,6 +68,9 @@ test_gaussianFilterNonUniform: test_gaussianFilterNonUniform.o fieldSmoothing.o
 	$(CC) $(CFLAGS) $^ -o obj/$@
 
 %.o: src/tests/%.c
+	$(CC) $(CFLAGS) $^ -o obj/$@
+
+%.o: src/jhtdb/%.c
 	$(CC) $(CFLAGS) $^ -o obj/$@
 
 ini.o: src/inih/ini.c
