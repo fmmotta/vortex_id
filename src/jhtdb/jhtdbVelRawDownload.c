@@ -12,7 +12,7 @@
 #include "turblib.h"
 #include "inputManager.h"
 
-#define DEBUG_PRINT true
+#define DEBUG_PRINT false
 
 #define dbgPrint(num,num2) if(DEBUG_PRINT) printf("check point - %d-%d\n",(num),(num2))
 
