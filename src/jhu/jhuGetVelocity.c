@@ -5,7 +5,7 @@
 #include "turblib.h"
 
 int main(int argc,char** argv){
-  int i,j,k,n,N=10,Ntimes=4000,Nx,Ny,Nz,dN;
+  int i,j,k,n,N=10,Ntimes=1,Nx,Ny,Nz,dN;
   char *authtoken = "com.gmail.jhelsas-b854269a";
   char *dataset = "channel";
   float time0 = 0.0F,dt=0.0065,t,time1=6.5;//0.364F;
@@ -26,9 +26,9 @@ int main(int argc,char** argv){
     return 2;
   }
 
-  Nx = 301;
-  Ny = 172;
-  Nz = 10;
+  Nx = 16;
+  Ny = 16;
+  Nz = 1;
 
   N = Nx * Ny * Nz;
 
@@ -36,12 +36,12 @@ int main(int argc,char** argv){
   float (*velocity)[3] = malloc(N*sizeof(*velocity));  
   float (*avgVelocity)[3] = malloc((N/Nz)*sizeof(*avgVelocity));  
     
-  y0=-1+0.5; yf=-1+0.0;
+  y0=-1+0.05; yf=-1+0.5;
   x0=0;       xf=M_PI/4;
   z0=0;       zf=M_PI;
   dN = 10;
-  dx = (xf-x0)/((float) (Nx-1));
-  dy = (yf-y0)/((float) (Ny-1));
+  dx = (xf-x0)/((float) Nx);
+  dy = (yf-y0)/((float) Ny);
   if(Nz > 1)
     dz = (zf-z0)/((float) (Nz-1));
   else

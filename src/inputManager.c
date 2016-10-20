@@ -14,6 +14,8 @@ int initConfig(configVar *cfg){
   cfg->jhtdb_Raw_iX=0,cfg->jhtdb_Raw_iY=0,cfg->jhtdb_Raw_iZ=0;
   cfg->jhtdb_Raw_Xw=0,cfg->jhtdb_Raw_Yw=0,cfg->jhtdb_Raw_Zw=0;
   cfg->jhtdb_t0=0.0,  cfg->jhtdb_dt=0.0,  cfg->jhtdb_tf=0.0;
+  cfg->jhtdb_x0=0.0,  cfg->jhtdb_y0=0.0,  cfg->jhtdb_z0=0.0;
+  cfg->jhtdb_dx=0.0,  cfg->jhtdb_dy=0.0,  cfg->jhtdb_dz=0.0; 
   cfg->planeNum=0; 
   cfg->calcMode=-1; cfg->FOAMfolder=NULL;
   cfg->Glist=NULL; cfg->Rclist=NULL; 
@@ -38,6 +40,8 @@ int freeConfig(configVar *cfg){
   cfg->jhtdb_Raw_iX=0,cfg->jhtdb_Raw_iY=0,cfg->jhtdb_Raw_iZ=0;
   cfg->jhtdb_Raw_Xw=0,cfg->jhtdb_Raw_Yw=0,cfg->jhtdb_Raw_Zw=0;
   cfg->jhtdb_t0=0.0,  cfg->jhtdb_dt=0.0,  cfg->jhtdb_tf=0.0;
+  cfg->jhtdb_x0=0.0,  cfg->jhtdb_y0=0.0,  cfg->jhtdb_z0=0.0;
+  cfg->jhtdb_dx=0.0,  cfg->jhtdb_dy=0.0,  cfg->jhtdb_dz=0.0; 
   
 
   if(cfg->Glist!=NULL)
@@ -231,6 +235,18 @@ int vortexIdHandler(void* user, const char* section,
     vConfig->jhtdb_dt=atof(value);
   else if(MATCH("JHTDB","tf"))
     vConfig->jhtdb_tf=atof(value);
+  else if(MATCH("JHTDB","x0"))
+    vConfig->jhtdb_x0=atof(value);
+  else if(MATCH("JHTDB","y0"))
+    vConfig->jhtdb_y0=atof(value);
+  else if(MATCH("JHTDB","z0"))
+    vConfig->jhtdb_z0=atof(value);
+  else if(MATCH("JHTDB","dx"))
+    vConfig->jhtdb_dx=atof(value);
+  else if(MATCH("JHTDB","dy"))
+    vConfig->jhtdb_dy=atof(value);
+  else if(MATCH("JHTDB","dz"))
+    vConfig->jhtdb_dz=atof(value);
   else if(MATCH("JHTDB","authentication-token"))
     vConfig->jhtdb_authToken=strdup(value);
   else if(MATCH("JHTDB","dataset"))
@@ -315,7 +331,7 @@ int printConfig(configVar *cfg){
   printf("Initial Time: %f\n",cfg->t0);
   printf("Time step: %f\n",cfg->dt);
 
-  printf("\nJHU Turbulence Database parameters:");
+  printf("\nJHU Turbulence Database parameters:\n");
   printf("JHUTDB folder: %s\n",cfg->jhtdb_folder);
   printf("JHUTDB dataset: %s\n",cfg->jhtdb_dataset);
   printf("JHUTDB authentication-token: %s\n",cfg->jhtdb_authToken);
@@ -330,6 +346,12 @@ int printConfig(configVar *cfg){
   printf("JHUTDB Raw_Xw: %d\n",cfg->jhtdb_Raw_Xw);
   printf("JHUTDB Raw_Yw: %d\n",cfg->jhtdb_Raw_Yw);
   printf("JHUTDB Raw_Zw: %d\n",cfg->jhtdb_Raw_Zw);
+  printf("JHUTDB x0: %lf\n",cfg->jhtdb_x0);
+  printf("JHUTDB xf: %lf\n",cfg->jhtdb_dx);
+  printf("JHUTDB y0: %lf\n",cfg->jhtdb_y0);
+  printf("JHUTDB yf: %lf\n",cfg->jhtdb_dy);
+  printf("JHUTDB z0: %lf\n",cfg->jhtdb_z0);
+  printf("JHUTDB zf: %lf\n",cfg->jhtdb_dz);
 
   return 0;
 }

@@ -52,6 +52,9 @@ vortexHistogram: vortexHistogram.o lambdaInit.o floodFill.o vortexGen.o mt64.o v
 jhtdbVelRawDownload: ini.o inputManager.o soapC.o soapClient.o stdsoap2.o turblib.o jhtdbVelRawDownload.o
 	$(CC) -o bin/$@ $(patsubst %.o,obj/%.o,$^) $(LIBS)
 
+jhtdbVelDownload: ini.o inputManager.o soapC.o soapClient.o stdsoap2.o turblib.o jhtdbVelDownload.o
+	$(CC) -o bin/$@ $(patsubst %.o,obj/%.o,$^) $(LIBS)
+
 test_XtoXbuffMirror: test_XtoXbuffMirror.o fieldSmoothing.o
 	$(CC) -o bin/$@ $(patsubst %.o,obj/%.o,$^) $(LIBS)
 
