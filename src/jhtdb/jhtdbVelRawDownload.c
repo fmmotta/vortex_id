@@ -32,7 +32,8 @@ int main(int argc,char **argv){
   FILE *dataout;
   float *rawData;
   float t0,dt,tf,t;
-  int iT=0,Tw=0,n,err=0,p;
+  const int chkWidth=32;
+  int iT=0,Tw=0,n,err=0,p,chunk;
   int iX=0,iY=0,iZ=0,Xw=0,Yw=0,Zw=0;
   char filename[400+1],authtoken[400+1];
   char dataset[400+1],jhtdbFolder[400+1];
@@ -102,19 +103,27 @@ int main(int argc,char **argv){
       printf("rawData=%p\n",rawData);
       printf("---------------------------\n");
     }
-    if(DEBUG_PRINT){
-      printf("authtoken = %s\n",authtoken);
-      printf("dataset = %s\n",dataset);
-      printf("t = %lf\n",t);
-      printf("start = (%d,%d,%d)\n",iX,iY,iZ);
-      printf("width = (%d,%d,%d)\n",Xw,Yw,Zw);
+
+    for(chunk=0;chunk<(Zw/chkWidth);chunk+=1){
+      err=getRawVelocity(authtoken,dataset,t,iX,iY,iZ+chunk*chkWidth,
+                        Xw,Yw,chkWidth,(char*)(rawData+Xw*Yw*chkWidth*iZ) );
+      dbgPrint(3,3);
+      if(err!=0){
+        printf("Problem executing getRawVelocity: t=%lf (n=%d)\n",t,n);
+        break;
+      }
     }
-    err=getRawVelocity(authtoken,dataset,t,iX,iY,iZ,Xw,Yw,Zw,(char*)rawData);
-    dbgPrint(3,3);
-    if(err!=0){
-      printf("Problem executing getRawVelocity: t=%lf (n=%d)\n",t,n);
-      break;
+    if( Zw-chkWidth*(Zw/chkWidth) > 0){
+      err=getRawVelocity(authtoken,dataset,t,iX,iY,iZ+chkWidth*(Zw/chkWidth),
+                        Xw,Yw,Zw-chkWidth*(Zw/chkWidth),
+                        (char*)(rawData+Xw*Yw*chkWidth*(Zw/chkWidth)) );
+      dbgPrint(3,3);
+      if(err!=0){
+        printf("Problem executing getRawVelocity: t=%lf (n=%d)\n",t,n);
+        break;
+      }
     }
+    
     dbgPrint(3,4);
     sprintf(filename,"%s/slice-%d.dat",jhtdbFolder,n);
     dbgPrint(3,5);
