@@ -105,6 +105,7 @@ int main(int argc,char **argv){
     }
 
     for(chunk=0;chunk<(Zw/chkWidth);chunk+=1){
+      printf("chunk = %d\n");
       err=getRawVelocity(authtoken,dataset,t,iX,iY,iZ+chunk*chkWidth,
                         Xw,Yw,chkWidth,(char*)(rawData+Xw*Yw*chkWidth*iZ) );
       dbgPrint(3,3);
@@ -114,6 +115,7 @@ int main(int argc,char **argv){
       }
     }
     if( Zw-chkWidth*(Zw/chkWidth) > 0){
+      printf("tail-chunck - %d\n",Zw-chkWidth*(Zw/chkWidth))
       err=getRawVelocity(authtoken,dataset,t,iX,iY,iZ+chkWidth*(Zw/chkWidth),
                         Xw,Yw,Zw-chkWidth*(Zw/chkWidth),
                         (char*)(rawData+Xw*Yw*chkWidth*(Zw/chkWidth)) );
