@@ -12,7 +12,7 @@
 #include "turblib.h"
 #include "inputManager.h"
 
-#define DEBUG_PRINT false
+#define DEBUG_PRINT true
 
 #define dbgPrint(num,num2) if(DEBUG_PRINT) printf("check point - %d-%d\n",(num),(num2))
 
@@ -101,6 +101,13 @@ int main(int argc,char **argv){
       printf("W = (%d,%d,%d)\n",Xw,Yw,Zw);
       printf("rawData=%p\n",rawData);
       printf("---------------------------\n");
+    }
+    if(DEBUG_PRINT){
+      printf("authtoken = %s\n",authtoken);
+      printf("dataset = %s\n",dataset);
+      printf("t = %lf\n",t);
+      printf("start = (%d,%d,%d)\n",iX,iY,iZ);
+      printf("width = (%d,%d,%d)\n",Xw,Yw,Zw);
     }
     err=getRawVelocity(authtoken,dataset,t,iX,iY,iZ,Xw,Yw,Zw,(char*)rawData);
     dbgPrint(3,3);
