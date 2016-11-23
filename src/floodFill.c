@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <search.h>
 #include <string.h>
 #include "floodFill.h"
 
@@ -234,4 +235,106 @@ int renameLabels(int Height,int Width,int *label){
         label[i*Width+j] = labelTag[label[i*Width+j]];
 
   return counter;
+}
+
+
+int iterFloodFill(int  Height,int  Width,double *sField,int  *buffer,int  *label){
+  int  rank,size;
+  int  i,j,k,counter,flip,err,nbList[2*8];
+  int  neighbours,minLabel,iter,*source,*target;
+
+  counter = 0;
+  for(i=0;i<Height;i+=1)
+    for(j=0;j<Width;j+=1)
+      if(sField[i*Width+j]>0){
+        label[i*Width+j] = counter;
+        counter += 1;
+      }
+
+  iter = 0;
+
+  do{
+    flip = false;
+
+    if(iter%2==0){
+      source = label;
+      target = buffer;
+    }else{
+      source = buffer;
+      target = label;
+    }
+
+    for(i=0;i<Height;i+=1)
+      for(j=0;j<Width;j+=1){
+        if(source[i*Width+j]>=0){
+          minLabel = source[i*Width+j];
+          neighbours = check_neighbours(Height,Width,i,j,source,nbList);
+          
+          for(k=0;k<neighbours;k+=1)
+            minLabel = fmind(source[nbList[2*k+0]*Width+nbList[2*k+1]],minLabel);
+
+          target[i*Width+j] = minLabel;
+
+          if(target[i*Width+j] != source[i*Width+j])
+            flip = true;
+
+        }
+      }
+
+    iter += 1;
+  }while(flip);
+
+  return 0;
+}
+
+int cmpfunc (const void * a, const void * b)
+{
+   return ( *(int *)a - *(int *)b );
+}
+
+int iterRenameLabels(int  Height,int  Width,int  nkeys,int  *key,
+                      int  *buffer,int  *label)
+{
+  int  i,j,k,cap;
+  long int data;
+  char keyname[41];
+  ENTRY e,*ep;
+  //hsearch_data *htab;
+  
+  qsort(buffer,Height*Width,sizeof(int ),cmpfunc);
+  
+  cap = 0;
+  for(i=0;i<(Height*Width-1);i+=1){
+    if(buffer[i]!=buffer[i+1]){
+      key[cap] = buffer[i+1];
+      cap += 1;
+    }
+  }
+
+  hcreate(cap);
+  cap = 0;
+  for(i=0;i<(Height*Width-1);i+=1){
+    if(buffer[i]!=buffer[i+1]){
+      sprintf(keyname,"%d",buffer[i+1]);
+      e.key = strdup(keyname);
+      data = (long int) cap;
+      e.data = (void*) data;
+      cap += 1;
+
+      ep=hsearch(e,ENTER);//,htab)
+    }
+  }
+  
+  for(i=0;i<Height*Width;i+=1){
+    if(label[i]>=0){
+      sprintf(keyname,"%d",label[i]);
+      e.key = strdup(keyname);
+      ep=hsearch(e,FIND);//,&ep,htab);
+      data = (long int)(ep->data);
+      label[i] = (int ) data;
+    }
+  }
+  
+  hdestroy();
+  return 0;
 }
