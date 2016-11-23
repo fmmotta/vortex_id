@@ -96,7 +96,8 @@ int checkEqClass(int eqClass[][NumCls],int eqPop[],int counter){
 
 int floodFill(double *sField,int Width,int Height,int **eqClass,int *label){
   int i,j,k,counter=0;
-  int found,err,neighbours,nbList[8],minLabel,label2k;
+  int found,err,neighbours,nbList[8],minLabel,label2k; //HOLY CRAP, isso e um bug!!
+                                                       //Alterar esse codigo ASAP
   //int eqClass[NumCls][NumCls]; // valgrind may be complaining about this
   //int **eqClass; // vai tomar no cú, isso deu certo ¬¬
   int eqPop[NumCls];
