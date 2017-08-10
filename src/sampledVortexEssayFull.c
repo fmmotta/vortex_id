@@ -38,7 +38,7 @@
 int main(int argc,char **argv){
   long long int seed=98755;
   int Width = 100, Height = 100,nVortex=5,nFixVortex=5,nRuns=1000;
-  int runType=0,genType=0,numG=3,numRc=3,*label=NULL,**eqClass=NULL;
+  int runType=0,genType=0,numG=3,numRc=3,*label=NULL,*buffer,**eqClass=NULL;
   int hNG=50,hNRc=53,hNa=40,hNb=40,hNN=10, calcScalarMode=0,dataSize;
   int i,j,err,nCnect=0,rCnect=0,n,nMax=1024,padWidth=2,mCnect=0.;
   double Gmin=1.,Gmax=20.,rmin=0.5,rmax=1.0,threshold=0.5;
@@ -234,6 +234,7 @@ int main(int argc,char **argv){
   fieldAlloc(gField ,4*Height*Width,double);
   fieldAlloc(g2Field,4*Height*Width,double);
   fieldAlloc(label,Height*Width,int);
+  fieldAlloc(buffer,Height*Width,int);
   fieldAlloc(uField,2*Height*Width,double);
   fieldAlloc(uSubtr,2*Height*Width,double);
   fieldAlloc(  ux  ,2*Height*Width,double);
@@ -491,6 +492,9 @@ int main(int argc,char **argv){
       label[i]=-1;
 
     dbgPrint(15,5);
+    
+    /***********************************************/
+    /*
     err = floodFill(sField,Width,Height,eqClass,label);
     if(err!=0)
       printf("Problems in floodFill\n");
@@ -500,7 +504,21 @@ int main(int argc,char **argv){
       nCnect=err;
     else
       printf("problems with renameLabels - %d\n",err);
-    
+    */
+    /**********************************************/
+
+    err = iterFloodFill(Height,Width,sField,buffer,label);
+    if(err!=0)
+      printf("Problems in iterFloodFill\n");
+
+    err = iterRenameLabels(Height,Width,nkeys,key,buffer,label);
+    if(err>0)
+      nCnect=err;
+    else
+      printf("problems with iterRenameLabels - %d\n",err);
+
+    /**********************************************/
+
     dbgPrint(15,6);
 
     if((n%1000==0) && PRINT_MODE){

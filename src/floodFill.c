@@ -3,6 +3,7 @@
 #include <math.h>
 #include <search.h>
 #include <string.h>
+#include <stdbool.h>
 #include "floodFill.h"
 
 int fmind(int a,int b){
@@ -239,8 +240,7 @@ int renameLabels(int Height,int Width,int *label){
 
 
 int iterFloodFill(int  Height,int  Width,double *sField,int  *buffer,int  *label){
-  int  rank,size;
-  int  i,j,k,counter,flip,err,nbList[2*8];
+  int  i,j,k,counter,flip,nbList[2*8];
   int  neighbours,minLabel,iter,*source,*target;
 
   counter = 0;
@@ -268,7 +268,7 @@ int iterFloodFill(int  Height,int  Width,double *sField,int  *buffer,int  *label
       for(j=0;j<Width;j+=1){
         if(source[i*Width+j]>=0){
           minLabel = source[i*Width+j];
-          neighbours = check_neighbours(Height,Width,i,j,source,nbList);
+          neighbours = check_neighbours(i,j,source,Width,Height,nbList);//check_neighbours(Height,Width,i,j,source,nbList);
           
           for(k=0;k<neighbours;k+=1)
             minLabel = fmind(source[nbList[2*k+0]*Width+nbList[2*k+1]],minLabel);
@@ -295,7 +295,7 @@ int cmpfunc (const void * a, const void * b)
 int iterRenameLabels(int  Height,int  Width,int  nkeys,int  *key,
                       int  *buffer,int  *label)
 {
-  int  i,j,k,cap;
+  int  i,cap;
   long int data;
   char keyname[41];
   ENTRY e,*ep;
@@ -336,5 +336,5 @@ int iterRenameLabels(int  Height,int  Width,int  nkeys,int  *key,
   }
   
   hdestroy();
-  return 0;
+  return cap;
 }

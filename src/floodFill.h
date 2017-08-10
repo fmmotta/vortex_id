@@ -23,4 +23,4 @@ int renameLabels(int Height,int Width,int *label);
 
 int iterFloodFill(int Height,int Width,double *sField,int *buffer,int *label);
 
-int iterRenameLabels(int Height,int Width,int nkeys,int *key,int *buffer,int *label)
+int iterRenameLabels(int Height,int Width,int nkeys,int *key,int *buffer,int *label);
