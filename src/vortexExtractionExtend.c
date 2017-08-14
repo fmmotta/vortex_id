@@ -33,8 +33,8 @@ void vortexAdaptiveQuickSort(double *v,int nCnect,int size,
   vortexAdaptiveQuickSort(v+size*i,nCnect-i,size,cmp);
 }
 
-inline int add_dgradU(int Height,int Width, int i,int j,int ik,int jk,
-                      double *gField,double dgradU[][2],double X[],double Y[])
+int add_dgradU(int Height,int Width, int i,int j,int ik,int jk,
+               double *gField,double dgradU[][2],double X[],double Y[])
 {
   double da;
 
@@ -113,8 +113,8 @@ inline int add_dgradU(int Height,int Width, int i,int j,int ik,int jk,
   return 0;
 }
 
-inline int add_dxdy(int Height,int Width, int i,int j,int ik,int jk,
-                    double *gField,double *dx,double *dy,double X[],double Y[])
+int add_dxdy(int Height,int Width, int i,int j,int ik,int jk,
+             double *gField,double *dx,double *dy,double X[],double Y[])
 {
   double da;
   if((i+ik<0) || (i+ik)>=Height){
@@ -192,8 +192,8 @@ inline int add_dxdy(int Height,int Width, int i,int j,int ik,int jk,
   return 0;
 }
 
-inline int add_dA(int Height,int Width, int i,int j,int k,int ik,int jk,
-                  double *gField,int *label,double *dA,double X[],double Y[])
+int add_dA(int Height,int Width, int i,int j,int k,int ik,int jk,
+           double *gField,int *label,double *dA,double X[],double Y[])
 {
   double da;
 
@@ -351,9 +351,9 @@ int vortexExtFromVortCurv(int Height,int Width, int nCnect,double *X,double *Y,
   return 0;
 }
 
-inline int add_dx2dy2(int Height,int Width, int i,int j,int ik,int jk,
-                      double *gField,double *XX,double *XY,double *YX,
-                      double *YY,double X[],double Y[])
+int add_dx2dy2(int Height,int Width, int i,int j,int ik,int jk,
+               double *gField,double *XX,double *XY,double *YX,
+               double *YY,double X[],double Y[])
 {
   double da;
   if((i+ik<0) || (i+ik)>=Height){
@@ -469,9 +469,9 @@ inline int add_dx2dy2(int Height,int Width, int i,int j,int ik,int jk,
   return 0;
 }
 
-inline int add_dx2dy2w2(int Height,int Width, int i,int j,int ik,int jk,
-                        double *gField,double *XX,double *XY,double *YX,
-                        double *YY,double X[],double Y[])
+int add_dx2dy2w2(int Height,int Width, int i,int j,int ik,int jk,
+                 double *gField,double *XX,double *XY,double *YX,
+                 double *YY,double X[],double Y[])
 {
   double w2=0.,da;
 
@@ -688,7 +688,7 @@ int extractSecondMoment(int Height,int Width, int nCnect,double *X,double *Y,
   return 0;
 }
 
-inline int add_dxdyw2(int Height,int Width, int i,int j,int ik,int jk,
+int add_dxdyw2(int Height,int Width, int i,int j,int ik,int jk,
                       double *gField,double *dx,double *dy,double X[],double Y[])
 {
   double w2,da;
@@ -779,7 +779,7 @@ inline int add_dxdyw2(int Height,int Width, int i,int j,int ik,int jk,
   return 0;
 }
 
-inline int add_w2(int Height,int Width, int i,int j,int ik,int jk,
+int add_w2(int Height,int Width, int i,int j,int ik,int jk,
                   double *gField,double *w2out,double X[],double Y[])
 {
   double w2,da;
@@ -860,7 +860,7 @@ inline int add_w2(int Height,int Width, int i,int j,int ik,int jk,
   return 0;
 }
 
-inline int add_wBkg(int Height,int Width, int i,int j,int ik,int jk,
+int add_wBkg(int Height,int Width, int i,int j,int ik,int jk,
                     double *wBkg,double *wBkgOut,double X[],double Y[])
 {
   double da;
@@ -1384,7 +1384,7 @@ int extLambOseenParams(int Height,int Width, int nCnect,double *X,double *Y,
   return 0;
 }
 
-inline int add_UVw2(int Height,int Width, int i,int j,int ik,int jk,
+int add_UVw2(int Height,int Width, int i,int j,int ik,int jk,
                     double *uField,double *gField,double *u,double *v,
                     double X[],double Y[])
 {

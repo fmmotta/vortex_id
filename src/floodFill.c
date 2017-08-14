@@ -100,6 +100,7 @@ int floodFill(double *sField,int Width,int Height,int **eqClass,int *label){
   int i,j,k,counter=0;
   int found,err,neighbours,nbList[2*8],minLabel,label2k; //HOLY CRAP, isso e um bug!!
                                                          //Alterar esse codigo ASAP
+                                                         //Status: Fixed by turning 8 -> 2*8
   //int eqClass[NumCls][NumCls]; // valgrind may be complaining about this
   //int **eqClass; // vai tomar no cú, isso deu certo ¬¬
   int eqPop[NumCls];
