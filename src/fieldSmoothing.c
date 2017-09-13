@@ -488,7 +488,6 @@ int gaussianFilterNonUniform(int Height,int Width,int padWidth,
           uFilt[2*(i*Width+j)+0] += u;
           uFilt[2*(i*Width+j)+1] += v;
           norm += nm;
-
           
           // -------------------------------
           //  X-, Y+ region
