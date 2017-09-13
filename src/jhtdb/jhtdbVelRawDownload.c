@@ -125,7 +125,8 @@ int main(int argc,char **argv){
     }
     
     dbgPrint(3,4);
-    sprintf(filename,"%s/slice-%d.dat",jhtdbFolder,n);
+    sprintf(filename,"%s/slice-(%d,%d,%d)-(%d,%d,%d)-%d.dat",jhtdbFolder,
+                                                          iX,iY,iZ,Xw,Yw,Zw,n);
     dbgPrint(3,5);
     dataout=fopen(filename,"w");
     dbgPrint(3,5);
