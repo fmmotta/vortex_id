@@ -257,7 +257,7 @@ int main(int argc,char **argv){
 
   dbgPrint(14,2);
 
-  sprintf(filename,"%s/vortices.dat",folder);
+  sprintf(filename,"%s/vortices-%s.dat",folder,tag);
   vortexFile = fopen(filename,"w");
 
   dbgPrint(14,3);
