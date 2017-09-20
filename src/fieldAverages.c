@@ -20,8 +20,8 @@
 #include "inputManager.h"
 #include "essayHandler.h"
 
-#define DEBUG_MODE false
-#define DEBUG_PRINT false
+#define DEBUG_MODE true
+#define DEBUG_PRINT true
 #define SUBTRACTION_MODE false
 
 #define dbgPrint(num,num2) if(DEBUG_PRINT) printf("check point - %d-%d\n",(num),(num2))
