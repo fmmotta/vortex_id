@@ -205,6 +205,8 @@ int main(int argc,char **argv){
   dbgPrint(14,0);
   
   err=readAxis(Nx,Ny,Nz,planeType,folder,X,Y);
+  if(err!=0)
+    print("Problems in readAxis\n");
 
   dbgPrint(14,1);
 
