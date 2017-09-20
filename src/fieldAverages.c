@@ -48,7 +48,7 @@ int main(int argc,char **argv){
   int i,j,l,err,n,padWidth=2;//,k;
   double Gmin=1.,Gmax=20.,rmin=0.5,rmax=1.0,threshold=0.5;
   double xmin[2]={-9.,-9.},xmax[2]={9.,9.},x0[2],dx[2],xf[2];
-  double t,t0,dt;
+  double t,t0,dt,w;
   double *gField=NULL,*uField=NULL,*uSubtr,*X,*Y,*wBkg,*background;
   double *uBuff=NULL,*Xbuff=NULL,*Ybuff=NULL,*ux=NULL,*uy=NULL;
   double *uAvg=NULL,*u2Avg=NULL,*eps=NULL,*epsSub=NULL,*epsPerp=NULL,*epsPerpSub=NULL;
@@ -275,9 +275,11 @@ int main(int argc,char **argv){
       if(DEBUG_PRINT)
         printf("plane =%d\n",pln[l]);
 
-      if(planeType==0)      sprintf(filename,"%s/plane-z%d-%g.dat",folder,pln[l],t);
-      else if(planeType==1) sprintf(filename,"%s/plane-x%d-%g.dat",folder,pln[l],t);
-      else if(planeType==2) sprintf(filename,"%s/plane-y%d-%g.dat",folder,pln[l],t);
+      //if(planeType==0)      sprintf(filename,"%s/plane-z%d-%g.dat",folder,pln[l],t);
+      //else if(planeType==1) sprintf(filename,"%s/plane-x%d-%g.dat",folder,pln[l],t);
+      //else if(planeType==2) sprintf(filename,"%s/plane-y%d-%g.dat",folder,pln[l],t);
+
+      sprintf(filename,"%s/slice-(0,0,%d)-(2048,512,1)-%d.dat",folder,pln[l],n)
       
       dadosin=fopen(filename,"r");
       if(dadosin==NULL){
@@ -293,7 +295,7 @@ int main(int argc,char **argv){
         
       for(i=0;i<Height;i+=1)
         for(j=0;j<Width;j+=1)
-          fscanf(dadosin,"%lf%lf",&(uField[2*(i*Width+j)+0]),&(uField[2*(i*Width+j)+1]));
+          fscanf(dadosin,"%lf%lf%lf",&(uField[2*(i*Width+j)+0]),&(uField[2*(i*Width+j)+1]),&w);
       fclose(dadosin);
         
       if(openFoamFile!=0)
