@@ -271,6 +271,7 @@ int main(int argc,char **argv){
     for(i=0;i<Height;i+=1)
       for(j=0;j<Width;j+=1){
         fscanf(dadosField,"%lf %lf",&Ux,&Uy);
+        printf("read velocity %lf %lf\n",Ux,Uy);
         background[2*(i*Width+j)+0] = Ux;
         background[2*(i*Width+j)+1] = Uy;
       }
