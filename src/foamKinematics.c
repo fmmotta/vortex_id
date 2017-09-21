@@ -20,8 +20,8 @@
 #include "inputManager.h"
 #include "essayHandler.h"
 
-#define DEBUG_MODE true
-#define DEBUG_PRINT true
+#define DEBUG_MODE false
+#define DEBUG_PRINT false
 #define SUBTRACTION_MODE true
 
 #define dbgPrint(num,num2) if(DEBUG_PRINT) printf("check point - %d-%d\n",(num),(num2))
@@ -271,7 +271,6 @@ int main(int argc,char **argv){
     for(i=0;i<Height;i+=1)
       for(j=0;j<Width;j+=1){
         fscanf(dadosField,"%lf %lf",&Ux,&Uy);
-        printf("read velocity %lf %lf\n",Ux,Uy);
         background[2*(i*Width+j)+0] = Ux;
         background[2*(i*Width+j)+1] = Uy;
       }
