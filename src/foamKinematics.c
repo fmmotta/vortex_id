@@ -306,7 +306,7 @@ int main(int argc,char **argv){
       //else if(planeType==2) sprintf(filename,"%s/plane-y%d-%g.dat",folder,pln[l],t);
 
       sprintf(filename,"%s/slice-(0,0,%d)-(2048,512,1)-%d.dat",folder,pln[l],n);
-
+      
       dadosin=fopen(filename,"r");
       if(dadosin==NULL){
         openFoamFile=1;
