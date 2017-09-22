@@ -396,8 +396,9 @@ int main(int argc,char **argv){
       err = renameLabels(Height,Width,NumCls,labelTag,label);
       if(err>0){
         nCnect=err;
-        print(nCnect);
-      }else
+        printf("nCnect = %d\n",nCnect);
+      }
+      else
         printf("problems with renameLabels - %d\n",err);
 
       dbgPrint(15,9);
