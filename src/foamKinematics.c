@@ -244,6 +244,15 @@ int main(int argc,char **argv){
   dbgPrint(14,0);
   
   err=readAxis(Nx,Ny,Nz,planeType,folder,X,Y);
+  if(DEBUG_MODE){
+    for(i=0;i<Height;i+=1)
+      printf("%lf\n",Y[i]);
+    printf("\n");
+
+    for(j=0;j<Width;j+=1)
+      printf("%lf\n",X[j]);
+    printf("\n");
+  }
 
   dbgPrint(14,1);
 
