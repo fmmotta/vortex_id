@@ -20,8 +20,8 @@
 #include "inputManager.h"
 #include "essayHandler.h"
 
-#define DEBUG_MODE false
-#define DEBUG_PRINT false
+#define DEBUG_MODE true
+#define DEBUG_PRINT true
 #define SUBTRACTION_MODE true
 
 #define dbgPrint(num,num2) if(DEBUG_PRINT) printf("check point - %d-%d\n",(num),(num2))
@@ -456,6 +456,8 @@ int main(int argc,char **argv){
   if(vCatalog!=NULL) free(vCatalog);
   if(rCatalog!=NULL) free(rCatalog);
 
+  dbgPrint(23,0);
+ 
   for(i=0;i<NumCls;i+=1)
     free(eqClass[i]);
   free(eqClass);
