@@ -58,6 +58,9 @@ jhtdbVelDownload: ini.o inputManager.o soapC.o soapClient.o stdsoap2.o turblib.o
 test_XtoXbuffMirror: test_XtoXbuffMirror.o fieldSmoothing.o
 	$(CC) -o bin/$@ $(patsubst %.o,obj/%.o,$^) $(LIBS)
 
+test_floodFill: test_floodFill.o floodFill.o
+	$(CC) -o bin/$@ $(patsubst %.o,obj/%.o,$^) $(LIBS)
+
 test_uTouBuffMirror: test_uTouBuffMirror.o fieldSmoothing.o
 	$(CC) -o bin/$@ $(patsubst %.o,obj/%.o,$^) $(LIBS)
 

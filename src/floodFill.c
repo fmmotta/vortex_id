@@ -97,7 +97,7 @@ int checkEqClass(int eqClass[][NumCls],int eqPop[],int counter){
 }
 
 int floodFill(double *sField,int Width,int Height,int **eqClass,int *label){
-  int i,j,k,counter=0;
+  int i,j,k,counter=0,lmin;
   int found,err,neighbours,nbList[2*8],minLabel,label2k; //HOLY CRAP, isso e um bug!!
                                                          //Alterar esse codigo ASAP
                                                          //Status: Fixed by turning 8 -> 2*8
@@ -108,7 +108,7 @@ int floodFill(double *sField,int Width,int Height,int **eqClass,int *label){
   for(i=0;i<NumCls;i+=1){
     eqPop[i]= 0;
     for(j=0;j<NumCls;j+=1)
-      eqClass[i][j] = 0;
+      eqClass[i][j] = -1;
   }
 
   for(i=0;i<Height*Width;i+=1)
@@ -171,7 +171,8 @@ int floodFill(double *sField,int Width,int Height,int **eqClass,int *label){
    * forget it, probably artefact of a bad
    * initial state
    */ 
-   
+  
+  /*
   int loopCount=0;
   do{
     err=0;
@@ -194,9 +195,22 @@ int floodFill(double *sField,int Width,int Height,int **eqClass,int *label){
         }
       }
     }
-  }while(err!=0);
+  }while(err!=0);*/
+
+  for(i=0;i<counter;i+=1){
+    lmin = i;
+    for(j=0;j<counter;j+=1){
+      found = eqClass[i][j];
+      if(found == -1)
+        break;
+      if(found < lmin)
+        lmin = found;
+    }
+    eqClass[i][0] = eqClass[lmin][0];
+  }
   
   //Main flood fill loop - 2nd pass
+  /*
   for(i=0;i<Height;i+=1)
     for(j=0;j<Width;j+=1)
       if(label[i*Width+j]>=0){
@@ -205,6 +219,13 @@ int floodFill(double *sField,int Width,int Height,int **eqClass,int *label){
         for(k=1;k<eqPop[found];k+=1)
           minLabel=fmind(minLabel,eqClass[found][k]);
         label[i*Width+j]=minLabel;
+      }*/
+
+  for(i=0;i<Height;i+=1)
+    for(j=0;j<Width;j+=1)
+      if(label[i*Width+j]>=0){
+        found = label[i*Width+j];
+        label[i*Width+j]=eqClass[found][0];
       }
 
   return 0;

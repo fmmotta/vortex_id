@@ -87,7 +87,7 @@ int main(int argc,char **argv){
       return(i+2);
   }
   
-  err = floodFill(sField,Width,Height,eqClass,label);
+  err = floodFill(sField0,Width,Height,eqClass,label);
   err = renameLabels(Width,Height,label);
 
   printf("\nsField:\n");
@@ -105,7 +105,7 @@ int main(int argc,char **argv){
     printf("\n");
   }
   
-  err = floodFill(sField,Width,Height,eqClass,label);
+  err = floodFill(sField1,Width,Height,eqClass,label);
   err = renameLabels(Width,Height,label);
 
   printf("\nsField:\n");
@@ -123,7 +123,7 @@ int main(int argc,char **argv){
     printf("\n");
   }
   
-  err = floodFill(sField,Width,Height,eqClass,label);
+  err = floodFill(sField2,Width,Height,eqClass,label);
   err = renameLabels(Width,Height,label);
 
   printf("\nsField:\n");
@@ -141,7 +141,7 @@ int main(int argc,char **argv){
     printf("\n");
   }
   
-  err = floodFill(sField,Width,Height,eqClass,label);
+  err = floodFill(sField3,Width,Height,eqClass,label);
   err = renameLabels(Width,Height,label);
 
   printf("\nsField:\n");
@@ -159,7 +159,7 @@ int main(int argc,char **argv){
     printf("\n");
   }
   
-  err = floodFill(sField,Width,Height,eqClass,label);
+  err = floodFill(sField4,Width,Height,eqClass,label);
   err = renameLabels(Width,Height,label);
 
   printf("\nsField:\n");
@@ -177,7 +177,7 @@ int main(int argc,char **argv){
     printf("\n");
   }
 
-  err = floodFill(sField,Width,Height,eqClass,label);
+  err = floodFill(sField5,Width,Height,eqClass,label);
   err = renameLabels(Width,Height,label);
 
   printf("\nsField:\n");
