@@ -74,6 +74,7 @@ int main(int argc,char **argv){
   ///////////////
 
   NumCls = 65536;
+  nMax = NumCls;
 
   dataSize = 6;//6;
 
