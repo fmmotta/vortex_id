@@ -48,8 +48,9 @@ int foamCalcScalar(int runType,int calcScalarMode,int Height,int Width,
 
 int main(int argc,char **argv){
   //double cutoff; int rCnet=0;
-  int Width = 100, Height = 100, Depth,nFixVortex=5;
+  int Width = 100, Height = 100, Depth,nFixVortex=5,NumCls=2048;
   int dataSize=12,runType=0,*label=NULL,**eqClass=NULL,nSkip=0;
+  int *eqPop, *labelTag;
   int Nsnapshots=0,openFoamFile=0;
   int Nx,Ny,Nz,planeIndex,planeType,planeNum=0,pln[8128];
   int i,j,l,err,nCnect=0,n,nMax=1024,padWidth=2,calcScalarMode;//,k;
@@ -65,6 +66,12 @@ int main(int argc,char **argv){
   FILE *vortexFile,*dadosin;
   configVar cfg;
   openFoamIcoData *node=NULL; 
+  ///////////////
+  int iT=0,Tw=0,chunk;
+  int iX=0,iY=0,iZ=0,Xw=0,Yw=0,Zw=0;
+  char authtoken[400+1];
+  char dataset[400+1],jhtdbFolder[400+1];
+  ///////////////
 
   dataSize = 6;//6;
 
@@ -126,18 +133,29 @@ int main(int argc,char **argv){
        if(planeType==0){ Height = Ny; Width = Nx; Depth = Nz; }
   else if(planeType==1){ Height = Ny; Width = Nz; Depth = Nx; }
   else if(planeType==2){ Height = Nz; Width = Nx; Depth = Ny; }
+  else if(planeType==3){ Height = Yw; Width = Xw; Depth = 1 ; }
+  else if(planeType==4){ Height = Yw; Width = Zw; Depth = 1 ; }
+  else if(planeType==5){ Height = Zw; Width = Xw; Depth = 1 ; }
   else{ printf("error, non-recognized plane type\n"); return -15; }
 
   if(planeIndex<0)
     printf("Switching to plane number list\n");
 
-  if(planeIndex>=Depth)
+  if(planeIndex>Depth)
     printf("Out of bounds plane\n");
 
   if(cfg.Nx == 0 || cfg.Ny == 0 || cfg.Nz == 0){
     printf("error, incompatible dimension sizes\n");
     return -16;
   }
+
+  /// JHU data
+
+  iX = cfg.jhtdb_Raw_iX; iY = cfg.jhtdb_Raw_iY; iZ = cfg.jhtdb_Raw_iZ;
+  Xw = cfg.jhtdb_Raw_Xw; Yw = cfg.jhtdb_Raw_Yw; Zw = cfg.jhtdb_Raw_Zw;
+  //strcpy(dataset,cfg.jhtdb_dataset);
+  //strcpy(jhtdbFolder,cfg.jhtdb_folder); 
+  //strcpy(authtoken,cfg.jhtdb_authToken);
 
   /* Loading Configuration -- I need something more concise */
 
@@ -230,7 +248,15 @@ int main(int argc,char **argv){
     eqClass[i]=(int*)malloc(NumCls*sizeof(int));
     if(eqClass[i]==NULL)
       return(i+2);
-  }  
+  }
+  
+  eqPop = (int*)malloc(NumCls*sizeof(int));
+  if(eqPop==NULL)
+    return 1;
+
+  labelTag = (int*)malloc(NumCls*sizeof(int));
+  if(labelTag==NULL)
+    return 1;
   
   dbgPrint(13,0);
 
@@ -310,11 +336,12 @@ int main(int argc,char **argv){
       if(DEBUG_PRINT)
         printf("plane =%d\n",pln[l]);
 
-      //if(planeType==0)      sprintf(filename,"%s/plane-z%d-%g.dat",folder,pln[l],t);
-      //else if(planeType==1) sprintf(filename,"%s/plane-x%d-%g.dat",folder,pln[l],t);
-      //else if(planeType==2) sprintf(filename,"%s/plane-y%d-%g.dat",folder,pln[l],t);
-
-      sprintf(filename,"%s/slice-(0,0,%d)-(2048,512,1)-%d.dat",folder,pln[l],n);
+      if(planeType==0)      sprintf(filename,"%s/plane-z%d-%g.dat",folder,pln[l],t);
+      else if(planeType==1) sprintf(filename,"%s/plane-x%d-%g.dat",folder,pln[l],t);
+      else if(planeType==2) sprintf(filename,"%s/plane-y%d-%g.dat",folder,pln[l],t);
+      else if(planeType==3) sprintf(filename,"%s/slice-(%d,%d,%d)-(%d,%d,%d)-%d.dat",folder,iX,iY,pln[l],Xw,Yw,Zw,n);
+      else if(planeType==4) sprintf(filename,"%s/slice-(%d,%d,%d)-(%d,%d,%d)-%d.dat",folder,iX,pln[l],iZ,Xw,Yw,Zw,n);
+      else if(planeType==5) sprintf(filename,"%s/slice-(%d,%d,%d)-(%d,%d,%d)-%d.dat",folder,pln[l],iY,iZ,Xw,Yw,Zw,n);
       
       dadosin=fopen(filename,"r");
       if(dadosin==NULL){
@@ -360,11 +387,11 @@ int main(int argc,char **argv){
       for(i=0;i<Height*Width;i+=1)
         label[i]=-1;
 
-      err = floodFill(sField,Width,Height,eqClass,label);
+      err = floodFill(sField,Width,Height,NumCls,eqClass,eqPop,label);
       if(err!=0)
         printf("Problems in floodFill\n");
 
-      err = renameLabels(Height,Width,label);
+      err = renameLabels(Height,Width,NumCls,labelTag,label);
       if(err>0)
         nCnect=err;
       else

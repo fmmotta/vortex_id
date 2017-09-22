@@ -102,7 +102,8 @@ int vortexExtraction(int Height,int Width, int nCnect,
 }
 
 int vortexExtSimple(int Height,int Width,double *x0, double *dx,
-                    int **eqClass,double *sField,double *gField,int *label,
+                    int NumCls,int **eqClass,int *eqPop,int*labelTag,
+                    double *sField,double *gField,int *label,
                     double threshold,int *nCnectOut,double **vCatalogOut){
   
   int i,err=0,nCnect=0;
@@ -116,11 +117,11 @@ int vortexExtSimple(int Height,int Width,double *x0, double *dx,
   if(err!=0)
     return err;
  
-  err = floodFill(sField,Width,Height,eqClass,label);
+  err = floodFill(sField,Width,Height,NumCls,eqClass,eqPop,label);
   if(err!=0)
     return err;
 
-  err = renameLabels(Height,Width,label);
+  err = renameLabels(Height,Width,NumCls,labelTag,label);
   if(err>0)
     nCnect=err;
   else
@@ -230,7 +231,8 @@ int greaterRadius(const double *v,const double *p){
     return 0;
 }
 
-int vortexExtRecursive(int Height,int Width,double *x0, double *dx,int **eqClass,
+int vortexExtRecursive(int Height,int Width,double *x0, double *dx,
+                       int NumCls,int **eqClass,int *eqPop,int *labelTag,
                        double *sField,double *gField,int *label, double threshold, 
                        double *vCatalog, int *rCnectOut,double **rCatalogOut){
   int i=0,err=0,pass=0,rCnect=0,nCnect=0,it=0;
@@ -251,11 +253,11 @@ int vortexExtRecursive(int Height,int Width,double *x0, double *dx,int **eqClass
     if(err!=0)
       return err;
   
-    err = floodFill(sField,Width,Height,eqClass,label);
+    err = floodFill(sField,Width,Height,NumCls,eqClass,eqPop,label);
     if(err!=0)
       return err;
 
-    err = renameLabels(Height,Width,label);
+    err = renameLabels(Height,Width,NumCls,labelTag,label);
     if(err>0){
       nCnect=err;
     }

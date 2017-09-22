@@ -69,7 +69,7 @@ int fprintVortex(FILE *dadosout, int run,int datasize,
 
   for(i=0;i<nVortex;i+=1){
     for(j=0;j<datasize;j+=1)
-      fprintf(dadosout,"%f ",vCatalog[datasize*i+j]);
+      fprintf(dadosout,"%.10f ",vCatalog[datasize*i+j]);
     fprintf(dadosout,"\n");
   }
 

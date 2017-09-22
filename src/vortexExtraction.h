@@ -4,13 +4,15 @@ int vortexExtraction(int Height,int Width, int nCnect,
 	                 double *gField,int *label,double **vCatalogOut);
 
 int vortexExtSimple(int Height,int Width,double *x0, double *dx,
-                    int **eqClass,double *sField,double *gField,int *label,
+                    int NumCls,int **eqClass,int *eqPop,int *labelTag,
+                    double *sField,double *gField,int *label,
                     double threshold,int *nCnectOut,double **vCatalogOut);
 
 void vortexQuickSort(double *v,int nCnect,
                      int cmp(const double*,const double*));
 
-int vortexExtRecursive(int Height,int Width,double *x0, double *dx,int **eqClass,
+int vortexExtRecursive(int Height,int Width,double *x0, double *dx,
+                       int NumCls, int **eqClass,int *eqPop,int *labelTag,
                        double *sField,double *gField,int *label, double threshold, 
                        double *vCatalog, int *rCnectOut,double **rCatalogOut);
 

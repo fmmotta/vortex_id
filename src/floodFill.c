@@ -80,7 +80,7 @@ int findEq(int element,int *eqList,int pop){
   return -1;
 }
 
-int checkEqClass(int eqClass[][NumCls],int eqPop[],int counter){
+int checkEqClass(int **eqClass,int *eqPop,int counter){
   int i,j,k,found;
   
   for(i=0;i<counter;i+=1){
@@ -96,14 +96,15 @@ int checkEqClass(int eqClass[][NumCls],int eqPop[],int counter){
   return 0;
 }
 
-int floodFill(double *sField,int Width,int Height,int **eqClass,int *label){
+int floodFill(double *sField,int Width,int Height,int NumCls,
+              int **eqClass,int *eqPop,int *label){
   int i,j,k,counter=0,lmin;
   int found,err,neighbours,nbList[2*8],minLabel,label2k; //HOLY CRAP, isso e um bug!!
                                                          //Alterar esse codigo ASAP
                                                          //Status: Fixed by turning 8 -> 2*8
   //int eqClass[NumCls][NumCls]; // valgrind may be complaining about this
   //int **eqClass; // vai tomar no cú, isso deu certo ¬¬
-  int eqPop[NumCls];
+  //int eqPop[NumCls];
 
   for(i=0;i<NumCls;i+=1){
     eqPop[i]= 0;
@@ -231,9 +232,10 @@ int floodFill(double *sField,int Width,int Height,int **eqClass,int *label){
   return 0;
 }
 
-int renameLabels(int Height,int Width,int *label){
+int renameLabels(int Height,int Width,int NumCls,
+                 int *labelTag,int *label){
   int i,j,counter=0;
-  int labelTag[NumCls];
+  //int labelTag[NumCls];
   
   if((Height<=0)||(Width<=0))
     return -1;
