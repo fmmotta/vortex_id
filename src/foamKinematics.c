@@ -102,6 +102,14 @@ int main(int argc,char **argv){
     printf("Dimension is not 2 - Can't Follow\n");
     return 2;
   }
+
+  /// JHU data
+
+  iX = cfg.jhtdb_Raw_iX; iY = cfg.jhtdb_Raw_iY; iZ = cfg.jhtdb_Raw_iZ;
+  Xw = cfg.jhtdb_Raw_Xw; Yw = cfg.jhtdb_Raw_Yw; Zw = cfg.jhtdb_Raw_Zw;
+  //strcpy(dataset,cfg.jhtdb_dataset);
+  //strcpy(jhtdbFolder,cfg.jhtdb_folder); 
+  //strcpy(authtoken,cfg.jhtdb_authToken);
   
   /**** OpenFOAM parameters setting *****/
   
@@ -150,14 +158,6 @@ int main(int argc,char **argv){
     printf("error, incompatible dimension sizes\n");
     return -16;
   }
-
-  /// JHU data
-
-  iX = cfg.jhtdb_Raw_iX; iY = cfg.jhtdb_Raw_iY; iZ = cfg.jhtdb_Raw_iZ;
-  Xw = cfg.jhtdb_Raw_Xw; Yw = cfg.jhtdb_Raw_Yw; Zw = cfg.jhtdb_Raw_Zw;
-  //strcpy(dataset,cfg.jhtdb_dataset);
-  //strcpy(jhtdbFolder,cfg.jhtdb_folder); 
-  //strcpy(authtoken,cfg.jhtdb_authToken);
 
   /* Loading Configuration -- I need something more concise */
 
