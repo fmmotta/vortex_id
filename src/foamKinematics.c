@@ -394,9 +394,10 @@ int main(int argc,char **argv){
         printf("Problems in floodFill\n");
 
       err = renameLabels(Height,Width,NumCls,labelTag,label);
-      if(err>0)
+      if(err>0){
         nCnect=err;
-      else
+        print(nCnect);
+      }else
         printf("problems with renameLabels - %d\n",err);
 
       dbgPrint(15,9);
@@ -412,6 +413,7 @@ int main(int argc,char **argv){
         printf("problems in extLambOseenParams\n");
         return err;
       }
+
 
       dbgPrint(15,11);   
       
