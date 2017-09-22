@@ -73,6 +73,8 @@ int main(int argc,char **argv){
   char dataset[400+1],jhtdbFolder[400+1];
   ///////////////
 
+  NumCls = 65536;
+
   dataSize = 6;//6;
 
   if(argc!=2){
