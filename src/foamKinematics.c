@@ -56,7 +56,7 @@ int main(int argc,char **argv){
   int i,j,l,err,nCnect=0,n,nMax=1024,padWidth=2,calcScalarMode;//,k;
   double Gmin=1.,Gmax=20.,rmin=0.5,rmax=1.0,threshold=0.5;
   double xmin[2]={-9.,-9.},xmax[2]={9.,9.},x0[2],dx[2],xf[2],*background;
-  double *parVortex=NULL,t,t0,dt;
+  double *parVortex=NULL,t,t0,dt,inUx,inUy;
   double *sField=NULL,*gField=NULL,*g2Field=NULL,*uField=NULL,*X,*Y,*wBkg;
   double *uBuff=NULL,*Xbuff=NULL,*Ybuff=NULL,*Xload=NULL,*Yload=NULL;
   double *Zload=NULL,*ux=NULL,*uy=NULL,*uxxy=NULL,*uxyy=NULL;
@@ -357,8 +357,12 @@ int main(int argc,char **argv){
       dbgPrint(15,31);
         
       for(i=0;i<Height;i+=1)
-        for(j=0;j<Width;j+=1)
-          fscanf(dadosin,"%lf%lf",&(uField[2*(i*Width+j)+0]),&(uField[2*(i*Width+j)+1]));
+        for(j=0;j<Width;j+=1){
+          fscanf(dadosin,"%lf%lf",&inUx,&inUy);
+          uField[2*(i*Width+j)+0] = inUy;
+          uField[2*(i*Width+j)+1] = inUx;
+
+        }
       fclose(dadosin);
         
       if(openFoamFile!=0)
