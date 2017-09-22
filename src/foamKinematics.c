@@ -512,7 +512,7 @@ int readAxis(int Nx,int Ny,int Nz,int planeType,
   char filename[400+1];
   FILE *nFile;
 
-  if(planeType==0){
+  if(planeType==0 || planeType==3){
     sprintf(filename,"%s/Xaxis.dat",folder);
     nFile=fopen(filename,"r");
     for(i=0;i<Nx;i+=1)
@@ -525,7 +525,7 @@ int readAxis(int Nx,int Ny,int Nz,int planeType,
       fscanf(nFile,"%lf",&(Y[i]));
     fclose(nFile); nFile=NULL;
   }
-  else if(planeType==1){
+  else if(planeType==1 || planeType==4){
     sprintf(filename,"%s/Zaxis.dat",folder);
     nFile=fopen(filename,"r");
     for(i=0;i<Ny;i+=1)
@@ -538,7 +538,7 @@ int readAxis(int Nx,int Ny,int Nz,int planeType,
       fscanf(nFile,"%lf",&(Y[i]));
     fclose(nFile); nFile=NULL;
   }
-  else if(planeType==2){
+  else if(planeType==2 || planeType==5){
     sprintf(filename,"%s/Zaxis.dat",folder);
     nFile=fopen(filename,"r");
     for(i=0;i<Nx;i+=1)
