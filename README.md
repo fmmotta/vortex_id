@@ -6,6 +6,9 @@
 
 Related publications: 
    - Elsas, J. H. and Moriconi. L. . Vortex identification from local properties of the vorticity field. Physics of Fluids 29, 015101 (2017);
+   
+---------------------------------------------------------------------------
+# Content 
 
 The objective of this code is to provide a way to systematically identify,
 count and raise statistics of vortical structures in turbulent flow.
@@ -14,9 +17,6 @@ The input is a 2D velocity field, which can either be a true 2D flow or a
 cross cut from a 3D velocity field. As of the present moment, this flows include
 synthetic 2D flows used to validate the identification part of the code and, 
 ongoing, input from openFOAM files.
-
----------------------------------------------------------------------------
-# Content 
 
 ### Vortex_Id needs the following libraries and programs installed in your system
 
