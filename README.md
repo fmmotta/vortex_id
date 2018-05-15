@@ -1,5 +1,11 @@
-Vortex_Id - A 2D vortex Identification Code
+# Vortex_Id - A 2D vortex Identification Code
 ===========================================
+
+## Author: José Hugo Elsas
+## Collaborator: Luca Moriconi 
+
+Related publications: 
+   - Elsas, J. H. and Moriconi. L. . Vortex identification from local properties of the vorticity field. Physics of Fluids 29, 015101 (2017);
 
 The objective of this code is to provide a way to systematically identify,
 count and raise statistics of vortical structures in turbulent flow.
@@ -10,8 +16,9 @@ synthetic 2D flows used to validate the identification part of the code and,
 ongoing, input from openFOAM files.
 
 ---------------------------------------------------------------------------
+# Content 
 
-Vortex_Id needs the following libraries and programs installed in your system
+### Vortex_Id needs the following libraries and programs installed in your system
 
    - Cmake
    - GSL  : Gnu Scientific Library
@@ -19,11 +26,10 @@ Vortex_Id needs the following libraries and programs installed in your system
    - numpy & matplotlib : python array and ploting libraries
    - A C99 compliant compiler (gcc 4.8.4 and icc 16.0.0 were tested)
 
-Instalation instructions:
--------------------------
+### Instalation instructions:
 
-   * Create folders named obj (for .o files), bin (for executables) and data (for results)
-   * run make for main essay executable or main <executable> for the executable of your choice
-   * If everything went well, everything should compile, even with some warnings it is not problematic.
-   * All executables are stored on the bin folder
+   - Create folders named obj (for .o files), bin (for executables) and data (for results)
+   - run make for main essay executable or main <executable> for the executable of your choice
+   - If everything went well, everything should compile, even with some warnings it is not problematic.
+   - All executables are stored on the bin folder
 
