@@ -33,3 +33,6 @@ ongoing, input from openFOAM files.
    - If everything went well, everything should compile, even with some warnings it is not problematic.
    - All executables are stored on the bin folder
 
+Obs:
+
+    In case makefile don't work, try creating a obj folder on the home directory. It's necessary to store the .o files temporarely
